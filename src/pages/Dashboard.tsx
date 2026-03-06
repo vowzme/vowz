@@ -343,7 +343,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Site settings */}
-                <div className="bg-card border border-border/50 rounded-2xl p-6">
+                <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
                   <h2 className="font-display text-xl font-bold text-foreground mb-4">Site Settings</h2>
                   <div className="space-y-4">
                     <div>
