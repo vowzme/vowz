@@ -1,7 +1,9 @@
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Heart, Calendar, MapPin, Sparkles, ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWeddingSite } from "@/hooks/use-wedding-site";
 
 interface WeddingData {
   partner1: string;
@@ -15,6 +17,36 @@ interface WeddingData {
 }
 
 const WizardPreview = ({ data }: { data: WeddingData }) => {
+  const { createSite } = useWeddingSite();
+  const savedRef = useRef(false);
+  const [siteId, setSiteId] = useState<string | null>(null);
+
+  // Auto-save the site to the database on first render
+  useEffect(() => {
+    if (savedRef.current) return;
+    savedRef.current = true;
+
+    const sections = data.functions.map((fn) => ({
+      type: "event",
+      title: fn,
+      date: "",
+      time: "",
+      venue: "",
+    }));
+
+    createSite({
+      partner1: data.partner1,
+      partner2: data.partner2,
+      culturalBackground: data.culturalBackground,
+      howWeMet: data.howWeMet,
+      theme: data.theme,
+      tagline: data.tagline,
+      suggestedColors: data.suggestedColors,
+      sections,
+    }).then((site) => {
+      if (site) setSiteId(site.id);
+    });
+  }, []);
   const [bg, accent, light] = data.suggestedColors.length >= 3
     ? data.suggestedColors
     : ["#6B1D2A", "#D4A853", "#FFF5E6"];
@@ -37,8 +69,8 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
               </p>
             </div>
           </div>
-          <Button variant="gold" size="sm" asChild>
-            <Link to="/editor" state={{ wizardData: data }}>
+           <Button variant="gold" size="sm" asChild>
+            <Link to={siteId ? `/editor/${siteId}` : "/editor"} state={{ wizardData: data }}>
               Customize in Editor <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </Button>
@@ -155,7 +187,7 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
           <Button variant="gold" size="lg" asChild>
-            <Link to="/editor" state={{ wizardData: data }}>
+            <Link to={siteId ? `/editor/${siteId}` : "/editor"} state={{ wizardData: data }}>
               <Sparkles className="w-4 h-4 mr-2" />
               Customize & Publish
             </Link>
