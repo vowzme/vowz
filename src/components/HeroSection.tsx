@@ -61,7 +61,7 @@ const HeroSection = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="gold" size="xl" asChild>
-              <Link to="/signup">Create Your Wedding Site</Link>
+              <Link to="/auth">Create Your Wedding Site</Link>
             </Button>
             <Button variant="heroOutline" size="xl">
               View Templates
