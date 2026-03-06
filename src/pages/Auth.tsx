@@ -152,6 +152,14 @@ const Auth = () => {
                 </div>
               </div>
 
+              {isLogin && (
+                <div className="text-right -mt-2">
+                  <Link to="/forgot-password" className="text-xs text-accent hover:underline font-body">
+                    Forgot password?
+                  </Link>
+                </div>
+              )}
+
               <Button type="submit" variant="gold" size="lg" className="w-full font-body" disabled={loading}>
                 {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
                 <ArrowRight className="w-4 h-4 ml-1" />
