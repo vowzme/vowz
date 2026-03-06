@@ -78,13 +78,17 @@ const PublicSite = () => {
       el.setAttribute("content", content);
     };
 
+    const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?slug=${site.slug}`;
+
     setMeta("og:title", title);
     setMeta("og:description", description);
     setMeta("og:type", "website");
     setMeta("og:url", url);
+    setMeta("og:image", ogImageUrl);
     setMeta("twitter:card", "summary_large_image");
     setMeta("twitter:title", title);
     setMeta("twitter:description", description);
+    setMeta("twitter:image", ogImageUrl);
     setMeta("description", description);
 
     return () => {
