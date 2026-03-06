@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
