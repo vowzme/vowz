@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
+import { AnimatePresence as LightboxAnimatePresence } from "framer-motion";
+import Lightbox from "@/components/Lightbox";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import {
