@@ -978,7 +978,7 @@ function SectionRenderer({
   }
 
   if (type === "gallery") {
-    return <GalleryRenderer data={data} accent={accent} />;
+    return <GalleryRendererComponent data={data} accent={accent} />;
   }
 
   if (type === "rsvp") {
