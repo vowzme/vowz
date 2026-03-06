@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Heart, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,7 +31,7 @@ const Navbar = () => {
               {l.label}
             </a>
           ))}
-          <Button variant="gold" size="sm">Get Started</Button>
+          <Button variant="gold" size="sm" asChild><Link to="/signup">Get Started</Link></Button>
         </div>
 
         {/* Mobile toggle */}
@@ -59,7 +60,7 @@ const Navbar = () => {
                   {l.label}
                 </a>
               ))}
-              <Button variant="gold" size="sm" className="mt-2">Get Started</Button>
+              <Button variant="gold" size="sm" className="mt-2" asChild><Link to="/signup">Get Started</Link></Button>
             </div>
           </motion.div>
         )}

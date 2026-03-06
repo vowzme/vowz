@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 
@@ -20,8 +21,8 @@ const CTASection = () => {
             Join thousands of couples creating unforgettable wedding experiences.
             Start with AI — publish in minutes.
           </p>
-          <Button variant="gold" size="xl">
-            Create Your Free Wedding Site
+          <Button variant="gold" size="xl" asChild>
+            <Link to="/signup">Create Your Free Wedding Site</Link>
           </Button>
           <p className="mt-4 text-xs text-muted-foreground font-body">
             Trusted by 10,000+ Indian couples worldwide
