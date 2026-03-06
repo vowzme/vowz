@@ -205,7 +205,7 @@ const Dashboard = () => {
                     </p>
                   </div>
 
-                  <div className="p-6 flex flex-wrap gap-3">
+                  <div className="p-4 sm:p-6 flex flex-wrap gap-2 sm:gap-3">
                     <Button variant="gold" size="sm" asChild>
                       <Link to="/editor">
                         <Edit3 className="w-4 h-4 mr-1" /> Edit Site
