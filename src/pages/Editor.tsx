@@ -703,18 +703,12 @@ function SectionEditor({
       )}
 
       {type === "gallery" && (
-        <div>
-          <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
-          <Input
-            value={data.heading || ""}
-            onChange={(e) => onUpdateData({ heading: e.target.value })}
-            className="font-body"
-          />
-          <div className="mt-4 border-2 border-dashed border-border rounded-xl p-8 text-center">
-            <Image className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground font-body">Photo uploads coming soon</p>
-          </div>
-        </div>
+        <GalleryEditor
+          photos={(data.photos as GalleryPhoto[]) || []}
+          heading={data.heading || ""}
+          onUpdateHeading={(heading) => onUpdateData({ heading })}
+          onUpdatePhotos={(photos) => onUpdateData({ photos })}
+        />
       )}
 
       {type === "rsvp" && (
