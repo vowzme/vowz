@@ -425,9 +425,9 @@ function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => 
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="px-6 py-4">
-      <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+    <div className="px-4 sm:px-6 py-4">
+      <div className="flex items-start sm:items-center gap-3">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
           rsvp.attending ? "bg-emerald/10" : "bg-destructive/10"
         }`}>
           {rsvp.attending ? (
@@ -438,15 +438,25 @@ function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => 
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-body text-sm font-medium text-foreground truncate">{rsvp.guest_name}</p>
-          <p className="font-body text-xs text-muted-foreground">{rsvp.guest_email}</p>
+          <p className="font-body text-xs text-muted-foreground truncate">{rsvp.guest_email}</p>
+          <div className="flex items-center gap-2 mt-1 sm:hidden">
+            {rsvp.attending && (
+              <span className="font-body text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                {rsvp.guest_count} guest{rsvp.guest_count > 1 ? "s" : ""}
+              </span>
+            )}
+            <span className="font-body text-xs text-muted-foreground">
+              {new Date(rsvp.created_at).toLocaleDateString()}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {rsvp.attending && (
-            <span className="font-body text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+            <span className="font-body text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded hidden sm:inline">
               {rsvp.guest_count} guest{rsvp.guest_count > 1 ? "s" : ""}
             </span>
           )}
-          <span className="font-body text-xs text-muted-foreground">
+          <span className="font-body text-xs text-muted-foreground hidden sm:inline">
             {new Date(rsvp.created_at).toLocaleDateString()}
           </span>
           <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground p-1">
