@@ -67,6 +67,16 @@ function buildSections(data: WeddingSiteData): WeddingSection[] {
       },
     },
     {
+      id: "countdown",
+      type: "countdown",
+      title: "Countdown",
+      visible: true,
+      data: {
+        label: data.countdownLabel || "Days Until We Say 'I Do'",
+        date: "",
+      },
+    },
+    {
       id: "story",
       type: "story",
       title: "Our Story",
@@ -94,6 +104,30 @@ function buildSections(data: WeddingSiteData): WeddingSection[] {
       title: "Photo Gallery",
       visible: true,
       data: { heading: "Our Moments" },
+    },
+    {
+      id: "travel",
+      type: "travel",
+      title: "Travel & Stay",
+      visible: true,
+      data: data.travelInfo || {
+        heading: "Travel & Stay",
+        description: "We've arranged some lovely options for your stay.",
+        hotels: [
+          { name: "Hotel Placeholder", description: "Update with your hotel details", distance: "Near venue" },
+        ],
+        directions: "Directions and travel tips — update this with your venue details.",
+      },
+    },
+    {
+      id: "guestbook",
+      type: "guestbook",
+      title: "Wishes & Blessings",
+      visible: true,
+      data: {
+        heading: "Wishes & Blessings",
+        description: data.welcomeMessage || "Leave your heartfelt wishes for the couple!",
+      },
     },
     {
       id: "rsvp",
