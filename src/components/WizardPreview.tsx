@@ -69,8 +69,8 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
               </p>
             </div>
           </div>
-          <Button variant="gold" size="sm" asChild>
-            <Link to="/editor" state={{ wizardData: data }}>
+           <Button variant="gold" size="sm" asChild>
+            <Link to={siteId ? `/editor/${siteId}` : "/editor"} state={{ wizardData: data }}>
               Customize in Editor <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </Button>
