@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -151,6 +151,14 @@ const Auth = () => {
                   </button>
                 </div>
               </div>
+
+              {isLogin && (
+                <div className="text-right -mt-2">
+                  <Link to="/forgot-password" className="text-xs text-accent hover:underline font-body">
+                    Forgot password?
+                  </Link>
+                </div>
+              )}
 
               <Button type="submit" variant="gold" size="lg" className="w-full font-body" disabled={loading}>
                 {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
