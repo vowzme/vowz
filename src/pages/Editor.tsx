@@ -4,7 +4,7 @@ import { motion, AnimatePresence, Reorder } from "framer-motion";
 import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
-  Calendar, MapPin, ChevronDown, ChevronUp, Image
+  Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
