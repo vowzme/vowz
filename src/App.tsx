@@ -29,6 +29,7 @@ const AppRoutes = () => (
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
+    <Route path="/site/:slug" element={<PublicSite />} />
     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
     <Route path="*" element={<NotFound />} />
   </Routes>
