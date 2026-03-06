@@ -142,13 +142,13 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-5 sm:py-8">
         {/* Welcome */}
-        <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-foreground">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
             Welcome{profileData?.full_name ? `, ${profileData.full_name}` : ""}! 💍
           </h1>
-          <p className="text-muted-foreground font-body mt-1">
+          <p className="text-muted-foreground font-body mt-1 text-sm sm:text-base">
             Manage your wedding site, view RSVPs, and customize settings.
           </p>
         </div>
