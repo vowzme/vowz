@@ -239,7 +239,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Stats cards */}
-                <div className="space-y-4">
+                <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
                   <StatCard
                     icon={Users}
                     label="Total RSVPs"
