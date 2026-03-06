@@ -1260,6 +1260,70 @@ function SectionRenderer({
     return <GalleryRendererComponent data={data} accent={accent} />;
   }
 
+  if (type === "countdown") {
+    const targetDate = data.date ? new Date(data.date) : null;
+    const daysLeft = targetDate ? Math.max(0, Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+    return (
+      <div className="rounded-xl px-8 py-10 text-center" style={{ background: `linear-gradient(135deg, ${bg}15, ${accent}10)` }}>
+        <h2 className="font-display text-xl font-semibold text-foreground mb-4">{data.label}</h2>
+        <div className="flex justify-center gap-4">
+          {daysLeft !== null ? (
+            <>
+              <div className="text-center">
+                <div className="font-display text-4xl font-bold" style={{ color: accent }}>{daysLeft}</div>
+                <div className="font-body text-xs text-muted-foreground mt-1">Days</div>
+              </div>
+            </>
+          ) : (
+            <p className="text-muted-foreground font-body text-sm">Set your wedding date to start the countdown</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "guestbook") {
+    return (
+      <div className="bg-card rounded-xl px-8 py-10 text-center">
+        <h2 className="font-display text-2xl font-bold text-foreground mb-2">{data.heading}</h2>
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">{data.description}</p>
+        <div className="max-w-sm mx-auto space-y-3">
+          <Input placeholder="Your Name" className="font-body" disabled />
+          <Textarea placeholder="Your wishes for the couple..." className="font-body" disabled rows={3} />
+          <Button variant="gold" className="w-full font-body" disabled>Send Wishes</Button>
+        </div>
+        <p className="text-xs text-muted-foreground font-body mt-3">Guestbook preview — functional when published</p>
+      </div>
+    );
+  }
+
+  if (type === "travel") {
+    return (
+      <div className="bg-background rounded-xl px-8 py-10 border border-border/30">
+        <h2 className="font-display text-2xl font-bold text-foreground text-center mb-2">{data.heading}</h2>
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <p className="text-muted-foreground font-body text-center max-w-xl mx-auto mb-6">{data.description}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-6">
+          {(data.hotels || []).map((hotel: any, i: number) => (
+            <div key={i} className="border border-border/50 rounded-lg p-4 bg-card">
+              <p className="font-display text-sm font-semibold text-foreground">{hotel.name}</p>
+              <p className="text-xs text-muted-foreground font-body mt-1">{hotel.description}</p>
+              <p className="text-xs font-body mt-1 flex items-center gap-1" style={{ color: accent }}>
+                <MapPin className="w-3 h-3" /> {hotel.distance}
+              </p>
+            </div>
+          ))}
+        </div>
+        {data.directions && (
+          <div className="bg-card rounded-lg p-4 max-w-xl mx-auto">
+            <p className="font-body text-sm text-muted-foreground whitespace-pre-wrap">{data.directions}</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (type === "rsvp") {
     return (
       <div className="rounded-xl px-8 py-10 text-center" style={{ background: `linear-gradient(135deg, ${bg}15, ${accent}10)` }}>
