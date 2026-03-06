@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import Editor from "./pages/Editor";
+import PublicSite from "./pages/PublicSite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
