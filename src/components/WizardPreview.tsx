@@ -38,7 +38,7 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
             </div>
           </div>
           <Button variant="gold" size="sm" asChild>
-            <Link to="/signup">
+            <Link to="/editor" state={{ wizardData: data }}>
               Customize in Editor <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </Button>
