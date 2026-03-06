@@ -1,20 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Heart, Calendar, MapPin, Sparkles, ArrowRight, Check } from "lucide-react";
+import { Heart, Calendar, MapPin, Sparkles, ArrowRight, Check, Clock, Plane, Hotel, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
-
-interface WeddingData {
-  partner1: string;
-  partner2: string;
-  culturalBackground: string;
-  howWeMet: string;
-  functions: string[];
-  theme: string;
-  suggestedColors: string[];
-  tagline: string;
-}
+import type { WeddingData } from "@/hooks/use-wedding-wizard";
 
 const WizardPreview = ({ data }: { data: WeddingData }) => {
   const { createSite } = useWeddingSite();
