@@ -120,15 +120,65 @@ const FALLBACK_DATA: WeddingSiteData = {
 const Editor = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const wizardData: WeddingSiteData = (location.state as any)?.wizardData || FALLBACK_DATA;
+  const { siteId } = useParams();
+  const { user } = useAuth();
+  const { createSite, updateSite, loadUserSite, saving, loading } = useWeddingSite();
+  const wizardData: WeddingSiteData | null = (location.state as any)?.wizardData || null;
 
+  const [dbSiteId, setDbSiteId] = useState<string | null>(siteId || null);
   const [state, setState] = useState<EditorState>({
-    siteData: wizardData,
-    sections: buildSections(wizardData),
+    siteData: wizardData || FALLBACK_DATA,
+    sections: buildSections(wizardData || FALLBACK_DATA),
     activePanel: "sections",
     selectedSectionId: null,
     previewMode: false,
   });
+
+  // Load existing site from DB if no wizard data passed
+  useEffect(() => {
+    if (!wizardData && user) {
+      loadUserSite().then((site) => {
+        if (site) {
+          setDbSiteId(site.id);
+          const siteData: WeddingSiteData = {
+            partner1: site.partner1,
+            partner2: site.partner2,
+            culturalBackground: site.cultural_background,
+            howWeMet: site.how_we_met,
+            functions: [],
+            theme: site.theme,
+            suggestedColors: (site.suggested_colors as any) || ["#6B1D2A", "#D4A853", "#FFF5E6"],
+            tagline: site.tagline,
+          };
+          const sections = (site.sections as any as WeddingSection[]);
+          setState((prev) => ({
+            ...prev,
+            siteData,
+            sections: sections && sections.length > 0 ? sections : buildSections(siteData),
+          }));
+        }
+      });
+    }
+  }, [user, wizardData]);
+
+  // Auto-create site in DB when coming from wizard
+  useEffect(() => {
+    if (wizardData && user && !dbSiteId) {
+      const sections = buildSections(wizardData);
+      createSite({
+        partner1: wizardData.partner1,
+        partner2: wizardData.partner2,
+        culturalBackground: wizardData.culturalBackground,
+        howWeMet: wizardData.howWeMet,
+        theme: wizardData.theme,
+        tagline: wizardData.tagline,
+        suggestedColors: wizardData.suggestedColors,
+        sections,
+      }).then((site) => {
+        if (site) setDbSiteId(site.id);
+      });
+    }
+  }, [wizardData, user, dbSiteId]);
 
   const { siteData, sections, activePanel, selectedSectionId, previewMode } = state;
   const [bg, accent, light] = siteData.suggestedColors.length >= 3
@@ -178,8 +228,24 @@ const Editor = () => {
     }));
   }, []);
 
-  const handleSave = () => {
-    toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
+  const handleSave = async () => {
+    if (!dbSiteId) {
+      toast({ title: "No site to save", variant: "destructive" });
+      return;
+    }
+    const success = await updateSite(dbSiteId, {
+      partner1: siteData.partner1,
+      partner2: siteData.partner2,
+      cultural_background: siteData.culturalBackground,
+      how_we_met: siteData.howWeMet,
+      theme: siteData.theme,
+      tagline: siteData.tagline,
+      suggested_colors: siteData.suggestedColors,
+      sections: sections as any,
+    });
+    if (success) {
+      toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
+    }
   };
 
   const selectedSection = sections.find((s) => s.id === selectedSectionId);
