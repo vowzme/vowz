@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2 } from "lucide-react";
+import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -157,9 +157,12 @@ function PublicSection({
   const { type, data } = section;
 
   if (type === "hero") return <HeroSection data={data} bg={bg} accent={accent} light={light} />;
+  if (type === "countdown") return <CountdownSection data={data} accent={accent} bg={bg} />;
   if (type === "story") return <StorySection data={data} accent={accent} />;
   if (type === "events") return <EventsSection data={data} accent={accent} />;
   if (type === "gallery") return <GallerySection data={data} accent={accent} />;
+  if (type === "travel") return <TravelSection data={data} accent={accent} />;
+  if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} />;
   if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} />;
   if (type === "custom") return <StorySection data={data} accent={accent} />;
 
@@ -346,6 +349,233 @@ function GallerySection({ data, accent }: { data: any; accent: string }) {
           />
         )}
       </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ─── Countdown ────────────────────────────────────────────────────────
+function CountdownSection({ data, accent, bg }: { data: any; accent: string; bg: string }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const targetDate = data.date ? new Date(data.date) : null;
+
+  useEffect(() => {
+    if (!targetDate) return;
+    const tick = () => {
+      const diff = Math.max(0, targetDate.getTime() - Date.now());
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      });
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [data.date]);
+
+  if (!targetDate) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6 }}
+      className="py-12 md:py-16 px-6 text-center"
+      style={{ background: `linear-gradient(135deg, ${bg}08, ${accent}08)` }}
+    >
+      <Clock className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} />
+      <h2 className="font-display text-xl md:text-2xl font-semibold text-foreground mb-6">
+        {data.label || "Counting Down"}
+      </h2>
+      <div className="flex justify-center gap-4 sm:gap-8">
+        {[
+          { value: timeLeft.days, label: "Days" },
+          { value: timeLeft.hours, label: "Hours" },
+          { value: timeLeft.minutes, label: "Minutes" },
+          { value: timeLeft.seconds, label: "Seconds" },
+        ].map(({ value, label }) => (
+          <div key={label} className="text-center">
+            <div className="font-display text-3xl sm:text-5xl font-bold" style={{ color: accent }}>
+              {String(value).padStart(2, "0")}
+            </div>
+            <div className="font-body text-xs sm:text-sm text-muted-foreground mt-1">{label}</div>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Travel & Stay ────────────────────────────────────────────────────
+function TravelSection({ data, accent }: { data: any; accent: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6 }}
+      className="py-16 md:py-20 px-6"
+    >
+      <div className="max-w-3xl mx-auto">
+        <Plane className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} />
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-3">
+          {data.heading || "Travel & Stay"}
+        </h2>
+        <div className="w-14 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <p className="text-muted-foreground font-body text-center max-w-xl mx-auto mb-8">
+          {data.description}
+        </p>
+
+        {(data.hotels || []).length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            {data.hotels.map((hotel: any, i: number) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="border border-border/50 rounded-2xl p-5 bg-card hover:shadow-elegant transition-shadow"
+              >
+                <div className="w-10 h-10 rounded-full mb-3 flex items-center justify-center" style={{ backgroundColor: `${accent}20` }}>
+                  <Hotel className="w-5 h-5" style={{ color: accent }} />
+                </div>
+                <p className="font-display text-base font-semibold text-foreground">{hotel.name}</p>
+                <p className="text-sm text-muted-foreground font-body mt-1">{hotel.description}</p>
+                <p className="text-sm font-body mt-2 flex items-center gap-1" style={{ color: accent }}>
+                  <MapPin className="w-3.5 h-3.5" /> {hotel.distance}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {data.directions && (
+          <div className="bg-card border border-border/50 rounded-2xl p-6 max-w-xl mx-auto">
+            <h3 className="font-display text-lg font-semibold text-foreground mb-2">Getting There</h3>
+            <p className="text-muted-foreground font-body text-sm whitespace-pre-wrap">{data.directions}</p>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Guestbook / Wishes ──────────────────────────────────────────────
+function GuestbookSection({ data, site, accent }: { data: any; site: WeddingSite; accent: string }) {
+  const [wishes, setWishes] = useState<{ id: string; guest_name: string; message: string; created_at: string }[]>([]);
+  const [form, setForm] = useState({ guest_name: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from("guestbook")
+      .select("*")
+      .eq("wedding_site_id", site.id)
+      .order("created_at", { ascending: false })
+      .limit(50)
+      .then(({ data: rows }) => {
+        if (rows) setWishes(rows as any);
+      });
+  }, [site.id]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.guest_name.trim() || !form.message.trim()) return;
+    setSubmitting(true);
+    const { data: newWish, error } = await supabase
+      .from("guestbook")
+      .insert({ wedding_site_id: site.id, guest_name: form.guest_name.trim(), message: form.message.trim() })
+      .select()
+      .single();
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Failed to post wish", description: error.message, variant: "destructive" });
+    } else {
+      setSubmitted(true);
+      if (newWish) setWishes((prev) => [newWish as any, ...prev]);
+      setForm({ guest_name: "", message: "" });
+      toast({ title: "Wish posted! 💕" });
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6 }}
+      className="bg-card py-16 md:py-20 px-6"
+    >
+      <div className="max-w-2xl mx-auto">
+        <MessageSquare className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} />
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-3">
+          {data.heading || "Wishes & Blessings"}
+        </h2>
+        <div className="w-14 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <p className="text-muted-foreground font-body text-center mb-8">
+          {data.description}
+        </p>
+
+        {/* Post wish form */}
+        {!submitted ? (
+          <form onSubmit={handleSubmit} className="bg-background border border-border/50 rounded-2xl p-6 mb-8 space-y-4">
+            <Input
+              placeholder="Your name"
+              value={form.guest_name}
+              onChange={(e) => setForm({ ...form, guest_name: e.target.value })}
+              required
+              maxLength={100}
+              className="font-body"
+            />
+            <Textarea
+              placeholder="Write your wishes for the couple..."
+              value={form.message}
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
+              required
+              maxLength={500}
+              rows={3}
+              className="font-body"
+            />
+            <Button type="submit" variant="gold" className="w-full font-body" disabled={submitting}>
+              {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Posting...</> : <><Send className="w-4 h-4 mr-2" /> Post Wish</>}
+            </Button>
+          </form>
+        ) : (
+          <div className="bg-background border border-border/50 rounded-2xl p-6 mb-8 text-center">
+            <Check className="w-8 h-8 mx-auto mb-2" style={{ color: accent }} />
+            <p className="font-body text-foreground font-medium">Thank you for your wishes! 💕</p>
+            <button onClick={() => setSubmitted(false)} className="text-sm text-accent hover:underline font-body mt-2">
+              Post another wish
+            </button>
+          </div>
+        )}
+
+        {/* Wishes wall */}
+        {wishes.length > 0 && (
+          <div className="space-y-3">
+            {wishes.map((wish) => (
+              <motion.div
+                key={wish.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-background border border-border/50 rounded-xl p-4"
+              >
+                <p className="font-body text-sm text-foreground">{wish.message}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="font-body text-xs font-medium" style={{ color: accent }}>— {wish.guest_name}</p>
+                  <p className="font-body text-xs text-muted-foreground">
+                    {new Date(wish.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }

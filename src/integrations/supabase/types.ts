@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      guestbook: {
+        Row: {
+          created_at: string
+          guest_name: string
+          id: string
+          message: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          guest_name: string
+          id?: string
+          message: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          guest_name?: string
+          id?: string
+          message?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guestbook_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

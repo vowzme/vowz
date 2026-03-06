@@ -19,7 +19,7 @@ import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "custom";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -34,6 +34,14 @@ export interface WeddingSiteData {
   theme: string;
   suggestedColors: string[];
   tagline: string;
+  countdownLabel?: string;
+  travelInfo?: {
+    heading: string;
+    description: string;
+    hotels: { name: string; description: string; distance: string }[];
+    directions: string;
+  };
+  welcomeMessage?: string;
 }
 
 interface EditorState {
@@ -56,6 +64,16 @@ function buildSections(data: WeddingSiteData): WeddingSection[] {
         heading: `${data.partner1} & ${data.partner2}`,
         subheading: "You're Invited to the Wedding of",
         tagline: data.tagline,
+      },
+    },
+    {
+      id: "countdown",
+      type: "countdown",
+      title: "Countdown",
+      visible: true,
+      data: {
+        label: data.countdownLabel || "Days Until We Say 'I Do'",
+        date: "",
       },
     },
     {
@@ -86,6 +104,30 @@ function buildSections(data: WeddingSiteData): WeddingSection[] {
       title: "Photo Gallery",
       visible: true,
       data: { heading: "Our Moments" },
+    },
+    {
+      id: "travel",
+      type: "travel",
+      title: "Travel & Stay",
+      visible: true,
+      data: data.travelInfo || {
+        heading: "Travel & Stay",
+        description: "We've arranged some lovely options for your stay.",
+        hotels: [
+          { name: "Hotel Placeholder", description: "Update with your hotel details", distance: "Near venue" },
+        ],
+        directions: "Directions and travel tips — update this with your venue details.",
+      },
+    },
+    {
+      id: "guestbook",
+      type: "guestbook",
+      title: "Wishes & Blessings",
+      visible: true,
+      data: {
+        heading: "Wishes & Blessings",
+        description: data.welcomeMessage || "Leave your heartfelt wishes for the couple!",
+      },
     },
     {
       id: "rsvp",
@@ -794,6 +836,141 @@ function SectionEditor({
           </div>
         </>
       )}
+
+      {type === "countdown" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Label</label>
+            <Input
+              value={data.label || ""}
+              onChange={(e) => onUpdateData({ label: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Wedding Date</label>
+            <Input
+              type="date"
+              value={data.date || ""}
+              onChange={(e) => onUpdateData({ date: e.target.value })}
+              className="font-body"
+            />
+          </div>
+        </>
+      )}
+
+      {type === "guestbook" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea
+              value={data.description || ""}
+              onChange={(e) => onUpdateData({ description: e.target.value })}
+              rows={3}
+              className="font-body"
+            />
+          </div>
+        </>
+      )}
+
+      {type === "travel" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea
+              value={data.description || ""}
+              onChange={(e) => onUpdateData({ description: e.target.value })}
+              rows={2}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Directions / Tips</label>
+            <Textarea
+              value={data.directions || ""}
+              onChange={(e) => onUpdateData({ directions: e.target.value })}
+              rows={3}
+              className="font-body"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="font-body text-sm font-medium text-foreground block">Hotels / Accommodations</label>
+            {(data.hotels || []).map((hotel: any, i: number) => (
+              <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                <Input
+                  placeholder="Hotel name"
+                  value={hotel.name}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, name: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <Input
+                  placeholder="Brief description"
+                  value={hotel.description}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, description: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Distance from venue"
+                    value={hotel.distance}
+                    onChange={(e) => {
+                      const hotels = [...(data.hotels || [])];
+                      hotels[i] = { ...hotel, distance: e.target.value };
+                      onUpdateData({ hotels });
+                    }}
+                    className="font-body text-sm h-8 flex-1"
+                  />
+                  <button
+                    onClick={() => {
+                      const hotels = (data.hotels || []).filter((_: any, j: number) => j !== i);
+                      onUpdateData({ hotels });
+                    }}
+                    className="text-muted-foreground hover:text-destructive p-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body"
+              onClick={() =>
+                onUpdateData({
+                  hotels: [...(data.hotels || []), { name: "", description: "", distance: "" }],
+                })
+              }
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Hotel
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -1081,6 +1258,70 @@ function SectionRenderer({
 
   if (type === "gallery") {
     return <GalleryRendererComponent data={data} accent={accent} />;
+  }
+
+  if (type === "countdown") {
+    const targetDate = data.date ? new Date(data.date) : null;
+    const daysLeft = targetDate ? Math.max(0, Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
+    return (
+      <div className="rounded-xl px-8 py-10 text-center" style={{ background: `linear-gradient(135deg, ${bg}15, ${accent}10)` }}>
+        <h2 className="font-display text-xl font-semibold text-foreground mb-4">{data.label}</h2>
+        <div className="flex justify-center gap-4">
+          {daysLeft !== null ? (
+            <>
+              <div className="text-center">
+                <div className="font-display text-4xl font-bold" style={{ color: accent }}>{daysLeft}</div>
+                <div className="font-body text-xs text-muted-foreground mt-1">Days</div>
+              </div>
+            </>
+          ) : (
+            <p className="text-muted-foreground font-body text-sm">Set your wedding date to start the countdown</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "guestbook") {
+    return (
+      <div className="bg-card rounded-xl px-8 py-10 text-center">
+        <h2 className="font-display text-2xl font-bold text-foreground mb-2">{data.heading}</h2>
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">{data.description}</p>
+        <div className="max-w-sm mx-auto space-y-3">
+          <Input placeholder="Your Name" className="font-body" disabled />
+          <Textarea placeholder="Your wishes for the couple..." className="font-body" disabled rows={3} />
+          <Button variant="gold" className="w-full font-body" disabled>Send Wishes</Button>
+        </div>
+        <p className="text-xs text-muted-foreground font-body mt-3">Guestbook preview — functional when published</p>
+      </div>
+    );
+  }
+
+  if (type === "travel") {
+    return (
+      <div className="bg-background rounded-xl px-8 py-10 border border-border/30">
+        <h2 className="font-display text-2xl font-bold text-foreground text-center mb-2">{data.heading}</h2>
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <p className="text-muted-foreground font-body text-center max-w-xl mx-auto mb-6">{data.description}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-6">
+          {(data.hotels || []).map((hotel: any, i: number) => (
+            <div key={i} className="border border-border/50 rounded-lg p-4 bg-card">
+              <p className="font-display text-sm font-semibold text-foreground">{hotel.name}</p>
+              <p className="text-xs text-muted-foreground font-body mt-1">{hotel.description}</p>
+              <p className="text-xs font-body mt-1 flex items-center gap-1" style={{ color: accent }}>
+                <MapPin className="w-3 h-3" /> {hotel.distance}
+              </p>
+            </div>
+          ))}
+        </div>
+        {data.directions && (
+          <div className="bg-card rounded-lg p-4 max-w-xl mx-auto">
+            <p className="font-body text-sm text-muted-foreground whitespace-pre-wrap">{data.directions}</p>
+          </div>
+        )}
+      </div>
+    );
   }
 
   if (type === "rsvp") {
