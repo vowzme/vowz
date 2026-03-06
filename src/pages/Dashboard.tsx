@@ -142,13 +142,13 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-5 sm:py-8">
         {/* Welcome */}
-        <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-foreground">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
             Welcome{profileData?.full_name ? `, ${profileData.full_name}` : ""}! 💍
           </h1>
-          <p className="text-muted-foreground font-body mt-1">
+          <p className="text-muted-foreground font-body mt-1 text-sm sm:text-base">
             Manage your wedding site, view RSVPs, and customize settings.
           </p>
         </div>
@@ -158,7 +158,7 @@ const Dashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-card border border-border/50 rounded-2xl p-12 text-center"
+            className="bg-card border border-border/50 rounded-2xl p-8 sm:p-12 text-center"
           >
             <Sparkles className="w-12 h-12 text-gold mx-auto mb-4" />
             <h2 className="font-display text-2xl font-bold text-foreground mb-2">
@@ -205,7 +205,7 @@ const Dashboard = () => {
                     </p>
                   </div>
 
-                  <div className="p-6 flex flex-wrap gap-3">
+                  <div className="p-4 sm:p-6 flex flex-wrap gap-2 sm:gap-3">
                     <Button variant="gold" size="sm" asChild>
                       <Link to="/editor">
                         <Edit3 className="w-4 h-4 mr-1" /> Edit Site
@@ -239,7 +239,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Stats cards */}
-                <div className="space-y-4">
+                <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
                   <StatCard
                     icon={Users}
                     label="Total RSVPs"
@@ -310,9 +310,9 @@ const Dashboard = () => {
 
             {/* ─── Settings Tab ─── */}
             <TabsContent value="settings">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Profile settings */}
-                <div className="bg-card border border-border/50 rounded-2xl p-6">
+                <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
                   <h2 className="font-display text-xl font-bold text-foreground mb-4">Profile</h2>
                   <div className="space-y-4">
                     <EditableField
@@ -343,7 +343,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Site settings */}
-                <div className="bg-card border border-border/50 rounded-2xl p-6">
+                <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
                   <h2 className="font-display text-xl font-bold text-foreground mb-4">Site Settings</h2>
                   <div className="space-y-4">
                     <div>
@@ -425,9 +425,9 @@ function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => 
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="px-6 py-4">
-      <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+    <div className="px-4 sm:px-6 py-4">
+      <div className="flex items-start sm:items-center gap-3">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
           rsvp.attending ? "bg-emerald/10" : "bg-destructive/10"
         }`}>
           {rsvp.attending ? (
@@ -438,15 +438,25 @@ function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => 
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-body text-sm font-medium text-foreground truncate">{rsvp.guest_name}</p>
-          <p className="font-body text-xs text-muted-foreground">{rsvp.guest_email}</p>
+          <p className="font-body text-xs text-muted-foreground truncate">{rsvp.guest_email}</p>
+          <div className="flex items-center gap-2 mt-1 sm:hidden">
+            {rsvp.attending && (
+              <span className="font-body text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                {rsvp.guest_count} guest{rsvp.guest_count > 1 ? "s" : ""}
+              </span>
+            )}
+            <span className="font-body text-xs text-muted-foreground">
+              {new Date(rsvp.created_at).toLocaleDateString()}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {rsvp.attending && (
-            <span className="font-body text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+            <span className="font-body text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded hidden sm:inline">
               {rsvp.guest_count} guest{rsvp.guest_count > 1 ? "s" : ""}
             </span>
           )}
-          <span className="font-body text-xs text-muted-foreground">
+          <span className="font-body text-xs text-muted-foreground hidden sm:inline">
             {new Date(rsvp.created_at).toLocaleDateString()}
           </span>
           <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground p-1">

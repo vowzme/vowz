@@ -271,26 +271,32 @@ const Editor = () => {
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Top toolbar */}
-      <header className="h-14 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center px-4 gap-3 shrink-0 z-20">
+      <header className="h-14 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center px-3 sm:px-4 gap-2 sm:gap-3 shrink-0 z-20">
         <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-        <span className="font-display text-lg font-semibold text-foreground">
+        <Heart className="w-5 h-5 text-gold hidden sm:block" fill="currentColor" />
+        <span className="font-display text-base sm:text-lg font-semibold text-foreground truncate">
           {siteData.partner1} & {siteData.partner2}
         </span>
         <div className="flex-1" />
-        <Button variant="outline" size="sm" onClick={() => updateState({ previewMode: true })}>
+        <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => updateState({ previewMode: true })}>
           <Eye className="w-4 h-4 mr-1" /> Preview
         </Button>
-        <Button variant="gold" size="sm" onClick={handleSave}>
+        <Button variant="outline" size="icon" className="sm:hidden w-9 h-9" onClick={() => updateState({ previewMode: true })}>
+          <Eye className="w-4 h-4" />
+        </Button>
+        <Button variant="gold" size="sm" className="hidden sm:flex" onClick={handleSave}>
           <Save className="w-4 h-4 mr-1" /> Save
+        </Button>
+        <Button variant="gold" size="icon" className="sm:hidden w-9 h-9" onClick={handleSave}>
+          <Save className="w-4 h-4" />
         </Button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar - panel switcher */}
-        <div className="w-14 border-r border-border/50 bg-card/50 flex flex-col items-center py-3 gap-1 shrink-0">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Left sidebar - panel switcher (hidden on mobile, shown as bottom bar) */}
+        <div className="hidden md:flex w-14 border-r border-border/50 bg-card/50 flex-col items-center py-3 gap-1 shrink-0">
           {([
             { id: "sections" as const, icon: Type, label: "Sections" },
             { id: "style" as const, icon: Palette, label: "Style" },
@@ -311,50 +317,66 @@ const Editor = () => {
           ))}
         </div>
 
-        {/* Left panel content */}
+        {/* Left panel content — desktop sidebar, mobile overlay */}
         <AnimatePresence>
           {activePanel && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 320, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="border-r border-border/50 bg-card/80 overflow-hidden shrink-0"
-            >
-              <div className="w-80 h-full overflow-y-auto p-4">
-                {activePanel === "sections" && (
-                  <SectionsPanel
-                    sections={sections}
-                    selectedSectionId={selectedSectionId}
-                    onSelect={(id) => updateState({ selectedSectionId: id })}
-                    onReorder={(newSections) => updateState({ sections: newSections })}
-                    onToggleVisibility={(id) => {
-                      const s = sections.find((sec) => sec.id === id);
-                      if (s) updateSection(id, { visible: !s.visible });
-                    }}
-                    onDelete={deleteSection}
-                    onAdd={addSection}
-                  />
-                )}
-                {activePanel === "style" && (
-                  <StylePanel
-                    colors={siteData.suggestedColors}
-                    onColorChange={(colors) =>
-                      updateState({ siteData: { ...siteData, suggestedColors: colors } })
-                    }
-                  />
-                )}
-                {activePanel === "settings" && (
-                  <SettingsPanel siteData={siteData} onUpdate={(d) => updateState({ siteData: d })} />
-                )}
-              </div>
-            </motion.div>
+            <>
+              {/* Mobile backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="md:hidden fixed inset-0 bg-black/40 z-30"
+                onClick={() => updateState({ activePanel: null })}
+              />
+              <motion.div
+                initial={{ x: -320, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -320, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed md:relative left-0 top-14 bottom-0 md:top-0 w-[85vw] max-w-[320px] md:w-80 border-r border-border/50 bg-card z-40 md:z-auto overflow-hidden shrink-0"
+              >
+                <div className="w-full h-full overflow-y-auto p-4">
+                  <div className="flex items-center justify-between mb-3 md:hidden">
+                    <h3 className="font-display text-lg font-semibold text-foreground capitalize">{activePanel}</h3>
+                    <button onClick={() => updateState({ activePanel: null })} className="text-muted-foreground hover:text-foreground">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  {activePanel === "sections" && (
+                    <SectionsPanel
+                      sections={sections}
+                      selectedSectionId={selectedSectionId}
+                      onSelect={(id) => updateState({ selectedSectionId: id, activePanel: null })}
+                      onReorder={(newSections) => updateState({ sections: newSections })}
+                      onToggleVisibility={(id) => {
+                        const s = sections.find((sec) => sec.id === id);
+                        if (s) updateSection(id, { visible: !s.visible });
+                      }}
+                      onDelete={deleteSection}
+                      onAdd={addSection}
+                    />
+                  )}
+                  {activePanel === "style" && (
+                    <StylePanel
+                      colors={siteData.suggestedColors}
+                      onColorChange={(colors) =>
+                        updateState({ siteData: { ...siteData, suggestedColors: colors } })
+                      }
+                    />
+                  )}
+                  {activePanel === "settings" && (
+                    <SettingsPanel siteData={siteData} onUpdate={(d) => updateState({ siteData: d })} />
+                  )}
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 
         {/* Center canvas */}
         <div className="flex-1 overflow-y-auto bg-muted/50">
-          <div className="max-w-4xl mx-auto py-8 px-6">
+          <div className="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-6">
             {sections.map((section) => (
               <div
                 key={section.id}
@@ -365,7 +387,7 @@ const Editor = () => {
                     ? "ring-2 ring-gold ring-offset-2 ring-offset-background"
                     : "hover:ring-1 hover:ring-border"
                 }`}
-                onClick={() => updateState({ selectedSectionId: section.id, activePanel: "sections" })}
+                onClick={() => updateState({ selectedSectionId: section.id })}
               >
                 {/* Section label */}
                 <div className="absolute -top-3 left-4 z-10 bg-card border border-border/50 rounded-md px-2 py-0.5 text-xs font-body text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
@@ -377,37 +399,75 @@ const Editor = () => {
           </div>
         </div>
 
-        {/* Right panel - section editor */}
+        {/* Right panel - section editor — desktop sidebar, mobile bottom sheet */}
         <AnimatePresence>
           {selectedSection && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 340, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="border-l border-border/50 bg-card/80 overflow-hidden shrink-0"
-            >
-              <div className="w-[340px] h-full overflow-y-auto p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-display text-lg font-semibold text-foreground">
-                    Edit: {selectedSection.title}
-                  </h3>
-                  <button
-                    onClick={() => updateState({ selectedSectionId: null })}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+            <>
+              {/* Mobile backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="md:hidden fixed inset-0 bg-black/40 z-30"
+                onClick={() => updateState({ selectedSectionId: null })}
+              />
+              <motion.div
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: "100%", opacity: 0 }}
+                transition={{ duration: 0.25, type: "tween" }}
+                className="fixed md:relative bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto
+                  max-h-[75vh] md:max-h-none md:h-full
+                  w-full md:w-[340px]
+                  border-t md:border-t-0 md:border-l border-border/50 bg-card z-40 md:z-auto
+                  rounded-t-2xl md:rounded-none overflow-hidden shrink-0"
+              >
+                <div className="w-full md:w-[340px] h-full overflow-y-auto p-4">
+                  {/* Mobile drag handle */}
+                  <div className="md:hidden w-10 h-1 rounded-full bg-border mx-auto mb-3" />
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-display text-lg font-semibold text-foreground">
+                      Edit: {selectedSection.title}
+                    </h3>
+                    <button
+                      onClick={() => updateState({ selectedSectionId: null })}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <SectionEditor
+                    section={selectedSection}
+                    onUpdateData={(data) => updateSectionData(selectedSection.id, data)}
+                    onUpdateTitle={(title) => updateSection(selectedSection.id, { title })}
+                  />
                 </div>
-                <SectionEditor
-                  section={selectedSection}
-                  onUpdateData={(data) => updateSectionData(selectedSection.id, data)}
-                  onUpdateTitle={(title) => updateSection(selectedSection.id, { title })}
-                />
-              </div>
-            </motion.div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
+
+        {/* Mobile bottom toolbar */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/50 bg-card/95 backdrop-blur-sm z-20 flex items-center justify-around py-2 px-4">
+          {([
+            { id: "sections" as const, icon: Type, label: "Sections" },
+            { id: "style" as const, icon: Palette, label: "Style" },
+            { id: "settings" as const, icon: Settings, label: "Settings" },
+          ]).map(({ id, icon: Icon, label }) => (
+            <button
+              key={id}
+              onClick={() => updateState({ activePanel: activePanel === id ? null : id, selectedSectionId: null })}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
+                activePanel === id
+                  ? "text-gold"
+                  : "text-muted-foreground"
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-[10px] font-body">{label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
