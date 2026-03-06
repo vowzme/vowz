@@ -157,9 +157,12 @@ function PublicSection({
   const { type, data } = section;
 
   if (type === "hero") return <HeroSection data={data} bg={bg} accent={accent} light={light} />;
+  if (type === "countdown") return <CountdownSection data={data} accent={accent} bg={bg} />;
   if (type === "story") return <StorySection data={data} accent={accent} />;
   if (type === "events") return <EventsSection data={data} accent={accent} />;
   if (type === "gallery") return <GallerySection data={data} accent={accent} />;
+  if (type === "travel") return <TravelSection data={data} accent={accent} />;
+  if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} />;
   if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} />;
   if (type === "custom") return <StorySection data={data} accent={accent} />;
 
