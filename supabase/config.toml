@@ -1,1 +1,4 @@
 project_id = "abnutuvscchnaabbljek"
+
+[functions.wedding-wizard]
+verify_jwt = false
