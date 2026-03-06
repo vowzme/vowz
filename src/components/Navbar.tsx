@@ -60,7 +60,7 @@ const Navbar = () => {
                   {l.label}
                 </a>
               ))}
-              <Button variant="gold" size="sm" className="mt-2">Get Started</Button>
+              <Button variant="gold" size="sm" className="mt-2" asChild><Link to="/signup">Get Started</Link></Button>
             </div>
           </motion.div>
         )}
