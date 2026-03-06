@@ -310,9 +310,9 @@ const Dashboard = () => {
 
             {/* ─── Settings Tab ─── */}
             <TabsContent value="settings">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Profile settings */}
-                <div className="bg-card border border-border/50 rounded-2xl p-6">
+                <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
                   <h2 className="font-display text-xl font-bold text-foreground mb-4">Profile</h2>
                   <div className="space-y-4">
                     <EditableField
