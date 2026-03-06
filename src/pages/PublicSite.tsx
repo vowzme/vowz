@@ -59,6 +59,39 @@ const PublicSite = () => {
       });
   }, [slug]);
 
+  // Dynamically set OG meta tags when site data loads
+  useEffect(() => {
+    if (!site) return;
+    const title = `${site.partner1} & ${site.partner2} — Wedding`;
+    const description = site.tagline || `You're invited to celebrate the wedding of ${site.partner1} & ${site.partner2}`;
+    const url = `${window.location.origin}/site/${site.slug}`;
+
+    document.title = title;
+
+    const setMeta = (property: string, content: string) => {
+      let el = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(property.startsWith("og:") || property.startsWith("twitter:") ? "property" : "name", property);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    setMeta("og:title", title);
+    setMeta("og:description", description);
+    setMeta("og:type", "website");
+    setMeta("og:url", url);
+    setMeta("twitter:card", "summary_large_image");
+    setMeta("twitter:title", title);
+    setMeta("twitter:description", description);
+    setMeta("description", description);
+
+    return () => {
+      document.title = "ShaadiSite — Beautiful Indian Wedding Websites";
+    };
+  }, [site]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
