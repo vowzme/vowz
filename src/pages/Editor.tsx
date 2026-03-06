@@ -34,6 +34,14 @@ export interface WeddingSiteData {
   theme: string;
   suggestedColors: string[];
   tagline: string;
+  countdownLabel?: string;
+  travelInfo?: {
+    heading: string;
+    description: string;
+    hotels: { name: string; description: string; distance: string }[];
+    directions: string;
+  };
+  welcomeMessage?: string;
 }
 
 interface EditorState {
