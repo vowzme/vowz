@@ -78,9 +78,9 @@ const SignUp = () => {
   const onSubmit = (data: SignUpForm) => {
     toast({
       title: "Welcome to ShaadiSite! 🎉",
-      description: `Account created for ${data.name} & ${data.partnerName}`,
+      description: `Let's build your wedding site, ${data.name} & ${data.partnerName}!`,
     });
-    // Future: navigate to AI wizard or dashboard
+    navigate("/wizard");
   };
 
   return (
