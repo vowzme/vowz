@@ -158,7 +158,7 @@ const Dashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-card border border-border/50 rounded-2xl p-12 text-center"
+            className="bg-card border border-border/50 rounded-2xl p-8 sm:p-12 text-center"
           >
             <Sparkles className="w-12 h-12 text-gold mx-auto mb-4" />
             <h2 className="font-display text-2xl font-bold text-foreground mb-2">
