@@ -14,7 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          partner_name: string
+          updated_at: string
+          wedding_date: string | null
+          wedding_location: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id: string
+          partner_name?: string
+          updated_at?: string
+          wedding_date?: string | null
+          wedding_location?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          partner_name?: string
+          updated_at?: string
+          wedding_date?: string | null
+          wedding_location?: string | null
+        }
+        Relationships: []
+      }
+      rsvps: {
+        Row: {
+          attending: boolean
+          created_at: string
+          guest_count: number
+          guest_email: string
+          guest_name: string
+          id: string
+          meal_preference: string | null
+          message: string | null
+          selected_events: Json | null
+          wedding_site_id: string
+        }
+        Insert: {
+          attending?: boolean
+          created_at?: string
+          guest_count?: number
+          guest_email: string
+          guest_name: string
+          id?: string
+          meal_preference?: string | null
+          message?: string | null
+          selected_events?: Json | null
+          wedding_site_id: string
+        }
+        Update: {
+          attending?: boolean
+          created_at?: string
+          guest_count?: number
+          guest_email?: string
+          guest_name?: string
+          id?: string
+          meal_preference?: string | null
+          message?: string | null
+          selected_events?: Json | null
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvps_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wedding_sites: {
+        Row: {
+          created_at: string
+          cultural_background: string
+          how_we_met: string
+          id: string
+          is_published: boolean
+          partner1: string
+          partner2: string
+          sections: Json
+          slug: string | null
+          suggested_colors: Json
+          tagline: string
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          cultural_background?: string
+          how_we_met?: string
+          id?: string
+          is_published?: boolean
+          partner1?: string
+          partner2?: string
+          sections?: Json
+          slug?: string | null
+          suggested_colors?: Json
+          tagline?: string
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          cultural_background?: string
+          how_we_met?: string
+          id?: string
+          is_published?: boolean
+          partner1?: string
+          partner2?: string
+          sections?: Json
+          slug?: string | null
+          suggested_colors?: Json
+          tagline?: string
+          theme?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
