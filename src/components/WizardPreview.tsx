@@ -155,7 +155,7 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
           <Button variant="gold" size="lg" asChild>
-            <Link to="/signup">
+            <Link to="/editor" state={{ wizardData: data }}>
               <Sparkles className="w-4 h-4 mr-2" />
               Customize & Publish
             </Link>
