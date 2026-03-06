@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
+import { AnimatePresence as LightboxAnimatePresence } from "framer-motion";
+import Lightbox from "@/components/Lightbox";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import {
@@ -891,6 +893,48 @@ function GalleryEditor({
   );
 }
 
+// ─── Gallery Renderer (with lightbox) ─────────────────────────────────
+function GalleryRendererComponent({ data, accent }: { data: Record<string, any>; accent: string }) {
+  const photos: GalleryPhoto[] = data.photos || [];
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  return (
+    <div className="bg-card rounded-xl px-8 py-10">
+      <h2 className="font-display text-2xl font-bold text-foreground text-center mb-2">{data.heading}</h2>
+      <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+      {photos.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+          {photos.map((photo, i) => (
+            <div
+              key={photo.id}
+              className="aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex(i); }}
+            >
+              <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="aspect-square rounded-lg bg-muted flex items-center justify-center">
+              <Image className="w-6 h-6 text-muted-foreground/40" />
+            </div>
+          ))}
+        </div>
+      )}
+      <LightboxAnimatePresence>
+        {lightboxIndex !== null && (
+          <Lightbox
+            images={photos}
+            initialIndex={lightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+          />
+        )}
+      </LightboxAnimatePresence>
+    </div>
+  );
+}
+
 function SectionRenderer({
   section,
   bg,
@@ -976,30 +1020,7 @@ function SectionRenderer({
   }
 
   if (type === "gallery") {
-    const photos: GalleryPhoto[] = data.photos || [];
-    return (
-      <div className="bg-card rounded-xl px-8 py-10">
-        <h2 className="font-display text-2xl font-bold text-foreground text-center mb-2">{data.heading}</h2>
-        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
-        {photos.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
-            {photos.map((photo) => (
-              <div key={photo.id} className="aspect-square rounded-lg overflow-hidden bg-muted">
-                <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="aspect-square rounded-lg bg-muted flex items-center justify-center">
-                <Image className="w-6 h-6 text-muted-foreground/40" />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
+    return <GalleryRendererComponent data={data} accent={accent} />;
   }
 
   if (type === "rsvp") {
