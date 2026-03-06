@@ -836,6 +836,141 @@ function SectionEditor({
           </div>
         </>
       )}
+
+      {type === "countdown" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Label</label>
+            <Input
+              value={data.label || ""}
+              onChange={(e) => onUpdateData({ label: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Wedding Date</label>
+            <Input
+              type="date"
+              value={data.date || ""}
+              onChange={(e) => onUpdateData({ date: e.target.value })}
+              className="font-body"
+            />
+          </div>
+        </>
+      )}
+
+      {type === "guestbook" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea
+              value={data.description || ""}
+              onChange={(e) => onUpdateData({ description: e.target.value })}
+              rows={3}
+              className="font-body"
+            />
+          </div>
+        </>
+      )}
+
+      {type === "travel" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea
+              value={data.description || ""}
+              onChange={(e) => onUpdateData({ description: e.target.value })}
+              rows={2}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Directions / Tips</label>
+            <Textarea
+              value={data.directions || ""}
+              onChange={(e) => onUpdateData({ directions: e.target.value })}
+              rows={3}
+              className="font-body"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="font-body text-sm font-medium text-foreground block">Hotels / Accommodations</label>
+            {(data.hotels || []).map((hotel: any, i: number) => (
+              <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                <Input
+                  placeholder="Hotel name"
+                  value={hotel.name}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, name: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <Input
+                  placeholder="Brief description"
+                  value={hotel.description}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, description: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Distance from venue"
+                    value={hotel.distance}
+                    onChange={(e) => {
+                      const hotels = [...(data.hotels || [])];
+                      hotels[i] = { ...hotel, distance: e.target.value };
+                      onUpdateData({ hotels });
+                    }}
+                    className="font-body text-sm h-8 flex-1"
+                  />
+                  <button
+                    onClick={() => {
+                      const hotels = (data.hotels || []).filter((_: any, j: number) => j !== i);
+                      onUpdateData({ hotels });
+                    }}
+                    className="text-muted-foreground hover:text-destructive p-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body"
+              onClick={() =>
+                onUpdateData({
+                  hotels: [...(data.hotels || []), { name: "", description: "", distance: "" }],
+                })
+              }
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Hotel
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
