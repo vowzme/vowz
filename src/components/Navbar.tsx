@@ -31,7 +31,7 @@ const Navbar = () => {
               {l.label}
             </a>
           ))}
-          <Button variant="gold" size="sm">Get Started</Button>
+          <Button variant="gold" size="sm" asChild><Link to="/signup">Get Started</Link></Button>
         </div>
 
         {/* Mobile toggle */}
