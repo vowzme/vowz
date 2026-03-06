@@ -792,7 +792,105 @@ function EventEditor({
   );
 }
 
-// ─── Section Renderer (canvas) ────────────────────────────────────────
+// ─── Gallery Editor ───────────────────────────────────────────────────
+function GalleryEditor({
+  photos,
+  heading,
+  onUpdateHeading,
+  onUpdatePhotos,
+}: {
+  photos: GalleryPhoto[];
+  heading: string;
+  onUpdateHeading: (heading: string) => void;
+  onUpdatePhotos: (photos: GalleryPhoto[]) => void;
+}) {
+  const { uploadPhotos, deletePhoto, uploading } = useGalleryPhotos();
+  const fileInputRef = useState<HTMLInputElement | null>(null);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    const uploaded = await uploadPhotos(files);
+    if (uploaded.length > 0) {
+      onUpdatePhotos([...photos, ...uploaded]);
+    }
+    e.target.value = "";
+  };
+
+  const handleDelete = async (photo: GalleryPhoto) => {
+    const success = await deletePhoto(photo.id);
+    if (success) {
+      onUpdatePhotos(photos.filter((p) => p.id !== photo.id));
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
+    if (files.length === 0) return;
+    const uploaded = await uploadPhotos(files);
+    if (uploaded.length > 0) {
+      onUpdatePhotos([...photos, ...uploaded]);
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-4">
+        <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+        <Input
+          value={heading}
+          onChange={(e) => onUpdateHeading(e.target.value)}
+          className="font-body"
+        />
+      </div>
+
+      {/* Uploaded photos */}
+      {photos.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          {photos.map((photo) => (
+            <div key={photo.id} className="relative group aspect-square rounded-lg overflow-hidden bg-muted">
+              <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
+              <button
+                onClick={() => handleDelete(photo)}
+                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Upload area */}
+      <div
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+        className="border-2 border-dashed border-border hover:border-gold/50 rounded-xl p-6 text-center transition-colors cursor-pointer"
+        onClick={() => document.getElementById("gallery-upload")?.click()}
+      >
+        {uploading ? (
+          <Loader2 className="w-6 h-6 text-gold mx-auto animate-spin mb-2" />
+        ) : (
+          <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+        )}
+        <p className="text-sm text-muted-foreground font-body">
+          {uploading ? "Uploading..." : "Click or drag photos here"}
+        </p>
+        <p className="text-xs text-muted-foreground/60 font-body mt-1">JPG, PNG, WebP • Max 10MB each</p>
+        <input
+          id="gallery-upload"
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
+
 function SectionRenderer({
   section,
   bg,
