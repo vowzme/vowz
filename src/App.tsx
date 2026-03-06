@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import Editor from "./pages/Editor";
+import PublicSite from "./pages/PublicSite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const AppRoutes = () => (
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
+    <Route path="/site/:slug" element={<PublicSite />} />
     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
     <Route path="*" element={<NotFound />} />
   </Routes>
