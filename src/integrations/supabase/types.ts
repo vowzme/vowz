@@ -164,6 +164,50 @@ export type Database = {
           },
         ]
       }
+      wedding_checklist: {
+        Row: {
+          category: string
+          created_at: string
+          due_date: string | null
+          id: string
+          is_completed: boolean
+          notes: string | null
+          sort_order: number
+          title: string
+          wedding_site_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean
+          notes?: string | null
+          sort_order?: number
+          title: string
+          wedding_site_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean
+          notes?: string | null
+          sort_order?: number
+          title?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_checklist_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wedding_sites: {
         Row: {
           created_at: string
