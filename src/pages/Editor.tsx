@@ -335,7 +335,7 @@ const Editor = () => {
             <X className="w-4 h-4 mr-1" /> Exit Preview
           </Button>
         </div>
-        <SitePreview sections={sections.filter((s) => s.visible)} bg={bg} accent={accent} light={light} />
+        <SitePreview sections={sections.filter((s) => s.visible)} bg={bg} accent={accent} light={light} displayFont={displayFont} bodyFont={bodyFont} />
       </div>
     );
   }
