@@ -44,6 +44,7 @@ const PublicSite = () => {
   const [site, setSite] = useState<WeddingSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const { trackEvent, trackPageView } = useAnalyticsTracker(site?.id);
 
   useEffect(() => {
     if (!slug) return;
@@ -59,6 +60,11 @@ const PublicSite = () => {
         setLoading(false);
       });
   }, [slug]);
+
+  // Track page view once site loads
+  useEffect(() => {
+    if (site) trackPageView();
+  }, [site, trackPageView]);
 
   // Dynamically set OG meta tags when site data loads
   useEffect(() => {
