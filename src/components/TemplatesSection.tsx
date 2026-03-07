@@ -114,6 +114,8 @@ const templates: TemplateData[] = [
     venue: "Lakshmi Vilas Palace",
     location: "Udaipur, Rajasthan",
     story: "Ravi and Anita were introduced through their families — a modern arranged-love story. After their first meeting over masala dosa at a café, they knew something special had begun. Long phone calls turned into weekend trips, and what started as curiosity blossomed into deep, unwavering love.",
+    couplePhoto: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&h=800&fit=crop",
     events: [
       { name: "Haldi Ceremony", date: "Feb 6, 2027", time: "10:00 AM", venue: "Anita's Family Home" },
       { name: "Mehendi & Sangeet", date: "Feb 7, 2027", time: "5:00 PM", venue: "Lakshmi Vilas Courtyard" },
