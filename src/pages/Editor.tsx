@@ -617,16 +617,23 @@ function SectionsPanel({
 function StylePanel({
   colors,
   onColorChange,
+  displayFont,
+  bodyFont,
+  onFontChange,
 }: {
   colors: string[];
   onColorChange: (colors: string[]) => void;
+  displayFont: string;
+  bodyFont: string;
+  onFontChange: (display: string, body: string) => void;
 }) {
   return (
     <div>
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Style</h3>
       <p className="text-xs text-muted-foreground font-body mb-4">Customize your site's look</p>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
+        {/* Color Palette */}
         <div>
           <label className="font-body text-sm font-medium text-foreground mb-2 block">Color Palette</label>
           <div className="grid grid-cols-3 gap-2">
@@ -651,6 +658,7 @@ function StylePanel({
           </div>
         </div>
 
+        {/* Custom Colors */}
         <div>
           <label className="font-body text-sm font-medium text-foreground mb-2 block">Custom Colors</label>
           <div className="space-y-2">
@@ -670,6 +678,36 @@ function StylePanel({
                 <span className="font-body text-xs text-muted-foreground/60 ml-auto">{colors[i]}</span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Font Picker */}
+        <div>
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Typography</label>
+          <div className="space-y-2">
+            {FONT_PRESETS.map((preset) => {
+              const isActive = displayFont === preset.display && bodyFont === preset.body;
+              return (
+                <button
+                  key={preset.name}
+                  onClick={() => {
+                    loadGoogleFont(preset.display);
+                    loadGoogleFont(preset.body);
+                    onFontChange(preset.display, preset.body);
+                  }}
+                  className={`w-full p-3 rounded-lg border text-left transition-colors ${
+                    isActive ? "border-gold bg-gold/10" : "border-border/50 hover:border-border"
+                  }`}
+                >
+                  <p className="text-sm font-semibold text-foreground mb-0.5" style={{ fontFamily: `'${preset.display}', serif` }}>
+                    {preset.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground" style={{ fontFamily: `'${preset.body}', sans-serif` }}>
+                    {preset.display} + {preset.body}
+                  </p>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
