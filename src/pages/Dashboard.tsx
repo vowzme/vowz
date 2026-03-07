@@ -183,6 +183,9 @@ const Dashboard = () => {
           <Tabs defaultValue="overview" className="space-y-6">
              <TabsList className="bg-card border border-border/50">
               <TabsTrigger value="overview" className="font-body">Overview</TabsTrigger>
+              <TabsTrigger value="checklist" className="font-body">
+                Checklist <ClipboardList className="w-3.5 h-3.5 ml-1" />
+              </TabsTrigger>
               <TabsTrigger value="analytics" className="font-body">
                 Analytics <BarChart3 className="w-3.5 h-3.5 ml-1" />
               </TabsTrigger>
