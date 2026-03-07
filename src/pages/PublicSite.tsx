@@ -384,6 +384,17 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
                   <MapPin className="w-3 h-3" /> {event.location}
                 </a>
               )}
+              {event.date && (
+                <a
+                  href={`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.name)}&dates=${encodeURIComponent(event.date.replace(/[^0-9]/g, ""))}/${encodeURIComponent(event.date.replace(/[^0-9]/g, ""))}&details=${encodeURIComponent(`${event.name}${event.venue ? " at " + event.venue : ""}`)}&location=${encodeURIComponent(event.location || event.venue || "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-body mt-2 px-2.5 py-1 rounded-full border transition-colors hover:bg-card"
+                  style={{ borderColor: `${accent}40`, color: accent }}
+                >
+                  <CalendarPlus className="w-3 h-3" /> Add to Calendar
+                </a>
+              )}
               {!event.date && !event.time && (
                 <p className="text-sm text-muted-foreground font-body">Date & time TBD</p>
               )}
