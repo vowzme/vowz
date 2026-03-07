@@ -76,6 +76,8 @@ const templates: TemplateData[] = [
     venue: "Rosewood Gardens",
     location: "Tuscany, Italy",
     story: "James spotted Sofia at a tiny bookshop in Florence, both reaching for the same novel. They ended up sharing coffee, then dinner, then a lifetime of adventures. From spontaneous road trips across Europe to quiet Sunday mornings — every moment together feels like a chapter worth reading.",
+    couplePhoto: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&h=800&fit=crop",
     events: [
       { name: "Welcome Dinner", date: "Apr 19, 2027", time: "7:00 PM", venue: "Villa Cora Terrace" },
       { name: "Church Ceremony", date: "Apr 20, 2027", time: "11:00 AM", venue: "Chapel of the Holy Cross" },
