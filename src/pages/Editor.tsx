@@ -42,6 +42,8 @@ export interface WeddingSiteData {
     directions: string;
   };
   welcomeMessage?: string;
+  displayFont?: string;
+  bodyFont?: string;
 }
 
 interface EditorState {
