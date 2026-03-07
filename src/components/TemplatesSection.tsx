@@ -141,9 +141,12 @@ const templates: TemplateData[] = [
     },
     galleryPhotos: [
       { label: "Mandap Setup", url: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=450&fit=crop" },
-      { label: "Haldi", url: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=450&fit=crop" },
+      { label: "Haldi", url: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=800&fit=crop" },
       { label: "Couple", url: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=600&h=450&fit=crop" },
       { label: "Palace View", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+      { label: "Lake Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+      { label: "Baraat", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=800&fit=crop" },
+      { label: "Ring Exchange", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
     ],
   },
   {
