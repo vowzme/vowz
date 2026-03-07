@@ -643,6 +643,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
       if (error) throw error;
       setSubmitted(true);
       toast({ title: "RSVP submitted! 🎉" });
+      trackEvent("rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         toast({ title: "Please check your details", description: err.errors[0]?.message, variant: "destructive" });
