@@ -591,7 +591,7 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
 }
 
 // ─── RSVP Form ────────────────────────────────────────────────────────
-function RsvpSection({ data, site, bg, accent }: { data: any; site: WeddingSite; bg: string; accent: string }) {
+function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
