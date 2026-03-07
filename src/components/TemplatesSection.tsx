@@ -299,6 +299,8 @@ const templates: TemplateData[] = [
     venue: "Umaid Bhawan Palace",
     location: "Jodhpur, Rajasthan",
     story: "Kabir and Ishani met at a mutual friend's art exhibition in Mumbai. He was captivated by her critique of a painting; she was impressed that he actually listened. What followed were gallery dates, midnight chai conversations, and a surprise proposal under the blue walls of Jodhpur — the city that would host their dream wedding.",
+    couplePhoto: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&h=800&fit=crop",
     events: [
       { name: "Mehendi & Haldi", date: "Nov 20, 2027", time: "3:00 PM", venue: "Palace Courtyard" },
       { name: "Sangeet Gala", date: "Nov 21, 2027", time: "7:00 PM", venue: "Umaid Bhawan Ballroom" },
