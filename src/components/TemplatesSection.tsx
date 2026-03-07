@@ -205,6 +205,98 @@ const templates: TemplateData[] = [
     },
     photoPlaceholders: ["Backwaters", "Couple Portrait", "Ceremony", "Food Spread"],
   },
+  {
+    name: "Beach Bliss",
+    colors: ["#1B6B93", "#F5D89A", "#FFF8F0"],
+    style: "Destination",
+    couple: "Leo & Ananya",
+    partner1: "Leo",
+    partner2: "Ananya",
+    tagline: "Where the ocean meets our love story",
+    weddingDate: "May 18, 2027",
+    venue: "Sunset Beach Resort",
+    location: "Goa, India",
+    story: "Leo and Ananya met on a beach cleanup drive in Goa. She was organizing volunteers; he showed up with two trash bags and a terrible sunburn. Their shared passion for the ocean turned into sunset walks, surfing lessons, and eventually a proposal at the very beach where it all started.",
+    events: [
+      { name: "Beach Welcome Party", date: "May 17, 2027", time: "6:00 PM", venue: "Beachside Shack" },
+      { name: "Ceremony on the Sand", date: "May 18, 2027", time: "5:00 PM", venue: "Sunset Beach Resort" },
+      { name: "Starlit Reception", date: "May 18, 2027", time: "8:00 PM", venue: "Ocean Deck Pavilion" },
+    ],
+    guestbookMessages: [
+      { name: "Tara & Jai", message: "You two are the perfect wave! Can't wait for the beach party! 🌊" },
+      { name: "Coach Daniel", message: "Leo, you finally caught the best wave of your life. Congratulations!" },
+    ],
+    travelInfo: {
+      hotels: [
+        { name: "Sunset Beach Resort", distance: "On-site" },
+        { name: "Taj Exotica Goa", distance: "3 km from venue" },
+      ],
+      directions: "Fly into Dabolim Airport (GOI). The resort is a 40-minute drive south along the coast.",
+    },
+    photoPlaceholders: ["Beach Sunset", "Couple on Shore", "Ceremony Setup", "Ocean View"],
+  },
+  {
+    name: "Royal Blue",
+    colors: ["#1A237E", "#C0A44D", "#E8E6F0"],
+    style: "Grand",
+    couple: "Kabir & Ishani",
+    partner1: "Kabir",
+    partner2: "Ishani",
+    tagline: "A regal affair of two hearts united",
+    weddingDate: "November 22, 2027",
+    venue: "Umaid Bhawan Palace",
+    location: "Jodhpur, Rajasthan",
+    story: "Kabir and Ishani met at a mutual friend's art exhibition in Mumbai. He was captivated by her critique of a painting; she was impressed that he actually listened. What followed were gallery dates, midnight chai conversations, and a surprise proposal under the blue walls of Jodhpur — the city that would host their dream wedding.",
+    events: [
+      { name: "Mehendi & Haldi", date: "Nov 20, 2027", time: "3:00 PM", venue: "Palace Courtyard" },
+      { name: "Sangeet Gala", date: "Nov 21, 2027", time: "7:00 PM", venue: "Umaid Bhawan Ballroom" },
+      { name: "Royal Wedding Ceremony", date: "Nov 22, 2027", time: "10:00 AM", venue: "Umaid Bhawan Palace" },
+      { name: "Grand Reception", date: "Nov 22, 2027", time: "7:30 PM", venue: "Palace Banquet Hall" },
+    ],
+    guestbookMessages: [
+      { name: "Aisha & Vikram", message: "A wedding fit for royalty! So thrilled for you both! 👑" },
+      { name: "Nani ji", message: "My blessings are always with you. May your love shine brighter than gold." },
+      { name: "Rohan", message: "Kabir bhai, from college roommates to watching you marry your soulmate. Proud of you!" },
+    ],
+    travelInfo: {
+      hotels: [
+        { name: "Umaid Bhawan Palace", distance: "On-site" },
+        { name: "Raas Jodhpur", distance: "4 km from venue" },
+      ],
+      directions: "Fly into Jodhpur Airport (JDH). The palace is a 15-minute drive from the airport.",
+    },
+    photoPlaceholders: ["Palace Exterior", "Blue City View", "Couple Portrait", "Ballroom"],
+  },
+  {
+    name: "Rose Garden",
+    colors: ["#8C3A5E", "#F5C6D0", "#FFF5F7"],
+    style: "Romantic",
+    couple: "Daniel & Priya",
+    partner1: "Daniel",
+    partner2: "Priya",
+    tagline: "Every petal tells our love story",
+    weddingDate: "September 6, 2027",
+    venue: "The Botanical Estate",
+    location: "Ooty, Tamil Nadu",
+    story: "Daniel, a botanist from London, came to Ooty for a rare orchid. He found Priya instead — the garden curator who knew every flower by name. Their love blossomed like the roses around them, nurtured by letters across continents and weekend flights. Now they're planting roots together, forever.",
+    events: [
+      { name: "Rose Garden Welcome Tea", date: "Sep 5, 2027", time: "4:00 PM", venue: "The Botanical Estate" },
+      { name: "Fusion Ceremony", date: "Sep 6, 2027", time: "11:00 AM", venue: "Rose Terrace Gazebo" },
+      { name: "Garden Reception", date: "Sep 6, 2027", time: "5:30 PM", venue: "The Grand Greenhouse" },
+    ],
+    guestbookMessages: [
+      { name: "Aunt Catherine", message: "Daniel, you traveled the world and found your greatest bloom. Beautiful! 🌹" },
+      { name: "Meera & Sanjay", message: "Priya, you deserve all the flowers in the world. So happy for you both!" },
+    ],
+    travelInfo: {
+      hotels: [
+        { name: "Savoy Hotel Ooty", distance: "2 km from venue" },
+        { name: "Sterling Elk Hill", distance: "5 km from venue" },
+      ],
+      directions: "Fly into Coimbatore Airport (CJB). Ooty is a scenic 3-hour drive through the Nilgiri hills.",
+    },
+    photoPlaceholders: ["Rose Garden", "Couple in Greenhouse", "Gazebo Setup", "Mountain View"],
+  },
 ];
 
 // ─── Countdown helper ────────────────────────────────────────────────
@@ -511,7 +603,7 @@ const TemplatesSection = () => {
             viewport={{ once: true }}
           >
             <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-3">
-              6 Stunning Templates
+              9 Stunning Templates
             </p>
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
               Themes for Every <span className="text-gradient-gold italic">Tradition</span>
