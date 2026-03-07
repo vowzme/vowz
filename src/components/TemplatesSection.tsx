@@ -300,9 +300,12 @@ const templates: TemplateData[] = [
     },
     galleryPhotos: [
       { label: "Beach Sunset", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=450&fit=crop" },
-      { label: "Couple on Shore", url: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=600&h=450&fit=crop" },
+      { label: "Couple on Shore", url: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=600&h=800&fit=crop" },
       { label: "Ceremony Setup", url: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=450&fit=crop" },
       { label: "Ocean View", url: "https://images.unsplash.com/photo-1505881502353-a1986add3762?w=600&h=450&fit=crop" },
+      { label: "Tiki Torches", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+      { label: "Seashell Decor", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=800&fit=crop" },
+      { label: "Barefoot Dance", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
     ],
   },
   {
