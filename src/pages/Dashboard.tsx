@@ -1292,6 +1292,17 @@ function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; si
             )}
           </div>
         </div>
+
+        {/* Disclaimer & Terms */}
+        <div className="border-t border-border/30 pt-4 mt-2">
+          <p className="text-[10px] text-muted-foreground/70 font-body leading-relaxed">
+            <strong className="text-muted-foreground">Important:</strong> Domain purchases are made directly through third-party registrars (GoDaddy, BigRock, etc.) and are subject to their terms, pricing, and refund policies.
+            We do not sell, manage, or renew domains on your behalf. <strong className="text-muted-foreground">You are solely responsible for domain registration, renewal, and any associated fees.</strong> If
+            your domain expires, your wedding site will no longer be accessible at that address. We recommend enabling auto-renewal at your registrar.
+            We provide domain suggestions and availability checks as a convenience only — accuracy is not guaranteed. We accept no liability for domain purchases,
+            losses, disputes, or any issues arising from third-party registrar services. By using this feature, you agree to these terms.
+          </p>
+        </div>
       </div>
     </div>
   );
