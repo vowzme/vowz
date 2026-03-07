@@ -1020,9 +1020,15 @@ function EventEditor({
             className="font-body text-sm h-8"
           />
           <Input
-            placeholder="Venue"
+            placeholder="Venue name"
             value={event.venue}
             onChange={(e) => onChange({ ...event, venue: e.target.value })}
+            className="font-body text-sm h-8"
+          />
+          <Input
+            placeholder="Address / Location (e.g., 123 Main St, City)"
+            value={event.location || ""}
+            onChange={(e) => onChange({ ...event, location: e.target.value })}
             className="font-body text-sm h-8"
           />
         </div>
