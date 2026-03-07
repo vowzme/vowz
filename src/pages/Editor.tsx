@@ -152,6 +152,26 @@ const COLOR_PRESETS = [
   { name: "Navy", colors: ["#1B2A4A", "#B8860B", "#F5F5F5"] },
 ];
 
+// ─── Font presets ────────────────────────────────────────────────────
+const FONT_PRESETS = [
+  { name: "Classic", display: "Cormorant Garamond", body: "DM Sans" },
+  { name: "Elegant", display: "Playfair Display", body: "Lato" },
+  { name: "Modern", display: "Montserrat", body: "Source Sans 3" },
+  { name: "Romantic", display: "Great Vibes", body: "Nunito" },
+  { name: "Regal", display: "Cinzel", body: "Raleway" },
+  { name: "Whimsical", display: "Dancing Script", body: "Quicksand" },
+];
+
+function loadGoogleFont(fontFamily: string) {
+  const id = `gfont-${fontFamily.replace(/\s/g, "-")}`;
+  if (document.getElementById(id)) return;
+  const link = document.createElement("link");
+  link.id = id;
+  link.rel = "stylesheet";
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:wght@400;500;600;700&display=swap`;
+  document.head.appendChild(link);
+}
+
 // ─── Fallback data for direct navigation ──────────────────────────────
 const FALLBACK_DATA: WeddingSiteData = {
   partner1: "Partner 1",
