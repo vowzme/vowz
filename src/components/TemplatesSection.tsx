@@ -16,6 +16,8 @@ interface TemplateData {
   venue: string;
   location: string;
   story: string;
+  couplePhoto: string;
+  heroPhoto: string;
   events: { name: string; date: string; time: string; venue: string }[];
   guestbookMessages: { name: string; message: string }[];
   travelInfo: { hotels: { name: string; distance: string }[]; directions: string };
@@ -35,6 +37,8 @@ const templates: TemplateData[] = [
     venue: "The Grand Palace",
     location: "Jaipur, Rajasthan",
     story: "We met at a friend's Diwali celebration in 2022. Arjun was trying to light a stubborn sparkler, and Meera offered her lighter with a laugh. That spark — both literal and figurative — never went out. Three years, countless chai dates, and one sunset proposal later, we're ready to begin our forever.",
+    couplePhoto: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&h=800&fit=crop",
     events: [
       { name: "Mehendi Ceremony", date: "Dec 13, 2026", time: "4:00 PM", venue: "Meera's Family Home" },
       { name: "Sangeet Night", date: "Dec 14, 2026", time: "7:00 PM", venue: "Royal Garden Hall" },
@@ -72,6 +76,8 @@ const templates: TemplateData[] = [
     venue: "Rosewood Gardens",
     location: "Tuscany, Italy",
     story: "James spotted Sofia at a tiny bookshop in Florence, both reaching for the same novel. They ended up sharing coffee, then dinner, then a lifetime of adventures. From spontaneous road trips across Europe to quiet Sunday mornings — every moment together feels like a chapter worth reading.",
+    couplePhoto: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&h=800&fit=crop",
     events: [
       { name: "Welcome Dinner", date: "Apr 19, 2027", time: "7:00 PM", venue: "Villa Cora Terrace" },
       { name: "Church Ceremony", date: "Apr 20, 2027", time: "11:00 AM", venue: "Chapel of the Holy Cross" },
@@ -108,6 +114,8 @@ const templates: TemplateData[] = [
     venue: "Lakshmi Vilas Palace",
     location: "Udaipur, Rajasthan",
     story: "Ravi and Anita were introduced through their families — a modern arranged-love story. After their first meeting over masala dosa at a café, they knew something special had begun. Long phone calls turned into weekend trips, and what started as curiosity blossomed into deep, unwavering love.",
+    couplePhoto: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&h=800&fit=crop",
     events: [
       { name: "Haldi Ceremony", date: "Feb 6, 2027", time: "10:00 AM", venue: "Anita's Family Home" },
       { name: "Mehendi & Sangeet", date: "Feb 7, 2027", time: "5:00 PM", venue: "Lakshmi Vilas Courtyard" },
@@ -144,6 +152,8 @@ const templates: TemplateData[] = [
     venue: "Willow Creek Farm",
     location: "Vermont, USA",
     story: "David and Grace met while volunteering at a community garden. She was planting sunflowers; he was hopelessly overwatering the tomatoes. Their shared love for nature, sustainability, and terrible gardening puns turned into something beautiful — a love as natural and enduring as the earth itself.",
+    couplePhoto: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=1200&h=800&fit=crop",
     events: [
       { name: "Rehearsal Dinner", date: "Jun 20, 2027", time: "6:00 PM", venue: "The Farmhouse Barn" },
       { name: "Garden Ceremony", date: "Jun 21, 2027", time: "3:00 PM", venue: "Willow Creek Meadow" },
@@ -179,6 +189,8 @@ const templates: TemplateData[] = [
     venue: "The Pearl Ballroom",
     location: "Istanbul, Turkey",
     story: "Omar and Ayesha's love story began at a calligraphy workshop in Istanbul. He was drawn to her graceful brushstrokes; she admired his patience and quiet determination. Over cups of Turkish tea and walks along the Bosphorus, they discovered a love as timeless as the city where they met.",
+    couplePhoto: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=1200&h=800&fit=crop",
     events: [
       { name: "Nikah Ceremony", date: "Mar 14, 2027", time: "11:00 AM", venue: "Blue Mosque Gardens" },
       { name: "Walima Reception", date: "Mar 14, 2027", time: "6:00 PM", venue: "The Pearl Ballroom" },
@@ -213,6 +225,8 @@ const templates: TemplateData[] = [
     venue: "Kumarakom Lake Resort",
     location: "Kumarakom, Kerala",
     story: "Zain and Fatima grew up in neighboring towns in Kerala but only met at a food festival in Kochi. He was judging the biryani competition; she was the winner. What started as playful banter over spice levels turned into late-night conversations, family visits, and a love seasoned with joy.",
+    couplePhoto: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&h=800&fit=crop",
     events: [
       { name: "Mehendi Night", date: "Jan 8, 2027", time: "6:00 PM", venue: "Fatima's Family Home" },
       { name: "Nikah", date: "Jan 10, 2027", time: "10:00 AM", venue: "Kumarakom Lake Resort" },
@@ -248,6 +262,8 @@ const templates: TemplateData[] = [
     venue: "Sunset Beach Resort",
     location: "Goa, India",
     story: "Leo and Ananya met on a beach cleanup drive in Goa. She was organizing volunteers; he showed up with two trash bags and a terrible sunburn. Their shared passion for the ocean turned into sunset walks, surfing lessons, and eventually a proposal at the very beach where it all started.",
+    couplePhoto: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&h=800&fit=crop",
     events: [
       { name: "Beach Welcome Party", date: "May 17, 2027", time: "6:00 PM", venue: "Beachside Shack" },
       { name: "Ceremony on the Sand", date: "May 18, 2027", time: "5:00 PM", venue: "Sunset Beach Resort" },
@@ -283,6 +299,8 @@ const templates: TemplateData[] = [
     venue: "Umaid Bhawan Palace",
     location: "Jodhpur, Rajasthan",
     story: "Kabir and Ishani met at a mutual friend's art exhibition in Mumbai. He was captivated by her critique of a painting; she was impressed that he actually listened. What followed were gallery dates, midnight chai conversations, and a surprise proposal under the blue walls of Jodhpur — the city that would host their dream wedding.",
+    couplePhoto: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&h=800&fit=crop",
     events: [
       { name: "Mehendi & Haldi", date: "Nov 20, 2027", time: "3:00 PM", venue: "Palace Courtyard" },
       { name: "Sangeet Gala", date: "Nov 21, 2027", time: "7:00 PM", venue: "Umaid Bhawan Ballroom" },
@@ -320,6 +338,8 @@ const templates: TemplateData[] = [
     venue: "The Botanical Estate",
     location: "Ooty, Tamil Nadu",
     story: "Daniel, a botanist from London, came to Ooty for a rare orchid. He found Priya instead — the garden curator who knew every flower by name. Their love blossomed like the roses around them, nurtured by letters across continents and weekend flights. Now they're planting roots together, forever.",
+    couplePhoto: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1200&h=800&fit=crop",
     events: [
       { name: "Rose Garden Welcome Tea", date: "Sep 5, 2027", time: "4:00 PM", venue: "The Botanical Estate" },
       { name: "Fusion Ceremony", date: "Sep 6, 2027", time: "11:00 AM", venue: "Rose Terrace Gazebo" },
@@ -406,34 +426,37 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           <X className="w-5 h-5" />
         </button>
 
-        {/* ── Hero Section ── */}
-        <div
-          className="relative py-20 px-6 text-center"
-          style={{ background: `linear-gradient(135deg, ${bg}, ${bg}dd)` }}
-        >
-          <div className="absolute inset-0 opacity-10">
-            <svg viewBox="0 0 400 400" className="w-full h-full">
-              {[...Array(8)].map((_, i) => (
-                <circle key={i} cx="200" cy="200" r={50 + i * 30} fill="none" stroke={text} strokeWidth="0.5" />
-              ))}
-            </svg>
+        {/* ── Hero Section with Photo ── */}
+        <div className="relative overflow-hidden">
+          {/* Hero background image */}
+          <div className="absolute inset-0">
+            <img src={t.heroPhoto} alt={t.venue} className="w-full h-full object-cover" />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bg}cc 0%, ${bg}99 40%, ${bg}ee 100%)` }} />
           </div>
-          <div className="relative z-10">
-            <Heart className="w-8 h-8 mx-auto mb-3" style={{ color: accent }} fill="currentColor" />
-            <p className="font-body text-sm tracking-widest uppercase mb-2" style={{ color: `${text}80` }}>
+
+          <div className="relative z-10 pt-16 pb-8 px-6 text-center">
+            <Heart className="w-8 h-8 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
+            <p className="font-body text-sm tracking-[0.25em] uppercase mb-3" style={{ color: `${text}90` }}>
               You're Invited to the Wedding of
             </p>
-            <h1 className="font-display text-5xl md:text-6xl font-bold mb-3" style={{ color: text }}>
-              {t.partner1} & {t.partner2}
+            <h1 className="font-display text-5xl md:text-7xl font-bold mb-3 drop-shadow-lg" style={{ color: text }}>
+              {t.partner1} <span className="font-normal italic text-3xl md:text-4xl mx-2" style={{ color: accent }}>&</span> {t.partner2}
             </h1>
-            <p className="font-display text-xl italic mb-4" style={{ color: accent }}>
+            <p className="font-display text-xl italic mb-6" style={{ color: accent }}>
               {t.tagline}
             </p>
-            <div className="flex items-center justify-center gap-4 text-sm" style={{ color: `${text}99` }}>
-              <span className="flex items-center gap-1 font-body">
+
+            {/* Couple photo circle */}
+            <div className="mx-auto mb-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl" style={{ borderColor: accent }}>
+              <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+            </div>
+
+            <div className="flex items-center justify-center gap-6 text-sm" style={{ color: `${text}cc` }}>
+              <span className="flex items-center gap-1.5 font-body">
                 <Calendar className="w-4 h-4" /> {t.weddingDate}
               </span>
-              <span className="flex items-center gap-1 font-body">
+              <span className="w-1 h-1 rounded-full" style={{ backgroundColor: accent }} />
+              <span className="flex items-center gap-1.5 font-body">
                 <MapPin className="w-4 h-4" /> {t.location}
               </span>
             </div>
@@ -464,13 +487,27 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           </div>
         </div>
 
-        {/* ── Our Story Section ── */}
-        <div className="bg-white py-12 px-8">
+        {/* ── Our Story Section with Photo ── */}
+        <div className="bg-white py-14 px-8">
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>Our Story</h2>
-          <div className="w-12 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
-          <p className="text-center max-w-xl mx-auto leading-relaxed font-body text-sm" style={{ color: `${bg}cc` }}>
-            {t.story}
-          </p>
+          <div className="w-12 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
+          <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
+            <div className="w-full md:w-2/5 flex-shrink-0">
+              <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-lg">
+                <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+              </div>
+            </div>
+            <div className="w-full md:w-3/5">
+              <p className="leading-relaxed font-body text-sm" style={{ color: `${bg}cc` }}>
+                {t.story}
+              </p>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="w-8 h-0.5" style={{ backgroundColor: accent }} />
+                <Heart className="w-4 h-4" style={{ color: accent }} fill="currentColor" />
+                <div className="w-8 h-0.5" style={{ backgroundColor: accent }} />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ── Photo Gallery Section ── */}
@@ -680,49 +717,32 @@ const TemplatesSection = () => {
                 onClick={() => setSelectedTemplate(t)}
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
-                  {/* Template preview */}
-                  <div
-                    className="h-52 relative"
-                    style={{
-                      background: `linear-gradient(135deg, ${t.colors[0]}, ${t.colors[0]}cc)`,
-                    }}
-                  >
-                    {/* Decorative pattern */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-15">
-                      <svg viewBox="0 0 200 200" className="w-32 h-32">
-                        <circle cx="100" cy="100" r="80" fill="none" stroke={t.colors[2]} strokeWidth="0.5" />
-                        <circle cx="100" cy="100" r="60" fill="none" stroke={t.colors[2]} strokeWidth="0.5" />
-                        <circle cx="100" cy="100" r="40" fill="none" stroke={t.colors[2]} strokeWidth="0.5" />
-                        {[...Array(12)].map((_, j) => (
-                          <line
-                            key={j}
-                            x1="100" y1="20" x2="100" y2="180"
-                            stroke={t.colors[2]}
-                            strokeWidth="0.3"
-                            transform={`rotate(${j * 30} 100 100)`}
-                          />
-                        ))}
-                      </svg>
-                    </div>
-                    {/* Sample text */}
+                  {/* Template preview with hero photo */}
+                  <div className="h-60 relative">
+                    <img src={t.heroPhoto} alt={t.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${t.colors[0]}88 0%, ${t.colors[0]}cc 50%, ${t.colors[0]}ee 100%)` }} />
+                    
+                    {/* Content overlay */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                      <Heart className="w-4 h-4 mb-2" style={{ color: t.colors[1] }} fill="currentColor" />
-                      <p className="font-display text-xs tracking-widest uppercase mb-1" style={{ color: t.colors[2] + "80" }}>
-                        You're Invited
-                      </p>
-                      <p className="font-display text-2xl font-bold" style={{ color: t.colors[2] }}>
+                      {/* Couple photo circle */}
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 mb-3 shadow-lg" style={{ borderColor: t.colors[1] }}>
+                        <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+                      </div>
+                      <Heart className="w-3.5 h-3.5 mb-1.5" style={{ color: t.colors[1] }} fill="currentColor" />
+                      <p className="font-display text-2xl font-bold drop-shadow-md" style={{ color: t.colors[2] }}>
                         {t.couple}
                       </p>
-                      <p className="font-body text-xs mt-1" style={{ color: t.colors[2] + "70" }}>
+                      <p className="font-body text-xs mt-1 drop-shadow-sm" style={{ color: t.colors[2] + "cc" }}>
                         {t.weddingDate}
                       </p>
-                      <p className="font-body text-[10px] mt-1 flex items-center gap-1" style={{ color: t.colors[2] + "60" }}>
+                      <p className="font-body text-[10px] mt-0.5 flex items-center gap-1 drop-shadow-sm" style={{ color: t.colors[2] + "99" }}>
                         <MapPin className="w-3 h-3" /> {t.location}
                       </p>
                     </div>
+
                     {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/30 transition-colors duration-300 flex items-center justify-center">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white bg-black/60 backdrop-blur-sm px-5 py-2.5 rounded-full font-body text-sm font-medium flex items-center gap-2">
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 text-white bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-full font-body text-sm font-medium flex items-center gap-2 border border-white/30">
                         <Eye className="w-4 h-4" /> Preview Template
                       </span>
                     </div>
@@ -737,7 +757,7 @@ const TemplatesSection = () => {
                       {t.colors.map((c, j) => (
                         <div
                           key={j}
-                          className="w-5 h-5 rounded-full border border-border/50"
+                          className="w-5 h-5 rounded-full border border-border/50 shadow-sm"
                           style={{ backgroundColor: c }}
                         />
                       ))}
