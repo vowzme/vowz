@@ -1443,6 +1443,157 @@ function SectionEditor({
           </div>
         </>
       )}
+
+      {type === "polls" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="font-body text-sm font-medium text-foreground block">Polls</label>
+            {(data.polls || []).map((poll: any, i: number) => (
+              <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                <Input
+                  placeholder="Poll question (e.g. Vote for Sangeet songs!)"
+                  value={poll.question || ""}
+                  onChange={(e) => {
+                    const polls = [...(data.polls || [])];
+                    polls[i] = { ...poll, question: e.target.value };
+                    onUpdateData({ polls });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                {(poll.options || []).map((opt: string, j: number) => (
+                  <div key={j} className="flex gap-1">
+                    <Input
+                      placeholder={`Option ${j + 1}`}
+                      value={opt}
+                      onChange={(e) => {
+                        const polls = [...(data.polls || [])];
+                        const options = [...(polls[i].options || [])];
+                        options[j] = e.target.value;
+                        polls[i] = { ...polls[i], options };
+                        onUpdateData({ polls });
+                      }}
+                      className="font-body text-xs h-7 flex-1"
+                    />
+                    <button
+                      onClick={() => {
+                        const polls = [...(data.polls || [])];
+                        polls[i] = { ...polls[i], options: polls[i].options.filter((_: any, k: number) => k !== j) };
+                        onUpdateData({ polls });
+                      }}
+                      className="text-muted-foreground hover:text-destructive p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7 flex-1 font-body"
+                    onClick={() => {
+                      const polls = [...(data.polls || [])];
+                      polls[i] = { ...polls[i], options: [...(polls[i].options || []), ""] };
+                      onUpdateData({ polls });
+                    }}
+                  >
+                    + Option
+                  </Button>
+                  <button
+                    onClick={() => {
+                      onUpdateData({ polls: (data.polls || []).filter((_: any, j: number) => j !== i) });
+                    }}
+                    className="text-muted-foreground hover:text-destructive p-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body"
+              onClick={() =>
+                onUpdateData({
+                  polls: [...(data.polls || []), { question: "", options: ["Option 1", "Option 2"] }],
+                })
+              }
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Poll
+            </Button>
+          </div>
+        </>
+      )}
+
+      {type === "ecotips" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea
+              value={data.description || ""}
+              onChange={(e) => onUpdateData({ description: e.target.value })}
+              rows={2}
+              className="font-body"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="font-body text-sm font-medium text-foreground block">Eco Tips</label>
+            {(data.tips || []).map((tip: string, i: number) => (
+              <div key={i} className="flex gap-1">
+                <Input
+                  value={tip}
+                  onChange={(e) => {
+                    const tips = [...(data.tips || [])];
+                    tips[i] = e.target.value;
+                    onUpdateData({ tips });
+                  }}
+                  className="font-body text-xs h-7 flex-1"
+                />
+                <button
+                  onClick={() => onUpdateData({ tips: (data.tips || []).filter((_: any, j: number) => j !== i) })}
+                  className="text-muted-foreground hover:text-destructive p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body"
+              onClick={() => onUpdateData({ tips: [...(data.tips || []), ""] })}
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Tip
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={data.showDigitalInviteTracker || false}
+              onChange={(e) => onUpdateData({ showDigitalInviteTracker: e.target.checked })}
+              className="rounded"
+            />
+            <label className="font-body text-sm text-foreground">Show digital invite tracker</label>
+          </div>
+        </>
+      )}
     </div>
   );
 }
