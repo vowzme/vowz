@@ -738,6 +738,10 @@ function SectionEditor({
               className="font-body"
             />
           </div>
+          <LogoUploader
+            logoUrl={data.logoUrl || ""}
+            onLogoChange={(url) => onUpdateData({ logoUrl: url })}
+          />
         </>
       )}
 
