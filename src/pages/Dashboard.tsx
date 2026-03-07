@@ -411,7 +411,7 @@ const Dashboard = () => {
 
               {/* Custom Domain — Premium Feature */}
               <div className="lg:col-span-2 mt-4 sm:mt-6">
-                <CustomDomainPanel siteSlug={site.slug} siteName={`${site.partner1} & ${site.partner2}`} />
+                <CustomDomainPanel siteId={site.id} siteSlug={site.slug} siteName={`${site.partner1} & ${site.partner2}`} savedDomain={site.custom_domain} savedStatus={site.domain_status} onUpdate={(domain: string, status: string) => setSite({ ...site, custom_domain: domain, domain_status: status })} />
               </div>
             </TabsContent>
           </Tabs>
@@ -1009,19 +1009,31 @@ function generateDomainSuggestions(partner1: string, partner2: string, tlds: str
 
 type DomainResult = { domain: string; available: boolean | null; checking?: boolean };
 
-function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; siteName: string }) {
-  const [showInstructions, setShowInstructions] = useState(false);
-  const [customDomain, setCustomDomain] = useState("");
+function CustomDomainPanel({ siteId, siteSlug, siteName, savedDomain, savedStatus, onUpdate }: {
+  siteId: string;
+  siteSlug: string | null;
+  siteName: string;
+  savedDomain: string | null;
+  savedStatus: string;
+  onUpdate: (domain: string | null, status: string) => void;
+}) {
+  const [customDomain, setCustomDomain] = useState(savedDomain || "");
   const [domainResults, setDomainResults] = useState<DomainResult[]>([]);
   const [checking, setChecking] = useState(false);
   const [hasChecked, setHasChecked] = useState(false);
   const [selectedTlds, setSelectedTlds] = useState<string[]>([".com", ".in", ".wedding"]);
   const [customCheckResult, setCustomCheckResult] = useState<DomainResult | null>(null);
   const [checkingCustom, setCheckingCustom] = useState(false);
+  const [savingDomain, setSavingDomain] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
 
   const parts = siteName.split(/\s*&\s*/);
   const partner1 = parts[0]?.trim() || "";
   const partner2 = parts[1]?.trim() || "";
+
+  const currentStatus = savedStatus || "none";
+  const hasSavedDomain = !!savedDomain && currentStatus !== "none";
 
   const toggleTld = (tld: string) => {
     setSelectedTlds((prev) =>
@@ -1034,7 +1046,6 @@ function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; si
     if (suggestions.length === 0) return;
     setChecking(true);
     setHasChecked(true);
-    // Show domains immediately with loading state
     setDomainResults(suggestions.map((d) => ({ domain: d, available: null, checking: true })));
     try {
       const { data, error } = await supabase.functions.invoke("check-domain", {
@@ -1052,35 +1063,89 @@ function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; si
     }
   };
 
-  // Check a custom-typed domain
-  const checkCustomDomain = async (domain: string) => {
-    if (!domain || !domain.includes(".")) return;
-    setCheckingCustom(true);
-    setCustomCheckResult({ domain, available: null, checking: true });
-    try {
-      const { data, error } = await supabase.functions.invoke("check-domain", {
-        body: { domains: [domain] },
-      });
-      if (error) throw error;
-      if (data?.results?.[0]) {
-        setCustomCheckResult({ ...data.results[0], checking: false });
-      }
-    } catch {
-      setCustomCheckResult({ domain, available: null, checking: false });
-    } finally {
-      setCheckingCustom(false);
-    }
-  };
-
-  // Debounced custom domain check
   useEffect(() => {
     if (!customDomain.includes(".") || customDomain.length < 4) {
       setCustomCheckResult(null);
       return;
     }
-    const timer = setTimeout(() => checkCustomDomain(customDomain.trim().toLowerCase()), 800);
+    const timer = setTimeout(async () => {
+      setCheckingCustom(true);
+      setCustomCheckResult({ domain: customDomain, available: null, checking: true });
+      try {
+        const { data, error } = await supabase.functions.invoke("check-domain", {
+          body: { domains: [customDomain.trim().toLowerCase()] },
+        });
+        if (error) throw error;
+        if (data?.results?.[0]) {
+          setCustomCheckResult({ ...data.results[0], checking: false });
+        }
+      } catch {
+        setCustomCheckResult({ domain: customDomain, available: null, checking: false });
+      } finally {
+        setCheckingCustom(false);
+      }
+    }, 800);
     return () => clearTimeout(timer);
   }, [customDomain]);
+
+  const handleSaveDomain = async (domain: string) => {
+    setSavingDomain(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-domain", {
+        body: { siteId, domain: domain.trim().toLowerCase(), action: "save" },
+      });
+      if (error) throw error;
+      setCustomDomain(domain.trim().toLowerCase());
+      onUpdate(domain.trim().toLowerCase(), "pending");
+      toast({ title: "Domain connected! 🔗", description: "Now configure your DNS records and click Verify." });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error saving domain", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setSavingDomain(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    if (!savedDomain) return;
+    setVerifying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-domain", {
+        body: { siteId, domain: savedDomain, action: "verify" },
+      });
+      if (error) throw error;
+      onUpdate(savedDomain, data.status);
+      if (data.status === "verified") {
+        toast({ title: "Domain verified! ✅", description: data.message });
+      } else {
+        toast({ title: "DNS not ready yet", description: data.message });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Verification failed", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (!savedDomain) return;
+    setDisconnecting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-domain", {
+        body: { siteId, domain: savedDomain, action: "disconnect" },
+      });
+      if (error) throw error;
+      setCustomDomain("");
+      onUpdate(null, "none");
+      toast({ title: "Domain disconnected" });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error disconnecting", variant: "destructive" });
+    } finally {
+      setDisconnecting(false);
+    }
+  };
 
   const getBuyUrl = (domain: string, registrar: typeof DOMAIN_REGISTRARS[0]) => {
     if (registrar.name === "GoDaddy India") return `https://www.godaddy.com/en-in/domainsearch/find?domainToCheck=${domain}`;
@@ -1089,336 +1154,254 @@ function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; si
     return `https://www.namecheap.com/domains/registration/results/?domain=${domain}`;
   };
 
-  // Sort: available first, then unknown, then taken
   const sortedResults = [...domainResults].sort((a, b) => {
     const order = (v: boolean | null) => (v === true ? 0 : v === null ? 1 : 2);
     return order(a.available) - order(b.available);
   });
 
+  const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string; icon: typeof Globe }> = {
+    none: { color: "text-muted-foreground", bg: "bg-muted/30", label: "No domain", icon: Globe },
+    pending: { color: "text-amber-600", bg: "bg-amber-500/10", label: "Pending DNS", icon: Clock },
+    verified: { color: "text-emerald-600", bg: "bg-emerald-500/10", label: "Verified", icon: ShieldCheck },
+    live: { color: "text-emerald-600", bg: "bg-emerald-500/10", label: "Live", icon: Check },
+    failed: { color: "text-destructive", bg: "bg-destructive/10", label: "Failed", icon: X },
+  };
+
+  const statusInfo = STATUS_CONFIG[currentStatus] || STATUS_CONFIG.none;
+  const StatusIcon = statusInfo.icon;
+
   return (
     <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
-      {/* Header */}
       <div className="p-4 sm:p-6 border-b border-border/30 flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
           <Crown className="w-5 h-5 text-gold" />
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
             Custom Domain
             <span className="bg-gold/20 text-gold text-[10px] font-body font-semibold px-2 py-0.5 rounded-full">PREMIUM</span>
           </h2>
           <p className="text-sm text-muted-foreground font-body mt-0.5">
-            Get a memorable address like <strong>{partner1.toLowerCase()}and{partner2.toLowerCase()}.com</strong>
+            {hasSavedDomain ? (
+              <>Connected: <strong className="text-foreground">{savedDomain}</strong></>
+            ) : (
+              <>Get a memorable address like <strong>{partner1.toLowerCase()}and{partner2.toLowerCase()}.com</strong></>
+            )}
           </p>
         </div>
+        {hasSavedDomain && (
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-body font-semibold ${statusInfo.bg} ${statusInfo.color}`}>
+            <StatusIcon className="w-3.5 h-3.5" />
+            {statusInfo.label}
+          </div>
+        )}
       </div>
 
       <div className="p-4 sm:p-6 space-y-6">
-        {/* Step 1: Choose TLDs & check */}
-        <div>
-          <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">1</span>
-            Choose your domain style
-          </h3>
-          <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
-            Select the extensions you'd like to check. We recommend <strong>.in</strong> for Indian weddings and <strong>.com</strong> for global reach.
-          </p>
-          <div className="ml-8 space-y-4">
-            {/* TLD chips */}
-            <div className="flex flex-wrap gap-2">
-              {WEDDING_TLDS.map((tld) => (
-                <button
-                  key={tld.ext}
-                  onClick={() => toggleTld(tld.ext)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-body transition-all ${
-                    selectedTlds.includes(tld.ext)
-                      ? "border-gold/50 bg-gold/10 text-foreground shadow-sm"
-                      : "border-border/40 bg-muted/20 text-muted-foreground hover:border-border"
-                  }`}
-                >
-                  <span>{tld.emoji}</span>
-                  <span className="font-semibold">{tld.ext}</span>
-                  <span className="hidden sm:inline text-muted-foreground">· {tld.desc}</span>
-                  {selectedTlds.includes(tld.ext) && <Check className="w-3 h-3 text-gold ml-1" />}
-                </button>
-              ))}
-            </div>
-
-            <Button
-              variant="gold"
-              size="sm"
-              className="font-body"
-              onClick={checkAvailability}
-              disabled={checking || !partner1 || !partner2 || selectedTlds.length === 0}
-            >
-              {checking ? (
-                <><span className="animate-spin mr-2">⏳</span> Checking {domainResults.length} domains...</>
-              ) : (
-                <><Search className="w-4 h-4 mr-1" /> Find Available Domains</>
-              )}
-            </Button>
-
-            {/* Or type your own */}
-            <div className="border-t border-border/20 pt-4">
-              <p className="text-xs text-muted-foreground font-body font-medium mb-2">Or check a specific domain:</p>
-              <div className="relative max-w-sm">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="e.g. arjunandmeera.com"
-                  value={customDomain}
-                  onChange={(e) => setCustomDomain(e.target.value)}
-                  className="pl-10 font-body font-mono text-sm"
-                />
-                {checkingCustom && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs animate-spin">⏳</span>
-                )}
+        {/* Connected domain status panel */}
+        {hasSavedDomain && (
+          <div className={`border rounded-xl p-4 space-y-4 ${
+            currentStatus === "verified" || currentStatus === "live"
+              ? "border-emerald-500/30 bg-emerald-500/5"
+              : currentStatus === "pending"
+              ? "border-amber-500/30 bg-amber-500/5"
+              : "border-destructive/30 bg-destructive/5"
+          }`}>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <p className="font-body font-mono text-sm font-semibold text-foreground">{savedDomain}</p>
+                <p className="text-xs text-muted-foreground font-body mt-0.5">
+                  {currentStatus === "pending" && "Configure DNS records below, then verify."}
+                  {currentStatus === "verified" && "DNS verified! SSL is being provisioned automatically."}
+                  {currentStatus === "live" && "Your wedding site is live at this domain! 🎉"}
+                  {currentStatus === "failed" && "DNS verification failed. Check your records and try again."}
+                </p>
               </div>
-              {customCheckResult && !customCheckResult.checking && (
-                <div className={`mt-2 flex items-center gap-2 text-xs font-body px-3 py-2 rounded-lg ${
-                  customCheckResult.available === true
-                    ? "bg-emerald-500/10 text-emerald-600"
-                    : customCheckResult.available === false
-                    ? "bg-destructive/10 text-destructive"
-                    : "bg-muted/30 text-muted-foreground"
-                }`}>
-                  {customCheckResult.available === true ? (
-                    <><Check className="w-3.5 h-3.5" /> <strong>{customCheckResult.domain}</strong> is available! 🎉</>
-                  ) : customCheckResult.available === false ? (
-                    <><X className="w-3.5 h-3.5" /> <strong>{customCheckResult.domain}</strong> is already taken</>
-                  ) : (
-                    <><Globe className="w-3.5 h-3.5" /> Could not determine availability for <strong>{customCheckResult.domain}</strong></>
-                  )}
-                  {customCheckResult.available !== false && customCheckResult.domain.includes(".") && (
-                    <a
-                      href={getBuyUrl(customCheckResult.domain, DOMAIN_REGISTRARS[0])}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-auto text-[10px] font-medium text-gold bg-gold/10 px-2 py-0.5 rounded"
-                    >
-                      Buy on GoDaddy →
-                    </a>
-                  )}
-                </div>
-              )}
+              <div className="flex gap-2 shrink-0">
+                <Button variant="outline" size="sm" className="font-body text-xs" onClick={handleVerify} disabled={verifying}>
+                  {verifying ? <><span className="animate-spin mr-1">⏳</span> Checking...</> : <><ShieldCheck className="w-3.5 h-3.5 mr-1" /> Verify DNS</>}
+                </Button>
+                <Button variant="outline" size="sm" className="font-body text-xs text-destructive hover:text-destructive" onClick={handleDisconnect} disabled={disconnecting}>
+                  {disconnecting ? "..." : <><X className="w-3.5 h-3.5 mr-1" /> Disconnect</>}
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Suggested domains results */}
-        {sortedResults.length > 0 && (
-          <div>
-            <h3 className="font-display text-base font-semibold text-foreground mb-3 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">✓</span>
-              Personalized suggestions for {partner1} & {partner2}
-            </h3>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-              {sortedResults.map(({ domain, available, checking: itemChecking }) => (
-                <div
-                  key={domain}
-                  className={`flex items-center justify-between gap-3 border rounded-xl px-4 py-3 transition-all ${
-                    available === true
-                      ? "border-emerald-500/30 bg-emerald-500/5"
-                      : available === false
-                      ? "border-border/30 bg-muted/30 opacity-50"
-                      : "border-border/40 bg-muted/20"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    {itemChecking ? (
-                      <span className="w-4 h-4 animate-spin text-xs shrink-0">⏳</span>
-                    ) : available === true ? (
-                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    ) : available === false ? (
-                      <X className="w-4 h-4 text-destructive shrink-0" />
-                    ) : (
-                      <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                    )}
-                    <span className="font-body font-mono text-sm text-foreground truncate">{domain}</span>
-                    {!itemChecking && available === true && (
-                      <span className="text-[10px] font-body font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
-                        Available
-                      </span>
-                    )}
-                    {!itemChecking && available === false && (
-                      <span className="text-[10px] font-body font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">
-                        Taken
-                      </span>
-                    )}
-                  </div>
-                  {!itemChecking && available !== false && (
-                    <div className="flex gap-1.5 shrink-0">
-                      <a
-                        href={getBuyUrl(domain, DOMAIN_REGISTRARS[0])}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
-                      >
-                        GoDaddy
-                      </a>
-                      <a
-                        href={getBuyUrl(domain, DOMAIN_REGISTRARS[1])}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
-                      >
-                        BigRock
-                      </a>
+            {/* Progress timeline */}
+            <div className="flex items-center gap-0">
+              {[
+                { key: "pending", label: "Domain Saved" },
+                { key: "verified", label: "DNS Verified" },
+                { key: "live", label: "Live" },
+              ].map((step, i) => {
+                const steps = ["pending", "verified", "live"];
+                const currentIdx = steps.indexOf(currentStatus);
+                const stepIdx = steps.indexOf(step.key);
+                const isComplete = stepIdx <= currentIdx;
+                const isCurrent = stepIdx === currentIdx;
+                return (
+                  <div key={step.key} className="flex items-center flex-1">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                      isComplete ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
+                    } ${isCurrent ? "ring-2 ring-emerald-500/30" : ""}`}>
+                      {isComplete ? <Check className="w-3.5 h-3.5" /> : i + 1}
                     </div>
-                  )}
-                </div>
-              ))}
+                    <p className={`text-[10px] font-body ml-1.5 ${isComplete ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                      {step.label}
+                    </p>
+                    {i < 2 && <div className={`flex-1 h-0.5 mx-2 rounded ${stepIdx < currentIdx ? "bg-emerald-500" : "bg-border"}`} />}
+                  </div>
+                );
+              })}
             </div>
-            <p className="text-[10px] text-muted-foreground font-body mt-3">
-              💡 All registrars support <strong>UPI, cards & net banking</strong> for easy Indian payments. Availability checked via WHOIS/RDAP — results are indicative.
-            </p>
+
+            {(currentStatus === "pending" || currentStatus === "failed") && (
+              <div className="space-y-3 pt-2">
+                <p className="font-body text-xs font-semibold text-foreground">Add these DNS records at your registrar:</p>
+                <div className="border border-border/50 rounded-xl overflow-hidden">
+                  <div className="divide-y divide-border/30 text-xs font-body">
+                    {[
+                      { type: "A", name: "@", value: "185.158.133.1" },
+                      { type: "A", name: "www", value: "185.158.133.1" },
+                    ].map((rec) => (
+                      <div key={rec.name} className="px-4 py-2.5 grid grid-cols-3 gap-2">
+                        <div><span className="text-muted-foreground text-[10px] uppercase">Type</span><p className="font-mono text-foreground">{rec.type}</p></div>
+                        <div><span className="text-muted-foreground text-[10px] uppercase">Name</span><p className="font-mono text-foreground">{rec.name}</p></div>
+                        <div><span className="text-muted-foreground text-[10px] uppercase">Value</span><p className="font-mono text-foreground">{rec.value}</p></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground font-body">
+                  DNS changes can take 24–72 hours to propagate. Click <strong>Verify DNS</strong> to check anytime.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Step 2: Connect Domain */}
-        <div>
-          <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">2</span>
-            Connect your domain
-          </h3>
-          <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
-            After purchasing, add these DNS records at your registrar to connect the domain to your wedding site.
-          </p>
-          <div className="ml-8">
-            <Button
-              variant="outline"
-              size="sm"
-              className="font-body"
-              onClick={() => setShowInstructions(!showInstructions)}
-            >
-              {showInstructions ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
-              {showInstructions ? "Hide" : "Show"} DNS Setup Instructions
-            </Button>
-
-            {showInstructions && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="mt-4 space-y-4"
-              >
-                {/* DNS Records Table */}
-                <div className="border border-border/50 rounded-xl overflow-hidden">
-                  <div className="bg-muted/50 px-4 py-2 border-b border-border/30">
-                    <p className="font-body text-xs font-semibold text-foreground">Required DNS Records</p>
-                  </div>
-                  <div className="divide-y divide-border/30">
-                    <div className="px-4 py-3 grid grid-cols-3 gap-2">
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Type</p>
-                        <p className="text-sm font-body text-foreground font-mono">A</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Name</p>
-                        <p className="text-sm font-body text-foreground font-mono">@</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Value</p>
-                        <p className="text-sm font-body text-foreground font-mono">185.158.133.1</p>
-                      </div>
-                    </div>
-                    <div className="px-4 py-3 grid grid-cols-3 gap-2">
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Type</p>
-                        <p className="text-sm font-body text-foreground font-mono">A</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Name</p>
-                        <p className="text-sm font-body text-foreground font-mono">www</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Value</p>
-                        <p className="text-sm font-body text-foreground font-mono">185.158.133.1</p>
-                      </div>
-                    </div>
-                    <div className="px-4 py-3 grid grid-cols-3 gap-2">
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Type</p>
-                        <p className="text-sm font-body text-foreground font-mono">CNAME</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Name</p>
-                        <p className="text-sm font-body text-foreground font-mono">wedding</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Value</p>
-                        <p className="text-xs font-body text-foreground font-mono break-all">wedding-tales-ai.lovable.app</p>
-                      </div>
-                    </div>
-                  </div>
+        {/* Search & connect (only when no domain saved) */}
+        {!hasSavedDomain && (
+          <>
+            <div>
+              <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">1</span>
+                Choose your domain style
+              </h3>
+              <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
+                Select extensions you'd like. <strong>.in</strong> for Indian weddings, <strong>.com</strong> for global reach, <strong>.wedding</strong> for a dedicated wedding domain.
+              </p>
+              <div className="ml-8 space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  {WEDDING_TLDS.map((tld) => (
+                    <button
+                      key={tld.ext}
+                      onClick={() => toggleTld(tld.ext)}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-body transition-all ${
+                        selectedTlds.includes(tld.ext)
+                          ? "border-gold/50 bg-gold/10 text-foreground shadow-sm"
+                          : "border-border/40 bg-muted/20 text-muted-foreground hover:border-border"
+                      }`}
+                    >
+                      <span>{tld.emoji}</span>
+                      <span className="font-semibold">{tld.ext}</span>
+                      <span className="hidden sm:inline text-muted-foreground">· {tld.desc}</span>
+                      {selectedTlds.includes(tld.ext) && <Check className="w-3 h-3 text-gold ml-1" />}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Enter custom domain */}
-                <div className="bg-muted/30 border border-border/50 rounded-xl p-4">
-                  <p className="font-body text-sm font-medium text-foreground mb-2">Your purchased domain:</p>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="e.g. arjunandmeera.com"
-                      value={customDomain}
-                      onChange={(e) => setCustomDomain(e.target.value)}
-                      className="font-body font-mono text-sm flex-1"
-                    />
-                    <Button
-                      variant="gold"
-                      size="sm"
-                      className="font-body shrink-0"
-                      onClick={() => {
-                        if (customDomain.trim()) {
-                          toast({
-                            title: "Domain saved! 🎉",
-                            description: `We've noted ${customDomain}. DNS changes may take up to 72 hours to propagate. Contact support if you need help connecting.`,
-                          });
-                        }
-                      }}
-                    >
-                      <Globe className="w-4 h-4 mr-1" /> Save Domain
+                <Button variant="gold" size="sm" className="font-body" onClick={checkAvailability} disabled={checking || !partner1 || !partner2 || selectedTlds.length === 0}>
+                  {checking ? <><span className="animate-spin mr-2">⏳</span> Checking...</> : <><Search className="w-4 h-4 mr-1" /> Find Available Domains</>}
+                </Button>
+
+                <div className="border-t border-border/20 pt-4">
+                  <p className="text-xs text-muted-foreground font-body font-medium mb-2">Or enter a domain you've already purchased:</p>
+                  <div className="flex gap-2 max-w-md">
+                    <div className="relative flex-1">
+                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input placeholder="e.g. arjunandmeera.com" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} className="pl-10 font-body font-mono text-sm" />
+                      {checkingCustom && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs animate-spin">⏳</span>}
+                    </div>
+                    <Button variant="gold" size="sm" className="font-body shrink-0" onClick={() => handleSaveDomain(customDomain)} disabled={!customDomain.includes(".") || customDomain.length < 4 || savingDomain}>
+                      {savingDomain ? "Saving..." : <><Globe className="w-4 h-4 mr-1" /> Connect</>}
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground font-body mt-2">
-                    After adding DNS records, it may take 24–72 hours for your domain to go live. SSL is auto-provisioned.
-                  </p>
+                  {customCheckResult && !customCheckResult.checking && (
+                    <div className={`mt-2 flex items-center gap-2 text-xs font-body px-3 py-2 rounded-lg ${
+                      customCheckResult.available === true ? "bg-emerald-500/10 text-emerald-600"
+                        : customCheckResult.available === false ? "bg-muted/30 text-foreground"
+                        : "bg-muted/30 text-muted-foreground"
+                    }`}>
+                      {customCheckResult.available === true ? (
+                        <><Check className="w-3.5 h-3.5" /> <strong>{customCheckResult.domain}</strong> appears available — buy it first, then connect!</>
+                      ) : customCheckResult.available === false ? (
+                        <><Check className="w-3.5 h-3.5" /> <strong>{customCheckResult.domain}</strong> is registered — if you own it, click Connect</>
+                      ) : (
+                        <><Globe className="w-3.5 h-3.5" /> Could not determine status for <strong>{customCheckResult.domain}</strong></>
+                      )}
+                    </div>
+                  )}
                 </div>
+              </div>
+            </div>
 
-                {/* Tips */}
-                <div className="bg-gold/5 border border-gold/20 rounded-xl p-4">
-                  <p className="font-body text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-gold" /> Tips for a smooth setup
-                  </p>
-                  <ul className="space-y-1.5 text-xs text-muted-foreground font-body">
-                    <li className="flex items-start gap-1.5">
-                      <Check className="w-3 h-3 text-gold shrink-0 mt-0.5" />
-                      Remove any conflicting A or CNAME records for the same domain
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <Check className="w-3 h-3 text-gold shrink-0 mt-0.5" />
-                      Add both root domain (@) and www subdomain A records
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <Check className="w-3 h-3 text-gold shrink-0 mt-0.5" />
-                      Use <a href="https://dnschecker.org" target="_blank" rel="noopener" className="text-gold underline">dnschecker.org</a> to verify your DNS settings
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <Check className="w-3 h-3 text-gold shrink-0 mt-0.5" />
-                      SSL (HTTPS) is automatically provisioned once DNS is verified
-                    </li>
-                  </ul>
+            {sortedResults.length > 0 && (
+              <div>
+                <h3 className="font-display text-base font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">✓</span>
+                  Personalized suggestions for {partner1} & {partner2}
+                </h3>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                  {sortedResults.map(({ domain, available, checking: itemChecking }) => (
+                    <div key={domain} className={`flex items-center justify-between gap-3 border rounded-xl px-4 py-3 transition-all ${
+                      available === true ? "border-emerald-500/30 bg-emerald-500/5"
+                        : available === false ? "border-border/30 bg-muted/30 opacity-50"
+                        : "border-border/40 bg-muted/20"
+                    }`}>
+                      <div className="flex items-center gap-2 min-w-0">
+                        {itemChecking ? <span className="w-4 h-4 animate-spin text-xs shrink-0">⏳</span>
+                          : available === true ? <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                          : available === false ? <X className="w-4 h-4 text-destructive shrink-0" />
+                          : <Globe className="w-4 h-4 text-muted-foreground shrink-0" />}
+                        <span className="font-body font-mono text-sm text-foreground truncate">{domain}</span>
+                        {!itemChecking && available === true && (
+                          <span className="text-[10px] font-body font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">Available</span>
+                        )}
+                        {!itemChecking && available === false && (
+                          <span className="text-[10px] font-body font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">Taken</span>
+                        )}
+                      </div>
+                      <div className="flex gap-1.5 shrink-0">
+                        {available === true && (
+                          <a href={getBuyUrl(domain, DOMAIN_REGISTRARS[0])} target="_blank" rel="noopener noreferrer"
+                            className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors">
+                            Buy on GoDaddy
+                          </a>
+                        )}
+                        {!itemChecking && available !== false && (
+                          <button onClick={() => setCustomDomain(domain)}
+                            className="text-[10px] font-body font-medium text-foreground bg-muted hover:bg-muted/80 px-2.5 py-1 rounded-lg transition-colors">
+                            Select
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </motion.div>
+                <p className="text-[10px] text-muted-foreground font-body mt-3">
+                  💡 All registrars support <strong>UPI, cards & net banking</strong>. After purchasing, enter your domain above to connect it.
+                </p>
+              </div>
             )}
-          </div>
-        </div>
+          </>
+        )}
 
-        {/* Disclaimer & Terms */}
         <div className="border-t border-border/30 pt-4 mt-2">
           <p className="text-[10px] text-muted-foreground/70 font-body leading-relaxed">
-            <strong className="text-muted-foreground">Important:</strong> Domain purchases are made directly through third-party registrars (GoDaddy, BigRock, etc.) and are subject to their terms, pricing, and refund policies.
-            We do not sell, manage, or renew domains on your behalf. <strong className="text-muted-foreground">You are solely responsible for domain registration, renewal, and any associated fees.</strong> If
-            your domain expires, your wedding site will no longer be accessible at that address. We recommend enabling auto-renewal at your registrar.
-            We provide domain suggestions and availability checks as a convenience only — accuracy is not guaranteed. We accept no liability for domain purchases,
-            losses, disputes, or any issues arising from third-party registrar services. By using this feature, you agree to these terms.
+            <strong className="text-muted-foreground">Important:</strong> Domain purchases are made directly through third-party registrars and are subject to their terms.
+            We do not sell, manage, or renew domains on your behalf. <strong className="text-muted-foreground">You are solely responsible for domain registration, renewal, and any associated fees.</strong> We recommend enabling auto-renewal at your registrar.
+            Availability checks are indicative only. We accept no liability for domain purchases or third-party registrar issues. By using this feature, you agree to these terms.
           </p>
         </div>
       </div>
