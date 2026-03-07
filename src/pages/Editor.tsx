@@ -640,9 +640,29 @@ function SectionsPanel({
         ))}
       </Reorder.Group>
 
-      <Button variant="outline" size="sm" className="w-full mt-4 font-body" onClick={onAdd}>
-        <Plus className="w-4 h-4 mr-1" /> Add Section
-      </Button>
+      <div className="relative mt-4">
+        <Button variant="outline" size="sm" className="w-full font-body" onClick={() => setShowAddMenu(!showAddMenu)}>
+          <Plus className="w-4 h-4 mr-1" /> Add Section
+        </Button>
+        {showAddMenu && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border/50 rounded-lg shadow-lg z-10 overflow-hidden">
+            {[
+              { id: "custom", label: "📝 Custom Section", desc: "Text content" },
+              { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting" },
+              { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability" },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => onAdd(item.id)}
+                className="w-full text-left px-3 py-2 hover:bg-muted transition-colors flex items-center justify-between"
+              >
+                <span className="font-body text-sm text-foreground">{item.label}</span>
+                <span className="font-body text-xs text-muted-foreground">{item.desc}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
