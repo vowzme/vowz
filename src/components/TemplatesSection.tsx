@@ -339,7 +339,7 @@ const templates: TemplateData[] = [
     location: "Ooty, Tamil Nadu",
     story: "Daniel, a botanist from London, came to Ooty for a rare orchid. He found Priya instead — the garden curator who knew every flower by name. Their love blossomed like the roses around them, nurtured by letters across continents and weekend flights. Now they're planting roots together, forever.",
     couplePhoto: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&h=600&fit=crop",
-    heroPhoto: "https://images.unsplash.com/photo-1518882093-00c29c5c8cf7?w=1200&h=800&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=1200&h=800&fit=crop",
     events: [
       { name: "Rose Garden Welcome Tea", date: "Sep 5, 2027", time: "4:00 PM", venue: "The Botanical Estate" },
       { name: "Fusion Ceremony", date: "Sep 6, 2027", time: "11:00 AM", venue: "Rose Terrace Gazebo" },
