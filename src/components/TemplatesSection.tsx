@@ -426,34 +426,37 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           <X className="w-5 h-5" />
         </button>
 
-        {/* ── Hero Section ── */}
-        <div
-          className="relative py-20 px-6 text-center"
-          style={{ background: `linear-gradient(135deg, ${bg}, ${bg}dd)` }}
-        >
-          <div className="absolute inset-0 opacity-10">
-            <svg viewBox="0 0 400 400" className="w-full h-full">
-              {[...Array(8)].map((_, i) => (
-                <circle key={i} cx="200" cy="200" r={50 + i * 30} fill="none" stroke={text} strokeWidth="0.5" />
-              ))}
-            </svg>
+        {/* ── Hero Section with Photo ── */}
+        <div className="relative overflow-hidden">
+          {/* Hero background image */}
+          <div className="absolute inset-0">
+            <img src={t.heroPhoto} alt={t.venue} className="w-full h-full object-cover" />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bg}cc 0%, ${bg}99 40%, ${bg}ee 100%)` }} />
           </div>
-          <div className="relative z-10">
-            <Heart className="w-8 h-8 mx-auto mb-3" style={{ color: accent }} fill="currentColor" />
-            <p className="font-body text-sm tracking-widest uppercase mb-2" style={{ color: `${text}80` }}>
+
+          <div className="relative z-10 pt-16 pb-8 px-6 text-center">
+            <Heart className="w-8 h-8 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
+            <p className="font-body text-sm tracking-[0.25em] uppercase mb-3" style={{ color: `${text}90` }}>
               You're Invited to the Wedding of
             </p>
-            <h1 className="font-display text-5xl md:text-6xl font-bold mb-3" style={{ color: text }}>
-              {t.partner1} & {t.partner2}
+            <h1 className="font-display text-5xl md:text-7xl font-bold mb-3 drop-shadow-lg" style={{ color: text }}>
+              {t.partner1} <span className="font-normal italic text-3xl md:text-4xl mx-2" style={{ color: accent }}>&</span> {t.partner2}
             </h1>
-            <p className="font-display text-xl italic mb-4" style={{ color: accent }}>
+            <p className="font-display text-xl italic mb-6" style={{ color: accent }}>
               {t.tagline}
             </p>
-            <div className="flex items-center justify-center gap-4 text-sm" style={{ color: `${text}99` }}>
-              <span className="flex items-center gap-1 font-body">
+
+            {/* Couple photo circle */}
+            <div className="mx-auto mb-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl" style={{ borderColor: accent }}>
+              <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+            </div>
+
+            <div className="flex items-center justify-center gap-6 text-sm" style={{ color: `${text}cc` }}>
+              <span className="flex items-center gap-1.5 font-body">
                 <Calendar className="w-4 h-4" /> {t.weddingDate}
               </span>
-              <span className="flex items-center gap-1 font-body">
+              <span className="w-1 h-1 rounded-full" style={{ backgroundColor: accent }} />
+              <span className="flex items-center gap-1.5 font-body">
                 <MapPin className="w-4 h-4" /> {t.location}
               </span>
             </div>
