@@ -189,6 +189,8 @@ const templates: TemplateData[] = [
     venue: "The Pearl Ballroom",
     location: "Istanbul, Turkey",
     story: "Omar and Ayesha's love story began at a calligraphy workshop in Istanbul. He was drawn to her graceful brushstrokes; she admired his patience and quiet determination. Over cups of Turkish tea and walks along the Bosphorus, they discovered a love as timeless as the city where they met.",
+    couplePhoto: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=1200&h=800&fit=crop",
     events: [
       { name: "Nikah Ceremony", date: "Mar 14, 2027", time: "11:00 AM", venue: "Blue Mosque Gardens" },
       { name: "Walima Reception", date: "Mar 14, 2027", time: "6:00 PM", venue: "The Pearl Ballroom" },
