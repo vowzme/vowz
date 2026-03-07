@@ -2286,6 +2286,72 @@ function SectionRenderer({
     );
   }
 
+  if (type === "polls") {
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        <div className="max-w-md mx-auto space-y-4">
+          {(data.polls || []).map((poll: any, i: number) => (
+            <div key={i} className="border border-border/50 rounded-lg p-4">
+              <p className="text-sm font-semibold text-foreground mb-3" style={{ fontFamily: dFont }}>{poll.question}</p>
+              <div className="space-y-2">
+                {(poll.options || []).map((opt: string, j: number) => (
+                  <div key={j} className="flex items-center gap-2 p-2 rounded-lg border border-border/30 bg-background">
+                    <div className="w-4 h-4 rounded-full border-2" style={{ borderColor: accent }} />
+                    <span className="text-sm text-foreground" style={{ fontFamily: bFont }}>{opt}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2" style={{ fontFamily: bFont }}>Voting available when published</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "ecotips") {
+    return (
+      <div className="rounded-xl px-8 py-10" style={{ background: `linear-gradient(135deg, #2D501610, #8DB37015)` }}>
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <InlineEditable
+          tag="p"
+          value={data.description || ""}
+          onChange={(v) => update({ description: v })}
+          className="text-muted-foreground text-center max-w-md mx-auto mb-6"
+          style={{ fontFamily: bFont }}
+        />
+        <div className="max-w-md mx-auto space-y-2">
+          {(data.tips || []).map((tip: string, i: number) => (
+            <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-card border border-border/30">
+              <span className="text-base">🌱</span>
+              <span className="text-sm text-foreground" style={{ fontFamily: bFont }}>{tip}</span>
+            </div>
+          ))}
+        </div>
+        {data.showDigitalInviteTracker && (
+          <div className="mt-6 text-center p-4 rounded-lg bg-card border border-border/30 max-w-sm mx-auto">
+            <p className="text-xs text-muted-foreground" style={{ fontFamily: bFont }}>🌍 Digital invites sent — saving trees, one card at a time!</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return null;
 }
 
