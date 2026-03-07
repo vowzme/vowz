@@ -125,7 +125,12 @@ const templates: TemplateData[] = [
       ],
       directions: "Fly into Maharana Pratap Airport (UDR). The venue is a 30-minute scenic drive along the lake.",
     },
-    photoPlaceholders: ["Mandap Setup", "Haldi", "Couple", "Palace View"],
+    galleryPhotos: [
+      { label: "Mandap Setup", url: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=450&fit=crop" },
+      { label: "Haldi", url: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=450&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=600&h=450&fit=crop" },
+      { label: "Palace View", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+    ],
   },
   {
     name: "Sage & Ivory",
