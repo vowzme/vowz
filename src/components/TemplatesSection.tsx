@@ -62,6 +62,9 @@ const templates: TemplateData[] = [
       { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=450&fit=crop" },
       { label: "Venue", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
       { label: "Sangeet", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+      { label: "Ceremony Decor", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=800&fit=crop" },
+      { label: "Family Blessing", url: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=600&h=450&fit=crop" },
+      { label: "Grand Entrance", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=800&fit=crop" },
     ],
   },
   {
@@ -98,8 +101,11 @@ const templates: TemplateData[] = [
     galleryPhotos: [
       { label: "Garden Setup", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
       { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&h=450&fit=crop" },
-      { label: "Chapel", url: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=600&h=450&fit=crop" },
+      { label: "Chapel", url: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=600&h=800&fit=crop" },
       { label: "Reception", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
+      { label: "First Dance", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+      { label: "Tuscan Hills", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=800&fit=crop" },
+      { label: "Cake Cutting", url: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=600&h=450&fit=crop" },
     ],
   },
   {
@@ -135,9 +141,12 @@ const templates: TemplateData[] = [
     },
     galleryPhotos: [
       { label: "Mandap Setup", url: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=450&fit=crop" },
-      { label: "Haldi", url: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=450&fit=crop" },
+      { label: "Haldi", url: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=800&fit=crop" },
       { label: "Couple", url: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=600&h=450&fit=crop" },
       { label: "Palace View", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+      { label: "Lake Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+      { label: "Baraat", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=800&fit=crop" },
+      { label: "Ring Exchange", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
     ],
   },
   {
@@ -171,10 +180,13 @@ const templates: TemplateData[] = [
       directions: "Fly into Burlington International Airport (BTV). Rental cars recommended — the scenic drive is part of the experience!",
     },
     galleryPhotos: [
-      { label: "Meadow", url: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=600&h=450&fit=crop" },
+      { label: "Meadow", url: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=600&h=800&fit=crop" },
       { label: "Couple in Garden", url: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600&h=450&fit=crop" },
       { label: "Barn Setup", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
       { label: "Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+      { label: "Wildflowers", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
+      { label: "Farm Table", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=800&fit=crop" },
+      { label: "Rustic Arch", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
     ],
   },
   {
@@ -208,9 +220,12 @@ const templates: TemplateData[] = [
     },
     galleryPhotos: [
       { label: "Bosphorus View", url: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=600&h=450&fit=crop" },
-      { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=600&h=450&fit=crop" },
+      { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=600&h=800&fit=crop" },
       { label: "Calligraphy", url: "https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=600&h=450&fit=crop" },
       { label: "Venue", url: "https://images.unsplash.com/photo-1530023367847-a683933f4172?w=600&h=450&fit=crop" },
+      { label: "Turkish Tea", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
+      { label: "Sunset Walk", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=800&fit=crop" },
+      { label: "Floral Arch", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
     ],
   },
   {
@@ -244,10 +259,13 @@ const templates: TemplateData[] = [
       directions: "Fly into Cochin International Airport (COK). The resort is a 1.5-hour scenic drive through the backwaters.",
     },
     galleryPhotos: [
-      { label: "Backwaters", url: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=450&fit=crop" },
+      { label: "Backwaters", url: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=800&fit=crop" },
       { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=600&h=450&fit=crop" },
       { label: "Ceremony", url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=450&fit=crop" },
       { label: "Food Spread", url: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&h=450&fit=crop" },
+      { label: "Houseboat", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=450&fit=crop" },
+      { label: "Floral Rangoli", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
+      { label: "Golden Hour", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=800&fit=crop" },
     ],
   },
   {
@@ -282,9 +300,12 @@ const templates: TemplateData[] = [
     },
     galleryPhotos: [
       { label: "Beach Sunset", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=450&fit=crop" },
-      { label: "Couple on Shore", url: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=600&h=450&fit=crop" },
+      { label: "Couple on Shore", url: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=600&h=800&fit=crop" },
       { label: "Ceremony Setup", url: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=450&fit=crop" },
       { label: "Ocean View", url: "https://images.unsplash.com/photo-1505881502353-a1986add3762?w=600&h=450&fit=crop" },
+      { label: "Tiki Torches", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+      { label: "Seashell Decor", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=800&fit=crop" },
+      { label: "Barefoot Dance", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
     ],
   },
   {
@@ -321,9 +342,12 @@ const templates: TemplateData[] = [
     },
     galleryPhotos: [
       { label: "Palace Exterior", url: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=600&h=450&fit=crop" },
-      { label: "Blue City View", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+      { label: "Blue City View", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=800&fit=crop" },
       { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=600&h=450&fit=crop" },
       { label: "Ballroom", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
+      { label: "Royal Procession", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
+      { label: "Jeweled Details", url: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=600&h=800&fit=crop" },
+      { label: "Fireworks", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
     ],
   },
   {
@@ -357,10 +381,13 @@ const templates: TemplateData[] = [
       directions: "Fly into Coimbatore Airport (CJB). Ooty is a scenic 3-hour drive through the Nilgiri hills.",
     },
     galleryPhotos: [
-      { label: "Rose Garden", url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=600&h=450&fit=crop" },
+      { label: "Rose Garden", url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=600&h=800&fit=crop" },
       { label: "Couple in Greenhouse", url: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&h=450&fit=crop" },
       { label: "Gazebo Setup", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
       { label: "Mountain View", url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=600&h=450&fit=crop" },
+      { label: "Bouquet Detail", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=800&fit=crop" },
+      { label: "Garden Path", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+      { label: "Tea Service", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
     ],
   },
 ];
@@ -378,19 +405,39 @@ function getCountdownFromDate(dateStr: string) {
   };
 }
 
-// ─── Gallery Photo component ─────────────────────────────────────
-function GalleryPhoto({ label, url }: { label: string; url: string }) {
+// ─── Masonry Gallery component ─────────────────────────────────────
+const MASONRY_SPANS = [2, 1, 1, 1, 2, 1, 1]; // row-span pattern: some tall, some normal
+
+function MasonryGallery({ photos, accent }: { photos: { label: string; url: string }[]; accent: string }) {
   return (
-    <div className="aspect-[4/3] rounded-lg overflow-hidden relative group">
-      <img
-        src={url}
-        alt={label}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        loading="lazy"
-      />
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-end">
-        <p className="text-white text-xs font-body px-2 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{label}</p>
-      </div>
+    <div className="columns-2 md:columns-3 gap-3 max-w-2xl mx-auto [column-fill:_balance]">
+      {photos.map((photo, i) => {
+        const isTall = MASONRY_SPANS[i % MASONRY_SPANS.length] === 2;
+        return (
+          <div
+            key={photo.label}
+            className="mb-3 break-inside-avoid rounded-xl overflow-hidden relative group"
+          >
+            <div className={isTall ? "aspect-[3/4]" : "aspect-[4/3]"}>
+              <img
+                src={photo.url}
+                alt={photo.label}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+              <div className="p-3 w-full">
+                <p className="text-white text-xs font-body font-medium">{photo.label}</p>
+              </div>
+            </div>
+            <div
+              className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{ backgroundColor: accent }}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -560,16 +607,12 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           </div>
         </div>
 
-        {/* ── Photo Gallery Section ── */}
-        <div className="py-12 px-8" style={{ backgroundColor: `${bg}08` }}>
+        {/* ── Photo Gallery Section (Masonry) ── */}
+        <div className="py-14 px-8" style={{ backgroundColor: `${bg}08` }}>
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>Gallery</h2>
           <div className="w-12 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
-            {t.galleryPhotos.map((photo) => (
-              <GalleryPhoto key={photo.label} label={photo.label} url={photo.url} />
-            ))}
-          </div>
-          <p className="text-center text-xs font-body mt-4" style={{ color: `${bg}60` }}>
+          <MasonryGallery photos={t.galleryPhotos} accent={accent} />
+          <p className="text-center text-xs font-body mt-6" style={{ color: `${bg}60` }}>
             Upload your own photos after creating your site
           </p>
         </div>
