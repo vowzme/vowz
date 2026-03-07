@@ -714,6 +714,7 @@ const TemplatesSection = () => {
           <TemplatePreviewModal
             template={selectedTemplate}
             onClose={() => setSelectedTemplate(null)}
+            onUseTemplate={handleUseTemplate}
           />
         )}
       </AnimatePresence>
