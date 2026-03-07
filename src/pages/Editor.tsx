@@ -983,7 +983,7 @@ function EventEditor({
   onChange,
   onDelete,
 }: {
-  event: { name: string; date: string; time: string; venue: string };
+  event: { name: string; date: string; time: string; venue: string; location?: string };
   index: number;
   onChange: (e: typeof event) => void;
   onDelete: () => void;
