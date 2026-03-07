@@ -334,7 +334,7 @@ function PhotoPlaceholder({ label, color, accent }: { label: string; color: stri
 }
 
 // ─── Template Preview Modal ──────────────────────────────────────────
-function TemplatePreviewModal({ template: t, onClose }: { template: TemplateData; onClose: () => void }) {
+function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { template: TemplateData; onClose: () => void; onUseTemplate: (t: TemplateData) => void }) {
   const [bg, accent, text] = t.colors;
   const countdown = getCountdownFromDate(t.weddingDate);
 
