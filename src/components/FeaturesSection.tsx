@@ -22,7 +22,7 @@ const freeFeatures = [
 ];
 
 const premiumFeatures = [
-  { icon: Globe, title: "Custom Domain", desc: "Use your own domain like anoojandpriya.com" },
+  { icon: Globe, title: "Custom Domain", desc: "Use your own domain like arjunandmeera.com" },
   { icon: Video, title: "Video Embeds", desc: "Add pre-wedding shoots and ceremony videos" },
   { icon: Lock, title: "Password Protection", desc: "Keep your site private with guest-only access" },
   { icon: Languages, title: "Multilingual", desc: "Auto-translate your site into Hindi, Tamil, and more" },

@@ -74,7 +74,7 @@ const TemplatesSection = () => {
                       You're Invited
                     </p>
                     <p className="font-display text-2xl font-bold" style={{ color: t.colors[2] }}>
-                      Anooj & Priya
+                      {t.couple}
                     </p>
                     <p className="font-body text-xs mt-2" style={{ color: t.colors[2] + "80" }}>
                       December 15, 2026
