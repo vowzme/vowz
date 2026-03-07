@@ -285,6 +285,11 @@ const Dashboard = () => {
               </div>
             </TabsContent>
 
+            {/* ─── Checklist Tab ─── */}
+            <TabsContent value="checklist">
+              <ChecklistPanel siteId={site?.id} accent={(site.suggested_colors as any)?.[1] || "#D4A853"} />
+            </TabsContent>
+
             {/* ─── Analytics Tab ─── */}
             <TabsContent value="analytics">
               <AnalyticsPanel siteId={site?.id} accent={(site.suggested_colors as any)?.[1] || "#D4A853"} />
