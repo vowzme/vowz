@@ -714,18 +714,44 @@ function TemplateSwitcherPanel({
   onApply: (theme: Partial<WeddingSiteData>) => void;
 }) {
   const [previewIdx, setPreviewIdx] = useState<number | null>(null);
+  const [activeCategory, setActiveCategory] = useState<TemplateCategory>("All");
 
   const isActive = (t: typeof TEMPLATE_THEMES[0]) =>
     JSON.stringify(currentColors) === JSON.stringify(t.colors) &&
     (siteData.displayFont || "Cormorant Garamond") === t.displayFont;
 
+  const filteredThemes = activeCategory === "All"
+    ? TEMPLATE_THEMES
+    : TEMPLATE_THEMES.filter((t) => t.category === activeCategory);
+
   return (
     <div>
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Templates</h3>
-      <p className="text-xs text-muted-foreground font-body mb-4">Switch your site's look instantly — your content stays</p>
+      <p className="text-xs text-muted-foreground font-body mb-3">Switch your site's look instantly — your content stays</p>
+
+      {/* Category filter tabs */}
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {TEMPLATE_CATEGORIES.map((cat) => {
+          const count = cat === "All" ? TEMPLATE_THEMES.length : TEMPLATE_THEMES.filter((t) => t.category === cat).length;
+          return (
+            <button
+              key={cat}
+              onClick={() => { setActiveCategory(cat); setPreviewIdx(null); }}
+              className={`px-2.5 py-1 rounded-full text-xs font-body font-medium transition-all ${
+                activeCategory === cat
+                  ? "bg-accent text-accent-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {cat} <span className="opacity-60">({count})</span>
+            </button>
+          );
+        })}
+      </div>
 
       <div className="space-y-2">
-        {TEMPLATE_THEMES.map((t, i) => {
+        {filteredThemes.map((t, i) => {
+          const globalIdx = TEMPLATE_THEMES.indexOf(t);
           const active = isActive(t);
           return (
             <div key={t.name}>
