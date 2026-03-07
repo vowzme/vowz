@@ -555,4 +555,118 @@ function EditableField({
   );
 }
 
+// ─── Analytics Panel ──────────────────────────────────────────────────
+function AnalyticsPanel({ siteId, accent }: { siteId: string; accent: string }) {
+  const { fetchAnalytics } = useSiteAnalytics(siteId);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAnalytics().then((data) => {
+      setAnalytics(data);
+      setLoading(false);
+    });
+  }, [fetchAnalytics]);
+
+  if (loading) {
+    return (
+      <div className="bg-card border border-border/50 rounded-2xl p-12 text-center">
+        <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
+      </div>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <div className="bg-card border border-border/50 rounded-2xl p-12 text-center">
+        <BarChart3 className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+        <p className="font-body text-sm text-muted-foreground">No analytics data yet. Publish your site and share it to start tracking visitors.</p>
+      </div>
+    );
+  }
+
+  const maxViews = Math.max(...analytics.dailyViews.map((d: any) => d.views), 1);
+
+  return (
+    <div className="space-y-6">
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <AnalyticsStat icon={Eye} label="Page Views" value={analytics.totalPageViews} accent={accent} />
+        <AnalyticsStat icon={Users} label="Unique Visitors" value={analytics.uniqueVisitors} accent="#5B8DEF" />
+        <AnalyticsStat icon={TrendingUp} label="RSVP Conversion" value={`${analytics.conversionRate}%`} accent="#2D5016" />
+        <AnalyticsStat icon={MessageSquare} label="Guestbook Posts" value={analytics.guestbookPosts} accent="#8B5CF6" />
+      </div>
+
+      {/* Daily views chart */}
+      {analytics.dailyViews.length > 0 && (
+        <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
+          <h3 className="font-display text-lg font-semibold text-foreground mb-4">Daily Views (Last 30 Days)</h3>
+          <div className="flex items-end gap-1 h-32">
+            {analytics.dailyViews.map((day: any) => (
+              <div key={day.date} className="flex-1 flex flex-col items-center gap-1 group relative">
+                <div
+                  className="w-full rounded-t transition-all hover:opacity-80 min-h-[4px]"
+                  style={{
+                    height: `${(day.views / maxViews) * 100}%`,
+                    backgroundColor: accent,
+                  }}
+                />
+                <div className="absolute -top-8 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-body">
+                  {day.date.slice(5)}: {day.views} views
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between mt-2">
+            <span className="text-xs text-muted-foreground font-body">{analytics.dailyViews[0]?.date.slice(5)}</span>
+            <span className="text-xs text-muted-foreground font-body">{analytics.dailyViews[analytics.dailyViews.length - 1]?.date.slice(5)}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Recent events */}
+      {analytics.recentEvents.length > 0 && (
+        <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
+          <div className="p-4 sm:p-6 border-b border-border/30">
+            <h3 className="font-display text-lg font-semibold text-foreground">Recent Activity</h3>
+          </div>
+          <div className="divide-y divide-border/30 max-h-80 overflow-y-auto">
+            {analytics.recentEvents.map((event: any) => (
+              <div key={event.id} className="px-4 sm:px-6 py-3 flex items-center gap-3">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${accent}20` }}>
+                  {event.event_type === "page_view" && <Eye className="w-3.5 h-3.5" style={{ color: accent }} />}
+                  {event.event_type === "rsvp_submit" && <Check className="w-3.5 h-3.5 text-emerald" />}
+                  {event.event_type === "guestbook_post" && <MessageSquare className="w-3.5 h-3.5 text-purple-500" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-body text-sm text-foreground capitalize">
+                    {event.event_type.replace(/_/g, " ")}
+                  </p>
+                </div>
+                <span className="font-body text-xs text-muted-foreground shrink-0">
+                  {new Date(event.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AnalyticsStat({ icon: Icon, label, value, accent }: { icon: any; label: string; value: string | number; accent: string }) {
+  return (
+    <div className="bg-card border border-border/50 rounded-xl p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: `${accent}20` }}>
+          <Icon className="w-4 h-4" style={{ color: accent }} />
+        </div>
+      </div>
+      <p className="font-display text-2xl font-bold text-foreground">{value}</p>
+      <p className="font-body text-xs text-muted-foreground mt-0.5">{label}</p>
+    </div>
+  );
+}
+
 export default Dashboard;
