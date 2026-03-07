@@ -670,31 +670,38 @@ function SectionsPanel({
 }
 
 // ─── Template Switcher Panel ──────────────────────────────────────────
-const TEMPLATE_THEMES = [
-  { name: "Royal Maroon", style: "Traditional", colors: ["#6B1D2A", "#D4A853", "#FFF5E6"] as string[], displayFont: "Cormorant Garamond", bodyFont: "DM Sans" },
-  { name: "Ivory Blush", style: "Modern Minimal", colors: ["#4A3728", "#C9A96E", "#FFF8F0"] as string[], displayFont: "Playfair Display", bodyFont: "Lato" },
-  { name: "Emerald Garden", style: "Eco / Nature", colors: ["#1B4332", "#8DB370", "#F5F5DC"] as string[], displayFont: "Cormorant Garamond", bodyFont: "Quicksand" },
-  { name: "Lavender Dream", style: "Fusion / Pastel", colors: ["#5B3A6B", "#C8A2D0", "#F8F0FF"] as string[], displayFont: "Great Vibes", bodyFont: "Nunito" },
-  { name: "Ocean Breeze", style: "Destination Beach", colors: ["#0C4A6E", "#38BDF8", "#F0FDFA"] as string[], displayFont: "Montserrat", bodyFont: "Source Sans 3" },
-  { name: "Golden Nikah", style: "Islamic Elegance", colors: ["#1A5E3B", "#D4A853", "#FFF5E6"] as string[], displayFont: "Cinzel", bodyFont: "Raleway" },
-  { name: "Cherry Blossom", style: "Minimal Fusion", colors: ["#8B2252", "#FFB7C5", "#FFF5F7"] as string[], displayFont: "Dancing Script", bodyFont: "Quicksand" },
-  { name: "Midnight Garden", style: "Moody Luxe", colors: ["#1A1A2E", "#C9A846", "#E8E8E8"] as string[], displayFont: "Playfair Display", bodyFont: "DM Sans" },
-  { name: "Terracotta Sun", style: "Bohemian Desert", colors: ["#A0522D", "#E8A87C", "#FFF5E1"] as string[], displayFont: "Great Vibes", bodyFont: "Raleway" },
-  { name: "Velvet Noir", style: "Modern Glam", colors: ["#1A1A1A", "#B8860B", "#F5F5F5"] as string[], displayFont: "Cinzel", bodyFont: "Lato" },
-  { name: "Punjabi Fiesta", style: "Regional Vibrant", colors: ["#FF6B35", "#FFC947", "#FFF8E7"] as string[], displayFont: "Montserrat", bodyFont: "Nunito" },
-  { name: "Bengali Monsoon", style: "Regional Classic", colors: ["#8B0000", "#FFD700", "#FFFACD"] as string[], displayFont: "Cormorant Garamond", bodyFont: "DM Sans" },
-  { name: "Mysore Silk", style: "South Indian Royal", colors: ["#4B0082", "#DAA520", "#FFF8DC"] as string[], displayFont: "Cinzel", bodyFont: "DM Sans" },
-  { name: "Kashmiri Snow", style: "Winter Elegance", colors: ["#2C3E50", "#C0C0C0", "#F8F9FA"] as string[], displayFont: "Playfair Display", bodyFont: "Raleway" },
-  { name: "Rajasthani Sunset", style: "Desert Royal", colors: ["#C0392B", "#F39C12", "#FEF9E7"] as string[], displayFont: "Great Vibes", bodyFont: "Lato" },
-  { name: "Kerala Backwaters", style: "Tropical South", colors: ["#0B5345", "#76D7C4", "#FDFEFE"] as string[], displayFont: "Cormorant Garamond", bodyFont: "Quicksand" },
-  { name: "Mughal Romance", style: "Indo-Persian", colors: ["#1F3A5F", "#C19A6B", "#FAF0E6"] as string[], displayFont: "Cinzel", bodyFont: "Nunito" },
-  { name: "Goan Sunlight", style: "Beach Casual", colors: ["#E67E22", "#3498DB", "#FFF5EE"] as string[], displayFont: "Dancing Script", bodyFont: "Source Sans 3" },
-  { name: "Rose Petal", style: "Romantic Soft", colors: ["#922B3E", "#F5B7B1", "#FFF0F0"] as string[], displayFont: "Great Vibes", bodyFont: "Quicksand" },
-  { name: "Teak & Brass", style: "Heritage Minimal", colors: ["#5D4037", "#CD853F", "#FAF3E8"] as string[], displayFont: "Playfair Display", bodyFont: "DM Sans" },
-  { name: "Sapphire Night", style: "Luxe Evening", colors: ["#0D1B2A", "#4FC3F7", "#E8F4FD"] as string[], displayFont: "Montserrat", bodyFont: "Raleway" },
-  { name: "Marigold Fields", style: "Festive Traditional", colors: ["#B7410E", "#FFB300", "#FFFDE7"] as string[], displayFont: "Cormorant Garamond", bodyFont: "Nunito" },
-  { name: "Lotus Pink", style: "Contemporary Chic", colors: ["#AD1457", "#F48FB1", "#FFF0F5"] as string[], displayFont: "Dancing Script", bodyFont: "Lato" },
-  { name: "Ivory & Sage", style: "Garden Minimal", colors: ["#556B2F", "#9DC183", "#FAFAF0"] as string[], displayFont: "Playfair Display", bodyFont: "Quicksand" },
+const TEMPLATE_CATEGORIES = ["All", "Traditional", "Regional", "Modern", "Destination", "Minimal"] as const;
+type TemplateCategory = typeof TEMPLATE_CATEGORIES[number];
+
+const TEMPLATE_THEMES: { name: string; style: string; category: TemplateCategory; colors: string[]; displayFont: string; bodyFont: string }[] = [
+  { name: "Royal Maroon", style: "Traditional", category: "Traditional", colors: ["#6B1D2A", "#D4A853", "#FFF5E6"], displayFont: "Cormorant Garamond", bodyFont: "DM Sans" },
+  { name: "Golden Nikah", style: "Islamic Elegance", category: "Traditional", colors: ["#1A5E3B", "#D4A853", "#FFF5E6"], displayFont: "Cinzel", bodyFont: "Raleway" },
+  { name: "Bengali Monsoon", style: "Regional Classic", category: "Traditional", colors: ["#8B0000", "#FFD700", "#FFFACD"], displayFont: "Cormorant Garamond", bodyFont: "DM Sans" },
+  { name: "Marigold Fields", style: "Festive Traditional", category: "Traditional", colors: ["#B7410E", "#FFB300", "#FFFDE7"], displayFont: "Cormorant Garamond", bodyFont: "Nunito" },
+  { name: "Mughal Romance", style: "Indo-Persian", category: "Traditional", colors: ["#1F3A5F", "#C19A6B", "#FAF0E6"], displayFont: "Cinzel", bodyFont: "Nunito" },
+
+  { name: "Punjabi Fiesta", style: "Regional Vibrant", category: "Regional", colors: ["#FF6B35", "#FFC947", "#FFF8E7"], displayFont: "Montserrat", bodyFont: "Nunito" },
+  { name: "Mysore Silk", style: "South Indian Royal", category: "Regional", colors: ["#4B0082", "#DAA520", "#FFF8DC"], displayFont: "Cinzel", bodyFont: "DM Sans" },
+  { name: "Kashmiri Snow", style: "Winter Elegance", category: "Regional", colors: ["#2C3E50", "#C0C0C0", "#F8F9FA"], displayFont: "Playfair Display", bodyFont: "Raleway" },
+  { name: "Rajasthani Sunset", style: "Desert Royal", category: "Regional", colors: ["#C0392B", "#F39C12", "#FEF9E7"], displayFont: "Great Vibes", bodyFont: "Lato" },
+  { name: "Kerala Backwaters", style: "Tropical South", category: "Regional", colors: ["#0B5345", "#76D7C4", "#FDFEFE"], displayFont: "Cormorant Garamond", bodyFont: "Quicksand" },
+
+  { name: "Ivory Blush", style: "Modern Minimal", category: "Modern", colors: ["#4A3728", "#C9A96E", "#FFF8F0"], displayFont: "Playfair Display", bodyFont: "Lato" },
+  { name: "Midnight Garden", style: "Moody Luxe", category: "Modern", colors: ["#1A1A2E", "#C9A846", "#E8E8E8"], displayFont: "Playfair Display", bodyFont: "DM Sans" },
+  { name: "Velvet Noir", style: "Modern Glam", category: "Modern", colors: ["#1A1A1A", "#B8860B", "#F5F5F5"], displayFont: "Cinzel", bodyFont: "Lato" },
+  { name: "Sapphire Night", style: "Luxe Evening", category: "Modern", colors: ["#0D1B2A", "#4FC3F7", "#E8F4FD"], displayFont: "Montserrat", bodyFont: "Raleway" },
+  { name: "Lotus Pink", style: "Contemporary Chic", category: "Modern", colors: ["#AD1457", "#F48FB1", "#FFF0F5"], displayFont: "Dancing Script", bodyFont: "Lato" },
+  { name: "Rose Petal", style: "Romantic Soft", category: "Modern", colors: ["#922B3E", "#F5B7B1", "#FFF0F0"], displayFont: "Great Vibes", bodyFont: "Quicksand" },
+
+  { name: "Ocean Breeze", style: "Destination Beach", category: "Destination", colors: ["#0C4A6E", "#38BDF8", "#F0FDFA"], displayFont: "Montserrat", bodyFont: "Source Sans 3" },
+  { name: "Terracotta Sun", style: "Bohemian Desert", category: "Destination", colors: ["#A0522D", "#E8A87C", "#FFF5E1"], displayFont: "Great Vibes", bodyFont: "Raleway" },
+  { name: "Goan Sunlight", style: "Beach Casual", category: "Destination", colors: ["#E67E22", "#3498DB", "#FFF5EE"], displayFont: "Dancing Script", bodyFont: "Source Sans 3" },
+
+  { name: "Emerald Garden", style: "Eco / Nature", category: "Minimal", colors: ["#1B4332", "#8DB370", "#F5F5DC"], displayFont: "Cormorant Garamond", bodyFont: "Quicksand" },
+  { name: "Lavender Dream", style: "Fusion / Pastel", category: "Minimal", colors: ["#5B3A6B", "#C8A2D0", "#F8F0FF"], displayFont: "Great Vibes", bodyFont: "Nunito" },
+  { name: "Cherry Blossom", style: "Minimal Fusion", category: "Minimal", colors: ["#8B2252", "#FFB7C5", "#FFF5F7"], displayFont: "Dancing Script", bodyFont: "Quicksand" },
+  { name: "Teak & Brass", style: "Heritage Minimal", category: "Minimal", colors: ["#5D4037", "#CD853F", "#FAF3E8"], displayFont: "Playfair Display", bodyFont: "DM Sans" },
+  { name: "Ivory & Sage", style: "Garden Minimal", category: "Minimal", colors: ["#556B2F", "#9DC183", "#FAFAF0"], displayFont: "Playfair Display", bodyFont: "Quicksand" },
 ];
 
 function TemplateSwitcherPanel({
