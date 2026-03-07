@@ -279,6 +279,11 @@ const Dashboard = () => {
               </div>
             </TabsContent>
 
+            {/* ─── Analytics Tab ─── */}
+            <TabsContent value="analytics">
+              <AnalyticsPanel siteId={site?.id} accent={(site.suggested_colors as any)?.[1] || "#D4A853"} />
+            </TabsContent>
+
             {/* ─── RSVPs Tab ─── */}
             <TabsContent value="rsvps">
               <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
