@@ -89,7 +89,12 @@ const templates: TemplateData[] = [
       ],
       directions: "Fly into Florence Airport (FLR). Shuttle service will be arranged from the airport to the venue.",
     },
-    photoPlaceholders: ["Garden Setup", "Couple Portrait", "Chapel", "Reception"],
+    galleryPhotos: [
+      { label: "Garden Setup", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
+      { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&h=450&fit=crop" },
+      { label: "Chapel", url: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=600&h=450&fit=crop" },
+      { label: "Reception", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
+    ],
   },
   {
     name: "Golden Mandala",
