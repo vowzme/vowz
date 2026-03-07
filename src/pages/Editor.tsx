@@ -51,7 +51,7 @@ export interface WeddingSiteData {
 interface EditorState {
   siteData: WeddingSiteData;
   sections: WeddingSection[];
-  activePanel: "sections" | "style" | "settings" | "ai" | null;
+  activePanel: "sections" | "style" | "settings" | "ai" | "templates" | null;
   selectedSectionId: string | null;
   previewMode: boolean;
 }
