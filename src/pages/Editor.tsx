@@ -376,6 +376,7 @@ const Editor = () => {
             { id: "sections" as const, icon: Type, label: "Sections" },
             { id: "style" as const, icon: Palette, label: "Style" },
             { id: "settings" as const, icon: Settings, label: "Settings" },
+            { id: "ai" as const, icon: Wand2, label: "AI Assistant" },
           ]).map(({ id, icon: Icon, label }) => (
             <button
               key={id}
