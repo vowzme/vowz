@@ -20,10 +20,15 @@ const OnboardingWizard = () => {
     }
     return null;
   })();
+  const isFromTemplate = !!templateState?.templateName;
   const { messages, isLoading, wizardData, sendMessage, startWizard } = useWeddingWizard();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleBackToTemplates = () => {
+    navigate("/#templates");
+  };
 
   useEffect(() => {
     if (templateState?.templateName) {
@@ -58,6 +63,14 @@ const OnboardingWizard = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
+          {isFromTemplate && (
+            <button
+              onClick={handleBackToTemplates}
+              className="text-xs font-body text-gold hover:text-gold/80 transition-colors border border-gold/30 hover:border-gold/50 rounded-full px-3 py-1"
+            >
+              ← Templates
+            </button>
+          )}
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-gold" />
