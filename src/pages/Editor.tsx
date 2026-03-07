@@ -449,6 +449,17 @@ const Editor = () => {
                   {activePanel === "settings" && (
                     <SettingsPanel siteData={siteData} onUpdate={(d) => updateState({ siteData: d })} />
                   )}
+                  {activePanel === "ai" && (
+                    <AIAssistantPanel
+                      siteData={siteData}
+                      onApplyChanges={(changes) => {
+                        const newData = { ...siteData, ...changes };
+                        updateState({ siteData: newData });
+                        // If colors changed, also rebuild sections won't be needed since they reference siteData
+                        toast({ title: "AI changes applied! ✨" });
+                      }}
+                    />
+                  )}
                 </div>
               </motion.div>
             </>
