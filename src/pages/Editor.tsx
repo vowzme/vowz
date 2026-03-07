@@ -21,7 +21,7 @@ import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -46,6 +46,7 @@ export interface WeddingSiteData {
   welcomeMessage?: string;
   displayFont?: string;
   bodyFont?: string;
+  memoryMode?: boolean;
 }
 
 interface EditorState {
@@ -291,19 +292,27 @@ const Editor = () => {
     }));
   }, []);
 
-  const addSection = useCallback(() => {
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const addSection = useCallback((sectionType?: string) => {
+    const typeMap: Record<string, { type: WeddingSection["type"]; title: string; data: Record<string, any> }> = {
+      custom: { type: "custom", title: "New Section", data: { heading: "New Section", body: "Add your content here..." } },
+      polls: { type: "polls", title: "Guest Polls", data: { heading: "Have Your Say! 🗳️", polls: [{ question: "Vote for your favourite Sangeet song!", options: ["Gallan Goodiyaan", "London Thumakda", "Nachde Ne Saare"] }] } },
+      ecotips: { type: "ecotips", title: "Eco Wedding", data: { heading: "Our Green Wedding 🌿", description: "We're committed to celebrating responsibly.", tips: ["Digital invites — saving 200+ paper cards", "Locally sourced flowers & décor", "Carpooling encouraged — share rides with fellow guests", "Plant a sapling as your blessing to us"], showDigitalInviteTracker: true } },
+    };
+    const config = typeMap[sectionType || "custom"] || typeMap.custom;
     const newSection: WeddingSection = {
-      id: `custom-${Date.now()}`,
-      type: "custom",
-      title: "New Section",
+      id: `${config.type}-${Date.now()}`,
+      type: config.type,
+      title: config.title,
       visible: true,
-      data: { heading: "New Section", body: "Add your content here..." },
+      data: config.data,
     };
     setState((prev) => ({
       ...prev,
       sections: [...prev.sections, newSection],
       selectedSectionId: newSection.id,
     }));
+    setShowAddMenu(false);
   }, []);
 
   const handleSave = async () => {
@@ -593,8 +602,9 @@ function SectionsPanel({
   onReorder: (sections: WeddingSection[]) => void;
   onToggleVisibility: (id: string) => void;
   onDelete: (id: string) => void;
-  onAdd: () => void;
+  onAdd: (type?: string) => void;
 }) {
+  const [showAddMenu, setShowAddMenu] = useState(false);
   return (
     <div>
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Sections</h3>
@@ -619,7 +629,7 @@ function SectionsPanel({
               >
                 {section.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               </button>
-              {section.type === "custom" && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
@@ -632,9 +642,29 @@ function SectionsPanel({
         ))}
       </Reorder.Group>
 
-      <Button variant="outline" size="sm" className="w-full mt-4 font-body" onClick={onAdd}>
-        <Plus className="w-4 h-4 mr-1" /> Add Section
-      </Button>
+      <div className="relative mt-4">
+        <Button variant="outline" size="sm" className="w-full font-body" onClick={() => setShowAddMenu(!showAddMenu)}>
+          <Plus className="w-4 h-4 mr-1" /> Add Section
+        </Button>
+        {showAddMenu && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border/50 rounded-lg shadow-lg z-10 overflow-hidden">
+            {[
+              { id: "custom", label: "📝 Custom Section", desc: "Text content" },
+              { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting" },
+              { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability" },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => onAdd(item.id)}
+                className="w-full text-left px-3 py-2 hover:bg-muted transition-colors flex items-center justify-between"
+              >
+                <span className="font-body text-sm text-foreground">{item.label}</span>
+                <span className="font-body text-xs text-muted-foreground">{item.desc}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1151,6 +1181,25 @@ function SettingsPanel({
             className="font-body"
           />
         </div>
+
+        {/* Memory Mode */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Post-Wedding Mode</label>
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-border/30 bg-background">
+            <input
+              type="checkbox"
+              checked={siteData.memoryMode || false}
+              onChange={(e) => onUpdate({ ...siteData, memoryMode: e.target.checked })}
+              className="rounded mt-0.5"
+            />
+            <div>
+              <p className="font-body text-sm text-foreground">Enable Memory Mode 📸</p>
+              <p className="font-body text-xs text-muted-foreground mt-0.5">
+                Keep your site live as a wedding archive. Guests can revisit memories, view photos, and relive the celebration.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1440,6 +1489,157 @@ function SectionEditor({
             >
               <Plus className="w-3 h-3 mr-1" /> Add Hotel
             </Button>
+          </div>
+        </>
+      )}
+
+      {type === "polls" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="font-body text-sm font-medium text-foreground block">Polls</label>
+            {(data.polls || []).map((poll: any, i: number) => (
+              <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                <Input
+                  placeholder="Poll question (e.g. Vote for Sangeet songs!)"
+                  value={poll.question || ""}
+                  onChange={(e) => {
+                    const polls = [...(data.polls || [])];
+                    polls[i] = { ...poll, question: e.target.value };
+                    onUpdateData({ polls });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                {(poll.options || []).map((opt: string, j: number) => (
+                  <div key={j} className="flex gap-1">
+                    <Input
+                      placeholder={`Option ${j + 1}`}
+                      value={opt}
+                      onChange={(e) => {
+                        const polls = [...(data.polls || [])];
+                        const options = [...(polls[i].options || [])];
+                        options[j] = e.target.value;
+                        polls[i] = { ...polls[i], options };
+                        onUpdateData({ polls });
+                      }}
+                      className="font-body text-xs h-7 flex-1"
+                    />
+                    <button
+                      onClick={() => {
+                        const polls = [...(data.polls || [])];
+                        polls[i] = { ...polls[i], options: polls[i].options.filter((_: any, k: number) => k !== j) };
+                        onUpdateData({ polls });
+                      }}
+                      className="text-muted-foreground hover:text-destructive p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7 flex-1 font-body"
+                    onClick={() => {
+                      const polls = [...(data.polls || [])];
+                      polls[i] = { ...polls[i], options: [...(polls[i].options || []), ""] };
+                      onUpdateData({ polls });
+                    }}
+                  >
+                    + Option
+                  </Button>
+                  <button
+                    onClick={() => {
+                      onUpdateData({ polls: (data.polls || []).filter((_: any, j: number) => j !== i) });
+                    }}
+                    className="text-muted-foreground hover:text-destructive p-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body"
+              onClick={() =>
+                onUpdateData({
+                  polls: [...(data.polls || []), { question: "", options: ["Option 1", "Option 2"] }],
+                })
+              }
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Poll
+            </Button>
+          </div>
+        </>
+      )}
+
+      {type === "ecotips" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea
+              value={data.description || ""}
+              onChange={(e) => onUpdateData({ description: e.target.value })}
+              rows={2}
+              className="font-body"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="font-body text-sm font-medium text-foreground block">Eco Tips</label>
+            {(data.tips || []).map((tip: string, i: number) => (
+              <div key={i} className="flex gap-1">
+                <Input
+                  value={tip}
+                  onChange={(e) => {
+                    const tips = [...(data.tips || [])];
+                    tips[i] = e.target.value;
+                    onUpdateData({ tips });
+                  }}
+                  className="font-body text-xs h-7 flex-1"
+                />
+                <button
+                  onClick={() => onUpdateData({ tips: (data.tips || []).filter((_: any, j: number) => j !== i) })}
+                  className="text-muted-foreground hover:text-destructive p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body"
+              onClick={() => onUpdateData({ tips: [...(data.tips || []), ""] })}
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Tip
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={data.showDigitalInviteTracker || false}
+              onChange={(e) => onUpdateData({ showDigitalInviteTracker: e.target.checked })}
+              className="rounded"
+            />
+            <label className="font-body text-sm text-foreground">Show digital invite tracker</label>
           </div>
         </>
       )}
@@ -2102,6 +2302,72 @@ function SectionRenderer({
           </Button>
         </div>
         <p className="text-xs text-muted-foreground mt-3" style={{ fontFamily: bFont }}>RSVP form preview — functional when published</p>
+      </div>
+    );
+  }
+
+  if (type === "polls") {
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        <div className="max-w-md mx-auto space-y-4">
+          {(data.polls || []).map((poll: any, i: number) => (
+            <div key={i} className="border border-border/50 rounded-lg p-4">
+              <p className="text-sm font-semibold text-foreground mb-3" style={{ fontFamily: dFont }}>{poll.question}</p>
+              <div className="space-y-2">
+                {(poll.options || []).map((opt: string, j: number) => (
+                  <div key={j} className="flex items-center gap-2 p-2 rounded-lg border border-border/30 bg-background">
+                    <div className="w-4 h-4 rounded-full border-2" style={{ borderColor: accent }} />
+                    <span className="text-sm text-foreground" style={{ fontFamily: bFont }}>{opt}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2" style={{ fontFamily: bFont }}>Voting available when published</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "ecotips") {
+    return (
+      <div className="rounded-xl px-8 py-10" style={{ background: `linear-gradient(135deg, #2D501610, #8DB37015)` }}>
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <InlineEditable
+          tag="p"
+          value={data.description || ""}
+          onChange={(v) => update({ description: v })}
+          className="text-muted-foreground text-center max-w-md mx-auto mb-6"
+          style={{ fontFamily: bFont }}
+        />
+        <div className="max-w-md mx-auto space-y-2">
+          {(data.tips || []).map((tip: string, i: number) => (
+            <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-card border border-border/30">
+              <span className="text-base">🌱</span>
+              <span className="text-sm text-foreground" style={{ fontFamily: bFont }}>{tip}</span>
+            </div>
+          ))}
+        </div>
+        {data.showDigitalInviteTracker && (
+          <div className="mt-6 text-center p-4 rounded-lg bg-card border border-border/30 max-w-sm mx-auto">
+            <p className="text-xs text-muted-foreground" style={{ fontFamily: bFont }}>🌍 Digital invites sent — saving trees, one card at a time!</p>
+          </div>
+        )}
       </div>
     );
   }

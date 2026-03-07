@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send } from "lucide-react";
+import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -233,6 +233,8 @@ function PublicSection({
   if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} trackEvent={trackEvent} />;
   if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
   if (type === "custom") return <StorySection data={data} accent={accent} />;
+  if (type === "polls") return <PollsSection data={data} site={site} accent={accent} />;
+  if (type === "ecotips") return <EcoTipsSection data={data} accent={accent} />;
 
   return null;
 }
@@ -380,6 +382,17 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
                   style={{ color: accent }}
                 >
                   <MapPin className="w-3 h-3" /> {event.location}
+                </a>
+              )}
+              {event.date && (
+                <a
+                  href={`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.name)}&dates=${encodeURIComponent(event.date.replace(/[^0-9]/g, ""))}/${encodeURIComponent(event.date.replace(/[^0-9]/g, ""))}&details=${encodeURIComponent(`${event.name}${event.venue ? " at " + event.venue : ""}`)}&location=${encodeURIComponent(event.location || event.venue || "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-body mt-2 px-2.5 py-1 rounded-full border transition-colors hover:bg-card"
+                  style={{ borderColor: `${accent}40`, color: accent }}
+                >
+                  <CalendarPlus className="w-3 h-3" /> Add to Calendar
                 </a>
               )}
               {!event.date && !event.time && (
@@ -925,6 +938,210 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
               )}
             </Button>
           </form>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Polls Section ────────────────────────────────────────────────────
+function PollsSection({ data, site, accent }: { data: any; site: WeddingSite; accent: string }) {
+  const [votes, setVotes] = useState<Record<string, Record<number, number>>>({});
+  const [voted, setVoted] = useState<Set<string>>(new Set());
+  const [voterName, setVoterName] = useState("");
+
+  useEffect(() => {
+    // Load polls from DB and count votes
+    const loadPolls = async () => {
+      const { data: dbPolls } = await supabase
+        .from("wedding_polls")
+        .select("id, question, options")
+        .eq("wedding_site_id", site.id);
+      if (!dbPolls) return;
+
+      const voteMap: Record<string, Record<number, number>> = {};
+      for (const poll of dbPolls) {
+        const { data: pollVotes } = await supabase
+          .from("poll_votes")
+          .select("option_index")
+          .eq("poll_id", poll.id);
+        const counts: Record<number, number> = {};
+        (pollVotes || []).forEach((v: any) => {
+          counts[v.option_index] = (counts[v.option_index] || 0) + 1;
+        });
+        voteMap[poll.id] = counts;
+      }
+      setVotes(voteMap);
+    };
+    loadPolls();
+  }, [site.id]);
+
+  const handleVote = async (pollId: string, optionIndex: number) => {
+    if (voted.has(pollId) || !voterName.trim()) return;
+    const { error } = await supabase.from("poll_votes").insert({
+      poll_id: pollId,
+      option_index: optionIndex,
+      voter_name: voterName.trim(),
+    });
+    if (!error) {
+      setVoted((prev) => new Set(prev).add(pollId));
+      setVotes((prev) => ({
+        ...prev,
+        [pollId]: {
+          ...(prev[pollId] || {}),
+          [optionIndex]: ((prev[pollId] || {})[optionIndex] || 0) + 1,
+        },
+      }));
+    }
+  };
+
+  // Try to match local poll data with DB polls
+  const [dbPolls, setDbPolls] = useState<any[]>([]);
+  useEffect(() => {
+    supabase
+      .from("wedding_polls")
+      .select("*")
+      .eq("wedding_site_id", site.id)
+      .then(({ data: polls }) => { if (polls) setDbPolls(polls); });
+  }, [site.id]);
+
+  // Use local data for display, match with DB for voting
+  const polls = data.polls || [];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6 }}
+      className="bg-card py-16 md:py-20 px-6"
+    >
+      <div className="max-w-2xl mx-auto text-center">
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">{data.heading}</h2>
+        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} />
+
+        {!voterName && (
+          <div className="max-w-xs mx-auto mb-8">
+            <p className="text-sm text-muted-foreground font-body mb-2">Enter your name to vote</p>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Your name"
+                value={voterName}
+                onChange={(e) => setVoterName(e.target.value)}
+                className="font-body"
+              />
+              <Button variant="gold" size="sm" onClick={() => {}} disabled={!voterName.trim()}>
+                <Check className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-6">
+          {polls.map((poll: any, pi: number) => {
+            const matchedDb = dbPolls.find((dp) => dp.question === poll.question);
+            const pollId = matchedDb?.id || `local-${pi}`;
+            const pollVotes = votes[pollId] || {};
+            const totalVotes = Object.values(pollVotes).reduce((a: number, b: any) => a + (b as number), 0) as number;
+            const hasVoted = voted.has(pollId);
+
+            return (
+              <div key={pi} className="border border-border/50 rounded-2xl p-6 text-left bg-background">
+                <div className="flex items-center gap-2 mb-4">
+                  <BarChart3 className="w-5 h-5" style={{ color: accent }} />
+                  <p className="font-display text-lg font-semibold text-foreground">{poll.question}</p>
+                </div>
+                <div className="space-y-2">
+                  {(poll.options || []).map((opt: string, oi: number) => {
+                    const voteCount = pollVotes[oi] || 0;
+                    const pct = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+                    return (
+                      <button
+                        key={oi}
+                        onClick={() => matchedDb && handleVote(pollId, oi)}
+                        disabled={hasVoted || !voterName.trim() || !matchedDb}
+                        className={`w-full text-left p-3 rounded-lg border transition-all relative overflow-hidden ${
+                          hasVoted ? "cursor-default" : "hover:border-gold/50 cursor-pointer"
+                        }`}
+                        style={{ borderColor: hasVoted ? `${accent}30` : undefined }}
+                      >
+                        {hasVoted && (
+                          <div
+                            className="absolute inset-0 opacity-15 transition-all"
+                            style={{ width: `${pct}%`, backgroundColor: accent }}
+                          />
+                        )}
+                        <div className="relative flex justify-between items-center">
+                          <span className="font-body text-sm text-foreground">{opt}</span>
+                          {hasVoted && (
+                            <span className="font-body text-xs font-semibold" style={{ color: accent }}>
+                              {pct}% ({voteCount})
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {totalVotes > 0 && (
+                  <p className="text-xs text-muted-foreground font-body mt-2">{totalVotes} vote{totalVotes !== 1 ? "s" : ""}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Eco Tips Section ─────────────────────────────────────────────────
+function EcoTipsSection({ data, accent }: { data: any; accent: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6 }}
+      className="py-16 md:py-20 px-6"
+      style={{ background: `linear-gradient(135deg, #2D501610, #8DB37015)` }}
+    >
+      <div className="max-w-2xl mx-auto text-center">
+        <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center bg-green-100">
+          <Leaf className="w-6 h-6 text-green-600" />
+        </div>
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">{data.heading}</h2>
+        <div className="w-14 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        <p className="text-muted-foreground font-body text-lg mb-8 max-w-lg mx-auto">{data.description}</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto text-left">
+          {(data.tips || []).map((tip: string, i: number) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border/30"
+            >
+              <span className="text-lg shrink-0">🌱</span>
+              <p className="font-body text-sm text-foreground leading-relaxed">{tip}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {data.showDigitalInviteTracker && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-8 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-green-50 border border-green-200"
+          >
+            <span className="text-lg">🌍</span>
+            <p className="font-body text-sm text-green-700 font-medium">
+              This wedding went paperless — digital invites saved trees!
+            </p>
+          </motion.div>
         )}
       </div>
     </motion.div>

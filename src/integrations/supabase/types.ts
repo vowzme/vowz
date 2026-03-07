@@ -46,6 +46,38 @@ export type Database = {
           },
         ]
       }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_index: number
+          poll_id: string
+          voter_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_index: number
+          poll_id: string
+          voter_name?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_index?: number
+          poll_id?: string
+          voter_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -201,6 +233,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "wedding_checklist_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wedding_polls: {
+        Row: {
+          created_at: string
+          id: string
+          options: Json
+          question: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          options?: Json
+          question: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          options?: Json
+          question?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_polls_wedding_site_id_fkey"
             columns: ["wedding_site_id"]
             isOneToOne: false
             referencedRelation: "wedding_sites"
