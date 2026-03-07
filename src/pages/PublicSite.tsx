@@ -233,6 +233,8 @@ function PublicSection({
   if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} trackEvent={trackEvent} />;
   if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
   if (type === "custom") return <StorySection data={data} accent={accent} />;
+  if (type === "polls") return <PollsSection data={data} site={site} accent={accent} />;
+  if (type === "ecotips") return <EcoTipsSection data={data} accent={accent} />;
 
   return null;
 }
