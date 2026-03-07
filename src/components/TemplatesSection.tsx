@@ -399,10 +399,27 @@ function GalleryPhoto({ label, url }: { label: string; url: string }) {
 function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { template: TemplateData; onClose: () => void; onUseTemplate: (t: TemplateData) => void }) {
   const [bg, accent, text] = t.colors;
   const countdown = getCountdownFromDate(t.weddingDate);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [parallaxY, setParallaxY] = useState(0);
+
+  const handleScroll = useCallback(() => {
+    if (scrollRef.current) {
+      setParallaxY(scrollRef.current.scrollTop * 0.4);
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", handleScroll, { passive: true });
+      return () => el.removeEventListener("scroll", handleScroll);
+    }
+  }, [handleScroll]);
 
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto"
+      ref={scrollRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -426,32 +443,65 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           <X className="w-5 h-5" />
         </button>
 
-        {/* ── Hero Section with Photo ── */}
-        <div className="relative overflow-hidden">
-          {/* Hero background image */}
-          <div className="absolute inset-0">
+        {/* ── Hero Section with Parallax ── */}
+        <div className="relative overflow-hidden" style={{ minHeight: "480px" }}>
+          {/* Parallax hero background */}
+          <div
+            className="absolute inset-0 will-change-transform"
+            style={{ transform: `translateY(${parallaxY}px) scale(1.15)`, top: "-15%" , bottom: "-15%" }}
+          >
             <img src={t.heroPhoto} alt={t.venue} className="w-full h-full object-cover" />
-            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bg}cc 0%, ${bg}99 40%, ${bg}ee 100%)` }} />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bg}bb 0%, ${bg}88 40%, ${bg}dd 100%)` }} />
           </div>
 
           <div className="relative z-10 pt-16 pb-8 px-6 text-center">
-            <Heart className="w-8 h-8 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
-            <p className="font-body text-sm tracking-[0.25em] uppercase mb-3" style={{ color: `${text}90` }}>
-              You're Invited to the Wedding of
-            </p>
-            <h1 className="font-display text-5xl md:text-7xl font-bold mb-3 drop-shadow-lg" style={{ color: text }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
+              <Heart className="w-8 h-8 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
+              <p className="font-body text-sm tracking-[0.25em] uppercase mb-3" style={{ color: `${text}90` }}>
+                You're Invited to the Wedding of
+              </p>
+            </motion.div>
+            <motion.h1
+              className="font-display text-5xl md:text-7xl font-bold mb-3 drop-shadow-lg"
+              style={{ color: text }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.6 }}
+            >
               {t.partner1} <span className="font-normal italic text-3xl md:text-4xl mx-2" style={{ color: accent }}>&</span> {t.partner2}
-            </h1>
-            <p className="font-display text-xl italic mb-6" style={{ color: accent }}>
+            </motion.h1>
+            <motion.p
+              className="font-display text-xl italic mb-6"
+              style={{ color: accent }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
               {t.tagline}
-            </p>
+            </motion.p>
 
             {/* Couple photo circle */}
-            <div className="mx-auto mb-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl" style={{ borderColor: accent }}>
+            <motion.div
+              className="mx-auto mb-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl"
+              style={{ borderColor: accent }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.5, type: "spring", stiffness: 200 }}
+            >
               <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
-            </div>
+            </motion.div>
 
-            <div className="flex items-center justify-center gap-6 text-sm" style={{ color: `${text}cc` }}>
+            <motion.div
+              className="flex items-center justify-center gap-6 text-sm"
+              style={{ color: `${text}cc` }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+            >
               <span className="flex items-center gap-1.5 font-body">
                 <Calendar className="w-4 h-4" /> {t.weddingDate}
               </span>
@@ -459,7 +509,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               <span className="flex items-center gap-1.5 font-body">
                 <MapPin className="w-4 h-4" /> {t.location}
               </span>
-            </div>
+            </motion.div>
           </div>
         </div>
 
