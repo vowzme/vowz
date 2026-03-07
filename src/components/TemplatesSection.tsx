@@ -62,6 +62,9 @@ const templates: TemplateData[] = [
       { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=450&fit=crop" },
       { label: "Venue", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
       { label: "Sangeet", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+      { label: "Ceremony Decor", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=800&fit=crop" },
+      { label: "Family Blessing", url: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=600&h=450&fit=crop" },
+      { label: "Grand Entrance", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=800&fit=crop" },
     ],
   },
   {
