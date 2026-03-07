@@ -10,13 +10,19 @@ import WizardPreview from "@/components/WizardPreview";
 
 const OnboardingWizard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const templateState = location.state as { templateName?: string; templateStyle?: string; templateColors?: string[] } | null;
   const { messages, isLoading, wizardData, sendMessage, startWizard } = useWeddingWizard();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    startWizard();
+    if (templateState?.templateName) {
+      startWizard(`I'd like to create my wedding website using the "${templateState.templateName}" template (${templateState.templateStyle} style, colors: ${templateState.templateColors?.join(", ")}). Please keep this theme and ask me about my details.`);
+    } else {
+      startWizard();
+    }
   }, []);
 
   useEffect(() => {
