@@ -342,9 +342,12 @@ const templates: TemplateData[] = [
     },
     galleryPhotos: [
       { label: "Palace Exterior", url: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=600&h=450&fit=crop" },
-      { label: "Blue City View", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+      { label: "Blue City View", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=800&fit=crop" },
       { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=600&h=450&fit=crop" },
       { label: "Ballroom", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
+      { label: "Royal Procession", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
+      { label: "Jeweled Details", url: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=600&h=800&fit=crop" },
+      { label: "Fireworks", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
     ],
   },
   {
