@@ -154,12 +154,14 @@ function PublicSection({
   bg,
   accent,
   light,
+  trackEvent,
 }: {
   section: any;
   site: WeddingSite;
   bg: string;
   accent: string;
   light: string;
+  trackEvent: (type: string, meta?: Record<string, any>) => void;
 }) {
   const { type, data } = section;
 
@@ -169,8 +171,8 @@ function PublicSection({
   if (type === "events") return <EventsSection data={data} accent={accent} />;
   if (type === "gallery") return <GallerySection data={data} accent={accent} />;
   if (type === "travel") return <TravelSection data={data} accent={accent} />;
-  if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} />;
-  if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} />;
+  if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} trackEvent={trackEvent} />;
+  if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
   if (type === "custom") return <StorySection data={data} accent={accent} />;
 
   return null;
