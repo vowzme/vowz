@@ -37,7 +37,8 @@ const Auth = () => {
         const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
         if (session) {
           toast({ title: "Welcome! 💍" });
-          navigate("/dashboard");
+          const pending = sessionStorage.getItem("pendingTemplate");
+          navigate(pending ? "/wizard" : "/dashboard");
         } else {
           toast({
             title: "Check your email! 📧",
