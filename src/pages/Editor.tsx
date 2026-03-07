@@ -732,6 +732,18 @@ function TemplateSwitcherPanel({
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Templates</h3>
       <p className="text-xs text-muted-foreground font-body mb-3">Switch your site's look instantly — your content stays</p>
 
+      {/* Search input */}
+      <div className="relative mb-3">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Search templates..."
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value); setPreviewIdx(null); }}
+          className="w-full pl-8 pr-3 py-1.5 rounded-md border border-border/50 bg-background text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+      </div>
+
       {/* Category filter tabs */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {TEMPLATE_CATEGORIES.map((cat) => {
