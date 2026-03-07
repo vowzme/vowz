@@ -24,7 +24,8 @@ const Auth = () => {
         const { error } = await signIn(form.email, form.password);
         if (error) throw error;
         toast({ title: "Welcome back! 💍" });
-        navigate("/dashboard");
+        const pending = sessionStorage.getItem("pendingTemplate");
+        navigate(pending ? "/wizard" : "/dashboard");
       } else {
         if (form.password.length < 6) {
           toast({ title: "Password must be at least 6 characters", variant: "destructive" });
@@ -36,7 +37,8 @@ const Auth = () => {
         const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
         if (session) {
           toast({ title: "Welcome! 💍" });
-          navigate("/dashboard");
+          const pending = sessionStorage.getItem("pendingTemplate");
+          navigate(pending ? "/wizard" : "/dashboard");
         } else {
           toast({
             title: "Check your email! 📧",

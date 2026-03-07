@@ -824,13 +824,14 @@ const TemplatesSection = () => {
 
   const handleUseTemplate = (t: TemplateData) => {
     setSelectedTemplate(null);
-    navigate("/wizard", {
-      state: {
-        templateName: t.name,
-        templateStyle: t.style,
-        templateColors: t.colors,
-      },
-    });
+    const templateState = {
+      templateName: t.name,
+      templateStyle: t.style,
+      templateColors: t.colors,
+    };
+    // Persist in sessionStorage so it survives the auth redirect
+    sessionStorage.setItem("pendingTemplate", JSON.stringify(templateState));
+    navigate("/wizard", { state: templateState });
   };
 
   return (

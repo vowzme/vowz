@@ -11,7 +11,15 @@ import WizardPreview from "@/components/WizardPreview";
 const OnboardingWizard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const templateState = location.state as { templateName?: string; templateStyle?: string; templateColors?: string[] } | null;
+  const locationState = location.state as { templateName?: string; templateStyle?: string; templateColors?: string[] } | null;
+  const templateState = locationState?.templateName ? locationState : (() => {
+    const stored = sessionStorage.getItem("pendingTemplate");
+    if (stored) {
+      sessionStorage.removeItem("pendingTemplate");
+      try { return JSON.parse(stored); } catch { return null; }
+    }
+    return null;
+  })();
   const { messages, isLoading, wizardData, sendMessage, startWizard } = useWeddingWizard();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
