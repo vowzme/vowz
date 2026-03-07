@@ -374,6 +374,7 @@ const Editor = () => {
         <div className="hidden md:flex w-14 border-r border-border/50 bg-card/50 flex-col items-center py-3 gap-1 shrink-0">
           {([
             { id: "sections" as const, icon: Type, label: "Sections" },
+            { id: "templates" as const, icon: LayoutTemplate, label: "Templates" },
             { id: "style" as const, icon: Palette, label: "Style" },
             { id: "settings" as const, icon: Settings, label: "Settings" },
             { id: "ai" as const, icon: Wand2, label: "AI Assistant" },
