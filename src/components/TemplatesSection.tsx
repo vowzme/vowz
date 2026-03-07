@@ -5,7 +5,7 @@ import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, 
 import { Button } from "@/components/ui/button";
 import Lightbox from "@/components/Lightbox";
 
-interface TemplateData {
+export interface TemplateData {
   name: string;
   colors: [string, string, string];
   style: string;
