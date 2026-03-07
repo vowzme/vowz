@@ -1180,6 +1180,25 @@ function SettingsPanel({
             className="font-body"
           />
         </div>
+
+        {/* Memory Mode */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Post-Wedding Mode</label>
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-border/30 bg-background">
+            <input
+              type="checkbox"
+              checked={siteData.memoryMode || false}
+              onChange={(e) => onUpdate({ ...siteData, memoryMode: e.target.checked })}
+              className="rounded mt-0.5"
+            />
+            <div>
+              <p className="font-body text-sm text-foreground">Enable Memory Mode 📸</p>
+              <p className="font-body text-xs text-muted-foreground mt-0.5">
+                Keep your site live as a wedding archive. Guests can revisit memories, view photos, and relive the celebration.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
