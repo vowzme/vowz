@@ -436,6 +436,11 @@ const Editor = () => {
                       onColorChange={(colors) =>
                         updateState({ siteData: { ...siteData, suggestedColors: colors } })
                       }
+                      displayFont={displayFont}
+                      bodyFont={bodyFont}
+                      onFontChange={(display, body) =>
+                        updateState({ siteData: { ...siteData, displayFont: display, bodyFont: body } })
+                      }
                     />
                   )}
                   {activePanel === "settings" && (
