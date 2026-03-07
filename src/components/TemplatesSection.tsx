@@ -101,8 +101,11 @@ const templates: TemplateData[] = [
     galleryPhotos: [
       { label: "Garden Setup", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
       { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&h=450&fit=crop" },
-      { label: "Chapel", url: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=600&h=450&fit=crop" },
+      { label: "Chapel", url: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=600&h=800&fit=crop" },
       { label: "Reception", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
+      { label: "First Dance", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+      { label: "Tuscan Hills", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=800&fit=crop" },
+      { label: "Cake Cutting", url: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=600&h=450&fit=crop" },
     ],
   },
   {
