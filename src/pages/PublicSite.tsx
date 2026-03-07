@@ -255,6 +255,16 @@ function HeroSection({ data, bg, accent, light }: { data: any; bg: string; accen
         </svg>
       </div>
       <div className="relative z-10 max-w-3xl mx-auto">
+        {data.logoUrl && (
+          <motion.img
+            src={data.logoUrl}
+            alt="Wedding logo"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="w-24 h-24 md:w-28 md:h-28 mx-auto mb-5 object-contain rounded-xl"
+          />
+        )}
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }}>
           <Heart className="w-10 h-10 mx-auto mb-5" style={{ color: accent }} fill="currentColor" />
         </motion.div>

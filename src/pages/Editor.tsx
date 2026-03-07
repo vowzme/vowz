@@ -1305,6 +1305,9 @@ function SectionRenderer({
           </svg>
         </div>
         <div className="relative z-10">
+          {data.logoUrl && (
+            <img src={data.logoUrl} alt="Wedding logo" className="w-20 h-20 mx-auto mb-4 object-contain rounded-lg" />
+          )}
           <Heart className="w-7 h-7 mx-auto mb-3" style={{ color: accent }} fill="currentColor" />
           <p className="font-body text-xs tracking-widest uppercase mb-2" style={{ color: `${light}99` }}>
             {data.subheading}
