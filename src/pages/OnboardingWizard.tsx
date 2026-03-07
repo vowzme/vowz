@@ -20,10 +20,15 @@ const OnboardingWizard = () => {
     }
     return null;
   })();
+  const isFromTemplate = !!templateState?.templateName;
   const { messages, isLoading, wizardData, sendMessage, startWizard } = useWeddingWizard();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleBackToTemplates = () => {
+    navigate("/#templates");
+  };
 
   useEffect(() => {
     if (templateState?.templateName) {
