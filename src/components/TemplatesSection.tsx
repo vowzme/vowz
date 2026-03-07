@@ -16,6 +16,8 @@ interface TemplateData {
   venue: string;
   location: string;
   story: string;
+  couplePhoto: string;
+  heroPhoto: string;
   events: { name: string; date: string; time: string; venue: string }[];
   guestbookMessages: { name: string; message: string }[];
   travelInfo: { hotels: { name: string; distance: string }[]; directions: string };
