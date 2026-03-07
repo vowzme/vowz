@@ -1009,7 +1009,59 @@ function generateDomainSuggestions(partner1: string, partner2: string, tlds: str
 
 type DomainResult = { domain: string; available: boolean | null; checking?: boolean };
 
-// Old CustomDomainPanel removed — replaced by new version below
+function CustomDomainPanel({ siteId, siteSlug, siteName, savedDomain, savedStatus, onUpdate }: {
+  siteId: string;
+  siteSlug: string | null;
+  siteName: string;
+  savedDomain: string | null;
+  savedStatus: string;
+  onUpdate: (domain: string | null, status: string) => void;
+}) {
+  const [customDomain, setCustomDomain] = useState(savedDomain || "");
+  const [domainResults, setDomainResults] = useState<DomainResult[]>([]);
+  const [checking, setChecking] = useState(false);
+  const [hasChecked, setHasChecked] = useState(false);
+  const [selectedTlds, setSelectedTlds] = useState<string[]>([".com", ".in", ".wedding"]);
+  const [customCheckResult, setCustomCheckResult] = useState<DomainResult | null>(null);
+  const [checkingCustom, setCheckingCustom] = useState(false);
+  const [savingDomain, setSavingDomain] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+
+  const parts = siteName.split(/\s*&\s*/);
+  const partner1 = parts[0]?.trim() || "";
+  const partner2 = parts[1]?.trim() || "";
+
+  const currentStatus = savedStatus || "none";
+  const hasSavedDomain = !!savedDomain && currentStatus !== "none";
+
+  const toggleTld = (tld: string) => {
+    setSelectedTlds((prev) =>
+      prev.includes(tld) ? prev.filter((t) => t !== tld) : [...prev, tld]
+    );
+  };
+
+  const checkAvailability = async () => {
+    const suggestions = generateDomainSuggestions(partner1, partner2, selectedTlds);
+    if (suggestions.length === 0) return;
+    setChecking(true);
+    setHasChecked(true);
+    setDomainResults(suggestions.map((d) => ({ domain: d, available: null, checking: true })));
+    try {
+      const { data, error } = await supabase.functions.invoke("check-domain", {
+        body: { domains: suggestions },
+      });
+      if (error) throw error;
+      if (data?.results) {
+        setDomainResults(data.results.map((r: DomainResult) => ({ ...r, checking: false })));
+      }
+    } catch (err) {
+      console.error("Domain check failed:", err);
+      setDomainResults(suggestions.map((d) => ({ domain: d, available: null, checking: false })));
+    } finally {
+      setChecking(false);
+    }
+  };
 
   useEffect(() => {
     if (!customDomain.includes(".") || customDomain.length < 4) {
@@ -1086,7 +1138,7 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
       if (error) throw error;
       setCustomDomain("");
       onUpdate(null, "none");
-      toast({ title: "Domain disconnected", description: "Your wedding site is now only accessible via the default URL." });
+      toast({ title: "Domain disconnected" });
     } catch (err) {
       console.error(err);
       toast({ title: "Error disconnecting", variant: "destructive" });
@@ -1120,7 +1172,6 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
 
   return (
     <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
-      {/* Header with status */}
       <div className="p-4 sm:p-6 border-b border-border/30 flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
           <Crown className="w-5 h-5 text-gold" />
@@ -1161,34 +1212,22 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
                 <p className="font-body font-mono text-sm font-semibold text-foreground">{savedDomain}</p>
                 <p className="text-xs text-muted-foreground font-body mt-0.5">
                   {currentStatus === "pending" && "Configure DNS records below, then verify."}
-                  {currentStatus === "verified" && "DNS verified! SSL is being provisioned. Your site will be live shortly."}
+                  {currentStatus === "verified" && "DNS verified! SSL is being provisioned automatically."}
                   {currentStatus === "live" && "Your wedding site is live at this domain! 🎉"}
                   {currentStatus === "failed" && "DNS verification failed. Check your records and try again."}
                 </p>
               </div>
               <div className="flex gap-2 shrink-0">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="font-body text-xs"
-                  onClick={handleVerify}
-                  disabled={verifying}
-                >
+                <Button variant="outline" size="sm" className="font-body text-xs" onClick={handleVerify} disabled={verifying}>
                   {verifying ? <><span className="animate-spin mr-1">⏳</span> Checking...</> : <><ShieldCheck className="w-3.5 h-3.5 mr-1" /> Verify DNS</>}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="font-body text-xs text-destructive hover:text-destructive"
-                  onClick={handleDisconnect}
-                  disabled={disconnecting}
-                >
+                <Button variant="outline" size="sm" className="font-body text-xs text-destructive hover:text-destructive" onClick={handleDisconnect} disabled={disconnecting}>
                   {disconnecting ? "..." : <><X className="w-3.5 h-3.5 mr-1" /> Disconnect</>}
                 </Button>
               </div>
             </div>
 
-            {/* Status timeline */}
+            {/* Progress timeline */}
             <div className="flex items-center gap-0">
               {[
                 { key: "pending", label: "Domain Saved" },
@@ -1216,7 +1255,6 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
               })}
             </div>
 
-            {/* DNS Instructions — shown when pending or failed */}
             {(currentStatus === "pending" || currentStatus === "failed") && (
               <div className="space-y-3 pt-2">
                 <p className="font-body text-xs font-semibold text-foreground">Add these DNS records at your registrar:</p>
@@ -1235,14 +1273,14 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
                   </div>
                 </div>
                 <p className="text-[10px] text-muted-foreground font-body">
-                  DNS changes can take 24–72 hours to propagate. Click <strong>Verify DNS</strong> to check status anytime.
+                  DNS changes can take 24–72 hours to propagate. Click <strong>Verify DNS</strong> to check anytime.
                 </p>
               </div>
             )}
           </div>
         )}
 
-        {/* Domain search & connect (only when no domain connected) */}
+        {/* Search & connect (only when no domain saved) */}
         {!hasSavedDomain && (
           <>
             <div>
@@ -1251,7 +1289,7 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
                 Choose your domain style
               </h3>
               <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
-                Select the extensions you'd like to check. We recommend <strong>.in</strong> for Indian weddings and <strong>.com</strong> for global reach.
+                Select extensions you'd like. <strong>.in</strong> for Indian weddings, <strong>.com</strong> for global reach, <strong>.wedding</strong> for a dedicated wedding domain.
               </p>
               <div className="ml-8 space-y-4">
                 <div className="flex flex-wrap gap-2">
@@ -1273,52 +1311,26 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
                   ))}
                 </div>
 
-                <Button
-                  variant="gold"
-                  size="sm"
-                  className="font-body"
-                  onClick={checkAvailability}
-                  disabled={checking || !partner1 || !partner2 || selectedTlds.length === 0}
-                >
-                  {checking ? (
-                    <><span className="animate-spin mr-2">⏳</span> Checking {domainResults.length} domains...</>
-                  ) : (
-                    <><Search className="w-4 h-4 mr-1" /> Find Available Domains</>
-                  )}
+                <Button variant="gold" size="sm" className="font-body" onClick={checkAvailability} disabled={checking || !partner1 || !partner2 || selectedTlds.length === 0}>
+                  {checking ? <><span className="animate-spin mr-2">⏳</span> Checking...</> : <><Search className="w-4 h-4 mr-1" /> Find Available Domains</>}
                 </Button>
 
-                {/* Custom domain input */}
                 <div className="border-t border-border/20 pt-4">
                   <p className="text-xs text-muted-foreground font-body font-medium mb-2">Or enter a domain you've already purchased:</p>
                   <div className="flex gap-2 max-w-md">
                     <div className="relative flex-1">
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        placeholder="e.g. arjunandmeera.com"
-                        value={customDomain}
-                        onChange={(e) => setCustomDomain(e.target.value)}
-                        className="pl-10 font-body font-mono text-sm"
-                      />
-                      {checkingCustom && (
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs animate-spin">⏳</span>
-                      )}
+                      <Input placeholder="e.g. arjunandmeera.com" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} className="pl-10 font-body font-mono text-sm" />
+                      {checkingCustom && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs animate-spin">⏳</span>}
                     </div>
-                    <Button
-                      variant="gold"
-                      size="sm"
-                      className="font-body shrink-0"
-                      onClick={() => handleSaveDomain(customDomain)}
-                      disabled={!customDomain.includes(".") || customDomain.length < 4 || savingDomain}
-                    >
+                    <Button variant="gold" size="sm" className="font-body shrink-0" onClick={() => handleSaveDomain(customDomain)} disabled={!customDomain.includes(".") || customDomain.length < 4 || savingDomain}>
                       {savingDomain ? "Saving..." : <><Globe className="w-4 h-4 mr-1" /> Connect</>}
                     </Button>
                   </div>
                   {customCheckResult && !customCheckResult.checking && (
                     <div className={`mt-2 flex items-center gap-2 text-xs font-body px-3 py-2 rounded-lg ${
-                      customCheckResult.available === true
-                        ? "bg-emerald-500/10 text-emerald-600"
-                        : customCheckResult.available === false
-                        ? "bg-muted/30 text-foreground"
+                      customCheckResult.available === true ? "bg-emerald-500/10 text-emerald-600"
+                        : customCheckResult.available === false ? "bg-muted/30 text-foreground"
                         : "bg-muted/30 text-muted-foreground"
                     }`}>
                       {customCheckResult.available === true ? (
@@ -1334,7 +1346,6 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
               </div>
             </div>
 
-            {/* Suggested domains results */}
             {sortedResults.length > 0 && (
               <div>
                 <h3 className="font-display text-base font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -1343,54 +1354,34 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
                 </h3>
                 <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
                   {sortedResults.map(({ domain, available, checking: itemChecking }) => (
-                    <div
-                      key={domain}
-                      className={`flex items-center justify-between gap-3 border rounded-xl px-4 py-3 transition-all ${
-                        available === true
-                          ? "border-emerald-500/30 bg-emerald-500/5"
-                          : available === false
-                          ? "border-border/30 bg-muted/30 opacity-50"
-                          : "border-border/40 bg-muted/20"
-                      }`}
-                    >
+                    <div key={domain} className={`flex items-center justify-between gap-3 border rounded-xl px-4 py-3 transition-all ${
+                      available === true ? "border-emerald-500/30 bg-emerald-500/5"
+                        : available === false ? "border-border/30 bg-muted/30 opacity-50"
+                        : "border-border/40 bg-muted/20"
+                    }`}>
                       <div className="flex items-center gap-2 min-w-0">
-                        {itemChecking ? (
-                          <span className="w-4 h-4 animate-spin text-xs shrink-0">⏳</span>
-                        ) : available === true ? (
-                          <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                        ) : available === false ? (
-                          <X className="w-4 h-4 text-destructive shrink-0" />
-                        ) : (
-                          <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                        )}
+                        {itemChecking ? <span className="w-4 h-4 animate-spin text-xs shrink-0">⏳</span>
+                          : available === true ? <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                          : available === false ? <X className="w-4 h-4 text-destructive shrink-0" />
+                          : <Globe className="w-4 h-4 text-muted-foreground shrink-0" />}
                         <span className="font-body font-mono text-sm text-foreground truncate">{domain}</span>
                         {!itemChecking && available === true && (
-                          <span className="text-[10px] font-body font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
-                            Available
-                          </span>
+                          <span className="text-[10px] font-body font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">Available</span>
                         )}
                         {!itemChecking && available === false && (
-                          <span className="text-[10px] font-body font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">
-                            Taken
-                          </span>
+                          <span className="text-[10px] font-body font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">Taken</span>
                         )}
                       </div>
                       <div className="flex gap-1.5 shrink-0">
                         {available === true && (
-                          <a
-                            href={getBuyUrl(domain, DOMAIN_REGISTRARS[0])}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
-                          >
+                          <a href={getBuyUrl(domain, DOMAIN_REGISTRARS[0])} target="_blank" rel="noopener noreferrer"
+                            className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors">
                             Buy on GoDaddy
                           </a>
                         )}
                         {!itemChecking && available !== false && (
-                          <button
-                            onClick={() => setCustomDomain(domain)}
-                            className="text-[10px] font-body font-medium text-foreground bg-muted hover:bg-muted/80 px-2.5 py-1 rounded-lg transition-colors"
-                          >
+                          <button onClick={() => setCustomDomain(domain)}
+                            className="text-[10px] font-body font-medium text-foreground bg-muted hover:bg-muted/80 px-2.5 py-1 rounded-lg transition-colors">
                             Select
                           </button>
                         )}
@@ -1406,14 +1397,11 @@ type DomainResult = { domain: string; available: boolean | null; checking?: bool
           </>
         )}
 
-        {/* Disclaimer & Terms */}
         <div className="border-t border-border/30 pt-4 mt-2">
           <p className="text-[10px] text-muted-foreground/70 font-body leading-relaxed">
-            <strong className="text-muted-foreground">Important:</strong> Domain purchases are made directly through third-party registrars (GoDaddy, BigRock, etc.) and are subject to their terms, pricing, and refund policies.
-            We do not sell, manage, or renew domains on your behalf. <strong className="text-muted-foreground">You are solely responsible for domain registration, renewal, and any associated fees.</strong> If
-            your domain expires, your wedding site will no longer be accessible at that address. We recommend enabling auto-renewal at your registrar.
-            We provide domain suggestions and availability checks as a convenience only — accuracy is not guaranteed. We accept no liability for domain purchases,
-            losses, disputes, or any issues arising from third-party registrar services. By using this feature, you agree to these terms.
+            <strong className="text-muted-foreground">Important:</strong> Domain purchases are made directly through third-party registrars and are subject to their terms.
+            We do not sell, manage, or renew domains on your behalf. <strong className="text-muted-foreground">You are solely responsible for domain registration, renewal, and any associated fees.</strong> We recommend enabling auto-renewal at your registrar.
+            Availability checks are indicative only. We accept no liability for domain purchases or third-party registrar issues. By using this feature, you agree to these terms.
           </p>
         </div>
       </div>
