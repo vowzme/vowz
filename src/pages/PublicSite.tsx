@@ -361,6 +361,17 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
                   <MapPin className="w-3.5 h-3.5" /> {event.venue}
                 </p>
               )}
+              {event.location && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-body mt-1 inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
+                  style={{ color: accent }}
+                >
+                  <MapPin className="w-3 h-3" /> {event.location}
+                </a>
+              )}
               {!event.date && !event.time && (
                 <p className="text-sm text-muted-foreground font-body">Date & time TBD</p>
               )}

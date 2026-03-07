@@ -1254,6 +1254,9 @@ function SectionRenderer({
                   <MapPin className="w-3 h-3" /> {event.venue}
                 </p>
               )}
+              {event.location && (
+                <p className="text-xs text-muted-foreground/70 font-body mt-0.5 truncate">{event.location}</p>
+              )}
               {!event.date && !event.time && <p className="text-xs text-muted-foreground font-body mt-0.5">Date & time TBD</p>}
             </div>
           ))}
