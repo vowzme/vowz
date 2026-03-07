@@ -471,7 +471,7 @@ const Editor = () => {
                 <div className="absolute -top-3 left-4 z-10 bg-card border border-border/50 rounded-md px-2 py-0.5 text-xs font-body text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                   {section.title}
                 </div>
-                <SectionRenderer section={section} bg={bg} accent={accent} light={light} />
+                <SectionRenderer section={section} bg={bg} accent={accent} light={light} displayFont={displayFont} bodyFont={bodyFont} onUpdateData={(dataPatch) => updateSectionData(section.id, dataPatch)} />
               </div>
             ))}
           </div>
