@@ -194,7 +194,12 @@ const templates: TemplateData[] = [
       ],
       directions: "Fly into Istanbul Airport (IST). The venue is in the historic Sultanahmet district, easily accessible by taxi or tram.",
     },
-    photoPlaceholders: ["Bosphorus View", "Couple Portrait", "Calligraphy", "Venue"],
+    galleryPhotos: [
+      { label: "Bosphorus View", url: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=600&h=450&fit=crop" },
+      { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=600&h=450&fit=crop" },
+      { label: "Calligraphy", url: "https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=600&h=450&fit=crop" },
+      { label: "Venue", url: "https://images.unsplash.com/photo-1530023367847-a683933f4172?w=600&h=450&fit=crop" },
+    ],
   },
   {
     name: "Kerala Spice",
