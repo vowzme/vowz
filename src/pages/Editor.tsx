@@ -21,7 +21,7 @@ import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips";
   title: string;
   visible: boolean;
   data: Record<string, any>;
