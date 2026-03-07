@@ -508,6 +508,7 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
       if (newWish) setWishes((prev) => [newWish as any, ...prev]);
       setForm({ guest_name: "", message: "" });
       toast({ title: "Wish posted! 💕" });
+      trackEvent("guestbook_post");
     }
   };
 
