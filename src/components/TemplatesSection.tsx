@@ -301,7 +301,12 @@ const templates: TemplateData[] = [
       ],
       directions: "Fly into Jodhpur Airport (JDH). The palace is a 15-minute drive from the airport.",
     },
-    photoPlaceholders: ["Palace Exterior", "Blue City View", "Couple Portrait", "Ballroom"],
+    galleryPhotos: [
+      { label: "Palace Exterior", url: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=600&h=450&fit=crop" },
+      { label: "Blue City View", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+      { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=600&h=450&fit=crop" },
+      { label: "Ballroom", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
+    ],
   },
   {
     name: "Rose Garden",
