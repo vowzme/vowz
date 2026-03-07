@@ -2,3 +2,6 @@ project_id = "abnutuvscchnaabbljek"
 
 [functions.wedding-wizard]
 verify_jwt = false
+
+[functions.editor-ai]
+verify_jwt = false

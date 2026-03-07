@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence as LightboxAnimatePresence } from "framer-motion";
 import Lightbox from "@/components/Lightbox";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -6,8 +6,10 @@ import { motion, AnimatePresence, Reorder } from "framer-motion";
 import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
-  Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2
+  Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
+  MessageCircle, Send, Bot, Wand2
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,7 +51,7 @@ export interface WeddingSiteData {
 interface EditorState {
   siteData: WeddingSiteData;
   sections: WeddingSection[];
-  activePanel: "sections" | "style" | "settings" | null;
+  activePanel: "sections" | "style" | "settings" | "ai" | null;
   selectedSectionId: string | null;
   previewMode: boolean;
 }
@@ -374,6 +376,7 @@ const Editor = () => {
             { id: "sections" as const, icon: Type, label: "Sections" },
             { id: "style" as const, icon: Palette, label: "Style" },
             { id: "settings" as const, icon: Settings, label: "Settings" },
+            { id: "ai" as const, icon: Wand2, label: "AI Assistant" },
           ]).map(({ id, icon: Icon, label }) => (
             <button
               key={id}
@@ -445,6 +448,17 @@ const Editor = () => {
                   )}
                   {activePanel === "settings" && (
                     <SettingsPanel siteData={siteData} onUpdate={(d) => updateState({ siteData: d })} />
+                  )}
+                  {activePanel === "ai" && (
+                    <AIAssistantPanel
+                      siteData={siteData}
+                      onApplyChanges={(changes) => {
+                        const newData = { ...siteData, ...changes };
+                        updateState({ siteData: newData });
+                        // If colors changed, also rebuild sections won't be needed since they reference siteData
+                        toast({ title: "AI changes applied! ✨" });
+                      }}
+                    />
                   )}
                 </div>
               </motion.div>
@@ -609,6 +623,252 @@ function SectionsPanel({
       <Button variant="outline" size="sm" className="w-full mt-4 font-body" onClick={onAdd}>
         <Plus className="w-4 h-4 mr-1" /> Add Section
       </Button>
+    </div>
+  );
+}
+
+// ─── AI Assistant Panel ───────────────────────────────────────────────
+type AIChatMessage = { role: "user" | "assistant"; content: string };
+
+function AIAssistantPanel({
+  siteData,
+  onApplyChanges,
+}: {
+  siteData: WeddingSiteData;
+  onApplyChanges: (changes: Partial<WeddingSiteData>) => void;
+}) {
+  const [messages, setMessages] = useState<AIChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const parseAndApplyActions = (text: string) => {
+    const actionMatch = text.match(/```action\s*([\s\S]*?)\s*```/);
+    if (!actionMatch) return;
+    try {
+      const action = JSON.parse(actionMatch[1]);
+      if (action.data) {
+        const changes: Partial<WeddingSiteData> = {};
+        if (action.data.suggestedColors) changes.suggestedColors = action.data.suggestedColors;
+        if (action.data.displayFont) changes.displayFont = action.data.displayFont;
+        if (action.data.bodyFont) changes.bodyFont = action.data.bodyFont;
+        if (action.data.theme) changes.theme = action.data.theme;
+        if (action.data.tagline) changes.tagline = action.data.tagline;
+        if (action.type === "update_content" && action.data.field && action.data.value) {
+          (changes as any)[action.data.field] = action.data.value;
+        }
+        if (Object.keys(changes).length > 0) onApplyChanges(changes);
+      }
+    } catch { /* not valid json */ }
+  };
+
+  const streamResponse = async (allMessages: AIChatMessage[]) => {
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/editor-ai`;
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ messages: allMessages, siteContext: siteData }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: "Request failed" }));
+      throw new Error(err.error || `Error ${resp.status}`);
+    }
+    if (!resp.body) throw new Error("No response stream");
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let textBuffer = "";
+    let assistantSoFar = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      textBuffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex: number;
+      while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+        let line = textBuffer.slice(0, newlineIndex);
+        textBuffer = textBuffer.slice(newlineIndex + 1);
+        if (line.endsWith("\r")) line = line.slice(0, -1);
+        if (line.startsWith(":") || line.trim() === "") continue;
+        if (!line.startsWith("data: ")) continue;
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === "[DONE]") break;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+          if (content) {
+            assistantSoFar += content;
+            setMessages((prev) => {
+              const last = prev[prev.length - 1];
+              if (last?.role === "assistant") {
+                return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantSoFar } : m);
+              }
+              return [...prev, { role: "assistant", content: assistantSoFar }];
+            });
+          }
+        } catch {
+          textBuffer = line + "\n" + textBuffer;
+          break;
+        }
+      }
+    }
+
+    return assistantSoFar;
+  };
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+    const userMsg: AIChatMessage = { role: "user", content: input.trim() };
+    const allMessages = [...messages, userMsg];
+    setMessages(allMessages);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const assistantText = await streamResponse(allMessages);
+      parseAndApplyActions(assistantText);
+      // Clean action blocks from displayed message
+      setMessages((prev) =>
+        prev.map((m, i) =>
+          i === prev.length - 1 && m.role === "assistant"
+            ? { ...m, content: m.content.replace(/```action[\s\S]*?```/g, "").trim() }
+            : m
+        )
+      );
+    } catch (e) {
+      console.error("AI error:", e);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: `Sorry, something went wrong: ${e instanceof Error ? e.message : "Unknown error"}` },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const quickPrompts = [
+    { label: "🎨 Suggest a theme", prompt: `Suggest a complete theme (colors, fonts, tagline) that perfectly suits ${siteData.partner1} & ${siteData.partner2}'s ${siteData.culturalBackground} wedding. Apply it directly.` },
+    { label: "✍️ Rewrite our story", prompt: "Rewrite our love story to be more romantic and engaging. Apply it." },
+    { label: "💐 New tagline", prompt: "Generate a beautiful new tagline for our wedding website and apply it." },
+    { label: "🎊 Wedding tips", prompt: `What are the key traditions and customs we should include for a ${siteData.culturalBackground} wedding?` },
+  ];
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-120px)]">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+          <Bot className="w-4 h-4 text-gold" />
+        </div>
+        <div>
+          <h3 className="font-display text-lg font-semibold text-foreground">AI Assistant</h3>
+          <p className="text-xs text-muted-foreground font-body">Ask anything about your wedding site</p>
+        </div>
+      </div>
+
+      {/* Quick prompts */}
+      {messages.length === 0 && (
+        <div className="grid grid-cols-2 gap-1.5 mb-3">
+          {quickPrompts.map((qp) => (
+            <button
+              key={qp.label}
+              onClick={() => {
+                setInput(qp.prompt);
+                setTimeout(() => {
+                  setInput("");
+                  const userMsg: AIChatMessage = { role: "user", content: qp.prompt };
+                  const allMessages = [userMsg];
+                  setMessages(allMessages);
+                  setIsLoading(true);
+                  streamResponse(allMessages)
+                    .then((text) => {
+                      parseAndApplyActions(text);
+                      setMessages((prev) =>
+                        prev.map((m, i) =>
+                          i === prev.length - 1 && m.role === "assistant"
+                            ? { ...m, content: m.content.replace(/```action[\s\S]*?```/g, "").trim() }
+                            : m
+                        )
+                      );
+                    })
+                    .catch(console.error)
+                    .finally(() => setIsLoading(false));
+                }, 0);
+              }}
+              className="text-xs font-body text-left p-2 rounded-lg border border-border/50 hover:border-gold/50 hover:bg-gold/5 transition-colors text-muted-foreground hover:text-foreground"
+            >
+              {qp.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto space-y-3 mb-3">
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              className={`max-w-[90%] rounded-xl px-3 py-2 text-sm ${
+                msg.role === "user"
+                  ? "bg-primary text-primary-foreground rounded-br-sm"
+                  : "bg-muted text-foreground rounded-bl-sm"
+              }`}
+            >
+              {msg.role === "assistant" ? (
+                <div className="prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0.5 font-body text-xs leading-relaxed">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              ) : (
+                <p className="font-body text-xs leading-relaxed">{msg.content}</p>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
+          <div className="flex justify-start">
+            <div className="bg-muted rounded-xl rounded-bl-sm px-3 py-2">
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-gold animate-bounce" style={{ animationDelay: "0ms" }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-gold animate-bounce" style={{ animationDelay: "150ms" }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-gold animate-bounce" style={{ animationDelay: "300ms" }} />
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="flex gap-1.5">
+        <Input
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          placeholder="Ask AI anything..."
+          className="h-9 text-xs font-body flex-1"
+          disabled={isLoading}
+        />
+        <Button
+          variant="gold"
+          size="icon"
+          onClick={handleSend}
+          disabled={!input.trim() || isLoading}
+          className="h-9 w-9 shrink-0"
+        >
+          <Send className="w-3.5 h-3.5" />
+        </Button>
+      </div>
     </div>
   );
 }
