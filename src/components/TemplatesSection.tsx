@@ -225,6 +225,8 @@ const templates: TemplateData[] = [
     venue: "Kumarakom Lake Resort",
     location: "Kumarakom, Kerala",
     story: "Zain and Fatima grew up in neighboring towns in Kerala but only met at a food festival in Kochi. He was judging the biryani competition; she was the winner. What started as playful banter over spice levels turned into late-night conversations, family visits, and a love seasoned with joy.",
+    couplePhoto: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&h=800&fit=crop",
     events: [
       { name: "Mehendi Night", date: "Jan 8, 2027", time: "6:00 PM", venue: "Fatima's Family Home" },
       { name: "Nikah", date: "Jan 10, 2027", time: "10:00 AM", venue: "Kumarakom Lake Resort" },
