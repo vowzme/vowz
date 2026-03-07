@@ -815,6 +815,10 @@ function SectionEditor({
             logoUrl={data.logoUrl || ""}
             onLogoChange={(url) => onUpdateData({ logoUrl: url })}
           />
+          <HeroImageUploader
+            imageUrl={data.heroImageUrl || ""}
+            onImageChange={(url) => onUpdateData({ heroImageUrl: url })}
+          />
         </>
       )}
 
