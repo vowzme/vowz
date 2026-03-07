@@ -717,49 +717,32 @@ const TemplatesSection = () => {
                 onClick={() => setSelectedTemplate(t)}
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
-                  {/* Template preview */}
-                  <div
-                    className="h-52 relative"
-                    style={{
-                      background: `linear-gradient(135deg, ${t.colors[0]}, ${t.colors[0]}cc)`,
-                    }}
-                  >
-                    {/* Decorative pattern */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-15">
-                      <svg viewBox="0 0 200 200" className="w-32 h-32">
-                        <circle cx="100" cy="100" r="80" fill="none" stroke={t.colors[2]} strokeWidth="0.5" />
-                        <circle cx="100" cy="100" r="60" fill="none" stroke={t.colors[2]} strokeWidth="0.5" />
-                        <circle cx="100" cy="100" r="40" fill="none" stroke={t.colors[2]} strokeWidth="0.5" />
-                        {[...Array(12)].map((_, j) => (
-                          <line
-                            key={j}
-                            x1="100" y1="20" x2="100" y2="180"
-                            stroke={t.colors[2]}
-                            strokeWidth="0.3"
-                            transform={`rotate(${j * 30} 100 100)`}
-                          />
-                        ))}
-                      </svg>
-                    </div>
-                    {/* Sample text */}
+                  {/* Template preview with hero photo */}
+                  <div className="h-60 relative">
+                    <img src={t.heroPhoto} alt={t.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${t.colors[0]}88 0%, ${t.colors[0]}cc 50%, ${t.colors[0]}ee 100%)` }} />
+                    
+                    {/* Content overlay */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                      <Heart className="w-4 h-4 mb-2" style={{ color: t.colors[1] }} fill="currentColor" />
-                      <p className="font-display text-xs tracking-widest uppercase mb-1" style={{ color: t.colors[2] + "80" }}>
-                        You're Invited
-                      </p>
-                      <p className="font-display text-2xl font-bold" style={{ color: t.colors[2] }}>
+                      {/* Couple photo circle */}
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 mb-3 shadow-lg" style={{ borderColor: t.colors[1] }}>
+                        <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+                      </div>
+                      <Heart className="w-3.5 h-3.5 mb-1.5" style={{ color: t.colors[1] }} fill="currentColor" />
+                      <p className="font-display text-2xl font-bold drop-shadow-md" style={{ color: t.colors[2] }}>
                         {t.couple}
                       </p>
-                      <p className="font-body text-xs mt-1" style={{ color: t.colors[2] + "70" }}>
+                      <p className="font-body text-xs mt-1 drop-shadow-sm" style={{ color: t.colors[2] + "cc" }}>
                         {t.weddingDate}
                       </p>
-                      <p className="font-body text-[10px] mt-1 flex items-center gap-1" style={{ color: t.colors[2] + "60" }}>
+                      <p className="font-body text-[10px] mt-0.5 flex items-center gap-1 drop-shadow-sm" style={{ color: t.colors[2] + "99" }}>
                         <MapPin className="w-3 h-3" /> {t.location}
                       </p>
                     </div>
+
                     {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/30 transition-colors duration-300 flex items-center justify-center">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white bg-black/60 backdrop-blur-sm px-5 py-2.5 rounded-full font-body text-sm font-medium flex items-center gap-2">
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 text-white bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-full font-body text-sm font-medium flex items-center gap-2 border border-white/30">
                         <Eye className="w-4 h-4" /> Preview Template
                       </span>
                     </div>
@@ -774,7 +757,7 @@ const TemplatesSection = () => {
                       {t.colors.map((c, j) => (
                         <div
                           key={j}
-                          className="w-5 h-5 rounded-full border border-border/50"
+                          className="w-5 h-5 rounded-full border border-border/50 shadow-sm"
                           style={{ backgroundColor: c }}
                         />
                       ))}
