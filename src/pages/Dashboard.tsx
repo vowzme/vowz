@@ -5,7 +5,8 @@ import {
   Heart, Edit3, Eye, ExternalLink, Globe, GlobeLock,
   Users, Calendar, Mail, ChevronDown, ChevronUp,
   Settings, LogOut, Sparkles, Plus, Check, X, Copy,
-  User, MapPin, Utensils, PartyPopper, Clock, Trash2
+  User, MapPin, Utensils, PartyPopper, Clock, Trash2,
+  BarChart3, TrendingUp, MousePointer, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useSiteAnalytics } from "@/hooks/use-analytics";
 import {
   Tabs,
   TabsContent,
