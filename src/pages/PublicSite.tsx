@@ -473,7 +473,7 @@ function TravelSection({ data, accent }: { data: any; accent: string }) {
 }
 
 // ─── Guestbook / Wishes ──────────────────────────────────────────────
-function GuestbookSection({ data, site, accent }: { data: any; site: WeddingSite; accent: string }) {
+function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site: WeddingSite; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void }) {
   const [wishes, setWishes] = useState<{ id: string; guest_name: string; message: string; created_at: string }[]>([]);
   const [form, setForm] = useState({ guest_name: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
