@@ -259,10 +259,13 @@ const templates: TemplateData[] = [
       directions: "Fly into Cochin International Airport (COK). The resort is a 1.5-hour scenic drive through the backwaters.",
     },
     galleryPhotos: [
-      { label: "Backwaters", url: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=450&fit=crop" },
+      { label: "Backwaters", url: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=800&fit=crop" },
       { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=600&h=450&fit=crop" },
       { label: "Ceremony", url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=450&fit=crop" },
       { label: "Food Spread", url: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&h=450&fit=crop" },
+      { label: "Houseboat", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=450&fit=crop" },
+      { label: "Floral Rangoli", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
+      { label: "Golden Hour", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=800&fit=crop" },
     ],
   },
   {
