@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Lightbox from "@/components/Lightbox";
 
 interface TemplateData {
   name: string;
