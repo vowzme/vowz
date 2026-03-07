@@ -37,6 +37,8 @@ const templates: TemplateData[] = [
     venue: "The Grand Palace",
     location: "Jaipur, Rajasthan",
     story: "We met at a friend's Diwali celebration in 2022. Arjun was trying to light a stubborn sparkler, and Meera offered her lighter with a laugh. That spark — both literal and figurative — never went out. Three years, countless chai dates, and one sunset proposal later, we're ready to begin our forever.",
+    couplePhoto: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&h=800&fit=crop",
     events: [
       { name: "Mehendi Ceremony", date: "Dec 13, 2026", time: "4:00 PM", venue: "Meera's Family Home" },
       { name: "Sangeet Night", date: "Dec 14, 2026", time: "7:00 PM", venue: "Royal Garden Hall" },
