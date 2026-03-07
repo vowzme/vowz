@@ -601,8 +601,9 @@ function SectionsPanel({
   onReorder: (sections: WeddingSection[]) => void;
   onToggleVisibility: (id: string) => void;
   onDelete: (id: string) => void;
-  onAdd: () => void;
+  onAdd: (type?: string) => void;
 }) {
+  const [showAddMenu, setShowAddMenu] = useState(false);
   return (
     <div>
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Sections</h3>
