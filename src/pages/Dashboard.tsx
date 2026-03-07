@@ -6,8 +6,10 @@ import {
   Users, Calendar, Mail, ChevronDown, ChevronUp,
   Settings, LogOut, Sparkles, Plus, Check, X, Copy,
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
-  BarChart3, TrendingUp, MousePointer, MessageSquare
+  BarChart3, TrendingUp, MousePointer, MessageSquare,
+  ClipboardList, CalendarDays
 } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
