@@ -487,13 +487,27 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           </div>
         </div>
 
-        {/* ── Our Story Section ── */}
-        <div className="bg-white py-12 px-8">
+        {/* ── Our Story Section with Photo ── */}
+        <div className="bg-white py-14 px-8">
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>Our Story</h2>
-          <div className="w-12 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
-          <p className="text-center max-w-xl mx-auto leading-relaxed font-body text-sm" style={{ color: `${bg}cc` }}>
-            {t.story}
-          </p>
+          <div className="w-12 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
+          <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
+            <div className="w-full md:w-2/5 flex-shrink-0">
+              <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-lg">
+                <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+              </div>
+            </div>
+            <div className="w-full md:w-3/5">
+              <p className="leading-relaxed font-body text-sm" style={{ color: `${bg}cc` }}>
+                {t.story}
+              </p>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="w-8 h-0.5" style={{ backgroundColor: accent }} />
+                <Heart className="w-4 h-4" style={{ color: accent }} fill="currentColor" />
+                <div className="w-8 h-0.5" style={{ backgroundColor: accent }} />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ── Photo Gallery Section ── */}
