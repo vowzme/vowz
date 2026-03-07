@@ -450,6 +450,17 @@ const Editor = () => {
                   {activePanel === "settings" && (
                     <SettingsPanel siteData={siteData} onUpdate={(d) => updateState({ siteData: d })} />
                   )}
+                  {activePanel === "templates" && (
+                    <TemplateSwitcherPanel
+                      currentColors={siteData.suggestedColors}
+                      siteData={siteData}
+                      onApply={(templateTheme) => {
+                        const newData = { ...siteData, ...templateTheme };
+                        updateState({ siteData: newData });
+                        toast({ title: "Template applied! ✨" });
+                      }}
+                    />
+                  )}
                   {activePanel === "ai" && (
                     <AIAssistantPanel
                       siteData={siteData}
