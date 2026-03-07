@@ -381,10 +381,13 @@ const templates: TemplateData[] = [
       directions: "Fly into Coimbatore Airport (CJB). Ooty is a scenic 3-hour drive through the Nilgiri hills.",
     },
     galleryPhotos: [
-      { label: "Rose Garden", url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=600&h=450&fit=crop" },
+      { label: "Rose Garden", url: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=600&h=800&fit=crop" },
       { label: "Couple in Greenhouse", url: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&h=450&fit=crop" },
       { label: "Gazebo Setup", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
       { label: "Mountain View", url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=600&h=450&fit=crop" },
+      { label: "Bouquet Detail", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=800&fit=crop" },
+      { label: "Garden Path", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+      { label: "Tea Service", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
     ],
   },
 ];
