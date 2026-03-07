@@ -160,7 +160,12 @@ const templates: TemplateData[] = [
       ],
       directions: "Fly into Burlington International Airport (BTV). Rental cars recommended — the scenic drive is part of the experience!",
     },
-    photoPlaceholders: ["Meadow", "Couple in Garden", "Barn Setup", "Sunset"],
+    galleryPhotos: [
+      { label: "Meadow", url: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=600&h=450&fit=crop" },
+      { label: "Couple in Garden", url: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600&h=450&fit=crop" },
+      { label: "Barn Setup", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
+      { label: "Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+    ],
   },
   {
     name: "Lavender Dream",
