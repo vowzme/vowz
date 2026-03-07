@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Lightbox from "@/components/Lightbox";
 import type { GalleryPhoto } from "@/hooks/use-gallery-photos";
+import { useAnalyticsTracker } from "@/hooks/use-analytics";
 import { z } from "zod";
 
 // ─── Types ────────────────────────────────────────────────────────────
