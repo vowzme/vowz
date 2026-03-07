@@ -1450,7 +1450,7 @@ const TemplatesSection = () => {
             viewport={{ once: true }}
           >
             <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-3">
-              9 Stunning Templates
+              {templates.length} Stunning Templates
             </p>
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
               Themes for Every <span className="text-gradient-gold italic">Tradition</span>
@@ -1461,7 +1461,7 @@ const TemplatesSection = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {templates.map((t, i) => (
+            {templates.slice(0, 6).map((t, i) => (
               <motion.div
                 key={t.name}
                 initial={{ opacity: 0, y: 20 }}
@@ -1522,6 +1522,23 @@ const TemplatesSection = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* View More Templates button */}
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Button
+              variant="gold"
+              size="xl"
+              onClick={() => navigate("/templates")}
+              className="font-body"
+            >
+              View All {templates.length} Templates →
+            </Button>
+          </motion.div>
         </div>
       </section>
 
