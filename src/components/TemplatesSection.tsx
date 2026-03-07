@@ -603,7 +603,7 @@ const TemplatesSection = () => {
             viewport={{ once: true }}
           >
             <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-3">
-              6 Stunning Templates
+              9 Stunning Templates
             </p>
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
               Themes for Every <span className="text-gradient-gold italic">Tradition</span>
