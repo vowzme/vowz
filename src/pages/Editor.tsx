@@ -715,14 +715,17 @@ function TemplateSwitcherPanel({
 }) {
   const [previewIdx, setPreviewIdx] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<TemplateCategory>("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isActive = (t: typeof TEMPLATE_THEMES[0]) =>
     JSON.stringify(currentColors) === JSON.stringify(t.colors) &&
     (siteData.displayFont || "Cormorant Garamond") === t.displayFont;
 
-  const filteredThemes = activeCategory === "All"
-    ? TEMPLATE_THEMES
-    : TEMPLATE_THEMES.filter((t) => t.category === activeCategory);
+  const filteredThemes = TEMPLATE_THEMES.filter((t) => {
+    const matchesCategory = activeCategory === "All" || t.category === activeCategory;
+    const matchesSearch = !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.style.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div>
