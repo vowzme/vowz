@@ -53,7 +53,12 @@ const templates: TemplateData[] = [
       ],
       directions: "Fly into Jaipur International Airport (JAI). The venue is a 20-minute drive from the airport.",
     },
-    photoPlaceholders: ["Mehendi", "Couple Portrait", "Venue", "Sangeet"],
+    galleryPhotos: [
+      { label: "Mehendi", url: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=600&h=450&fit=crop" },
+      { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=450&fit=crop" },
+      { label: "Venue", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
+      { label: "Sangeet", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+    ],
   },
   {
     name: "Pastel Bloom",
