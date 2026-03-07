@@ -561,7 +561,13 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
         </div>
 
         {/* ── Countdown Section ── */}
-        <div className="py-10 px-6 text-center" style={{ backgroundColor: `${accent}10` }}>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6 }}
+          className="py-10 px-6 text-center" style={{ backgroundColor: `${accent}10` }}
+        >
           <p className="font-display text-lg font-semibold mb-4" style={{ color: bg }}>
             Days Until We Say "I Do"
           </p>
@@ -582,19 +588,37 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Our Story Section with Photo ── */}
-        <div className="bg-white py-14 px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="bg-white py-14 px-8"
+        >
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>Our Story</h2>
           <div className="w-12 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
           <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
-            <div className="w-full md:w-2/5 flex-shrink-0">
+            <motion.div
+              className="w-full md:w-2/5 flex-shrink-0"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-lg">
                 <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
               </div>
-            </div>
-            <div className="w-full md:w-3/5">
+            </motion.div>
+            <motion.div
+              className="w-full md:w-3/5"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
               <p className="leading-relaxed font-body text-sm" style={{ color: `${bg}cc` }}>
                 {t.story}
               </p>
@@ -603,28 +627,44 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
                 <Heart className="w-4 h-4" style={{ color: accent }} fill="currentColor" />
                 <div className="w-8 h-0.5" style={{ backgroundColor: accent }} />
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Photo Gallery Section (Masonry) ── */}
-        <div className="py-14 px-8" style={{ backgroundColor: `${bg}08` }}>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6 }}
+          className="py-14 px-8" style={{ backgroundColor: `${bg}08` }}
+        >
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>Gallery</h2>
           <div className="w-12 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
           <MasonryGallery photos={t.galleryPhotos} accent={accent} />
           <p className="text-center text-xs font-body mt-6" style={{ color: `${bg}60` }}>
             Upload your own photos after creating your site
           </p>
-        </div>
+        </motion.div>
 
         {/* ── Wedding Events Section ── */}
-        <div className="bg-white py-12 px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6 }}
+          className="bg-white py-12 px-8"
+        >
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>Wedding Events</h2>
           <div className="w-12 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            {t.events.map((evt) => (
-              <div
+            {t.events.map((evt, i) => (
+              <motion.div
                 key={evt.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
                 className="rounded-xl p-5 text-center border"
                 style={{ borderColor: `${accent}30`, backgroundColor: `${accent}08` }}
               >
@@ -641,13 +681,19 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
                 <p className="text-xs font-body mt-1 flex items-center justify-center gap-1" style={{ color: `${bg}77` }}>
                   <MapPin className="w-3 h-3" /> {evt.venue}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* ── RSVP Section ── */}
-        <div className="py-12 px-8" style={{ background: `linear-gradient(135deg, ${bg}, ${bg}ee)` }}>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6 }}
+          className="py-12 px-8" style={{ background: `linear-gradient(135deg, ${bg}, ${bg}ee)` }}
+        >
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: text }}>RSVP</h2>
           <div className="w-12 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
           <div className="max-w-sm mx-auto space-y-3">
@@ -675,10 +721,16 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Guestbook Section ── */}
-        <div className="bg-white py-12 px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6 }}
+          className="bg-white py-12 px-8"
+        >
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>
             <MessageSquare className="w-5 h-5 inline mr-2" style={{ color: accent }} />
             Wishes & Blessings
@@ -686,17 +738,21 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           <div className="w-12 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
           <div className="space-y-3 max-w-lg mx-auto">
             {t.guestbookMessages.map((msg, i) => (
-              <div
+              <motion.div
                 key={i}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.4 }}
                 className="rounded-xl p-4 border"
                 style={{ borderColor: `${accent}20`, backgroundColor: `${accent}05` }}
               >
                 <p className="font-display text-sm font-semibold mb-1" style={{ color: bg }}>{msg.name}</p>
                 <p className="text-xs font-body leading-relaxed" style={{ color: `${bg}aa` }}>{msg.message}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Travel & Stay Section ── */}
         <div className="py-12 px-8" style={{ backgroundColor: `${bg}08` }}>
