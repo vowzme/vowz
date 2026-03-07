@@ -252,6 +252,14 @@ const Editor = () => {
   const [bg, accent, light] = siteData.suggestedColors.length >= 3
     ? siteData.suggestedColors
     : ["#6B1D2A", "#D4A853", "#FFF5E6"];
+  const displayFont = siteData.displayFont || "Cormorant Garamond";
+  const bodyFont = siteData.bodyFont || "DM Sans";
+
+  // Load Google Fonts dynamically
+  useEffect(() => {
+    loadGoogleFont(displayFont);
+    loadGoogleFont(bodyFont);
+  }, [displayFont, bodyFont]);
 
   const updateState = useCallback((patch: Partial<EditorState>) => {
     setState((prev) => ({ ...prev, ...patch }));
