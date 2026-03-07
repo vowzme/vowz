@@ -410,36 +410,51 @@ function getCountdownFromDate(dateStr: string) {
 const MASONRY_SPANS = [2, 1, 1, 1, 2, 1, 1]; // row-span pattern: some tall, some normal
 
 function MasonryGallery({ photos, accent }: { photos: { label: string; url: string }[]; accent: string }) {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const lightboxImages = photos.map((p) => ({ url: p.url, name: p.label }));
+
   return (
-    <div className="columns-2 md:columns-3 gap-3 max-w-2xl mx-auto [column-fill:_balance]">
-      {photos.map((photo, i) => {
-        const isTall = MASONRY_SPANS[i % MASONRY_SPANS.length] === 2;
-        return (
-          <div
-            key={photo.label}
-            className="mb-3 break-inside-avoid rounded-xl overflow-hidden relative group"
-          >
-            <div className={isTall ? "aspect-[3/4]" : "aspect-[4/3]"}>
-              <img
-                src={photo.url}
-                alt={photo.label}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
+    <>
+      <div className="columns-2 md:columns-3 gap-3 max-w-2xl mx-auto [column-fill:_balance]">
+        {photos.map((photo, i) => {
+          const isTall = MASONRY_SPANS[i % MASONRY_SPANS.length] === 2;
+          return (
+            <div
+              key={photo.label}
+              className="mb-3 break-inside-avoid rounded-xl overflow-hidden relative group cursor-pointer"
+              onClick={() => setLightboxIndex(i)}
+            >
+              <div className={isTall ? "aspect-[3/4]" : "aspect-[4/3]"}>
+                <img
+                  src={photo.url}
+                  alt={photo.label}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                <div className="p-3 w-full">
+                  <p className="text-white text-xs font-body font-medium">{photo.label}</p>
+                </div>
+              </div>
+              <div
+                className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ backgroundColor: accent }}
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-              <div className="p-3 w-full">
-                <p className="text-white text-xs font-body font-medium">{photo.label}</p>
-              </div>
-            </div>
-            <div
-              className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              style={{ backgroundColor: accent }}
-            />
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <Lightbox
+            images={lightboxImages}
+            initialIndex={lightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
