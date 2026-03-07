@@ -576,12 +576,12 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           <Button
             className="font-body font-semibold px-8"
             style={{ backgroundColor: accent, color: bg }}
-            onClick={onClose}
+            onClick={() => onUseTemplate(t)}
           >
             Use This Template →
           </Button>
           <p className="text-xs text-muted-foreground font-body mt-2">
-            Click "Get Started" to create your site with this theme
+            Sign in to create your site with this theme
           </p>
         </div>
       </motion.div>
