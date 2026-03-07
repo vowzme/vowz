@@ -702,6 +702,18 @@ const TEMPLATE_THEMES: { name: string; style: string; category: TemplateCategory
   { name: "Cherry Blossom", style: "Minimal Fusion", category: "Minimal", colors: ["#8B2252", "#FFB7C5", "#FFF5F7"], displayFont: "Dancing Script", bodyFont: "Quicksand" },
   { name: "Teak & Brass", style: "Heritage Minimal", category: "Minimal", colors: ["#5D4037", "#CD853F", "#FAF3E8"], displayFont: "Playfair Display", bodyFont: "DM Sans" },
   { name: "Ivory & Sage", style: "Garden Minimal", category: "Minimal", colors: ["#556B2F", "#9DC183", "#FAFAF0"], displayFont: "Playfair Display", bodyFont: "Quicksand" },
+
+  // 10 new templates
+  { name: "Marigold Fields", style: "Festive Traditional", category: "Traditional", colors: ["#B7410E", "#FFB300", "#FFFDE7"], displayFont: "Cormorant Garamond", bodyFont: "Nunito" },
+  { name: "Mughal Romance", style: "Indo-Persian", category: "Traditional", colors: ["#1F3A5F", "#C19A6B", "#FAF0E6"], displayFont: "Cinzel", bodyFont: "Nunito" },
+  { name: "Mysore Silk", style: "South Indian Royal", category: "Regional", colors: ["#4B0082", "#DAA520", "#FFF8DC"], displayFont: "Cinzel", bodyFont: "DM Sans" },
+  { name: "Kashmiri Snow", style: "Winter Elegance", category: "Regional", colors: ["#2C3E50", "#C0C0C0", "#F8F9FA"], displayFont: "Playfair Display", bodyFont: "Raleway" },
+  { name: "Rajasthani Sunset", style: "Desert Royal", category: "Regional", colors: ["#C0392B", "#F39C12", "#FEF9E7"], displayFont: "Great Vibes", bodyFont: "Lato" },
+  { name: "Ivory Blush", style: "Modern Minimal", category: "Modern", colors: ["#4A3728", "#C9A96E", "#FFF8F0"], displayFont: "Playfair Display", bodyFont: "Lato" },
+  { name: "Sapphire Night", style: "Luxe Evening", category: "Modern", colors: ["#0D1B2A", "#4FC3F7", "#E8F4FD"], displayFont: "Montserrat", bodyFont: "Raleway" },
+  { name: "Lotus Pink", style: "Contemporary Chic", category: "Modern", colors: ["#AD1457", "#F48FB1", "#FFF0F5"], displayFont: "Dancing Script", bodyFont: "Lato" },
+  { name: "Goan Sunlight", style: "Beach Casual", category: "Destination", colors: ["#E67E22", "#3498DB", "#FFF5EE"], displayFont: "Dancing Script", bodyFont: "Source Sans 3" },
+  { name: "Rose Petal", style: "Romantic Soft", category: "Modern", colors: ["#922B3E", "#F5B7B1", "#FFF0F0"], displayFont: "Great Vibes", bodyFont: "Quicksand" },
 ];
 
 function TemplateSwitcherPanel({

@@ -5,7 +5,7 @@ import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, 
 import { Button } from "@/components/ui/button";
 import Lightbox from "@/components/Lightbox";
 
-interface TemplateData {
+export interface TemplateData {
   name: string;
   colors: [string, string, string];
   style: string;
@@ -25,7 +25,7 @@ interface TemplateData {
   galleryPhotos: { label: string; url: string }[];
 }
 
-const templates: TemplateData[] = [
+export const templates: TemplateData[] = [
   {
     name: "Royal Maroon",
     colors: ["#6B1D2A", "#D4A853", "#FFF5E6"],
@@ -639,6 +639,347 @@ const templates: TemplateData[] = [
       { label: "Dhak Players", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
     ],
   },
+  // ─── 10 NEW TEMPLATES ──────────────────────────────────────────────
+  {
+    name: "Ivory Blush",
+    colors: ["#4A3728", "#C9A96E", "#FFF8F0"],
+    style: "Modern Minimal",
+    couple: "Ethan & Ria",
+    partner1: "Ethan",
+    partner2: "Ria",
+    tagline: "Simply, beautifully, forever yours",
+    weddingDate: "October 10, 2027",
+    venue: "The Ivory Loft",
+    location: "Bangalore, Karnataka",
+    story: "Ethan and Ria met at a minimalist design meetup. He loved clean lines; she loved negative space. Their first date was at a white-walled café where they sketched ideas on napkins. Their love, like great design, is intentional, elegant, and built to last.",
+    couplePhoto: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Welcome Brunch", date: "Oct 9, 2027", time: "11:00 AM", venue: "The Loft Terrace" },
+      { name: "Ceremony", date: "Oct 10, 2027", time: "4:00 PM", venue: "The Ivory Loft" },
+      { name: "Dinner Reception", date: "Oct 10, 2027", time: "7:30 PM", venue: "The Ivory Loft" },
+    ],
+    guestbookMessages: [
+      { name: "Anita", message: "You two are design goals AND couple goals! ✨" },
+      { name: "Dad", message: "Proud of the beautiful life you're building together." },
+    ],
+    travelInfo: { hotels: [{ name: "The Leela Palace", distance: "3 km" }, { name: "ITC Gardenia", distance: "5 km" }], directions: "Fly into Kempegowda International Airport (BLR)." },
+    galleryPhotos: [
+      { label: "Venue", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&h=800&fit=crop" },
+      { label: "Details", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
+      { label: "Reception", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
+      { label: "Floral", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
+      { label: "Dance", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=800&fit=crop" },
+      { label: "Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Sapphire Night",
+    colors: ["#0D1B2A", "#4FC3F7", "#E8F4FD"],
+    style: "Luxe Evening",
+    couple: "Samir & Neha",
+    partner1: "Samir",
+    partner2: "Neha",
+    tagline: "Under sapphire skies, we found forever",
+    weddingDate: "November 15, 2027",
+    venue: "The Sapphire Terrace",
+    location: "Delhi, India",
+    story: "Samir and Neha met at a rooftop jazz night in Delhi. The city lights reflected in her eyes, and he forgot his own name. After months of starlit dinners and spontaneous midnight drives, he proposed under a sky full of stars — the same ones that seemed to align the night they first met.",
+    couplePhoto: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1530023367847-a683933f4172?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Cocktail Evening", date: "Nov 14, 2027", time: "7:00 PM", venue: "Sky Lounge" },
+      { name: "Wedding Ceremony", date: "Nov 15, 2027", time: "6:00 PM", venue: "The Sapphire Terrace" },
+      { name: "Starlit Reception", date: "Nov 15, 2027", time: "9:00 PM", venue: "Grand Ballroom" },
+    ],
+    guestbookMessages: [
+      { name: "Rahul & Priya", message: "The most glamorous couple! Wishing you starlit nights forever! 💫" },
+      { name: "Neha's Mom", message: "My shining star found her moon. Blessings always." },
+    ],
+    travelInfo: { hotels: [{ name: "The Oberoi", distance: "2 km" }, { name: "The Imperial", distance: "4 km" }], directions: "Fly into Indira Gandhi International Airport (DEL)." },
+    galleryPhotos: [
+      { label: "Night View", url: "https://images.unsplash.com/photo-1530023367847-a683933f4172?w=600&h=450&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=600&h=800&fit=crop" },
+      { label: "Ceremony", url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=450&fit=crop" },
+      { label: "Dance", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+      { label: "Decor", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
+      { label: "Details", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=800&fit=crop" },
+      { label: "Skyline", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Lotus Pink",
+    colors: ["#AD1457", "#F48FB1", "#FFF0F5"],
+    style: "Contemporary Chic",
+    couple: "Karan & Divya",
+    partner1: "Karan",
+    partner2: "Divya",
+    tagline: "Like a lotus — rising beautifully, together",
+    weddingDate: "April 5, 2027",
+    venue: "Lotus Garden Estate",
+    location: "Pune, Maharashtra",
+    story: "Karan spotted Divya at a marathon — she was at the finish line handing out water, and he nearly tripped trying to catch her eye. They started running together every weekend, and somewhere between the morning jogs and post-run breakfasts, they fell in love.",
+    couplePhoto: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Haldi & Mehendi", date: "Apr 4, 2027", time: "3:00 PM", venue: "Divya's Home" },
+      { name: "Wedding Ceremony", date: "Apr 5, 2027", time: "10:00 AM", venue: "Lotus Garden Estate" },
+      { name: "Reception", date: "Apr 5, 2027", time: "7:00 PM", venue: "Estate Ballroom" },
+    ],
+    guestbookMessages: [
+      { name: "Running Club", message: "You two crossed the ultimate finish line together! 🏃‍♂️❤️" },
+      { name: "Divya's Nani", message: "My lotus flower, may your love bloom forever. Ashirvaad." },
+    ],
+    travelInfo: { hotels: [{ name: "JW Marriott Pune", distance: "4 km" }, { name: "Conrad Pune", distance: "6 km" }], directions: "Fly into Pune Airport (PNQ)." },
+    galleryPhotos: [
+      { label: "Garden", url: "https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=600&h=800&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600&h=450&fit=crop" },
+      { label: "Ceremony", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
+      { label: "Florals", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
+      { label: "Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+      { label: "Reception", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=800&fit=crop" },
+      { label: "Couple Walk", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Mughal Romance",
+    colors: ["#1F3A5F", "#C19A6B", "#FAF0E6"],
+    style: "Indo-Persian",
+    couple: "Faizan & Aisha",
+    partner1: "Faizan",
+    partner2: "Aisha",
+    tagline: "A love story as grand as the Mughal courts",
+    weddingDate: "January 25, 2027",
+    venue: "The Mughal Heritage Hall",
+    location: "Lucknow, Uttar Pradesh",
+    story: "Faizan, a historian, and Aisha, a miniature painter, met at a Mughal art exhibition. He was lecturing about Akbar's court; she was sketching in the corner. He noticed her delicate brushwork, she noticed his passion — and a love story worthy of the courts they admired began.",
+    couplePhoto: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Mehendi Night", date: "Jan 23, 2027", time: "5:00 PM", venue: "Heritage Gardens" },
+      { name: "Nikah", date: "Jan 25, 2027", time: "11:00 AM", venue: "The Mughal Heritage Hall" },
+      { name: "Walima", date: "Jan 25, 2027", time: "7:00 PM", venue: "Grand Durbar Room" },
+    ],
+    guestbookMessages: [
+      { name: "Professor Khan", message: "A love story for the history books! MashaAllah! 📖" },
+      { name: "Art Society", message: "Two artists creating the masterpiece of a lifetime together!" },
+    ],
+    travelInfo: { hotels: [{ name: "Taj Mahal Lucknow", distance: "3 km" }, { name: "Vivanta Lucknow", distance: "5 km" }], directions: "Fly into Chaudhary Charan Singh Airport (LKO)." },
+    galleryPhotos: [
+      { label: "Heritage Hall", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1604017011826-d3b4c23f8914?w=600&h=800&fit=crop" },
+      { label: "Mehendi", url: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=600&h=450&fit=crop" },
+      { label: "Arch Detail", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
+      { label: "Calligraphy", url: "https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=600&h=800&fit=crop" },
+      { label: "Feast", url: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&h=450&fit=crop" },
+      { label: "Night Lights", url: "https://images.unsplash.com/photo-1530023367847-a683933f4172?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Mysore Silk",
+    colors: ["#4B0082", "#DAA520", "#FFF8DC"],
+    style: "South Indian Royal",
+    couple: "Venkat & Lakshmi",
+    partner1: "Venkat",
+    partner2: "Lakshmi",
+    tagline: "Woven in silk, tied in love",
+    weddingDate: "February 20, 2027",
+    venue: "Mysore Palace Grounds",
+    location: "Mysore, Karnataka",
+    story: "Venkat is a silk weaver's son; Lakshmi is a classical dancer. They met when she visited his father's workshop to commission a costume. The way she appreciated each thread's journey reminded him of how love is woven — patiently, beautifully, one thread at a time.",
+    couplePhoto: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Nichayathartham", date: "Feb 18, 2027", time: "10:00 AM", venue: "Family Temple" },
+      { name: "Wedding Ceremony", date: "Feb 20, 2027", time: "9:00 AM", venue: "Mysore Palace Grounds" },
+      { name: "Reception", date: "Feb 20, 2027", time: "6:30 PM", venue: "Royal Pavilion" },
+    ],
+    guestbookMessages: [
+      { name: "Amma & Appa", message: "Our golden boy found his golden girl. All our blessings. 🪷" },
+      { name: "Dance Academy", message: "Lakshmi akka, the most graceful bride! Love from all of us!" },
+    ],
+    travelInfo: { hotels: [{ name: "Radisson Blu Mysore", distance: "2 km" }, { name: "Royal Orchid Metropole", distance: "3 km" }], directions: "Fly into Mysore Airport (MYQ) or Bangalore (BLR) + 3hr drive." },
+    galleryPhotos: [
+      { label: "Palace", url: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&h=800&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=450&fit=crop" },
+      { label: "Silk Detail", url: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=600&h=450&fit=crop" },
+      { label: "Temple", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+      { label: "Dance", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=800&fit=crop" },
+      { label: "Garland", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
+      { label: "Feast", url: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Kashmiri Snow",
+    colors: ["#2C3E50", "#C0C0C0", "#F8F9FA"],
+    style: "Winter Elegance",
+    couple: "Rohan & Meher",
+    partner1: "Rohan",
+    partner2: "Meher",
+    tagline: "In the silence of snow, our hearts spoke",
+    weddingDate: "December 28, 2027",
+    venue: "Pine Valley Resort",
+    location: "Gulmarg, Kashmir",
+    story: "Rohan was skiing down a slope in Gulmarg when he crashed (gently) into Meher's snowman. She demanded he rebuild it; he spent two hours sculpting the worst snowman ever. But his effort — and his laughter — melted her heart faster than the sun melts snow.",
+    couplePhoto: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Welcome Bonfire", date: "Dec 27, 2027", time: "6:00 PM", venue: "Pine Valley Courtyard" },
+      { name: "Wedding Ceremony", date: "Dec 28, 2027", time: "11:00 AM", venue: "Snow Chapel" },
+      { name: "Winter Wonderland Reception", date: "Dec 28, 2027", time: "6:00 PM", venue: "Grand Lodge" },
+    ],
+    guestbookMessages: [
+      { name: "Ski Club", message: "The coolest couple we know — literally and figuratively! ⛷️❄️" },
+      { name: "Meher's Dad", message: "My snowflake found her sunshine. Blessings on this beautiful union." },
+    ],
+    travelInfo: { hotels: [{ name: "Khyber Himalayan Resort", distance: "2 km" }, { name: "Hotel Highlands Park", distance: "4 km" }], directions: "Fly into Srinagar Airport (SXR). Gulmarg is a 2-hour scenic drive." },
+    galleryPhotos: [
+      { label: "Mountains", url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=600&h=450&fit=crop" },
+      { label: "Couple in Snow", url: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=600&h=800&fit=crop" },
+      { label: "Pine Forest", url: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=600&h=450&fit=crop" },
+      { label: "Chapel", url: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=600&h=450&fit=crop" },
+      { label: "Bonfire", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+      { label: "Snow Walk", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=800&fit=crop" },
+      { label: "Winter Decor", url: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Rajasthani Sunset",
+    colors: ["#C0392B", "#F39C12", "#FEF9E7"],
+    style: "Desert Royal",
+    couple: "Aditya & Nandini",
+    partner1: "Aditya",
+    partner2: "Nandini",
+    tagline: "Painted in sunset hues, sealed with forever",
+    weddingDate: "March 8, 2027",
+    venue: "Fort Barmer Heritage",
+    location: "Barmer, Rajasthan",
+    story: "Aditya and Nandini met during a desert safari. The jeep broke down at sunset, and while the driver fixed it, they sat on a dune watching the sky turn every shade of orange. He told her she was more beautiful than any sunset. She told him that was cheesy. They've been inseparable since.",
+    couplePhoto: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Mehendi & Sangeet", date: "Mar 7, 2027", time: "5:00 PM", venue: "Fort Courtyard" },
+      { name: "Wedding Ceremony", date: "Mar 8, 2027", time: "10:00 AM", venue: "Fort Barmer Heritage" },
+      { name: "Sunset Reception", date: "Mar 8, 2027", time: "5:30 PM", venue: "Desert View Terrace" },
+    ],
+    guestbookMessages: [
+      { name: "Desert Safari Group", message: "The best breakdown ever led to the best love story! 🌅" },
+      { name: "Nandini's Mom", message: "My sunshine found her desert king. All my love and blessings." },
+    ],
+    travelInfo: { hotels: [{ name: "Fort Barmer Heritage", distance: "On-site" }, { name: "Desert Haven Resort", distance: "5 km" }], directions: "Fly into Jodhpur Airport (JDH). Barmer is a 3-hour drive south." },
+    galleryPhotos: [
+      { label: "Desert Sunset", url: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=600&h=450&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600&h=800&fit=crop" },
+      { label: "Fort", url: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&h=450&fit=crop" },
+      { label: "Mehendi", url: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=600&h=450&fit=crop" },
+      { label: "Ceremony", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
+      { label: "Camel Ride", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=800&fit=crop" },
+      { label: "Fireworks", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Marigold Fields",
+    colors: ["#B7410E", "#FFB300", "#FFFDE7"],
+    style: "Festive Traditional",
+    couple: "Suresh & Kavya",
+    partner1: "Suresh",
+    partner2: "Kavya",
+    tagline: "In a field of marigolds, I found you",
+    weddingDate: "November 5, 2027",
+    venue: "Marigold Farms Estate",
+    location: "Nashik, Maharashtra",
+    story: "Suresh grows organic flowers; Kavya makes natural perfumes. They met at a farmers' market where she kept coming back to smell his marigolds. He started saving the best blooms for her. One day he wrote 'Will you marry me?' on the farm's welcome board. She said yes before reading the full sign.",
+    couplePhoto: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Haldi in the Fields", date: "Nov 4, 2027", time: "10:00 AM", venue: "Marigold Farms" },
+      { name: "Wedding Ceremony", date: "Nov 5, 2027", time: "11:00 AM", venue: "Marigold Farms Estate" },
+      { name: "Farm Reception", date: "Nov 5, 2027", time: "6:00 PM", venue: "The Barn at Marigold" },
+    ],
+    guestbookMessages: [
+      { name: "Farmers' Market Friends", message: "The sweetest love story — literally grown from the soil! 🌼" },
+      { name: "Kavya's Aji", message: "My flower girl found her sunshine. Blessings from the heavens." },
+    ],
+    travelInfo: { hotels: [{ name: "Sula Vineyards Resort", distance: "8 km" }, { name: "Gateway Nashik", distance: "12 km" }], directions: "Fly into Nashik Airport (ISK) or Pune Airport (PNQ) + 3.5hr drive." },
+    galleryPhotos: [
+      { label: "Marigold Field", url: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=600&h=800&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=600&h=450&fit=crop" },
+      { label: "Haldi", url: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=600&h=450&fit=crop" },
+      { label: "Barn", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
+      { label: "Floral Arch", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
+      { label: "Vineyard", url: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=600&h=800&fit=crop" },
+      { label: "Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Goan Sunlight",
+    colors: ["#E67E22", "#3498DB", "#FFF5EE"],
+    style: "Beach Casual",
+    couple: "Miguel & Prerna",
+    partner1: "Miguel",
+    partner2: "Prerna",
+    tagline: "Barefoot, sun-kissed, and madly in love",
+    weddingDate: "December 20, 2027",
+    venue: "Cabo de Rama Beach Club",
+    location: "South Goa, India",
+    story: "Miguel is a Portuguese-Goan chef; Prerna is a travel blogger. She walked into his beach shack for a fish curry review. He served her the best meal of her life, and she gave him a five-star review — and her phone number. Their love tastes like the sea and feels like sunshine.",
+    couplePhoto: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Beach BBQ Night", date: "Dec 19, 2027", time: "6:00 PM", venue: "Cabo Beach Shack" },
+      { name: "Barefoot Ceremony", date: "Dec 20, 2027", time: "4:30 PM", venue: "Sunset Point Beach" },
+      { name: "Seafood Feast Reception", date: "Dec 20, 2027", time: "7:30 PM", venue: "Beach Club Pavilion" },
+    ],
+    guestbookMessages: [
+      { name: "Food Blog Fans", message: "The chef and the critic — the tastiest love story ever! 🍽️" },
+      { name: "Tia Maria", message: "Miguel meu amor, she is perfect for you. Blessings from Portugal!" },
+    ],
+    travelInfo: { hotels: [{ name: "Taj Exotica Goa", distance: "5 km" }, { name: "Alila Diwa Goa", distance: "8 km" }], directions: "Fly into Dabolim Airport (GOI). South Goa is a 1-hour drive." },
+    galleryPhotos: [
+      { label: "Beach Sunset", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=450&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=600&h=800&fit=crop" },
+      { label: "Food Spread", url: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&h=450&fit=crop" },
+      { label: "Ocean", url: "https://images.unsplash.com/photo-1505881502353-a1986add3762?w=600&h=450&fit=crop" },
+      { label: "Ceremony", url: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=450&fit=crop" },
+      { label: "Dancing", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=800&fit=crop" },
+      { label: "Church", url: "https://images.unsplash.com/photo-1478146059778-26028b07395a?w=600&h=450&fit=crop" },
+    ],
+  },
+  {
+    name: "Teak & Brass",
+    colors: ["#5D4037", "#CD853F", "#FAF3E8"],
+    style: "Heritage Minimal",
+    couple: "Anand & Meera",
+    partner1: "Anand",
+    partner2: "Meera",
+    tagline: "Timeless as teak, warm as brass",
+    weddingDate: "January 18, 2027",
+    venue: "The Heritage House",
+    location: "Pondicherry, India",
+    story: "Anand restores old furniture; Meera is an architect who loves heritage buildings. They met when she hired him to restore antique doors for a French-colonial villa. He delivered the doors and asked her out for coffee in the same breath. She said yes to both — the doors were perfect, and so was the coffee.",
+    couplePhoto: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&h=800&fit=crop",
+    events: [
+      { name: "Welcome Sundowner", date: "Jan 17, 2027", time: "5:00 PM", venue: "Promenade Beach" },
+      { name: "Wedding Ceremony", date: "Jan 18, 2027", time: "10:00 AM", venue: "The Heritage House" },
+      { name: "French Quarter Reception", date: "Jan 18, 2027", time: "7:00 PM", venue: "Villa Shanti" },
+    ],
+    guestbookMessages: [
+      { name: "Architecture Firm", message: "You two built something more beautiful than any building! 🏛️" },
+      { name: "Anand's Thatha", message: "Like fine teak, your love will only get more beautiful with age." },
+    ],
+    travelInfo: { hotels: [{ name: "Palais de Mahé", distance: "1 km" }, { name: "La Villa", distance: "2 km" }], directions: "Fly into Chennai Airport (MAA). Pondicherry is a 3-hour drive south along the coast." },
+    galleryPhotos: [
+      { label: "Heritage Villa", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
+      { label: "Couple", url: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&h=800&fit=crop" },
+      { label: "French Quarter", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
+      { label: "Beach", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=450&fit=crop" },
+      { label: "Doors Detail", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=800&fit=crop" },
+      { label: "Ceremony", url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=450&fit=crop" },
+      { label: "Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+    ],
+  },
 ];
 
 // ─── Countdown helper ────────────────────────────────────────────────
@@ -1109,7 +1450,7 @@ const TemplatesSection = () => {
             viewport={{ once: true }}
           >
             <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-3">
-              9 Stunning Templates
+              {templates.length} Stunning Templates
             </p>
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
               Themes for Every <span className="text-gradient-gold italic">Tradition</span>
@@ -1120,7 +1461,7 @@ const TemplatesSection = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {templates.map((t, i) => (
+            {templates.slice(0, 6).map((t, i) => (
               <motion.div
                 key={t.name}
                 initial={{ opacity: 0, y: 20 }}
@@ -1181,6 +1522,23 @@ const TemplatesSection = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* View More Templates button */}
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Button
+              variant="gold"
+              size="xl"
+              onClick={() => navigate("/templates")}
+              className="font-body"
+            >
+              View All {templates.length} Templates →
+            </Button>
+          </motion.div>
         </div>
       </section>
 
