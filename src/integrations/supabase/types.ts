@@ -276,6 +276,8 @@ export type Database = {
         Row: {
           created_at: string
           cultural_background: string
+          custom_domain: string | null
+          domain_status: string | null
           how_we_met: string
           id: string
           is_published: boolean
@@ -293,6 +295,8 @@ export type Database = {
         Insert: {
           created_at?: string
           cultural_background?: string
+          custom_domain?: string | null
+          domain_status?: string | null
           how_we_met?: string
           id?: string
           is_published?: boolean
@@ -310,6 +314,8 @@ export type Database = {
         Update: {
           created_at?: string
           cultural_background?: string
+          custom_domain?: string | null
+          domain_status?: string | null
           how_we_met?: string
           id?: string
           is_published?: boolean
