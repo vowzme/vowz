@@ -607,16 +607,12 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           </div>
         </div>
 
-        {/* ── Photo Gallery Section ── */}
-        <div className="py-12 px-8" style={{ backgroundColor: `${bg}08` }}>
+        {/* ── Photo Gallery Section (Masonry) ── */}
+        <div className="py-14 px-8" style={{ backgroundColor: `${bg}08` }}>
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>Gallery</h2>
           <div className="w-12 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
-            {t.galleryPhotos.map((photo) => (
-              <GalleryPhoto key={photo.label} label={photo.label} url={photo.url} />
-            ))}
-          </div>
-          <p className="text-center text-xs font-body mt-4" style={{ color: `${bg}60` }}>
+          <MasonryGallery photos={t.galleryPhotos} accent={accent} />
+          <p className="text-center text-xs font-body mt-6" style={{ color: `${bg}60` }}>
             Upload your own photos after creating your site
           </p>
         </div>
