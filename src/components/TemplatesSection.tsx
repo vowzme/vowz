@@ -264,7 +264,12 @@ const templates: TemplateData[] = [
       ],
       directions: "Fly into Dabolim Airport (GOI). The resort is a 40-minute drive south along the coast.",
     },
-    photoPlaceholders: ["Beach Sunset", "Couple on Shore", "Ceremony Setup", "Ocean View"],
+    galleryPhotos: [
+      { label: "Beach Sunset", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=450&fit=crop" },
+      { label: "Couple on Shore", url: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9?w=600&h=450&fit=crop" },
+      { label: "Ceremony Setup", url: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&h=450&fit=crop" },
+      { label: "Ocean View", url: "https://images.unsplash.com/photo-1505881502353-a1986add3762?w=600&h=450&fit=crop" },
+    ],
   },
   {
     name: "Royal Blue",
