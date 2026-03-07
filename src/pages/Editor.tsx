@@ -1134,6 +1134,7 @@ function LogoUploader({ logoUrl, onLogoChange }: { logoUrl: string; onLogoChange
       )}
     </div>
   );
+}
 
 
 // ─── Gallery Editor ───────────────────────────────────────────────────
