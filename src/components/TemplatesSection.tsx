@@ -19,7 +19,7 @@ interface TemplateData {
   events: { name: string; date: string; time: string; venue: string }[];
   guestbookMessages: { name: string; message: string }[];
   travelInfo: { hotels: { name: string; distance: string }[]; directions: string };
-  photoPlaceholders: string[];
+  galleryPhotos: { label: string; url: string }[];
 }
 
 const templates: TemplateData[] = [
