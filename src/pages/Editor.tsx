@@ -291,19 +291,27 @@ const Editor = () => {
     }));
   }, []);
 
-  const addSection = useCallback(() => {
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const addSection = useCallback((sectionType?: string) => {
+    const typeMap: Record<string, { type: WeddingSection["type"]; title: string; data: Record<string, any> }> = {
+      custom: { type: "custom", title: "New Section", data: { heading: "New Section", body: "Add your content here..." } },
+      polls: { type: "polls", title: "Guest Polls", data: { heading: "Have Your Say! 🗳️", polls: [{ question: "Vote for your favourite Sangeet song!", options: ["Gallan Goodiyaan", "London Thumakda", "Nachde Ne Saare"] }] } },
+      ecotips: { type: "ecotips", title: "Eco Wedding", data: { heading: "Our Green Wedding 🌿", description: "We're committed to celebrating responsibly.", tips: ["Digital invites — saving 200+ paper cards", "Locally sourced flowers & décor", "Carpooling encouraged — share rides with fellow guests", "Plant a sapling as your blessing to us"], showDigitalInviteTracker: true } },
+    };
+    const config = typeMap[sectionType || "custom"] || typeMap.custom;
     const newSection: WeddingSection = {
-      id: `custom-${Date.now()}`,
-      type: "custom",
-      title: "New Section",
+      id: `${config.type}-${Date.now()}`,
+      type: config.type,
+      title: config.title,
       visible: true,
-      data: { heading: "New Section", body: "Add your content here..." },
+      data: config.data,
     };
     setState((prev) => ({
       ...prev,
       sections: [...prev.sections, newSection],
       selectedSectionId: newSection.id,
     }));
+    setShowAddMenu(false);
   }, []);
 
   const handleSave = async () => {
