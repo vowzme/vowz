@@ -980,7 +980,17 @@ const DOMAIN_REGISTRARS = [
   },
 ];
 
-function generateDomainSuggestions(partner1: string, partner2: string): string[] {
+// Wedding-relevant TLD categories
+const WEDDING_TLDS = [
+  { ext: ".com", label: "Global", emoji: "🌍", desc: "Universal & trusted" },
+  { ext: ".in", label: "India", emoji: "🇮🇳", desc: "Perfect for Indian weddings" },
+  { ext: ".love", label: "Romance", emoji: "💕", desc: "Made for love stories" },
+  { ext: ".wedding", label: "Wedding", emoji: "💒", desc: "Dedicated wedding TLD" },
+  { ext: ".co", label: "Modern", emoji: "✨", desc: "Short & trendy" },
+  { ext: ".me", label: "Personal", emoji: "💑", desc: "Personal touch" },
+];
+
+function generateDomainSuggestions(partner1: string, partner2: string, tlds: string[]): string[] {
   const p1 = partner1.toLowerCase().replace(/[^a-z]/g, "");
   const p2 = partner2.toLowerCase().replace(/[^a-z]/g, "");
   if (!p1 || !p2) return [];
@@ -988,18 +998,16 @@ function generateDomainSuggestions(partner1: string, partner2: string): string[]
   const combos = [
     `${p1}and${p2}`, `${p1}weds${p2}`, `${p1}loves${p2}`,
     `${p1}${p2}`, `${p2}and${p1}`, `${p1}${p2}wedding`,
-    `the${p1}${p2}s`, `${p1}marries${p2}`,
   ];
 
   const domains: string[] = [];
   combos.forEach((c) => {
-    domains.push(`${c}.com`);
-    domains.push(`${c}.in`);
+    tlds.forEach((tld) => domains.push(`${c}${tld}`));
   });
   return [...new Set(domains)];
 }
 
-type DomainResult = { domain: string; available: boolean | null };
+type DomainResult = { domain: string; available: boolean | null; checking?: boolean };
 
 function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; siteName: string }) {
   const [showInstructions, setShowInstructions] = useState(false);
@@ -1007,41 +1015,85 @@ function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; si
   const [domainResults, setDomainResults] = useState<DomainResult[]>([]);
   const [checking, setChecking] = useState(false);
   const [hasChecked, setHasChecked] = useState(false);
+  const [selectedTlds, setSelectedTlds] = useState<string[]>([".com", ".in", ".wedding"]);
+  const [customCheckResult, setCustomCheckResult] = useState<DomainResult | null>(null);
+  const [checkingCustom, setCheckingCustom] = useState(false);
 
-  // Extract partner names from siteName like "Arjun & Meera"
   const parts = siteName.split(/\s*&\s*/);
   const partner1 = parts[0]?.trim() || "";
   const partner2 = parts[1]?.trim() || "";
 
+  const toggleTld = (tld: string) => {
+    setSelectedTlds((prev) =>
+      prev.includes(tld) ? prev.filter((t) => t !== tld) : [...prev, tld]
+    );
+  };
+
   const checkAvailability = async () => {
-    const suggestions = generateDomainSuggestions(partner1, partner2);
+    const suggestions = generateDomainSuggestions(partner1, partner2, selectedTlds);
     if (suggestions.length === 0) return;
     setChecking(true);
     setHasChecked(true);
+    // Show domains immediately with loading state
+    setDomainResults(suggestions.map((d) => ({ domain: d, available: null, checking: true })));
     try {
       const { data, error } = await supabase.functions.invoke("check-domain", {
-        body: { domains: suggestions.slice(0, 16) },
+        body: { domains: suggestions },
       });
       if (error) throw error;
       if (data?.results) {
-        setDomainResults(data.results);
+        setDomainResults(data.results.map((r: DomainResult) => ({ ...r, checking: false })));
       }
     } catch (err) {
       console.error("Domain check failed:", err);
-      // Fallback: show all as unknown
-      setDomainResults(suggestions.slice(0, 16).map((d) => ({ domain: d, available: null })));
+      setDomainResults(suggestions.map((d) => ({ domain: d, available: null, checking: false })));
     } finally {
       setChecking(false);
     }
   };
 
+  // Check a custom-typed domain
+  const checkCustomDomain = async (domain: string) => {
+    if (!domain || !domain.includes(".")) return;
+    setCheckingCustom(true);
+    setCustomCheckResult({ domain, available: null, checking: true });
+    try {
+      const { data, error } = await supabase.functions.invoke("check-domain", {
+        body: { domains: [domain] },
+      });
+      if (error) throw error;
+      if (data?.results?.[0]) {
+        setCustomCheckResult({ ...data.results[0], checking: false });
+      }
+    } catch {
+      setCustomCheckResult({ domain, available: null, checking: false });
+    } finally {
+      setCheckingCustom(false);
+    }
+  };
+
+  // Debounced custom domain check
+  useEffect(() => {
+    if (!customDomain.includes(".") || customDomain.length < 4) {
+      setCustomCheckResult(null);
+      return;
+    }
+    const timer = setTimeout(() => checkCustomDomain(customDomain.trim().toLowerCase()), 800);
+    return () => clearTimeout(timer);
+  }, [customDomain]);
+
   const getBuyUrl = (domain: string, registrar: typeof DOMAIN_REGISTRARS[0]) => {
-    const name = domain.replace(/\.(com|in|wedding|love)$/, "");
     if (registrar.name === "GoDaddy India") return `https://www.godaddy.com/en-in/domainsearch/find?domainToCheck=${domain}`;
     if (registrar.name === "BigRock") return `https://www.bigrock.in/domain-registration/index.php?domainname=${domain}`;
     if (registrar.name === "Hostinger India") return `https://www.hostinger.in/domain-name-search?query=${domain}`;
     return `https://www.namecheap.com/domains/registration/results/?domain=${domain}`;
   };
+
+  // Sort: available first, then unknown, then taken
+  const sortedResults = [...domainResults].sort((a, b) => {
+    const order = (v: boolean | null) => (v === true ? 0 : v === null ? 1 : 2);
+    return order(a.available) - order(b.available);
+  });
 
   return (
     <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
@@ -1062,99 +1114,165 @@ function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; si
       </div>
 
       <div className="p-4 sm:p-6 space-y-6">
-        {/* Step 1: Smart domain suggestions */}
+        {/* Step 1: Choose TLDs & check */}
         <div>
           <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">1</span>
-            Pick your perfect domain
+            Choose your domain style
           </h3>
           <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
-            We've generated .com and .in domain ideas based on your names. Check which ones are available!
+            Select the extensions you'd like to check. We recommend <strong>.in</strong> for Indian weddings and <strong>.com</strong> for global reach.
           </p>
-          <div className="ml-8">
+          <div className="ml-8 space-y-4">
+            {/* TLD chips */}
+            <div className="flex flex-wrap gap-2">
+              {WEDDING_TLDS.map((tld) => (
+                <button
+                  key={tld.ext}
+                  onClick={() => toggleTld(tld.ext)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-body transition-all ${
+                    selectedTlds.includes(tld.ext)
+                      ? "border-gold/50 bg-gold/10 text-foreground shadow-sm"
+                      : "border-border/40 bg-muted/20 text-muted-foreground hover:border-border"
+                  }`}
+                >
+                  <span>{tld.emoji}</span>
+                  <span className="font-semibold">{tld.ext}</span>
+                  <span className="hidden sm:inline text-muted-foreground">· {tld.desc}</span>
+                  {selectedTlds.includes(tld.ext) && <Check className="w-3 h-3 text-gold ml-1" />}
+                </button>
+              ))}
+            </div>
+
             <Button
               variant="gold"
               size="sm"
-              className="font-body mb-4"
+              className="font-body"
               onClick={checkAvailability}
-              disabled={checking || !partner1 || !partner2}
+              disabled={checking || !partner1 || !partner2 || selectedTlds.length === 0}
             >
               {checking ? (
-                <>
-                  <span className="animate-spin mr-2">⏳</span> Checking availability...
-                </>
+                <><span className="animate-spin mr-2">⏳</span> Checking {domainResults.length} domains...</>
               ) : (
-                <>
-                  <Search className="w-4 h-4 mr-1" /> Check Domain Availability
-                </>
+                <><Search className="w-4 h-4 mr-1" /> Find Available Domains</>
               )}
             </Button>
 
-            {domainResults.length > 0 && (
-              <div className="space-y-2">
-                {domainResults.map(({ domain, available }) => (
-                  <div
-                    key={domain}
-                    className={`flex items-center justify-between gap-3 border rounded-xl px-4 py-3 transition-all ${
-                      available === true
-                        ? "border-emerald-500/30 bg-emerald-500/5"
-                        : available === false
-                        ? "border-border/30 bg-muted/30 opacity-60"
-                        : "border-border/40 bg-muted/20"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      {available === true ? (
-                        <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                      ) : available === false ? (
-                        <X className="w-4 h-4 text-destructive shrink-0" />
-                      ) : (
-                        <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                      )}
-                      <span className="font-body font-mono text-sm text-foreground truncate">{domain}</span>
-                      {available === true && (
-                        <span className="text-[10px] font-body font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
-                          Available
-                        </span>
-                      )}
-                      {available === false && (
-                        <span className="text-[10px] font-body font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">
-                          Taken
-                        </span>
-                      )}
-                    </div>
-                    {available !== false && (
-                      <div className="flex gap-1.5 shrink-0">
-                        <a
-                          href={getBuyUrl(domain, DOMAIN_REGISTRARS[0])}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
-                        >
-                          GoDaddy
-                        </a>
-                        <a
-                          href={getBuyUrl(domain, DOMAIN_REGISTRARS[1])}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
-                        >
-                          BigRock
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                ))}
+            {/* Or type your own */}
+            <div className="border-t border-border/20 pt-4">
+              <p className="text-xs text-muted-foreground font-body font-medium mb-2">Or check a specific domain:</p>
+              <div className="relative max-w-sm">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="e.g. arjunandmeera.com"
+                  value={customDomain}
+                  onChange={(e) => setCustomDomain(e.target.value)}
+                  className="pl-10 font-body font-mono text-sm"
+                />
+                {checkingCustom && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs animate-spin">⏳</span>
+                )}
               </div>
-            )}
-
-            {hasChecked && !checking && domainResults.length > 0 && (
-              <p className="text-[10px] text-muted-foreground font-body mt-3">
-                💡 All registrars above support <strong>UPI, cards & net banking</strong> for easy Indian payments.
-              </p>
-            )}
+              {customCheckResult && !customCheckResult.checking && (
+                <div className={`mt-2 flex items-center gap-2 text-xs font-body px-3 py-2 rounded-lg ${
+                  customCheckResult.available === true
+                    ? "bg-emerald-500/10 text-emerald-600"
+                    : customCheckResult.available === false
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-muted/30 text-muted-foreground"
+                }`}>
+                  {customCheckResult.available === true ? (
+                    <><Check className="w-3.5 h-3.5" /> <strong>{customCheckResult.domain}</strong> is available! 🎉</>
+                  ) : customCheckResult.available === false ? (
+                    <><X className="w-3.5 h-3.5" /> <strong>{customCheckResult.domain}</strong> is already taken</>
+                  ) : (
+                    <><Globe className="w-3.5 h-3.5" /> Could not determine availability for <strong>{customCheckResult.domain}</strong></>
+                  )}
+                  {customCheckResult.available !== false && customCheckResult.domain.includes(".") && (
+                    <a
+                      href={getBuyUrl(customCheckResult.domain, DOMAIN_REGISTRARS[0])}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-auto text-[10px] font-medium text-gold bg-gold/10 px-2 py-0.5 rounded"
+                    >
+                      Buy on GoDaddy →
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Suggested domains results */}
+        {sortedResults.length > 0 && (
+          <div>
+            <h3 className="font-display text-base font-semibold text-foreground mb-3 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">✓</span>
+              Personalized suggestions for {partner1} & {partner2}
+            </h3>
+            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+              {sortedResults.map(({ domain, available, checking: itemChecking }) => (
+                <div
+                  key={domain}
+                  className={`flex items-center justify-between gap-3 border rounded-xl px-4 py-3 transition-all ${
+                    available === true
+                      ? "border-emerald-500/30 bg-emerald-500/5"
+                      : available === false
+                      ? "border-border/30 bg-muted/30 opacity-50"
+                      : "border-border/40 bg-muted/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {itemChecking ? (
+                      <span className="w-4 h-4 animate-spin text-xs shrink-0">⏳</span>
+                    ) : available === true ? (
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                    ) : available === false ? (
+                      <X className="w-4 h-4 text-destructive shrink-0" />
+                    ) : (
+                      <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                    )}
+                    <span className="font-body font-mono text-sm text-foreground truncate">{domain}</span>
+                    {!itemChecking && available === true && (
+                      <span className="text-[10px] font-body font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
+                        Available
+                      </span>
+                    )}
+                    {!itemChecking && available === false && (
+                      <span className="text-[10px] font-body font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">
+                        Taken
+                      </span>
+                    )}
+                  </div>
+                  {!itemChecking && available !== false && (
+                    <div className="flex gap-1.5 shrink-0">
+                      <a
+                        href={getBuyUrl(domain, DOMAIN_REGISTRARS[0])}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
+                      >
+                        GoDaddy
+                      </a>
+                      <a
+                        href={getBuyUrl(domain, DOMAIN_REGISTRARS[1])}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
+                      >
+                        BigRock
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground font-body mt-3">
+              💡 All registrars support <strong>UPI, cards & net banking</strong> for easy Indian payments. Availability checked via WHOIS/RDAP — results are indicative.
+            </p>
+          </div>
+        )}
 
         {/* Step 2: Connect Domain */}
         <div>
