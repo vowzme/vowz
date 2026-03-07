@@ -135,7 +135,7 @@ const PublicSite = () => {
   return (
     <div className="min-h-screen bg-background">
       {sections.filter((s) => s.visible !== false).map((section) => (
-        <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} />
+        <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} trackEvent={trackEvent} />
       ))}
       {/* Footer */}
       <footer className="py-8 text-center border-t border-border/30">
