@@ -408,6 +408,11 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Custom Domain — Premium Feature */}
+              <div className="lg:col-span-2 mt-4 sm:mt-6">
+                <CustomDomainPanel siteSlug={site.slug} siteName={`${site.partner1} & ${site.partner2}`} />
+              </div>
             </TabsContent>
           </Tabs>
         )}
