@@ -129,6 +129,41 @@ export type Database = {
           },
         ]
       }
+      site_analytics: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          visitor_id: string | null
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          visitor_id?: string | null
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          visitor_id?: string | null
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_analytics_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wedding_sites: {
         Row: {
           created_at: string

@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Lightbox from "@/components/Lightbox";
 import type { GalleryPhoto } from "@/hooks/use-gallery-photos";
+import { useAnalyticsTracker } from "@/hooks/use-analytics";
 import { z } from "zod";
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ const PublicSite = () => {
   const [site, setSite] = useState<WeddingSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const { trackEvent, trackPageView } = useAnalyticsTracker(site?.id);
 
   useEffect(() => {
     if (!slug) return;
@@ -58,6 +60,11 @@ const PublicSite = () => {
         setLoading(false);
       });
   }, [slug]);
+
+  // Track page view once site loads
+  useEffect(() => {
+    if (site) trackPageView();
+  }, [site, trackPageView]);
 
   // Dynamically set OG meta tags when site data loads
   useEffect(() => {
@@ -128,7 +135,7 @@ const PublicSite = () => {
   return (
     <div className="min-h-screen bg-background">
       {sections.filter((s) => s.visible !== false).map((section) => (
-        <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} />
+        <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} trackEvent={trackEvent} />
       ))}
       {/* Footer */}
       <footer className="py-8 text-center border-t border-border/30">
@@ -147,12 +154,14 @@ function PublicSection({
   bg,
   accent,
   light,
+  trackEvent,
 }: {
   section: any;
   site: WeddingSite;
   bg: string;
   accent: string;
   light: string;
+  trackEvent: (type: string, meta?: Record<string, any>) => void;
 }) {
   const { type, data } = section;
 
@@ -162,8 +171,8 @@ function PublicSection({
   if (type === "events") return <EventsSection data={data} accent={accent} />;
   if (type === "gallery") return <GallerySection data={data} accent={accent} />;
   if (type === "travel") return <TravelSection data={data} accent={accent} />;
-  if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} />;
-  if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} />;
+  if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} trackEvent={trackEvent} />;
+  if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
   if (type === "custom") return <StorySection data={data} accent={accent} />;
 
   return null;
@@ -464,7 +473,7 @@ function TravelSection({ data, accent }: { data: any; accent: string }) {
 }
 
 // ─── Guestbook / Wishes ──────────────────────────────────────────────
-function GuestbookSection({ data, site, accent }: { data: any; site: WeddingSite; accent: string }) {
+function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site: WeddingSite; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void }) {
   const [wishes, setWishes] = useState<{ id: string; guest_name: string; message: string; created_at: string }[]>([]);
   const [form, setForm] = useState({ guest_name: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -499,6 +508,7 @@ function GuestbookSection({ data, site, accent }: { data: any; site: WeddingSite
       if (newWish) setWishes((prev) => [newWish as any, ...prev]);
       setForm({ guest_name: "", message: "" });
       toast({ title: "Wish posted! 💕" });
+      trackEvent("guestbook_post");
     }
   };
 
@@ -581,7 +591,7 @@ function GuestbookSection({ data, site, accent }: { data: any; site: WeddingSite
 }
 
 // ─── RSVP Form ────────────────────────────────────────────────────────
-function RsvpSection({ data, site, bg, accent }: { data: any; site: WeddingSite; bg: string; accent: string }) {
+function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -633,6 +643,7 @@ function RsvpSection({ data, site, bg, accent }: { data: any; site: WeddingSite;
       if (error) throw error;
       setSubmitted(true);
       toast({ title: "RSVP submitted! 🎉" });
+      trackEvent("rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         toast({ title: "Please check your details", description: err.errors[0]?.message, variant: "destructive" });
