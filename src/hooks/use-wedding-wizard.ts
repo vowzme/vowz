@@ -129,12 +129,12 @@ export function useWeddingWizard() {
     }
   }, [messages]);
 
-  const startWizard = useCallback(() => {
+  const startWizard = useCallback((customPrompt?: string) => {
     setMessages([]);
     setWizardData(null);
     setIsLoading(true);
 
-    const initMessages: Message[] = [{ role: "user", content: "Hi! I'd like to create my wedding website." }];
+    const initMessages: Message[] = [{ role: "user", content: customPrompt || "Hi! I'd like to create my wedding website." }];
 
     streamResponse(initMessages)
       .catch(console.error)

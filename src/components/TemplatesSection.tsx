@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -333,7 +334,7 @@ function PhotoPlaceholder({ label, color, accent }: { label: string; color: stri
 }
 
 // ─── Template Preview Modal ──────────────────────────────────────────
-function TemplatePreviewModal({ template: t, onClose }: { template: TemplateData; onClose: () => void }) {
+function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { template: TemplateData; onClose: () => void; onUseTemplate: (t: TemplateData) => void }) {
   const [bg, accent, text] = t.colors;
   const countdown = getCountdownFromDate(t.weddingDate);
 
@@ -575,12 +576,12 @@ function TemplatePreviewModal({ template: t, onClose }: { template: TemplateData
           <Button
             className="font-body font-semibold px-8"
             style={{ backgroundColor: accent, color: bg }}
-            onClick={onClose}
+            onClick={() => onUseTemplate(t)}
           >
             Use This Template →
           </Button>
           <p className="text-xs text-muted-foreground font-body mt-2">
-            Click "Get Started" to create your site with this theme
+            Sign in to create your site with this theme
           </p>
         </div>
       </motion.div>
@@ -590,7 +591,19 @@ function TemplatePreviewModal({ template: t, onClose }: { template: TemplateData
 
 // ─── Main Templates Section ──────────────────────────────────────────
 const TemplatesSection = () => {
+  const navigate = useNavigate();
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(null);
+
+  const handleUseTemplate = (t: TemplateData) => {
+    setSelectedTemplate(null);
+    navigate("/wizard", {
+      state: {
+        templateName: t.name,
+        templateStyle: t.style,
+        templateColors: t.colors,
+      },
+    });
+  };
 
   return (
     <>
@@ -701,6 +714,7 @@ const TemplatesSection = () => {
           <TemplatePreviewModal
             template={selectedTemplate}
             onClose={() => setSelectedTemplate(null)}
+            onUseTemplate={handleUseTemplate}
           />
         )}
       </AnimatePresence>
