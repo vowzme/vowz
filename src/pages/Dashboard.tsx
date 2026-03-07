@@ -1156,45 +1156,10 @@ function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; si
           </div>
         </div>
 
-        {/* Step 2: Buy from registrar */}
+        {/* Step 2: Connect Domain */}
         <div>
           <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">2</span>
-            Purchase from a registrar
-          </h3>
-          <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
-            Buy your domain from any of these registrars. All support Indian payment methods including UPI.
-          </p>
-          <div className="ml-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {DOMAIN_REGISTRARS.map((reg) => (
-              <a
-                key={reg.name}
-                href={`${reg.url}${domainSearch ? `?q=${encodeURIComponent(domainSearch.toLowerCase().replace(/\s+/g, ""))}` : ""}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group border border-border/50 rounded-xl p-4 hover:border-gold/50 hover:bg-gold/5 transition-all"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{reg.logo}</span>
-                  <span className="font-display text-sm font-semibold text-foreground group-hover:text-gold transition-colors">
-                    {reg.name}
-                  </span>
-                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <p className="text-xs text-muted-foreground font-body mb-2">{reg.description}</p>
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-3 h-3 text-emerald" />
-                  <span className="text-[10px] text-muted-foreground font-body">{reg.payment}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Step 3: Connect Domain */}
-        <div>
-          <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">3</span>
             Connect your domain
           </h3>
           <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
