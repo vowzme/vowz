@@ -478,8 +478,8 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
           <h2 className="font-display text-2xl font-bold text-center mb-2" style={{ color: bg }}>Gallery</h2>
           <div className="w-12 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
-            {t.photoPlaceholders.map((label) => (
-              <PhotoPlaceholder key={label} label={label} color={bg} accent={accent} />
+            {t.galleryPhotos.map((photo) => (
+              <GalleryPhoto key={photo.label} label={photo.label} url={photo.url} />
             ))}
           </div>
           <p className="text-center text-xs font-body mt-4" style={{ color: `${bg}60` }}>
