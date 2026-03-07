@@ -6,8 +6,10 @@ import {
   Users, Calendar, Mail, ChevronDown, ChevronUp,
   Settings, LogOut, Sparkles, Plus, Check, X, Copy,
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
-  BarChart3, TrendingUp, MousePointer, MessageSquare
+  BarChart3, TrendingUp, MousePointer, MessageSquare,
+  ClipboardList, CalendarDays
 } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
@@ -15,6 +17,7 @@ import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useSiteAnalytics } from "@/hooks/use-analytics";
+import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
 import {
   Tabs,
   TabsContent,
@@ -180,6 +183,9 @@ const Dashboard = () => {
           <Tabs defaultValue="overview" className="space-y-6">
              <TabsList className="bg-card border border-border/50">
               <TabsTrigger value="overview" className="font-body">Overview</TabsTrigger>
+              <TabsTrigger value="checklist" className="font-body">
+                Checklist <ClipboardList className="w-3.5 h-3.5 ml-1" />
+              </TabsTrigger>
               <TabsTrigger value="analytics" className="font-body">
                 Analytics <BarChart3 className="w-3.5 h-3.5 ml-1" />
               </TabsTrigger>
@@ -277,6 +283,11 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* ─── Checklist Tab ─── */}
+            <TabsContent value="checklist">
+              <ChecklistPanel siteId={site?.id} accent={(site.suggested_colors as any)?.[1] || "#D4A853"} />
             </TabsContent>
 
             {/* ─── Analytics Tab ─── */}
@@ -548,6 +559,269 @@ function EditableField({
             className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <Edit3 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Checklist Panel ──────────────────────────────────────────────────
+function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) {
+  const { items, loading, loadChecklist, addItem, toggleItem, deleteItem, updateItem, completedCount, progress } = useWeddingChecklist(siteId);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newCategory, setNewCategory] = useState("Planning");
+  const [newDueDate, setNewDueDate] = useState("");
+  const [filter, setFilter] = useState<"all" | "pending" | "done">("all");
+
+  useEffect(() => {
+    loadChecklist();
+  }, [loadChecklist]);
+
+  const handleAdd = async () => {
+    if (!newTitle.trim()) return;
+    await addItem(newTitle.trim(), newCategory, newDueDate || null);
+    setNewTitle("");
+    setNewDueDate("");
+    setShowAdd(false);
+    toast({ title: "Task added ✓" });
+  };
+
+  const filtered = items.filter((i) => {
+    if (filter === "pending") return !i.is_completed;
+    if (filter === "done") return i.is_completed;
+    return true;
+  });
+
+  const categories = [...new Set(items.map((i) => i.category))];
+  const CATEGORY_OPTIONS = ["Planning", "Venue", "Guests", "Vendors", "Attire", "Food", "Entertainment", "Decor", "Logistics", "Legal", "Events", "Ceremony"];
+
+  if (loading) {
+    return (
+      <div className="bg-card border border-border/50 rounded-2xl p-12 text-center">
+        <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Progress bar */}
+      <div className="bg-card border border-border/50 rounded-2xl p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="font-display text-lg font-bold text-foreground">Wedding Checklist</h2>
+            <p className="text-xs text-muted-foreground font-body mt-0.5">
+              {completedCount} of {items.length} tasks completed
+            </p>
+          </div>
+          <div className="text-right">
+            <span className="font-display text-2xl font-bold" style={{ color: accent }}>{progress}%</span>
+          </div>
+        </div>
+        <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
+          <motion.div
+            className="h-full rounded-full"
+            style={{ backgroundColor: accent }}
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          />
+        </div>
+      </div>
+
+      {/* Filters & Add */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {(["all", "pending", "done"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-3 py-1.5 rounded-full text-xs font-body font-medium transition-colors ${
+              filter === f
+                ? "text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+            style={filter === f ? { backgroundColor: accent } : undefined}
+          >
+            {f === "all" ? `All (${items.length})` : f === "pending" ? `Pending (${items.length - completedCount})` : `Done (${completedCount})`}
+          </button>
+        ))}
+        <div className="flex-1" />
+        <Button variant="outline" size="sm" onClick={() => setShowAdd(!showAdd)}>
+          <Plus className="w-4 h-4 mr-1" /> Add Task
+        </Button>
+      </div>
+
+      {/* Add form */}
+      {showAdd && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="bg-card border border-border/50 rounded-xl p-4"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Input
+              placeholder="Task name..."
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              className="font-body text-sm"
+              autoFocus
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+            />
+            <select
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm font-body"
+            >
+              {CATEGORY_OPTIONS.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <Input
+              type="date"
+              value={newDueDate}
+              onChange={(e) => setNewDueDate(e.target.value)}
+              className="font-body text-sm"
+            />
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Button variant="gold" size="sm" onClick={handleAdd} disabled={!newTitle.trim()}>
+              <Plus className="w-4 h-4 mr-1" /> Add
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setShowAdd(false)}>Cancel</Button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Grouped by category */}
+      {categories.length > 0 && (
+        <div className="space-y-3">
+          {categories.map((cat) => {
+            const catItems = filtered.filter((i) => i.category === cat);
+            if (catItems.length === 0) return null;
+            const catDone = catItems.filter((i) => i.is_completed).length;
+            return (
+              <div key={cat} className="bg-card border border-border/50 rounded-xl overflow-hidden">
+                <div className="px-4 py-3 border-b border-border/30 flex items-center justify-between">
+                  <h3 className="font-display text-sm font-semibold text-foreground">{cat}</h3>
+                  <span className="text-xs font-body text-muted-foreground">{catDone}/{catItems.length}</span>
+                </div>
+                <div className="divide-y divide-border/20">
+                  {catItems.map((item) => (
+                    <ChecklistRow
+                      key={item.id}
+                      item={item}
+                      accent={accent}
+                      onToggle={() => toggleItem(item.id)}
+                      onDelete={() => deleteItem(item.id)}
+                      onUpdate={(updates) => updateItem(item.id, updates)}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {filtered.length === 0 && (
+        <div className="bg-card border border-border/50 rounded-2xl p-12 text-center">
+          <ClipboardList className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+          <p className="font-body text-sm text-muted-foreground">
+            {filter === "done" ? "No completed tasks yet." : filter === "pending" ? "All tasks completed! 🎉" : "No tasks yet. Click 'Add Task' to get started."}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Checklist Row ────────────────────────────────────────────────────
+function ChecklistRow({
+  item,
+  accent,
+  onToggle,
+  onDelete,
+  onUpdate,
+}: {
+  item: import("@/hooks/use-wedding-checklist").ChecklistItem;
+  accent: string;
+  onToggle: () => void;
+  onDelete: () => void;
+  onUpdate: (updates: { title?: string; due_date?: string | null; notes?: string | null }) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(item.title);
+  const [editDate, setEditDate] = useState(item.due_date || "");
+
+  const isOverdue = item.due_date && !item.is_completed && new Date(item.due_date) < new Date();
+
+  const handleSave = () => {
+    onUpdate({
+      title: editTitle.trim() || item.title,
+      due_date: editDate || null,
+    });
+    setEditing(false);
+  };
+
+  return (
+    <div className="px-4 py-3 flex items-start gap-3 group">
+      <button
+        onClick={onToggle}
+        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+          item.is_completed ? "border-transparent" : "border-border hover:border-foreground/50"
+        }`}
+        style={item.is_completed ? { backgroundColor: accent } : undefined}
+      >
+        {item.is_completed && <Check className="w-3 h-3 text-white" />}
+      </button>
+
+      {editing ? (
+        <div className="flex-1 space-y-2">
+          <Input
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            className="font-body text-sm h-8"
+            autoFocus
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          />
+          <Input
+            type="date"
+            value={editDate}
+            onChange={(e) => setEditDate(e.target.value)}
+            className="font-body text-sm h-8 w-40"
+          />
+          <div className="flex gap-1">
+            <Button variant="gold" size="sm" className="h-7 px-2 text-xs" onClick={handleSave}>Save</Button>
+            <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => setEditing(false)}>Cancel</Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 min-w-0">
+          <p className={`font-body text-sm ${item.is_completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
+            {item.title}
+          </p>
+          {item.due_date && (
+            <p className={`font-body text-xs mt-0.5 flex items-center gap-1 ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}>
+              <CalendarDays className="w-3 h-3" />
+              {format(new Date(item.due_date + "T00:00:00"), "MMM d, yyyy")}
+              {isOverdue && " · Overdue"}
+            </p>
+          )}
+        </div>
+      )}
+
+      {!editing && (
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <button
+            onClick={() => { setEditTitle(item.title); setEditDate(item.due_date || ""); setEditing(true); }}
+            className="text-muted-foreground hover:text-foreground p-1"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={onDelete} className="text-muted-foreground hover:text-destructive p-1">
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
