@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 
 const templates = [
-  { name: "Royal Maroon", colors: ["#6B1D2A", "#D4A853", "#FFF5E6"], style: "Traditional" },
-  { name: "Pastel Bloom", colors: ["#E8D5E0", "#F5E6CC", "#C8E6C0"], style: "Fusion" },
-  { name: "Golden Mandala", colors: ["#2C1810", "#D4A853", "#F0E6D2"], style: "Traditional" },
-  { name: "Sage & Ivory", colors: ["#8B9D77", "#F5F0E8", "#D4C5A9"], style: "Eco-Friendly" },
-  { name: "Lavender Dream", colors: ["#9B8EC4", "#F0E8F5", "#D4A853"], style: "Fusion" },
-  { name: "Kerala Spice", colors: ["#1A4D2E", "#D4A853", "#FFF5E6"], style: "Regional" },
+  { name: "Royal Maroon", colors: ["#6B1D2A", "#D4A853", "#FFF5E6"], style: "Traditional", couple: "Arjun & Meera" },
+  { name: "Pastel Bloom", colors: ["#E8D5E0", "#F5E6CC", "#C8E6C0"], style: "Fusion", couple: "James & Sofia" },
+  { name: "Golden Mandala", colors: ["#2C1810", "#D4A853", "#F0E6D2"], style: "Traditional", couple: "Ravi & Anita" },
+  { name: "Sage & Ivory", colors: ["#8B9D77", "#F5F0E8", "#D4C5A9"], style: "Eco-Friendly", couple: "David & Grace" },
+  { name: "Lavender Dream", colors: ["#9B8EC4", "#F0E8F5", "#D4A853"], style: "Fusion", couple: "Omar & Ayesha" },
+  { name: "Kerala Spice", colors: ["#1A4D2E", "#D4A853", "#FFF5E6"], style: "Regional", couple: "Zain & Fatima" },
 ];
 
 const TemplatesSection = () => {
