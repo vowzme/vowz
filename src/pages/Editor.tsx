@@ -683,6 +683,18 @@ const TEMPLATE_THEMES = [
   { name: "Velvet Noir", style: "Modern Glam", colors: ["#1A1A1A", "#B8860B", "#F5F5F5"] as string[], displayFont: "Cinzel", bodyFont: "Lato" },
   { name: "Punjabi Fiesta", style: "Regional Vibrant", colors: ["#FF6B35", "#FFC947", "#FFF8E7"] as string[], displayFont: "Montserrat", bodyFont: "Nunito" },
   { name: "Bengali Monsoon", style: "Regional Classic", colors: ["#8B0000", "#FFD700", "#FFFACD"] as string[], displayFont: "Cormorant Garamond", bodyFont: "DM Sans" },
+  { name: "Mysore Silk", style: "South Indian Royal", colors: ["#4B0082", "#DAA520", "#FFF8DC"] as string[], displayFont: "Cinzel", bodyFont: "DM Sans" },
+  { name: "Kashmiri Snow", style: "Winter Elegance", colors: ["#2C3E50", "#C0C0C0", "#F8F9FA"] as string[], displayFont: "Playfair Display", bodyFont: "Raleway" },
+  { name: "Rajasthani Sunset", style: "Desert Royal", colors: ["#C0392B", "#F39C12", "#FEF9E7"] as string[], displayFont: "Great Vibes", bodyFont: "Lato" },
+  { name: "Kerala Backwaters", style: "Tropical South", colors: ["#0B5345", "#76D7C4", "#FDFEFE"] as string[], displayFont: "Cormorant Garamond", bodyFont: "Quicksand" },
+  { name: "Mughal Romance", style: "Indo-Persian", colors: ["#1F3A5F", "#C19A6B", "#FAF0E6"] as string[], displayFont: "Cinzel", bodyFont: "Nunito" },
+  { name: "Goan Sunlight", style: "Beach Casual", colors: ["#E67E22", "#3498DB", "#FFF5EE"] as string[], displayFont: "Dancing Script", bodyFont: "Source Sans 3" },
+  { name: "Rose Petal", style: "Romantic Soft", colors: ["#922B3E", "#F5B7B1", "#FFF0F0"] as string[], displayFont: "Great Vibes", bodyFont: "Quicksand" },
+  { name: "Teak & Brass", style: "Heritage Minimal", colors: ["#5D4037", "#CD853F", "#FAF3E8"] as string[], displayFont: "Playfair Display", bodyFont: "DM Sans" },
+  { name: "Sapphire Night", style: "Luxe Evening", colors: ["#0D1B2A", "#4FC3F7", "#E8F4FD"] as string[], displayFont: "Montserrat", bodyFont: "Raleway" },
+  { name: "Marigold Fields", style: "Festive Traditional", colors: ["#B7410E", "#FFB300", "#FFFDE7"] as string[], displayFont: "Cormorant Garamond", bodyFont: "Nunito" },
+  { name: "Lotus Pink", style: "Contemporary Chic", colors: ["#AD1457", "#F48FB1", "#FFF0F5"] as string[], displayFont: "Dancing Script", bodyFont: "Lato" },
+  { name: "Ivory & Sage", style: "Garden Minimal", colors: ["#556B2F", "#9DC183", "#FAFAF0"] as string[], displayFont: "Playfair Display", bodyFont: "Quicksand" },
 ];
 
 function TemplateSwitcherPanel({
