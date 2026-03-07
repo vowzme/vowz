@@ -980,25 +980,68 @@ const DOMAIN_REGISTRARS = [
   },
 ];
 
+function generateDomainSuggestions(partner1: string, partner2: string): string[] {
+  const p1 = partner1.toLowerCase().replace(/[^a-z]/g, "");
+  const p2 = partner2.toLowerCase().replace(/[^a-z]/g, "");
+  if (!p1 || !p2) return [];
+
+  const combos = [
+    `${p1}and${p2}`, `${p1}weds${p2}`, `${p1}loves${p2}`,
+    `${p1}${p2}`, `${p2}and${p1}`, `${p1}${p2}wedding`,
+    `the${p1}${p2}s`, `${p1}marries${p2}`,
+  ];
+
+  const domains: string[] = [];
+  combos.forEach((c) => {
+    domains.push(`${c}.com`);
+    domains.push(`${c}.in`);
+  });
+  return [...new Set(domains)];
+}
+
+type DomainResult = { domain: string; available: boolean | null };
+
 function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; siteName: string }) {
-  const [domainSearch, setDomainSearch] = useState("");
   const [showInstructions, setShowInstructions] = useState(false);
   const [customDomain, setCustomDomain] = useState("");
+  const [domainResults, setDomainResults] = useState<DomainResult[]>([]);
+  const [checking, setChecking] = useState(false);
+  const [hasChecked, setHasChecked] = useState(false);
 
-  const suggestedDomains = domainSearch.trim()
-    ? [
-        `${domainSearch.toLowerCase().replace(/\s+/g, "")}.com`,
-        `${domainSearch.toLowerCase().replace(/\s+/g, "")}.in`,
-        `${domainSearch.toLowerCase().replace(/\s+/g, "")}.wedding`,
-        `${domainSearch.toLowerCase().replace(/\s+/g, "")}wedding.com`,
-        `${domainSearch.toLowerCase().replace(/\s+/g, "")}.love`,
-      ]
-    : [];
+  // Extract partner names from siteName like "Arjun & Meera"
+  const parts = siteName.split(/\s*&\s*/);
+  const partner1 = parts[0]?.trim() || "";
+  const partner2 = parts[1]?.trim() || "";
 
-  const defaultSearch = siteName
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "")
-    .replace(/and/g, "");
+  const checkAvailability = async () => {
+    const suggestions = generateDomainSuggestions(partner1, partner2);
+    if (suggestions.length === 0) return;
+    setChecking(true);
+    setHasChecked(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("check-domain", {
+        body: { domains: suggestions.slice(0, 16) },
+      });
+      if (error) throw error;
+      if (data?.results) {
+        setDomainResults(data.results);
+      }
+    } catch (err) {
+      console.error("Domain check failed:", err);
+      // Fallback: show all as unknown
+      setDomainResults(suggestions.slice(0, 16).map((d) => ({ domain: d, available: null })));
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const getBuyUrl = (domain: string, registrar: typeof DOMAIN_REGISTRARS[0]) => {
+    const name = domain.replace(/\.(com|in|wedding|love)$/, "");
+    if (registrar.name === "GoDaddy India") return `https://www.godaddy.com/en-in/domainsearch/find?domainToCheck=${domain}`;
+    if (registrar.name === "BigRock") return `https://www.bigrock.in/domain-registration/index.php?domainname=${domain}`;
+    if (registrar.name === "Hostinger India") return `https://www.hostinger.in/domain-name-search?query=${domain}`;
+    return `https://www.namecheap.com/domains/registration/results/?domain=${domain}`;
+  };
 
   return (
     <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
@@ -1013,89 +1056,110 @@ function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; si
             <span className="bg-gold/20 text-gold text-[10px] font-body font-semibold px-2 py-0.5 rounded-full">PREMIUM</span>
           </h2>
           <p className="text-sm text-muted-foreground font-body mt-0.5">
-            Give your wedding site a memorable address like <strong>arjunandmeera.com</strong>
+            Get a memorable address like <strong>{partner1.toLowerCase()}and{partner2.toLowerCase()}.com</strong>
           </p>
         </div>
       </div>
 
       <div className="p-4 sm:p-6 space-y-6">
-        {/* Step 1: Search for a domain */}
+        {/* Step 1: Smart domain suggestions */}
         <div>
           <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">1</span>
-            Search for your dream domain
+            Pick your perfect domain
           </h3>
           <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
-            Search for available domains and purchase from an Indian registrar with UPI payment.
+            We've generated .com and .in domain ideas based on your names. Check which ones are available!
           </p>
           <div className="ml-8">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder={`e.g. ${defaultSearch}`}
-                value={domainSearch}
-                onChange={(e) => setDomainSearch(e.target.value)}
-                className="pl-10 font-body"
-              />
-            </div>
+            <Button
+              variant="gold"
+              size="sm"
+              className="font-body mb-4"
+              onClick={checkAvailability}
+              disabled={checking || !partner1 || !partner2}
+            >
+              {checking ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span> Checking availability...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-1" /> Check Domain Availability
+                </>
+              )}
+            </Button>
 
-            {suggestedDomains.length > 0 && (
-              <div className="mt-3 space-y-1.5">
-                <p className="text-xs text-muted-foreground font-body font-medium">Suggested domain names:</p>
-                <div className="flex flex-wrap gap-2">
-                  {suggestedDomains.map((domain) => (
-                    <span
-                      key={domain}
-                      className="bg-muted px-3 py-1.5 rounded-lg font-body text-sm text-foreground border border-border/50"
-                    >
-                      {domain}
-                    </span>
-                  ))}
-                </div>
+            {domainResults.length > 0 && (
+              <div className="space-y-2">
+                {domainResults.map(({ domain, available }) => (
+                  <div
+                    key={domain}
+                    className={`flex items-center justify-between gap-3 border rounded-xl px-4 py-3 transition-all ${
+                      available === true
+                        ? "border-emerald-500/30 bg-emerald-500/5"
+                        : available === false
+                        ? "border-border/30 bg-muted/30 opacity-60"
+                        : "border-border/40 bg-muted/20"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      {available === true ? (
+                        <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      ) : available === false ? (
+                        <X className="w-4 h-4 text-destructive shrink-0" />
+                      ) : (
+                        <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                      )}
+                      <span className="font-body font-mono text-sm text-foreground truncate">{domain}</span>
+                      {available === true && (
+                        <span className="text-[10px] font-body font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
+                          Available
+                        </span>
+                      )}
+                      {available === false && (
+                        <span className="text-[10px] font-body font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">
+                          Taken
+                        </span>
+                      )}
+                    </div>
+                    {available !== false && (
+                      <div className="flex gap-1.5 shrink-0">
+                        <a
+                          href={getBuyUrl(domain, DOMAIN_REGISTRARS[0])}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
+                        >
+                          GoDaddy
+                        </a>
+                        <a
+                          href={getBuyUrl(domain, DOMAIN_REGISTRARS[1])}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] font-body font-medium text-gold hover:text-gold/80 bg-gold/10 hover:bg-gold/20 px-2.5 py-1 rounded-lg transition-colors"
+                        >
+                          BigRock
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
+            )}
+
+            {hasChecked && !checking && domainResults.length > 0 && (
+              <p className="text-[10px] text-muted-foreground font-body mt-3">
+                💡 All registrars above support <strong>UPI, cards & net banking</strong> for easy Indian payments.
+              </p>
             )}
           </div>
         </div>
 
-        {/* Step 2: Buy from registrar */}
+        {/* Step 2: Connect Domain */}
         <div>
           <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">2</span>
-            Purchase from a registrar
-          </h3>
-          <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
-            Buy your domain from any of these registrars. All support Indian payment methods including UPI.
-          </p>
-          <div className="ml-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {DOMAIN_REGISTRARS.map((reg) => (
-              <a
-                key={reg.name}
-                href={`${reg.url}${domainSearch ? `?q=${encodeURIComponent(domainSearch.toLowerCase().replace(/\s+/g, ""))}` : ""}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group border border-border/50 rounded-xl p-4 hover:border-gold/50 hover:bg-gold/5 transition-all"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{reg.logo}</span>
-                  <span className="font-display text-sm font-semibold text-foreground group-hover:text-gold transition-colors">
-                    {reg.name}
-                  </span>
-                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <p className="text-xs text-muted-foreground font-body mb-2">{reg.description}</p>
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-3 h-3 text-emerald" />
-                  <span className="text-[10px] text-muted-foreground font-body">{reg.payment}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Step 3: Connect Domain */}
-        <div>
-          <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">3</span>
             Connect your domain
           </h3>
           <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
