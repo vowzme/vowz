@@ -152,6 +152,8 @@ const templates: TemplateData[] = [
     venue: "Willow Creek Farm",
     location: "Vermont, USA",
     story: "David and Grace met while volunteering at a community garden. She was planting sunflowers; he was hopelessly overwatering the tomatoes. Their shared love for nature, sustainability, and terrible gardening puns turned into something beautiful — a love as natural and enduring as the earth itself.",
+    couplePhoto: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800&h=600&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=1200&h=800&fit=crop",
     events: [
       { name: "Rehearsal Dinner", date: "Jun 20, 2027", time: "6:00 PM", venue: "The Farmhouse Barn" },
       { name: "Garden Ceremony", date: "Jun 21, 2027", time: "3:00 PM", venue: "Willow Creek Meadow" },
