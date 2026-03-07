@@ -591,7 +591,19 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
 
 // ─── Main Templates Section ──────────────────────────────────────────
 const TemplatesSection = () => {
+  const navigate = useNavigate();
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(null);
+
+  const handleUseTemplate = (t: TemplateData) => {
+    setSelectedTemplate(null);
+    navigate("/wizard", {
+      state: {
+        templateName: t.name,
+        templateStyle: t.style,
+        templateColors: t.colors,
+      },
+    });
+  };
 
   return (
     <>
