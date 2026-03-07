@@ -7,7 +7,7 @@ import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
-  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check
+  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
@@ -715,19 +715,34 @@ function TemplateSwitcherPanel({
 }) {
   const [previewIdx, setPreviewIdx] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<TemplateCategory>("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isActive = (t: typeof TEMPLATE_THEMES[0]) =>
     JSON.stringify(currentColors) === JSON.stringify(t.colors) &&
     (siteData.displayFont || "Cormorant Garamond") === t.displayFont;
 
-  const filteredThemes = activeCategory === "All"
-    ? TEMPLATE_THEMES
-    : TEMPLATE_THEMES.filter((t) => t.category === activeCategory);
+  const filteredThemes = TEMPLATE_THEMES.filter((t) => {
+    const matchesCategory = activeCategory === "All" || t.category === activeCategory;
+    const matchesSearch = !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.style.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div>
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Templates</h3>
       <p className="text-xs text-muted-foreground font-body mb-3">Switch your site's look instantly — your content stays</p>
+
+      {/* Search input */}
+      <div className="relative mb-3">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Search templates..."
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value); setPreviewIdx(null); }}
+          className="w-full pl-8 pr-3 py-1.5 rounded-md border border-border/50 bg-background text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+      </div>
 
       {/* Category filter tabs */}
       <div className="flex flex-wrap gap-1.5 mb-4">
