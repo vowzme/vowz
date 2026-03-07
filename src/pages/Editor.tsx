@@ -7,7 +7,7 @@ import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
-  MessageCircle, Send, Bot, Wand2
+  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ export interface WeddingSiteData {
 interface EditorState {
   siteData: WeddingSiteData;
   sections: WeddingSection[];
-  activePanel: "sections" | "style" | "settings" | "ai" | null;
+  activePanel: "sections" | "style" | "settings" | "ai" | "templates" | null;
   selectedSectionId: string | null;
   previewMode: boolean;
 }
@@ -374,6 +374,7 @@ const Editor = () => {
         <div className="hidden md:flex w-14 border-r border-border/50 bg-card/50 flex-col items-center py-3 gap-1 shrink-0">
           {([
             { id: "sections" as const, icon: Type, label: "Sections" },
+            { id: "templates" as const, icon: LayoutTemplate, label: "Templates" },
             { id: "style" as const, icon: Palette, label: "Style" },
             { id: "settings" as const, icon: Settings, label: "Settings" },
             { id: "ai" as const, icon: Wand2, label: "AI Assistant" },
@@ -448,6 +449,17 @@ const Editor = () => {
                   )}
                   {activePanel === "settings" && (
                     <SettingsPanel siteData={siteData} onUpdate={(d) => updateState({ siteData: d })} />
+                  )}
+                  {activePanel === "templates" && (
+                    <TemplateSwitcherPanel
+                      currentColors={siteData.suggestedColors}
+                      siteData={siteData}
+                      onApply={(templateTheme) => {
+                        const newData = { ...siteData, ...templateTheme };
+                        updateState({ siteData: newData });
+                        toast({ title: "Template applied! ✨" });
+                      }}
+                    />
                   )}
                   {activePanel === "ai" && (
                     <AIAssistantPanel
@@ -623,6 +635,124 @@ function SectionsPanel({
       <Button variant="outline" size="sm" className="w-full mt-4 font-body" onClick={onAdd}>
         <Plus className="w-4 h-4 mr-1" /> Add Section
       </Button>
+    </div>
+  );
+}
+
+// ─── Template Switcher Panel ──────────────────────────────────────────
+const TEMPLATE_THEMES = [
+  { name: "Royal Maroon", style: "Traditional", colors: ["#6B1D2A", "#D4A853", "#FFF5E6"] as string[], displayFont: "Cormorant Garamond", bodyFont: "DM Sans" },
+  { name: "Ivory Blush", style: "Modern Minimal", colors: ["#4A3728", "#C9A96E", "#FFF8F0"] as string[], displayFont: "Playfair Display", bodyFont: "Lato" },
+  { name: "Emerald Garden", style: "Eco / Nature", colors: ["#1B4332", "#8DB370", "#F5F5DC"] as string[], displayFont: "Cormorant Garamond", bodyFont: "Quicksand" },
+  { name: "Lavender Dream", style: "Fusion / Pastel", colors: ["#5B3A6B", "#C8A2D0", "#F8F0FF"] as string[], displayFont: "Great Vibes", bodyFont: "Nunito" },
+  { name: "Ocean Breeze", style: "Destination Beach", colors: ["#0C4A6E", "#38BDF8", "#F0FDFA"] as string[], displayFont: "Montserrat", bodyFont: "Source Sans 3" },
+  { name: "Golden Nikah", style: "Islamic Elegance", colors: ["#1A5E3B", "#D4A853", "#FFF5E6"] as string[], displayFont: "Cinzel", bodyFont: "Raleway" },
+  { name: "Cherry Blossom", style: "Minimal Fusion", colors: ["#8B2252", "#FFB7C5", "#FFF5F7"] as string[], displayFont: "Dancing Script", bodyFont: "Quicksand" },
+  { name: "Midnight Garden", style: "Moody Luxe", colors: ["#1A1A2E", "#C9A846", "#E8E8E8"] as string[], displayFont: "Playfair Display", bodyFont: "DM Sans" },
+  { name: "Terracotta Sun", style: "Bohemian Desert", colors: ["#A0522D", "#E8A87C", "#FFF5E1"] as string[], displayFont: "Great Vibes", bodyFont: "Raleway" },
+  { name: "Velvet Noir", style: "Modern Glam", colors: ["#1A1A1A", "#B8860B", "#F5F5F5"] as string[], displayFont: "Cinzel", bodyFont: "Lato" },
+  { name: "Punjabi Fiesta", style: "Regional Vibrant", colors: ["#FF6B35", "#FFC947", "#FFF8E7"] as string[], displayFont: "Montserrat", bodyFont: "Nunito" },
+  { name: "Bengali Monsoon", style: "Regional Classic", colors: ["#8B0000", "#FFD700", "#FFFACD"] as string[], displayFont: "Cormorant Garamond", bodyFont: "DM Sans" },
+];
+
+function TemplateSwitcherPanel({
+  currentColors,
+  siteData,
+  onApply,
+}: {
+  currentColors: string[];
+  siteData: WeddingSiteData;
+  onApply: (theme: Partial<WeddingSiteData>) => void;
+}) {
+  const [previewIdx, setPreviewIdx] = useState<number | null>(null);
+
+  const isActive = (t: typeof TEMPLATE_THEMES[0]) =>
+    JSON.stringify(currentColors) === JSON.stringify(t.colors) &&
+    (siteData.displayFont || "Cormorant Garamond") === t.displayFont;
+
+  return (
+    <div>
+      <h3 className="font-display text-lg font-semibold text-foreground mb-1">Templates</h3>
+      <p className="text-xs text-muted-foreground font-body mb-4">Switch your site's look instantly — your content stays</p>
+
+      <div className="space-y-2">
+        {TEMPLATE_THEMES.map((t, i) => {
+          const active = isActive(t);
+          return (
+            <div key={t.name}>
+              <button
+                onClick={() => setPreviewIdx(previewIdx === i ? null : i)}
+                className={`w-full p-3 rounded-lg border text-left transition-all ${
+                  active ? "border-gold bg-gold/10" : "border-border/50 hover:border-border"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="flex gap-1">
+                    {t.colors.map((c, ci) => (
+                      <div key={ci} className="w-4 h-4 rounded-full border border-border/30" style={{ backgroundColor: c }} />
+                    ))}
+                  </div>
+                  <span className="text-sm font-semibold text-foreground font-display flex-1">{t.name}</span>
+                  {active && <Check className="w-4 h-4 text-gold" />}
+                </div>
+                <p className="text-xs text-muted-foreground font-body">{t.style} • {t.displayFont}</p>
+              </button>
+
+              {/* Expanded preview */}
+              <AnimatePresence>
+                {previewIdx === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-1 rounded-lg overflow-hidden border border-border/30">
+                      {/* Mini hero preview with user's content */}
+                      <div
+                        className="px-4 py-6 text-center"
+                        style={{ background: `linear-gradient(135deg, ${t.colors[0]}, ${t.colors[0]}dd)` }}
+                      >
+                        <Heart className="w-5 h-5 mx-auto mb-1" style={{ color: t.colors[1] }} fill="currentColor" />
+                        <p className="text-lg font-bold" style={{ color: t.colors[2], fontFamily: `'${t.displayFont}', serif` }}>
+                          {siteData.partner1} & {siteData.partner2}
+                        </p>
+                        <p className="text-xs italic mt-0.5" style={{ color: t.colors[1], fontFamily: `'${t.displayFont}', serif` }}>
+                          {siteData.tagline}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-card">
+                        <p className="text-xs text-muted-foreground text-center line-clamp-2" style={{ fontFamily: `'${t.bodyFont}', sans-serif` }}>
+                          {siteData.howWeMet}
+                        </p>
+                        <Button
+                          variant="gold"
+                          size="sm"
+                          className="w-full mt-2 text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            loadGoogleFont(t.displayFont);
+                            loadGoogleFont(t.bodyFont);
+                            onApply({
+                              suggestedColors: t.colors,
+                              displayFont: t.displayFont,
+                              bodyFont: t.bodyFont,
+                            });
+                          }}
+                          disabled={active}
+                        >
+                          {active ? "Currently Active" : "Apply This Template"}
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
