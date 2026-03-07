@@ -738,6 +738,10 @@ function SectionEditor({
               className="font-body"
             />
           </div>
+          <LogoUploader
+            logoUrl={data.logoUrl || ""}
+            onLogoChange={(url) => onUpdateData({ logoUrl: url })}
+          />
         </>
       )}
 
@@ -1038,6 +1042,101 @@ function EventEditor({
   );
 }
 
+// ─── Logo Uploader ────────────────────────────────────────────────────
+function LogoUploader({ logoUrl, onLogoChange }: { logoUrl: string; onLogoChange: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please select an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Logo must be under 5MB", variant: "destructive" });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${user.id}/logo-${Date.now()}.${ext}`;
+      const { supabase } = await import("@/integrations/supabase/client");
+
+      const { error: uploadError } = await supabase.storage
+        .from("wedding-logos")
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("wedding-logos")
+        .getPublicUrl(path);
+
+      onLogoChange(urlData.publicUrl);
+      toast({ title: "Logo uploaded! ✨" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  return (
+    <div>
+      <label className="font-body text-sm font-medium text-foreground mb-1 block">
+        Couple Logo <span className="text-muted-foreground font-normal">(optional)</span>
+      </label>
+      {logoUrl ? (
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-16 rounded-lg border border-border/50 overflow-hidden bg-muted flex items-center justify-center">
+            <img src={logoUrl} alt="Wedding logo" className="w-full h-full object-contain" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-body text-gold hover:text-gold/80 cursor-pointer transition-colors">
+              {uploading ? "Uploading..." : "Change"}
+              <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+            </label>
+            <button
+              onClick={() => onLogoChange("")}
+              className="text-xs font-body text-destructive hover:text-destructive/80 text-left transition-colors"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="border-2 border-dashed border-border hover:border-gold/50 rounded-xl p-4 text-center transition-colors cursor-pointer"
+          onClick={() => document.getElementById("logo-upload")?.click()}
+        >
+          {uploading ? (
+            <Loader2 className="w-5 h-5 text-gold mx-auto animate-spin mb-1" />
+          ) : (
+            <Upload className="w-5 h-5 text-muted-foreground mx-auto mb-1" />
+          )}
+          <p className="text-xs text-muted-foreground font-body">
+            {uploading ? "Uploading..." : "Upload your wedding logo or monogram"}
+          </p>
+          <p className="text-[10px] text-muted-foreground/60 font-body mt-0.5">PNG with transparency works best</p>
+          <input
+            id="logo-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleUpload}
+            className="hidden"
+            disabled={uploading}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 // ─── Gallery Editor ───────────────────────────────────────────────────
 function GalleryEditor({
   photos,
@@ -1206,6 +1305,9 @@ function SectionRenderer({
           </svg>
         </div>
         <div className="relative z-10">
+          {data.logoUrl && (
+            <img src={data.logoUrl} alt="Wedding logo" className="w-20 h-20 mx-auto mb-4 object-contain rounded-lg" />
+          )}
           <Heart className="w-7 h-7 mx-auto mb-3" style={{ color: accent }} fill="currentColor" />
           <p className="font-body text-xs tracking-widest uppercase mb-2" style={{ color: `${light}99` }}>
             {data.subheading}

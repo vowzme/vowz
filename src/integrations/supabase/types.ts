@@ -215,6 +215,7 @@ export type Database = {
           how_we_met: string
           id: string
           is_published: boolean
+          logo_url: string | null
           partner1: string
           partner2: string
           sections: Json
@@ -231,6 +232,7 @@ export type Database = {
           how_we_met?: string
           id?: string
           is_published?: boolean
+          logo_url?: string | null
           partner1?: string
           partner2?: string
           sections?: Json
@@ -247,6 +249,7 @@ export type Database = {
           how_we_met?: string
           id?: string
           is_published?: boolean
+          logo_url?: string | null
           partner1?: string
           partner2?: string
           sections?: Json
