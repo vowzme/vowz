@@ -1351,46 +1351,100 @@ function GalleryRendererComponent({ data, accent }: { data: Record<string, any>;
   );
 }
 
+function InlineEditable({
+  value,
+  onChange,
+  tag: Tag = "span",
+  className,
+  style,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  tag?: "h1" | "h2" | "p" | "span" | "div";
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const handleBlur = (e: React.FocusEvent<HTMLElement>) => {
+    const newVal = e.currentTarget.textContent || "";
+    if (newVal !== value) onChange(newVal);
+  };
+  return (
+    <Tag
+      contentEditable
+      suppressContentEditableWarning
+      onBlur={handleBlur}
+      onClick={(e: React.MouseEvent) => e.stopPropagation()}
+      className={`outline-none focus:ring-1 focus:ring-gold/50 focus:rounded px-0.5 cursor-text ${className || ""}`}
+      style={style}
+      dangerouslySetInnerHTML={{ __html: value }}
+    />
+  );
+}
+
 function SectionRenderer({
   section,
   bg,
   accent,
   light,
+  displayFont = "Cormorant Garamond",
+  bodyFont = "DM Sans",
+  onUpdateData,
 }: {
   section: WeddingSection;
   bg: string;
   accent: string;
   light: string;
+  displayFont?: string;
+  bodyFont?: string;
+  onUpdateData?: (data: Record<string, any>) => void;
 }) {
   const { type, data } = section;
+  const dFont = `'${displayFont}', serif`;
+  const bFont = `'${bodyFont}', sans-serif`;
+  const update = onUpdateData || (() => {});
 
   if (type === "hero") {
+    const heroStyle: React.CSSProperties = data.heroImageUrl
+      ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url(${data.heroImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+      : { background: `linear-gradient(135deg, ${bg}, ${bg}dd)` };
+
     return (
-      <div
-        className="relative py-20 px-6 text-center rounded-xl overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${bg}, ${bg}dd)` }}
-      >
-        <div className="absolute inset-0 opacity-10">
-          <svg viewBox="0 0 400 400" className="w-full h-full">
-            {[...Array(6)].map((_, i) => (
-              <circle key={i} cx="200" cy="200" r={50 + i * 30} fill="none" stroke={light} strokeWidth="0.5" />
-            ))}
-          </svg>
-        </div>
+      <div className="relative py-20 px-6 text-center rounded-xl overflow-hidden" style={heroStyle}>
+        {!data.heroImageUrl && (
+          <div className="absolute inset-0 opacity-10">
+            <svg viewBox="0 0 400 400" className="w-full h-full">
+              {[...Array(6)].map((_, i) => (
+                <circle key={i} cx="200" cy="200" r={50 + i * 30} fill="none" stroke={light} strokeWidth="0.5" />
+              ))}
+            </svg>
+          </div>
+        )}
         <div className="relative z-10">
           {data.logoUrl && (
             <img src={data.logoUrl} alt="Wedding logo" className="w-20 h-20 mx-auto mb-4 object-contain rounded-lg" />
           )}
           <Heart className="w-7 h-7 mx-auto mb-3" style={{ color: accent }} fill="currentColor" />
-          <p className="font-body text-xs tracking-widest uppercase mb-2" style={{ color: `${light}99` }}>
-            {data.subheading}
-          </p>
-          <h1 className="font-display text-4xl md:text-5xl font-bold mb-2" style={{ color: light }}>
-            {data.heading}
-          </h1>
-          <p className="font-display text-lg italic" style={{ color: accent }}>
-            {data.tagline}
-          </p>
+          <InlineEditable
+            tag="p"
+            value={data.subheading || ""}
+            onChange={(v) => update({ subheading: v })}
+            className="text-xs tracking-widest uppercase mb-2"
+            style={{ color: data.heroImageUrl ? `${light}cc` : `${light}99`, fontFamily: bFont }}
+          />
+          <InlineEditable
+            tag="h1"
+            value={data.heading || ""}
+            onChange={(v) => update({ heading: v })}
+            className="text-4xl md:text-5xl font-bold mb-2"
+            style={{ color: light, fontFamily: dFont }}
+          />
+          <InlineEditable
+            tag="p"
+            value={data.tagline || ""}
+            onChange={(v) => update({ tagline: v })}
+            className="text-lg italic"
+            style={{ color: accent, fontFamily: dFont }}
+          />
         </div>
       </div>
     );
@@ -1399,11 +1453,21 @@ function SectionRenderer({
   if (type === "story" || type === "custom") {
     return (
       <div className="bg-card rounded-xl px-8 py-10">
-        <h2 className="font-display text-2xl font-bold text-foreground text-center mb-2">{data.heading}</h2>
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
         <div className="w-10 h-0.5 mx-auto mb-5" style={{ backgroundColor: accent }} />
-        <p className="text-muted-foreground font-body text-center max-w-xl mx-auto leading-relaxed whitespace-pre-wrap">
-          {data.body}
-        </p>
+        <InlineEditable
+          tag="p"
+          value={data.body || ""}
+          onChange={(v) => update({ body: v })}
+          className="text-muted-foreground text-center max-w-xl mx-auto leading-relaxed"
+          style={{ fontFamily: bFont }}
+        />
       </div>
     );
   }
@@ -1411,7 +1475,13 @@ function SectionRenderer({
   if (type === "events") {
     return (
       <div className="bg-background rounded-xl px-8 py-10 border border-border/30">
-        <h2 className="font-display text-2xl font-bold text-foreground text-center mb-2">{data.heading}</h2>
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
         <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-2xl mx-auto">
           {(data.events || []).map((event: any, i: number) => (
@@ -1422,18 +1492,18 @@ function SectionRenderer({
               <div className="w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: `${accent}20` }}>
                 <Calendar className="w-4 h-4" style={{ color: accent }} />
               </div>
-              <p className="font-display text-sm font-semibold text-foreground">{event.name}</p>
-              {event.date && <p className="text-xs text-muted-foreground font-body mt-0.5">{event.date}</p>}
-              {event.time && <p className="text-xs text-muted-foreground font-body">{event.time}</p>}
+              <p className="text-sm font-semibold text-foreground" style={{ fontFamily: dFont }}>{event.name}</p>
+              {event.date && <p className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: bFont }}>{event.date}</p>}
+              {event.time && <p className="text-xs text-muted-foreground" style={{ fontFamily: bFont }}>{event.time}</p>}
               {event.venue && (
-                <p className="text-xs text-muted-foreground font-body flex items-center justify-center gap-1 mt-0.5">
+                <p className="text-xs text-muted-foreground flex items-center justify-center gap-1 mt-0.5" style={{ fontFamily: bFont }}>
                   <MapPin className="w-3 h-3" /> {event.venue}
                 </p>
               )}
               {event.location && (
-                <p className="text-xs text-muted-foreground/70 font-body mt-0.5 truncate">{event.location}</p>
+                <p className="text-xs text-muted-foreground/70 mt-0.5 truncate" style={{ fontFamily: bFont }}>{event.location}</p>
               )}
-              {!event.date && !event.time && <p className="text-xs text-muted-foreground font-body mt-0.5">Date & time TBD</p>}
+              {!event.date && !event.time && <p className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: bFont }}>Date & time TBD</p>}
             </div>
           ))}
         </div>
@@ -1450,17 +1520,21 @@ function SectionRenderer({
     const daysLeft = targetDate ? Math.max(0, Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null;
     return (
       <div className="rounded-xl px-8 py-10 text-center" style={{ background: `linear-gradient(135deg, ${bg}15, ${accent}10)` }}>
-        <h2 className="font-display text-xl font-semibold text-foreground mb-4">{data.label}</h2>
+        <InlineEditable
+          tag="h2"
+          value={data.label || ""}
+          onChange={(v) => update({ label: v })}
+          className="text-xl font-semibold text-foreground mb-4"
+          style={{ fontFamily: dFont }}
+        />
         <div className="flex justify-center gap-4">
           {daysLeft !== null ? (
-            <>
-              <div className="text-center">
-                <div className="font-display text-4xl font-bold" style={{ color: accent }}>{daysLeft}</div>
-                <div className="font-body text-xs text-muted-foreground mt-1">Days</div>
-              </div>
-            </>
+            <div className="text-center">
+              <div className="text-4xl font-bold" style={{ color: accent, fontFamily: dFont }}>{daysLeft}</div>
+              <div className="text-xs text-muted-foreground mt-1" style={{ fontFamily: bFont }}>Days</div>
+            </div>
           ) : (
-            <p className="text-muted-foreground font-body text-sm">Set your wedding date to start the countdown</p>
+            <p className="text-muted-foreground text-sm" style={{ fontFamily: bFont }}>Set your wedding date to start the countdown</p>
           )}
         </div>
       </div>
@@ -1470,15 +1544,27 @@ function SectionRenderer({
   if (type === "guestbook") {
     return (
       <div className="bg-card rounded-xl px-8 py-10 text-center">
-        <h2 className="font-display text-2xl font-bold text-foreground mb-2">{data.heading}</h2>
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground mb-2"
+          style={{ fontFamily: dFont }}
+        />
         <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
-        <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">{data.description}</p>
+        <InlineEditable
+          tag="p"
+          value={data.description || ""}
+          onChange={(v) => update({ description: v })}
+          className="text-muted-foreground mb-6 max-w-md mx-auto"
+          style={{ fontFamily: bFont }}
+        />
         <div className="max-w-sm mx-auto space-y-3">
-          <Input placeholder="Your Name" className="font-body" disabled />
-          <Textarea placeholder="Your wishes for the couple..." className="font-body" disabled rows={3} />
-          <Button variant="gold" className="w-full font-body" disabled>Send Wishes</Button>
+          <Input placeholder="Your Name" disabled style={{ fontFamily: bFont }} />
+          <Textarea placeholder="Your wishes for the couple..." disabled rows={3} style={{ fontFamily: bFont }} />
+          <Button variant="gold" className="w-full" disabled style={{ fontFamily: bFont }}>Send Wishes</Button>
         </div>
-        <p className="text-xs text-muted-foreground font-body mt-3">Guestbook preview — functional when published</p>
+        <p className="text-xs text-muted-foreground mt-3" style={{ fontFamily: bFont }}>Guestbook preview — functional when published</p>
       </div>
     );
   }
@@ -1486,15 +1572,27 @@ function SectionRenderer({
   if (type === "travel") {
     return (
       <div className="bg-background rounded-xl px-8 py-10 border border-border/30">
-        <h2 className="font-display text-2xl font-bold text-foreground text-center mb-2">{data.heading}</h2>
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
         <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
-        <p className="text-muted-foreground font-body text-center max-w-xl mx-auto mb-6">{data.description}</p>
+        <InlineEditable
+          tag="p"
+          value={data.description || ""}
+          onChange={(v) => update({ description: v })}
+          className="text-muted-foreground text-center max-w-xl mx-auto mb-6"
+          style={{ fontFamily: bFont }}
+        />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-6">
           {(data.hotels || []).map((hotel: any, i: number) => (
             <div key={i} className="border border-border/50 rounded-lg p-4 bg-card">
-              <p className="font-display text-sm font-semibold text-foreground">{hotel.name}</p>
-              <p className="text-xs text-muted-foreground font-body mt-1">{hotel.description}</p>
-              <p className="text-xs font-body mt-1 flex items-center gap-1" style={{ color: accent }}>
+              <p className="text-sm font-semibold text-foreground" style={{ fontFamily: dFont }}>{hotel.name}</p>
+              <p className="text-xs text-muted-foreground mt-1" style={{ fontFamily: bFont }}>{hotel.description}</p>
+              <p className="text-xs mt-1 flex items-center gap-1" style={{ color: accent, fontFamily: bFont }}>
                 <MapPin className="w-3 h-3" /> {hotel.distance}
               </p>
             </div>
@@ -1502,7 +1600,7 @@ function SectionRenderer({
         </div>
         {data.directions && (
           <div className="bg-card rounded-lg p-4 max-w-xl mx-auto">
-            <p className="font-body text-sm text-muted-foreground whitespace-pre-wrap">{data.directions}</p>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap" style={{ fontFamily: bFont }}>{data.directions}</p>
           </div>
         )}
       </div>
@@ -1512,17 +1610,29 @@ function SectionRenderer({
   if (type === "rsvp") {
     return (
       <div className="rounded-xl px-8 py-10 text-center" style={{ background: `linear-gradient(135deg, ${bg}15, ${accent}10)` }}>
-        <h2 className="font-display text-2xl font-bold text-foreground mb-2">{data.heading}</h2>
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground mb-2"
+          style={{ fontFamily: dFont }}
+        />
         <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
-        <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">{data.body}</p>
+        <InlineEditable
+          tag="p"
+          value={data.body || ""}
+          onChange={(v) => update({ body: v })}
+          className="text-muted-foreground mb-6 max-w-md mx-auto"
+          style={{ fontFamily: bFont }}
+        />
         <div className="max-w-sm mx-auto space-y-3">
-          <Input placeholder="Your Name" className="font-body" disabled />
-          <Input placeholder="Email Address" className="font-body" disabled />
-          <Button variant="gold" className="w-full font-body" disabled>
+          <Input placeholder="Your Name" disabled style={{ fontFamily: bFont }} />
+          <Input placeholder="Email Address" disabled style={{ fontFamily: bFont }} />
+          <Button variant="gold" className="w-full" disabled style={{ fontFamily: bFont }}>
             RSVP Now
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground font-body mt-3">RSVP form preview — functional when published</p>
+        <p className="text-xs text-muted-foreground mt-3" style={{ fontFamily: bFont }}>RSVP form preview — functional when published</p>
       </div>
     );
   }
@@ -1536,17 +1646,21 @@ function SitePreview({
   bg,
   accent,
   light,
+  displayFont,
+  bodyFont,
 }: {
   sections: WeddingSection[];
   bg: string;
   accent: string;
   light: string;
+  displayFont: string;
+  bodyFont: string;
 }) {
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
       {sections.map((section) => (
         <div key={section.id} className="mb-0">
-          <SectionRenderer section={section} bg={bg} accent={accent} light={light} />
+          <SectionRenderer section={section} bg={bg} accent={accent} light={light} displayFont={displayFont} bodyFont={bodyFont} />
         </div>
       ))}
     </div>
