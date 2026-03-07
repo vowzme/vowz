@@ -411,7 +411,7 @@ const Dashboard = () => {
 
               {/* Custom Domain — Premium Feature */}
               <div className="lg:col-span-2 mt-4 sm:mt-6">
-                <CustomDomainPanel siteSlug={site.slug} siteName={`${site.partner1} & ${site.partner2}`} />
+                <CustomDomainPanel siteId={site.id} siteSlug={site.slug} siteName={`${site.partner1} & ${site.partner2}`} savedDomain={site.custom_domain} savedStatus={site.domain_status} onUpdate={(domain: string, status: string) => setSite({ ...site, custom_domain: domain, domain_status: status })} />
               </div>
             </TabsContent>
           </Tabs>
