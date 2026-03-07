@@ -95,6 +95,7 @@ function buildSections(data: WeddingSiteData): WeddingSection[] {
           date: "",
           time: "",
           venue: "",
+          location: "",
         })),
       },
     },
