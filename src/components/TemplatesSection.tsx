@@ -37,7 +37,7 @@ const templates: TemplateData[] = [
     venue: "The Grand Palace",
     location: "Jaipur, Rajasthan",
     story: "We met at a friend's Diwali celebration in 2022. Arjun was trying to light a stubborn sparkler, and Meera offered her lighter with a laugh. That spark — both literal and figurative — never went out. Three years, countless chai dates, and one sunset proposal later, we're ready to begin our forever.",
-    couplePhoto: "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=800&h=600&fit=crop",
+    couplePhoto: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=600&fit=crop",
     heroPhoto: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&h=800&fit=crop",
     events: [
       { name: "Mehendi Ceremony", date: "Dec 13, 2026", time: "4:00 PM", venue: "Meera's Family Home" },
@@ -339,7 +339,7 @@ const templates: TemplateData[] = [
     location: "Ooty, Tamil Nadu",
     story: "Daniel, a botanist from London, came to Ooty for a rare orchid. He found Priya instead — the garden curator who knew every flower by name. Their love blossomed like the roses around them, nurtured by letters across continents and weekend flights. Now they're planting roots together, forever.",
     couplePhoto: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&h=600&fit=crop",
-    heroPhoto: "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=1200&h=800&fit=crop",
+    heroPhoto: "https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=1200&h=800&fit=crop",
     events: [
       { name: "Rose Garden Welcome Tea", date: "Sep 5, 2027", time: "4:00 PM", venue: "The Botanical Estate" },
       { name: "Fusion Ceremony", date: "Sep 6, 2027", time: "11:00 AM", venue: "Rose Terrace Gazebo" },
