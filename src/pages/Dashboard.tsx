@@ -1009,48 +1009,7 @@ function generateDomainSuggestions(partner1: string, partner2: string, tlds: str
 
 type DomainResult = { domain: string; available: boolean | null; checking?: boolean };
 
-function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; siteName: string }) {
-  const [showInstructions, setShowInstructions] = useState(false);
-  const [customDomain, setCustomDomain] = useState("");
-  const [domainResults, setDomainResults] = useState<DomainResult[]>([]);
-  const [checking, setChecking] = useState(false);
-  const [hasChecked, setHasChecked] = useState(false);
-  const [selectedTlds, setSelectedTlds] = useState<string[]>([".com", ".in", ".wedding"]);
-  const [customCheckResult, setCustomCheckResult] = useState<DomainResult | null>(null);
-  const [checkingCustom, setCheckingCustom] = useState(false);
-
-  const parts = siteName.split(/\s*&\s*/);
-  const partner1 = parts[0]?.trim() || "";
-  const partner2 = parts[1]?.trim() || "";
-
-  const toggleTld = (tld: string) => {
-    setSelectedTlds((prev) =>
-      prev.includes(tld) ? prev.filter((t) => t !== tld) : [...prev, tld]
-    );
-  };
-
-  const checkAvailability = async () => {
-    const suggestions = generateDomainSuggestions(partner1, partner2, selectedTlds);
-    if (suggestions.length === 0) return;
-    setChecking(true);
-    setHasChecked(true);
-    // Show domains immediately with loading state
-    setDomainResults(suggestions.map((d) => ({ domain: d, available: null, checking: true })));
-    try {
-      const { data, error } = await supabase.functions.invoke("check-domain", {
-        body: { domains: suggestions },
-      });
-      if (error) throw error;
-      if (data?.results) {
-        setDomainResults(data.results.map((r: DomainResult) => ({ ...r, checking: false })));
-      }
-    } catch (err) {
-      console.error("Domain check failed:", err);
-      setDomainResults(suggestions.map((d) => ({ domain: d, available: null, checking: false })));
-    } finally {
-      setChecking(false);
-    }
-  };
+// Old CustomDomainPanel removed — replaced by new version below
 
   useEffect(() => {
     if (!customDomain.includes(".") || customDomain.length < 4) {
