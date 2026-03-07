@@ -24,7 +24,8 @@ const Auth = () => {
         const { error } = await signIn(form.email, form.password);
         if (error) throw error;
         toast({ title: "Welcome back! 💍" });
-        navigate("/dashboard");
+        const pending = sessionStorage.getItem("pendingTemplate");
+        navigate(pending ? "/wizard" : "/dashboard");
       } else {
         if (form.password.length < 6) {
           toast({ title: "Password must be at least 6 characters", variant: "destructive" });
