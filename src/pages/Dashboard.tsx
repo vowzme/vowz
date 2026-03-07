@@ -178,8 +178,11 @@ const Dashboard = () => {
         ) : (
           /* Has site */
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="bg-card border border-border/50">
+             <TabsList className="bg-card border border-border/50">
               <TabsTrigger value="overview" className="font-body">Overview</TabsTrigger>
+              <TabsTrigger value="analytics" className="font-body">
+                Analytics <BarChart3 className="w-3.5 h-3.5 ml-1" />
+              </TabsTrigger>
               <TabsTrigger value="rsvps" className="font-body">
                 RSVPs {rsvps.length > 0 && <span className="ml-1.5 bg-gold/20 text-gold text-xs px-1.5 py-0.5 rounded-full">{rsvps.length}</span>}
               </TabsTrigger>
