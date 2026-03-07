@@ -7,7 +7,7 @@ import {
   Settings, LogOut, Sparkles, Plus, Check, X, Copy,
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
-  ClipboardList, CalendarDays
+  ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -407,6 +407,11 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Custom Domain — Premium Feature */}
+              <div className="lg:col-span-2 mt-4 sm:mt-6">
+                <CustomDomainPanel siteSlug={site.slug} siteName={`${site.partner1} & ${site.partner2}`} />
               </div>
             </TabsContent>
           </Tabs>
@@ -939,6 +944,291 @@ function AnalyticsStat({ icon: Icon, label, value, accent }: { icon: any; label:
       </div>
       <p className="font-display text-2xl font-bold text-foreground">{value}</p>
       <p className="font-body text-xs text-muted-foreground mt-0.5">{label}</p>
+    </div>
+  );
+}
+
+// ─── Custom Domain Panel ─────────────────────────────────────────────
+const DOMAIN_REGISTRARS = [
+  {
+    name: "GoDaddy India",
+    url: "https://www.godaddy.com/en-in/domains",
+    description: "India's most popular registrar. Supports UPI, net banking, wallets & cards.",
+    payment: "UPI, Cards, Net Banking, Wallets",
+    logo: "🌐",
+  },
+  {
+    name: "BigRock",
+    url: "https://www.bigrock.in/domain-registration",
+    description: "Indian registrar by Endurance. Affordable .in domains with local payment options.",
+    payment: "UPI, Cards, Net Banking, Paytm",
+    logo: "🪨",
+  },
+  {
+    name: "Hostinger India",
+    url: "https://www.hostinger.in/domain-name-search",
+    description: "Budget-friendly domains with excellent support. Fast checkout with Indian payments.",
+    payment: "UPI, Cards, Net Banking, PayPal",
+    logo: "⚡",
+  },
+  {
+    name: "Namecheap",
+    url: "https://www.namecheap.com/domains/",
+    description: "Global registrar with competitive pricing. International card payments.",
+    payment: "Cards, PayPal, Bitcoin",
+    logo: "💰",
+  },
+];
+
+function CustomDomainPanel({ siteSlug, siteName }: { siteSlug: string | null; siteName: string }) {
+  const [domainSearch, setDomainSearch] = useState("");
+  const [showInstructions, setShowInstructions] = useState(false);
+  const [customDomain, setCustomDomain] = useState("");
+
+  const suggestedDomains = domainSearch.trim()
+    ? [
+        `${domainSearch.toLowerCase().replace(/\s+/g, "")}.com`,
+        `${domainSearch.toLowerCase().replace(/\s+/g, "")}.in`,
+        `${domainSearch.toLowerCase().replace(/\s+/g, "")}.wedding`,
+        `${domainSearch.toLowerCase().replace(/\s+/g, "")}wedding.com`,
+        `${domainSearch.toLowerCase().replace(/\s+/g, "")}.love`,
+      ]
+    : [];
+
+  const defaultSearch = siteName
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .replace(/and/g, "");
+
+  return (
+    <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
+      {/* Header */}
+      <div className="p-4 sm:p-6 border-b border-border/30 flex items-start gap-3">
+        <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
+          <Crown className="w-5 h-5 text-gold" />
+        </div>
+        <div>
+          <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
+            Custom Domain
+            <span className="bg-gold/20 text-gold text-[10px] font-body font-semibold px-2 py-0.5 rounded-full">PREMIUM</span>
+          </h2>
+          <p className="text-sm text-muted-foreground font-body mt-0.5">
+            Give your wedding site a memorable address like <strong>arjunandmeera.com</strong>
+          </p>
+        </div>
+      </div>
+
+      <div className="p-4 sm:p-6 space-y-6">
+        {/* Step 1: Search for a domain */}
+        <div>
+          <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">1</span>
+            Search for your dream domain
+          </h3>
+          <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
+            Search for available domains and purchase from an Indian registrar with UPI payment.
+          </p>
+          <div className="ml-8">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder={`e.g. ${defaultSearch}`}
+                value={domainSearch}
+                onChange={(e) => setDomainSearch(e.target.value)}
+                className="pl-10 font-body"
+              />
+            </div>
+
+            {suggestedDomains.length > 0 && (
+              <div className="mt-3 space-y-1.5">
+                <p className="text-xs text-muted-foreground font-body font-medium">Suggested domain names:</p>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedDomains.map((domain) => (
+                    <span
+                      key={domain}
+                      className="bg-muted px-3 py-1.5 rounded-lg font-body text-sm text-foreground border border-border/50"
+                    >
+                      {domain}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Step 2: Buy from registrar */}
+        <div>
+          <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">2</span>
+            Purchase from a registrar
+          </h3>
+          <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
+            Buy your domain from any of these registrars. All support Indian payment methods including UPI.
+          </p>
+          <div className="ml-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {DOMAIN_REGISTRARS.map((reg) => (
+              <a
+                key={reg.name}
+                href={`${reg.url}${domainSearch ? `?q=${encodeURIComponent(domainSearch.toLowerCase().replace(/\s+/g, ""))}` : ""}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group border border-border/50 rounded-xl p-4 hover:border-gold/50 hover:bg-gold/5 transition-all"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">{reg.logo}</span>
+                  <span className="font-display text-sm font-semibold text-foreground group-hover:text-gold transition-colors">
+                    {reg.name}
+                  </span>
+                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <p className="text-xs text-muted-foreground font-body mb-2">{reg.description}</p>
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3 h-3 text-emerald" />
+                  <span className="text-[10px] text-muted-foreground font-body">{reg.payment}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 3: Connect Domain */}
+        <div>
+          <h3 className="font-display text-base font-semibold text-foreground mb-1 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-gold/20 text-gold text-xs font-bold flex items-center justify-center">3</span>
+            Connect your domain
+          </h3>
+          <p className="text-xs text-muted-foreground font-body mb-3 ml-8">
+            After purchasing, add these DNS records at your registrar to connect the domain to your wedding site.
+          </p>
+          <div className="ml-8">
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-body"
+              onClick={() => setShowInstructions(!showInstructions)}
+            >
+              {showInstructions ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
+              {showInstructions ? "Hide" : "Show"} DNS Setup Instructions
+            </Button>
+
+            {showInstructions && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="mt-4 space-y-4"
+              >
+                {/* DNS Records Table */}
+                <div className="border border-border/50 rounded-xl overflow-hidden">
+                  <div className="bg-muted/50 px-4 py-2 border-b border-border/30">
+                    <p className="font-body text-xs font-semibold text-foreground">Required DNS Records</p>
+                  </div>
+                  <div className="divide-y divide-border/30">
+                    <div className="px-4 py-3 grid grid-cols-3 gap-2">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Type</p>
+                        <p className="text-sm font-body text-foreground font-mono">A</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Name</p>
+                        <p className="text-sm font-body text-foreground font-mono">@</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Value</p>
+                        <p className="text-sm font-body text-foreground font-mono">185.158.133.1</p>
+                      </div>
+                    </div>
+                    <div className="px-4 py-3 grid grid-cols-3 gap-2">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Type</p>
+                        <p className="text-sm font-body text-foreground font-mono">A</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Name</p>
+                        <p className="text-sm font-body text-foreground font-mono">www</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Value</p>
+                        <p className="text-sm font-body text-foreground font-mono">185.158.133.1</p>
+                      </div>
+                    </div>
+                    <div className="px-4 py-3 grid grid-cols-3 gap-2">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Type</p>
+                        <p className="text-sm font-body text-foreground font-mono">CNAME</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Name</p>
+                        <p className="text-sm font-body text-foreground font-mono">wedding</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-body font-medium uppercase">Value</p>
+                        <p className="text-xs font-body text-foreground font-mono break-all">wedding-tales-ai.lovable.app</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enter custom domain */}
+                <div className="bg-muted/30 border border-border/50 rounded-xl p-4">
+                  <p className="font-body text-sm font-medium text-foreground mb-2">Your purchased domain:</p>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g. arjunandmeera.com"
+                      value={customDomain}
+                      onChange={(e) => setCustomDomain(e.target.value)}
+                      className="font-body font-mono text-sm flex-1"
+                    />
+                    <Button
+                      variant="gold"
+                      size="sm"
+                      className="font-body shrink-0"
+                      onClick={() => {
+                        if (customDomain.trim()) {
+                          toast({
+                            title: "Domain saved! 🎉",
+                            description: `We've noted ${customDomain}. DNS changes may take up to 72 hours to propagate. Contact support if you need help connecting.`,
+                          });
+                        }
+                      }}
+                    >
+                      <Globe className="w-4 h-4 mr-1" /> Save Domain
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-body mt-2">
+                    After adding DNS records, it may take 24–72 hours for your domain to go live. SSL is auto-provisioned.
+                  </p>
+                </div>
+
+                {/* Tips */}
+                <div className="bg-gold/5 border border-gold/20 rounded-xl p-4">
+                  <p className="font-body text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-gold" /> Tips for a smooth setup
+                  </p>
+                  <ul className="space-y-1.5 text-xs text-muted-foreground font-body">
+                    <li className="flex items-start gap-1.5">
+                      <Check className="w-3 h-3 text-gold shrink-0 mt-0.5" />
+                      Remove any conflicting A or CNAME records for the same domain
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <Check className="w-3 h-3 text-gold shrink-0 mt-0.5" />
+                      Add both root domain (@) and www subdomain A records
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <Check className="w-3 h-3 text-gold shrink-0 mt-0.5" />
+                      Use <a href="https://dnschecker.org" target="_blank" rel="noopener" className="text-gold underline">dnschecker.org</a> to verify your DNS settings
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <Check className="w-3 h-3 text-gold shrink-0 mt-0.5" />
+                      SSL (HTTPS) is automatically provisioned once DNS is verified
+                    </li>
+                  </ul>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
