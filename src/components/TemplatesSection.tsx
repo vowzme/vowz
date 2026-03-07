@@ -220,9 +220,12 @@ const templates: TemplateData[] = [
     },
     galleryPhotos: [
       { label: "Bosphorus View", url: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=600&h=450&fit=crop" },
-      { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=600&h=450&fit=crop" },
+      { label: "Couple Portrait", url: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=600&h=800&fit=crop" },
       { label: "Calligraphy", url: "https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=600&h=450&fit=crop" },
       { label: "Venue", url: "https://images.unsplash.com/photo-1530023367847-a683933f4172?w=600&h=450&fit=crop" },
+      { label: "Turkish Tea", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=450&fit=crop" },
+      { label: "Sunset Walk", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=800&fit=crop" },
+      { label: "Floral Arch", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
     ],
   },
   {
