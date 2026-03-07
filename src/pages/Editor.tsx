@@ -6,8 +6,10 @@ import { motion, AnimatePresence, Reorder } from "framer-motion";
 import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
-  Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2
+  Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
+  MessageCircle, Send, Bot, Wand2
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
