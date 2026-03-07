@@ -95,6 +95,7 @@ function buildSections(data: WeddingSiteData): WeddingSection[] {
           date: "",
           time: "",
           venue: "",
+          location: "",
         })),
       },
     },
@@ -982,7 +983,7 @@ function EventEditor({
   onChange,
   onDelete,
 }: {
-  event: { name: string; date: string; time: string; venue: string };
+  event: { name: string; date: string; time: string; venue: string; location?: string };
   index: number;
   onChange: (e: typeof event) => void;
   onDelete: () => void;
@@ -1020,9 +1021,15 @@ function EventEditor({
             className="font-body text-sm h-8"
           />
           <Input
-            placeholder="Venue"
+            placeholder="Venue name"
             value={event.venue}
             onChange={(e) => onChange({ ...event, venue: e.target.value })}
+            className="font-body text-sm h-8"
+          />
+          <Input
+            placeholder="Address / Location (e.g., 123 Main St, City)"
+            value={event.location || ""}
+            onChange={(e) => onChange({ ...event, location: e.target.value })}
             className="font-body text-sm h-8"
           />
         </div>
@@ -1247,6 +1254,9 @@ function SectionRenderer({
                 <p className="text-xs text-muted-foreground font-body flex items-center justify-center gap-1 mt-0.5">
                   <MapPin className="w-3 h-3" /> {event.venue}
                 </p>
+              )}
+              {event.location && (
+                <p className="text-xs text-muted-foreground/70 font-body mt-0.5 truncate">{event.location}</p>
               )}
               {!event.date && !event.time && <p className="text-xs text-muted-foreground font-body mt-0.5">Date & time TBD</p>}
             </div>
