@@ -180,10 +180,13 @@ const templates: TemplateData[] = [
       directions: "Fly into Burlington International Airport (BTV). Rental cars recommended — the scenic drive is part of the experience!",
     },
     galleryPhotos: [
-      { label: "Meadow", url: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=600&h=450&fit=crop" },
+      { label: "Meadow", url: "https://images.unsplash.com/photo-1510076857177-7470076d4098?w=600&h=800&fit=crop" },
       { label: "Couple in Garden", url: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600&h=450&fit=crop" },
       { label: "Barn Setup", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&h=450&fit=crop" },
       { label: "Sunset", url: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&h=450&fit=crop" },
+      { label: "Wildflowers", url: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=450&fit=crop" },
+      { label: "Farm Table", url: "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=600&h=800&fit=crop" },
+      { label: "Rustic Arch", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&h=450&fit=crop" },
     ],
   },
   {
