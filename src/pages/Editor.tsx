@@ -756,7 +756,7 @@ function TemplateSwitcherPanel({
           return (
             <div key={t.name}>
               <button
-                onClick={() => setPreviewIdx(previewIdx === i ? null : i)}
+                onClick={() => setPreviewIdx(previewIdx === globalIdx ? null : globalIdx)}
                 className={`w-full p-3 rounded-lg border text-left transition-all ${
                   active ? "border-gold bg-gold/10" : "border-border/50 hover:border-border"
                 }`}
