@@ -25,7 +25,7 @@ export interface TemplateData {
   galleryPhotos: { label: string; url: string }[];
 }
 
-const templates: TemplateData[] = [
+export const templates: TemplateData[] = [
   {
     name: "Royal Maroon",
     colors: ["#6B1D2A", "#D4A853", "#FFF5E6"],
