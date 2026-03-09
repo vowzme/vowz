@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
+import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 
 const Auth = () => {
   const navigate = useNavigate();
