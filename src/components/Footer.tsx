@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border/50 py-12 px-4 bg-card">
+    <footer className="border-t border-border/50 py-8 sm:py-12 px-4 bg-card">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="md:col-span-1">
