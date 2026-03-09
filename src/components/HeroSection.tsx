@@ -45,7 +45,7 @@ const HeroSection = () => {
         >
           <div className="flex items-center justify-center gap-2 mb-6">
             <div className="h-px w-12 bg-gold/60" />
-            <img src={bhalfLogo} alt="Bhalf" className="h-10 object-contain" />
+            <img src={bhalfLogo} alt="Bhalf" className="h-12 object-contain brightness-0 invert opacity-80" />
             <div className="h-px w-12 bg-gold/60" />
           </div>
 

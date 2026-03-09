@@ -8,8 +8,8 @@ const Footer = () => {
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           <div className="col-span-2 sm:col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-3">
-              <img src={bhalfLogo} alt="Bhalf" className="h-7 object-contain" />
+            <div className="mb-3">
+              <img src={bhalfLogo} alt="Bhalf" className="h-8 object-contain" />
             </div>
             <p className="text-muted-foreground font-body text-sm">
               Your Better Half, Online. Beautiful Indian wedding websites, made simple.
