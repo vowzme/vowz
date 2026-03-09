@@ -54,7 +54,7 @@ const HeroSection = () => {
             <span className="text-gradient-gold italic">Beautifully Told</span>
           </h1>
 
-          <p className="font-body text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="font-body text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
             Create stunning, personalized Indian wedding websites in minutes.
             From Mehendi to Reception — celebrate every ritual with elegance.
           </p>
