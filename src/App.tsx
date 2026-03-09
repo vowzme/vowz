@@ -39,6 +39,7 @@ const AppRoutes = () => (
     <Route path="/site/:slug" element={<PublicSite />} />
     <Route path="/templates" element={<Templates />} />
     <Route path="/domain-demo" element={<DomainWizardDemo />} />
+    <Route path="/affiliate" element={<Affiliate />} />
     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
     <Route path="*" element={<NotFound />} />
   </Routes>
