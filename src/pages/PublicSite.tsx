@@ -99,7 +99,7 @@ const PublicSite = () => {
     setMeta("description", description);
 
     return () => {
-      document.title = "ShaadiSite — Beautiful Indian Wedding Websites";
+      document.title = "Bhalf — Your Better Half, Online";
     };
   }, [site]);
 
