@@ -297,6 +297,41 @@ export type Database = {
           },
         ]
       }
+      wedding_budget: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          total_budget: number
+          updated_at: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          total_budget?: number
+          updated_at?: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          total_budget?: number
+          updated_at?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_budget_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: true
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wedding_checklist: {
         Row: {
           category: string
@@ -341,6 +376,100 @@ export type Database = {
           },
         ]
       }
+      wedding_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          paid: boolean
+          title: string
+          updated_at: string
+          vendor_name: string | null
+          wedding_site_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paid?: boolean
+          title: string
+          updated_at?: string
+          vendor_name?: string | null
+          wedding_site_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paid?: boolean
+          title?: string
+          updated_at?: string
+          vendor_name?: string | null
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_expenses_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wedding_family_members: {
+        Row: {
+          access_token: string | null
+          can_edit: boolean
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          role: string
+          wedding_site_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          can_edit?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          role?: string
+          wedding_site_id: string
+        }
+        Update: {
+          access_token?: string | null
+          can_edit?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          role?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_family_members_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wedding_polls: {
         Row: {
           created_at: string
@@ -366,6 +495,70 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "wedding_polls_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wedding_reminders: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_sent: boolean
+          notify_family: boolean
+          related_checklist_id: string | null
+          related_expense_id: string | null
+          remind_at: string
+          reminder_type: string
+          title: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_sent?: boolean
+          notify_family?: boolean
+          related_checklist_id?: string | null
+          related_expense_id?: string | null
+          remind_at: string
+          reminder_type?: string
+          title: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_sent?: boolean
+          notify_family?: boolean
+          related_checklist_id?: string | null
+          related_expense_id?: string | null
+          remind_at?: string
+          reminder_type?: string
+          title?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_reminders_related_checklist_id_fkey"
+            columns: ["related_checklist_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_checklist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wedding_reminders_related_expense_id_fkey"
+            columns: ["related_expense_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wedding_reminders_wedding_site_id_fkey"
             columns: ["wedding_site_id"]
             isOneToOne: false
             referencedRelation: "wedding_sites"
