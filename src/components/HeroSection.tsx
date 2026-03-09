@@ -68,7 +68,7 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          <p className="mt-6 text-sm text-primary-foreground/50 font-body">
+          <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-primary-foreground/50 font-body">
             Free forever • No credit card required • 5 min setup with AI
           </p>
         </motion.div>

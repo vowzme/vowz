@@ -40,7 +40,7 @@ const itemVariants = {
 
 const FeaturesSection = () => {
   return (
-    <section className="py-24 px-4 bg-gradient-warm" id="features">
+    <section className="py-16 sm:py-24 px-4 bg-gradient-warm" id="features">
       <div className="max-w-6xl mx-auto">
         <motion.div
           className="text-center mb-16"

@@ -47,7 +47,7 @@ const plans = [
 
 const PricingSection = () => {
   return (
-    <section className="py-24 px-4 bg-gradient-warm" id="pricing">
+    <section className="py-16 sm:py-24 px-4 bg-gradient-warm" id="pricing">
       <div className="max-w-4xl mx-auto">
         <motion.div
           className="text-center mb-16"
