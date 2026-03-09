@@ -1148,7 +1148,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
             </motion.div>
 
             <motion.div
-              className="flex items-center justify-center gap-6 text-sm"
+              className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm"
               style={{ color: `${text}cc` }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
