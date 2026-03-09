@@ -1157,7 +1157,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               <span className="flex items-center gap-1.5 font-body">
                 <Calendar className="w-4 h-4" /> {t.weddingDate}
               </span>
-              <span className="w-1 h-1 rounded-full" style={{ backgroundColor: accent }} />
+              <span className="w-1 h-1 rounded-full hidden sm:block" style={{ backgroundColor: accent }} />
               <span className="flex items-center gap-1.5 font-body">
                 <MapPin className="w-4 h-4" /> {t.location}
               </span>
