@@ -24,13 +24,23 @@ const Navbar = () => {
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
           {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {l.label}
-            </a>
+            l.isRoute ? (
+              <Link
+                key={l.label}
+                to={l.href}
+                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.label}
+                href={l.href}
+                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {l.label}
+              </a>
+            )
           ))}
           <Button variant="gold" size="sm" asChild><Link to="/auth">Get Started</Link></Button>
         </div>
