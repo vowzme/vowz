@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MapPin, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+
 import { templates, TemplateData } from "@/components/TemplatesSection";
 
 // Lazy-import the preview modal via dynamic rendering
