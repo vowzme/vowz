@@ -14,6 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_referrals: {
+        Row: {
+          affiliate_id: string
+          commission_amount: number
+          commission_paid: boolean
+          converted_at: string | null
+          created_at: string
+          id: string
+          plan: string
+          referred_email: string | null
+          referred_user_id: string | null
+          status: string
+        }
+        Insert: {
+          affiliate_id: string
+          commission_amount?: number
+          commission_paid?: boolean
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          plan?: string
+          referred_email?: string | null
+          referred_user_id?: string | null
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string
+          commission_amount?: number
+          commission_paid?: boolean
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          plan?: string
+          referred_email?: string | null
+          referred_user_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliates: {
+        Row: {
+          created_at: string
+          custom_coupon: string | null
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          paid_earnings: number
+          pending_earnings: number
+          phone: string | null
+          referral_code: string
+          successful_referrals: number
+          total_earnings: number
+          total_referrals: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_coupon?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          paid_earnings?: number
+          pending_earnings?: number
+          phone?: string | null
+          referral_code: string
+          successful_referrals?: number
+          total_earnings?: number
+          total_referrals?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_coupon?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          paid_earnings?: number
+          pending_earnings?: number
+          phone?: string | null
+          referral_code?: string
+          successful_referrals?: number
+          total_earnings?: number
+          total_referrals?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       guestbook: {
         Row: {
           created_at: string
