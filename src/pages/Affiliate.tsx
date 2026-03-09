@@ -152,7 +152,7 @@ const Affiliate = () => {
     if (error) {
       toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Welcome aboard! 🎉", description: "You're now a ShaadiSite affiliate partner." });
+      toast({ title: "Welcome aboard! 🎉", description: "You're now a Bhalf affiliate partner." });
       await loadAffiliateData(user.id);
     }
     setAuthLoading(false);
