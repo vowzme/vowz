@@ -18,9 +18,8 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2">
-          <img src={bhalfLogo} alt="Bhalf" className="w-8 h-8 object-contain" />
-          <span className="font-display text-xl font-bold text-foreground">Bhalf</span>
+        <a href="/" className="flex items-center gap-1">
+          <img src={bhalfLogo} alt="Bhalf" className="h-8 sm:h-9 object-contain" />
         </a>
 
         {/* Desktop */}
