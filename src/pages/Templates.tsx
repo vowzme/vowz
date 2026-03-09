@@ -176,7 +176,7 @@ const Templates = () => {
         </div>
       </section>
 
-      <Footer />
+      
     </div>
   );
 };
