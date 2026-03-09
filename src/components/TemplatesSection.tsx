@@ -1124,7 +1124,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.6 }}
             >
-              {t.partner1} <span className="font-normal italic text-3xl md:text-4xl mx-2" style={{ color: accent }}>&</span> {t.partner2}
+              {t.partner1} <span className="font-normal italic text-2xl sm:text-3xl md:text-4xl mx-1 sm:mx-2" style={{ color: accent }}>&</span> {t.partner2}
             </motion.h1>
             <motion.p
               className="font-display text-xl italic mb-6"
