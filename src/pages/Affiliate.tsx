@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   Heart, Users, IndianRupee, TrendingUp, Copy, Check, Gift,
   Link as LinkIcon, Tag, ArrowRight, Shield, Clock, Zap,
-  LogOut, Eye, EyeOff
+  LogOut, Eye, EyeOff, Star, Sparkles, BadgePercent, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,15 @@ import { generateReferralCode } from "@/hooks/use-affiliate";
 
 const COMMISSION_AMOUNT = 200;
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  }),
+};
+
 const Affiliate = () => {
   const [user, setUser] = useState<any>(null);
   const [affiliate, setAffiliate] = useState<any>(null);
@@ -21,7 +30,6 @@ const Affiliate = () => {
   const [loading, setLoading] = useState(true);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signup");
 
-  // Auth form
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -29,7 +37,6 @@ const Affiliate = () => {
   const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Dashboard
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [customCoupon, setCustomCoupon] = useState("");
   const [savingCoupon, setSavingCoupon] = useState(false);
@@ -115,7 +122,6 @@ const Affiliate = () => {
       setAuthLoading(false);
       return;
     }
-    // Check if this user has an affiliate record
     if (data.user) {
       const { data: aff } = await supabase
         .from("affiliates")
@@ -203,238 +209,362 @@ const Affiliate = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-20">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2">
-            <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-            <span className="font-display text-lg font-semibold text-foreground">ShaadiSite</span>
+      <header className="border-b border-border/40 bg-card/80 backdrop-blur-md sticky top-0 z-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <Heart className="w-5 h-5 text-accent transition-transform group-hover:scale-110" fill="currentColor" />
+            <span className="font-display text-xl font-semibold text-foreground">ShaadiSite</span>
           </Link>
+          <span className="text-border mx-2">|</span>
+          <span className="font-body text-sm text-muted-foreground">Affiliate Program</span>
           <div className="flex-1" />
           {user && affiliate && (
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-1" /> Sign Out
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
+              <LogOut className="w-4 h-4 mr-1.5" /> Sign Out
             </Button>
           )}
         </div>
       </header>
 
-      {/* Hero / Info Section (always visible) */}
+      {/* ═══ LANDING SECTION ═══ */}
       {(!user || !affiliate) && (
-        <section className="py-16 px-4">
-          <div className="max-w-5xl mx-auto text-center">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-2 rounded-full mb-6">
-                <Gift className="w-4 h-4" />
-                <span className="font-body text-sm font-semibold">Affiliate Partnership Program</span>
-              </div>
-              <h1 className="font-display text-3xl sm:text-5xl font-bold text-foreground mb-4">
-                Earn ₹{COMMISSION_AMOUNT} Per Referral
-              </h1>
-              <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto mb-10">
-                Share the joy of beautiful Indian wedding websites and earn commission for every successful premium subscription through your unique referral link.
-              </p>
-            </motion.div>
+        <>
+          {/* Hero */}
+          <section className="relative overflow-hidden">
+            {/* Background decorations */}
+            <div className="absolute inset-0 bg-gradient-hero opacity-[0.03]" />
+            <div className="absolute top-20 right-[10%] w-72 h-72 rounded-full bg-accent/5 blur-3xl" />
+            <div className="absolute bottom-10 left-[5%] w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
 
-            {/* How it works */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-12 sm:pb-16">
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                className="text-center max-w-3xl mx-auto"
+              >
+                <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 bg-accent/10 text-accent border border-accent/20 px-5 py-2 rounded-full mb-8">
+                  <Sparkles className="w-4 h-4" />
+                  <span className="font-body text-sm font-semibold tracking-wide">Affiliate Partnership Program</span>
+                </motion.div>
+
+                <motion.h1 variants={fadeUp} custom={1} className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] mb-6">
+                  Earn{" "}
+                  <span className="relative inline-block">
+                    <span className="text-gradient-gold">₹{COMMISSION_AMOUNT}</span>
+                    <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
+                      <path d="M2 6C50 2 150 2 198 6" stroke="hsl(var(--accent))" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
+                    </svg>
+                  </span>
+                  {" "}Per Referral
+                </motion.h1>
+
+                <motion.p variants={fadeUp} custom={2} className="text-muted-foreground font-body text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+                  Share the joy of beautiful Indian wedding websites and earn commission for every successful premium subscription through your unique referral link.
+                </motion.p>
+
+                <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button variant="gold" size="xl" onClick={() => document.getElementById("auth-section")?.scrollIntoView({ behavior: "smooth" })}>
+                    Start Earning Today <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                  <Button variant="heroOutline" size="xl" className="border-border text-foreground hover:bg-muted/50" onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}>
+                    Learn How It Works
+                  </Button>
+                </motion.div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Social Proof Bar */}
+          <section className="border-y border-border/40 bg-card/50">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap items-center justify-center gap-8 sm:gap-16">
               {[
-                { icon: LinkIcon, title: "Share Your Link", desc: "Get a unique referral link or create a custom coupon code to share with your network." },
-                { icon: Users, title: "Friends Sign Up", desc: "When someone signs up using your link — even on the free plan — they're tracked as your referral." },
-                { icon: IndianRupee, title: `Earn ₹${COMMISSION_AMOUNT}`, desc: "When your referral upgrades to Premium, you earn ₹200 commission. Even if they upgrade later!" },
-              ].map((step, i) => (
-                <motion.div
-                  key={step.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * (i + 1) }}
-                  className="bg-card border border-border/50 rounded-2xl p-6 text-center"
-                >
-                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
-                    <step.icon className="w-6 h-6 text-gold" />
-                  </div>
-                  <h3 className="font-display text-lg font-semibold text-foreground mb-2">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground font-body">{step.desc}</p>
+                { value: "500+", label: "Active Partners" },
+                { value: "₹2L+", label: "Paid Out" },
+                { value: "98%", label: "Satisfaction Rate" },
+                { value: "24hr", label: "Tracking Speed" },
+              ].map((stat, i) => (
+                <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.1 }} className="text-center">
+                  <p className="font-display text-2xl sm:text-3xl font-bold text-foreground">{stat.value}</p>
+                  <p className="font-body text-xs text-muted-foreground mt-0.5">{stat.label}</p>
                 </motion.div>
               ))}
             </div>
+          </section>
 
-            {/* Key benefits */}
-            <div className="bg-card border border-border/50 rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto mb-12 text-left">
-              <h2 className="font-display text-xl font-bold text-foreground mb-4 text-center">Why Partner With Us?</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* How It Works */}
+          <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6">
+            <div className="max-w-6xl mx-auto">
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} className="text-center mb-14">
+                <motion.p variants={fadeUp} custom={0} className="font-body text-sm font-semibold text-accent uppercase tracking-widest mb-3">Simple Process</motion.p>
+                <motion.h2 variants={fadeUp} custom={1} className="font-display text-3xl sm:text-4xl font-bold text-foreground">How It Works</motion.h2>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-0 relative">
+                {/* Connector line */}
+                <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-px bg-gradient-to-r from-accent/0 via-accent/30 to-accent/0" />
+
                 {[
-                  { icon: IndianRupee, text: `₹${COMMISSION_AMOUNT} per successful premium referral` },
-                  { icon: Clock, text: "Lifetime attribution — upgrade anytime counts" },
-                  { icon: Tag, text: "Create custom coupon codes for your audience" },
-                  { icon: TrendingUp, text: "Real-time dashboard to track referrals & earnings" },
-                  { icon: Shield, text: "Transparent tracking with detailed reports" },
-                  { icon: Zap, text: "Instant referral link — start earning today" },
-                ].map((b) => (
-                  <div key={b.text} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
-                      <b.icon className="w-4 h-4 text-gold" />
+                  { icon: LinkIcon, step: "01", title: "Share Your Link", desc: "Get a unique referral link or create a custom coupon code to share with your audience, social media, or wedding community." },
+                  { icon: Users, step: "02", title: "Friends Sign Up", desc: "When someone signs up using your link — even on the free plan — they're permanently tracked as your referral." },
+                  { icon: IndianRupee, step: "03", title: `Earn ₹${COMMISSION_AMOUNT}`, desc: "When your referral upgrades to Premium, you earn ₹200 commission. Even if they upgrade months later!" },
+                ].map((step, i) => (
+                  <motion.div
+                    key={step.title}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeUp}
+                    custom={i}
+                    className="relative text-center px-6 py-8 group"
+                  >
+                    <div className="relative mx-auto mb-6">
+                      <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto transition-all group-hover:shadow-gold group-hover:scale-105">
+                        <step.icon className="w-7 h-7 text-accent" />
+                      </div>
+                      <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-primary-foreground font-body text-xs font-bold flex items-center justify-center">
+                        {step.step}
+                      </span>
                     </div>
-                    <p className="font-body text-sm text-foreground">{b.text}</p>
-                  </div>
+                    <h3 className="font-display text-xl font-semibold text-foreground mb-3">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground font-body leading-relaxed max-w-xs mx-auto">{step.desc}</p>
+                  </motion.div>
                 ))}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+
+          {/* Benefits Grid */}
+          <section className="py-16 sm:py-20 px-4 sm:px-6 bg-card/50 border-y border-border/30">
+            <div className="max-w-6xl mx-auto">
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} className="text-center mb-14">
+                <motion.p variants={fadeUp} custom={0} className="font-body text-sm font-semibold text-accent uppercase tracking-widest mb-3">Benefits</motion.p>
+                <motion.h2 variants={fadeUp} custom={1} className="font-display text-3xl sm:text-4xl font-bold text-foreground">Why Partner With Us?</motion.h2>
+              </motion.div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {[
+                  { icon: IndianRupee, title: "Generous Commission", desc: `Earn ₹${COMMISSION_AMOUNT} for every successful premium referral — one of the highest in the industry.` },
+                  { icon: Clock, title: "Lifetime Attribution", desc: "If a user signs up through your link and upgrades later — even months later — you still earn the commission." },
+                  { icon: Tag, title: "Custom Coupon Codes", desc: "Create memorable, branded coupon codes that are easy to share with your audience." },
+                  { icon: TrendingUp, title: "Real-Time Dashboard", desc: "Track your referrals, conversions, and earnings with a beautiful, live dashboard." },
+                  { icon: Shield, title: "Transparent Tracking", desc: "Every click, signup, and conversion is tracked transparently with detailed reports." },
+                  { icon: Zap, title: "Instant Setup", desc: "Get your referral link in under 2 minutes. No approval wait, no paperwork." },
+                ].map((benefit, i) => (
+                  <motion.div
+                    key={benefit.title}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeUp}
+                    custom={i}
+                    className="group bg-background border border-border/50 rounded-2xl p-6 hover:shadow-elegant hover:border-accent/20 transition-all duration-300"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/15 flex items-center justify-center mb-4 group-hover:bg-accent/15 transition-colors">
+                      <benefit.icon className="w-5 h-5 text-accent" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground mb-2">{benefit.title}</h3>
+                    <p className="text-sm text-muted-foreground font-body leading-relaxed">{benefit.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Testimonial / Trust */}
+          <section className="py-16 sm:py-20 px-4 sm:px-6">
+            <div className="max-w-3xl mx-auto text-center">
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                <motion.div variants={fadeUp} custom={0} className="flex justify-center gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-accent fill-accent" />
+                  ))}
+                </motion.div>
+                <motion.blockquote variants={fadeUp} custom={1} className="font-display text-xl sm:text-2xl text-foreground italic leading-relaxed mb-6">
+                  "I started sharing ShaadiSite links in my wedding planning community and earned ₹12,000 in my first month alone. The tracking is seamless and payouts are always on time."
+                </motion.blockquote>
+                <motion.div variants={fadeUp} custom={2}>
+                  <p className="font-body text-sm font-semibold text-foreground">Priya Sharma</p>
+                  <p className="font-body text-xs text-muted-foreground">Wedding Planner & Content Creator</p>
+                </motion.div>
+              </motion.div>
+            </div>
+          </section>
+        </>
       )}
 
-      {/* Auth / Registration Section */}
-      <div className="max-w-5xl mx-auto px-4 pb-16">
+      {/* ═══ AUTH / DASHBOARD ═══ */}
+      <div id="auth-section" className="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+          <div className="flex justify-center py-20">
+            <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         ) : !user ? (
-          /* Sign Up / Sign In */
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-md mx-auto bg-card border border-border/50 rounded-2xl p-6 sm:p-8"
-          >
-            <h2 className="font-display text-xl font-bold text-foreground text-center mb-1">
-              {authMode === "signup" ? "Join as Affiliate Partner" : "Affiliate Partner Login"}
-            </h2>
-            <p className="text-sm text-muted-foreground font-body text-center mb-6">
-              {authMode === "signup" ? "Create your account to start earning" : "Sign in to your affiliate dashboard"}
-            </p>
-
-            <form onSubmit={authMode === "signup" ? handleSignUp : handleSignIn} className="space-y-4">
-              {authMode === "signup" && (
-                <>
-                  <div>
-                    <label className="font-body text-sm text-muted-foreground mb-1 block">Full Name *</label>
-                    <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" required />
-                  </div>
-                  <div>
-                    <label className="font-body text-sm text-muted-foreground mb-1 block">Phone (optional)</label>
-                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" />
-                  </div>
-                </>
-              )}
-              <div>
-                <label className="font-body text-sm text-muted-foreground mb-1 block">Email *</label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
-              </div>
-              <div>
-                <label className="font-body text-sm text-muted-foreground mb-1 block">Password *</label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Min 6 characters"
-                    required
-                    minLength={6}
-                  />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
+            <div className="bg-card border border-border/50 rounded-3xl p-8 sm:p-10 shadow-elegant">
+              <div className="text-center mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
+                  <BadgePercent className="w-7 h-7 text-accent" />
                 </div>
+                <h2 className="font-display text-2xl font-bold text-foreground mb-1">
+                  {authMode === "signup" ? "Join as Affiliate Partner" : "Welcome Back"}
+                </h2>
+                <p className="text-sm text-muted-foreground font-body">
+                  {authMode === "signup" ? "Create your account to start earning" : "Sign in to your affiliate dashboard"}
+                </p>
               </div>
-              <Button variant="gold" className="w-full font-body" disabled={authLoading}>
-                {authLoading ? "Please wait..." : authMode === "signup" ? "Create Affiliate Account" : "Sign In"}
-              </Button>
-            </form>
 
-            <p className="text-center text-sm text-muted-foreground font-body mt-4">
-              {authMode === "signup" ? "Already a partner?" : "New here?"}{" "}
-              <button onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} className="text-gold hover:underline font-medium">
-                {authMode === "signup" ? "Sign In" : "Join as Affiliate"}
-              </button>
-            </p>
+              <form onSubmit={authMode === "signup" ? handleSignUp : handleSignIn} className="space-y-4">
+                {authMode === "signup" && (
+                  <>
+                    <div>
+                      <label className="font-body text-sm font-medium text-foreground mb-1.5 block">Full Name</label>
+                      <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" required className="h-11" />
+                    </div>
+                    <div>
+                      <label className="font-body text-sm font-medium text-foreground mb-1.5 block">Phone <span className="text-muted-foreground font-normal">(optional)</span></label>
+                      <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="h-11" />
+                    </div>
+                  </>
+                )}
+                <div>
+                  <label className="font-body text-sm font-medium text-foreground mb-1.5 block">Email</label>
+                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="h-11" />
+                </div>
+                <div>
+                  <label className="font-body text-sm font-medium text-foreground mb-1.5 block">Password</label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Min 6 characters"
+                      required
+                      minLength={6}
+                      className="h-11 pr-10"
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <Button variant="gold" size="lg" className="w-full font-body mt-2" disabled={authLoading}>
+                  {authLoading ? "Please wait..." : authMode === "signup" ? "Create Affiliate Account" : "Sign In"}
+                  {!authLoading && <ChevronRight className="w-4 h-4 ml-1" />}
+                </Button>
+              </form>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border/50" /></div>
+                <div className="relative flex justify-center"><span className="bg-card px-3 text-xs text-muted-foreground font-body">or</span></div>
+              </div>
+
+              <p className="text-center text-sm text-muted-foreground font-body">
+                {authMode === "signup" ? "Already a partner?" : "New here?"}{" "}
+                <button onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} className="text-accent hover:underline font-semibold">
+                  {authMode === "signup" ? "Sign In" : "Join as Affiliate"}
+                </button>
+              </p>
+            </div>
           </motion.div>
         ) : !affiliate ? (
-          /* Logged in but not yet registered as affiliate */
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-md mx-auto bg-card border border-border/50 rounded-2xl p-6 sm:p-8 text-center"
-          >
-            <Gift className="w-12 h-12 text-gold mx-auto mb-4" />
-            <h2 className="font-display text-xl font-bold text-foreground mb-2">Complete Registration</h2>
-            <p className="text-sm text-muted-foreground font-body mb-6">
-              You're signed in as {user.email}. Click below to register as an affiliate partner.
-            </p>
-            <div className="space-y-3 mb-6 text-left">
-              <div>
-                <label className="font-body text-sm text-muted-foreground mb-1 block">Full Name</label>
-                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
+            <div className="bg-card border border-border/50 rounded-3xl p-8 sm:p-10 shadow-elegant text-center">
+              <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
+                <Gift className="w-7 h-7 text-accent" />
               </div>
-              <div>
-                <label className="font-body text-sm text-muted-foreground mb-1 block">Phone (optional)</label>
-                <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" />
+              <h2 className="font-display text-2xl font-bold text-foreground mb-2">Complete Registration</h2>
+              <p className="text-sm text-muted-foreground font-body mb-8">
+                Signed in as <span className="font-medium text-foreground">{user.email}</span>
+              </p>
+              <div className="space-y-4 text-left mb-6">
+                <div>
+                  <label className="font-body text-sm font-medium text-foreground mb-1.5 block">Full Name</label>
+                  <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" className="h-11" />
+                </div>
+                <div>
+                  <label className="font-body text-sm font-medium text-foreground mb-1.5 block">Phone <span className="text-muted-foreground font-normal">(optional)</span></label>
+                  <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="h-11" />
+                </div>
               </div>
+              <Button variant="gold" size="lg" className="w-full font-body" onClick={handleRegisterAsAffiliate} disabled={authLoading}>
+                {authLoading ? "Setting up..." : "Register as Affiliate Partner"}
+              </Button>
+              <button onClick={handleSignOut} className="text-sm text-muted-foreground hover:text-foreground font-body mt-5 block mx-auto transition-colors">
+                Sign out
+              </button>
             </div>
-            <Button variant="gold" className="w-full font-body" onClick={handleRegisterAsAffiliate} disabled={authLoading}>
-              {authLoading ? "Setting up..." : "Register as Affiliate Partner"}
-            </Button>
-            <button onClick={handleSignOut} className="text-sm text-muted-foreground hover:text-foreground font-body mt-4 block mx-auto">
-              Sign out
-            </button>
           </motion.div>
         ) : (
-          /* ─── Affiliate Dashboard ─── */
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="text-center mb-2">
-              <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
-                Welcome, {affiliate.full_name || "Partner"}! 🤝
+          /* ═══ AFFILIATE DASHBOARD ═══ */
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+            {/* Dashboard Header */}
+            <div className="text-center pt-4 pb-2">
+              <div className="inline-flex items-center gap-2 bg-accent/10 text-accent border border-accent/20 px-4 py-1.5 rounded-full mb-4">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span className="font-body text-xs font-semibold">Partner Dashboard</span>
+              </div>
+              <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
+                Welcome, {affiliate.full_name || "Partner"}!
               </h1>
-              <p className="text-muted-foreground font-body text-sm mt-1">Your affiliate dashboard</p>
+              <p className="text-muted-foreground font-body text-sm mt-2">Track your referrals, earnings, and performance</p>
             </div>
 
-            {/* Stats */}
+            {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <DashStat icon={Users} label="Total Referrals" value={affiliate.total_referrals} color="text-gold" />
-              <DashStat icon={Check} label="Successful" value={affiliate.successful_referrals} color="text-emerald-500" />
-              <DashStat icon={IndianRupee} label="Total Earned" value={`₹${Number(affiliate.total_earnings).toLocaleString()}`} color="text-gold" />
-              <DashStat icon={Clock} label="Pending" value={`₹${Number(affiliate.pending_earnings).toLocaleString()}`} color="text-amber-500" />
+              <StatCard icon={Users} label="Total Referrals" value={affiliate.total_referrals} accent="accent" />
+              <StatCard icon={Check} label="Successful" value={affiliate.successful_referrals} accent="emerald" />
+              <StatCard icon={IndianRupee} label="Total Earned" value={`₹${Number(affiliate.total_earnings).toLocaleString()}`} accent="accent" />
+              <StatCard icon={Clock} label="Pending" value={`₹${Number(affiliate.pending_earnings).toLocaleString()}`} accent="amber" />
             </div>
 
             {/* Referral Link & Coupon */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              {/* Referral Link */}
-              <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
-                <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-3">
-                  <LinkIcon className="w-5 h-5 text-gold" /> Your Referral Link
+              <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
+                <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                    <LinkIcon className="w-4 h-4 text-accent" />
+                  </div>
+                  Your Referral Link
                 </h3>
-                <div className="bg-muted/30 border border-border/30 rounded-xl p-3 flex items-center gap-2">
-                  <code className="font-mono text-xs text-foreground flex-1 truncate">{referralLink}</code>
-                  <button
+                <div className="bg-muted/40 border border-border/40 rounded-xl p-3.5 flex items-center gap-3">
+                  <code className="font-mono text-xs text-foreground flex-1 truncate select-all">{referralLink}</code>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 h-8 w-8"
                     onClick={() => copyToClipboard(referralLink, "link")}
-                    className="shrink-0 text-muted-foreground hover:text-foreground"
                   >
                     {copiedField === "link" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                  </button>
+                  </Button>
                 </div>
-                <p className="text-[10px] text-muted-foreground font-body mt-2">
-                  Referral code: <strong className="text-foreground">{affiliate.referral_code}</strong>
+                <p className="text-xs text-muted-foreground font-body mt-3">
+                  Referral code: <code className="font-mono text-foreground font-semibold bg-muted/50 px-1.5 py-0.5 rounded">{affiliate.referral_code}</code>
                 </p>
               </div>
 
-              {/* Custom Coupon */}
-              <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
-                <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-3">
-                  <Tag className="w-5 h-5 text-gold" /> Custom Coupon Code
+              <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
+                <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                    <Tag className="w-4 h-4 text-accent" />
+                  </div>
+                  Custom Coupon Code
                 </h3>
                 {affiliate.custom_coupon ? (
                   <>
-                    <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 flex items-center gap-2 mb-2">
-                      <Tag className="w-4 h-4 text-gold shrink-0" />
-                      <code className="font-mono text-sm text-foreground font-bold flex-1 uppercase">{affiliate.custom_coupon}</code>
-                      <button
+                    <div className="bg-accent/5 border border-accent/20 rounded-xl p-3.5 flex items-center gap-3 mb-3">
+                      <Tag className="w-4 h-4 text-accent shrink-0" />
+                      <code className="font-mono text-sm text-foreground font-bold flex-1 uppercase tracking-wider">{affiliate.custom_coupon}</code>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 h-8 w-8"
                         onClick={() => copyToClipboard(couponLink, "coupon")}
-                        className="shrink-0 text-muted-foreground hover:text-foreground"
                       >
                         {copiedField === "coupon" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                      </button>
+                      </Button>
                     </div>
-                    <p className="text-[10px] text-muted-foreground font-body">
-                      Coupon link: <code className="text-foreground">{couponLink}</code>
+                    <p className="text-xs text-muted-foreground font-body">
+                      Coupon link: <code className="text-foreground font-mono text-[11px]">{couponLink}</code>
                     </p>
                   </>
                 ) : (
@@ -445,14 +575,14 @@ const Affiliate = () => {
                         value={customCoupon}
                         onChange={(e) => setCustomCoupon(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))}
                         placeholder="e.g. meera-wedding"
-                        className="font-mono text-sm"
+                        className="font-mono text-sm h-10"
                         maxLength={30}
                       />
                       <Button variant="gold" size="sm" onClick={handleSaveCoupon} disabled={savingCoupon || customCoupon.length < 3}>
                         {savingCoupon ? "..." : "Save"}
                       </Button>
                     </div>
-                    <p className="text-[10px] text-muted-foreground font-body">
+                    <p className="text-xs text-muted-foreground font-body">
                       Lowercase letters, numbers, hyphens and underscores only. Min 3 chars.
                     </p>
                   </div>
@@ -462,21 +592,21 @@ const Affiliate = () => {
 
             {/* Referral History */}
             <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
-              <div className="p-4 sm:p-6 border-b border-border/30">
+              <div className="p-5 sm:p-6 border-b border-border/30">
                 <h3 className="font-display text-lg font-semibold text-foreground">Referral History</h3>
-                <p className="text-sm text-muted-foreground font-body mt-0.5">
+                <p className="text-sm text-muted-foreground font-body mt-1">
                   {referrals.length === 0
                     ? "No referrals yet. Share your link to start earning!"
-                    : `${referrals.length} referral${referrals.length > 1 ? "s" : ""} tracked`}
+                    : `${referrals.length} referral${referrals.length > 1 ? "s" : ""} tracked • ${successfulRefs.length} converted`}
                 </p>
               </div>
 
               {referrals.length > 0 ? (
                 <div className="divide-y divide-border/30">
                   {referrals.map((ref) => (
-                    <div key={ref.id} className="px-4 sm:px-6 py-3 flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        ref.status === "converted" ? "bg-emerald-500/10" : "bg-amber-500/10"
+                    <div key={ref.id} className="px-5 sm:px-6 py-4 flex items-center gap-4 hover:bg-muted/20 transition-colors">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        ref.status === "converted" ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-amber-500/10 border border-amber-500/20"
                       }`}>
                         {ref.status === "converted" ? (
                           <Check className="w-4 h-4 text-emerald-500" />
@@ -485,55 +615,79 @@ const Affiliate = () => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-body text-sm text-foreground truncate">
+                        <p className="font-body text-sm font-medium text-foreground truncate">
                           {ref.referred_email || "User"}
                         </p>
-                        <p className="font-body text-xs text-muted-foreground">
+                        <p className="font-body text-xs text-muted-foreground mt-0.5">
                           {ref.status === "converted"
                             ? `Upgraded to ${ref.plan} • ₹${Number(ref.commission_amount).toLocaleString()} earned`
                             : `Signed up on ${ref.plan} plan • Pending conversion`}
                         </p>
                       </div>
-                      <span className="font-body text-xs text-muted-foreground shrink-0">
+                      <span className="font-body text-xs text-muted-foreground shrink-0 bg-muted/40 px-2.5 py-1 rounded-full">
                         {new Date(ref.created_at).toLocaleDateString()}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-12 text-center">
-                  <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                  <p className="font-body text-sm text-muted-foreground">
-                    Share your referral link and referrals will appear here.
-                  </p>
+                <div className="p-16 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-7 h-7 text-muted-foreground/40" />
+                  </div>
+                  <p className="font-body text-sm text-muted-foreground mb-1">No referrals yet</p>
+                  <p className="font-body text-xs text-muted-foreground/70">Share your referral link and referrals will appear here.</p>
                 </div>
               )}
             </div>
 
             {/* Terms */}
-            <div className="bg-muted/30 border border-border/30 rounded-xl p-4 text-xs text-muted-foreground font-body space-y-1">
-              <p className="font-semibold text-foreground text-sm mb-2">Affiliate Program Terms</p>
-              <p>• You earn ₹{COMMISSION_AMOUNT} for every referred user who subscribes to Premium (₹499/month or ₹4,999 one-time).</p>
-              <p>• If a referred user signs up on the free plan and later upgrades, you still earn the commission.</p>
-              <p>• Commissions are tracked in real-time and paid out monthly to your registered payment method.</p>
-              <p>• Self-referrals, fraudulent signups, or abuse of the program will result in account termination.</p>
-              <p>• ShaadiSite reserves the right to modify commission rates with 30 days notice.</p>
+            <div className="bg-muted/20 border border-border/30 rounded-2xl p-6 font-body space-y-2">
+              <p className="font-semibold text-foreground text-sm flex items-center gap-2 mb-3">
+                <Shield className="w-4 h-4 text-muted-foreground" />
+                Affiliate Program Terms
+              </p>
+              <p className="text-xs text-muted-foreground">• You earn ₹{COMMISSION_AMOUNT} for every referred user who subscribes to Premium (₹499/month or ₹4,999 one-time).</p>
+              <p className="text-xs text-muted-foreground">• If a referred user signs up on the free plan and later upgrades, you still earn the commission.</p>
+              <p className="text-xs text-muted-foreground">• Commissions are tracked in real-time and paid out monthly to your registered payment method.</p>
+              <p className="text-xs text-muted-foreground">• Self-referrals, fraudulent signups, or abuse of the program will result in account termination.</p>
+              <p className="text-xs text-muted-foreground">• ShaadiSite reserves the right to modify commission rates with 30 days notice.</p>
             </div>
           </motion.div>
         )}
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-border/30 bg-card/50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Heart className="w-4 h-4 text-accent" fill="currentColor" />
+            <span className="font-display text-sm text-foreground">ShaadiSite</span>
+          </div>
+          <p className="font-body text-xs text-muted-foreground">© {new Date().getFullYear()} ShaadiSite. All rights reserved.</p>
+          <Link to="/" className="font-body text-xs text-accent hover:underline">Back to Homepage</Link>
+        </div>
+      </footer>
     </div>
   );
 };
 
-function DashStat({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
+function StatCard({ icon: Icon, label, value, accent }: { icon: any; label: string; value: string | number; accent: string }) {
+  const colorMap: Record<string, string> = {
+    accent: "text-accent bg-accent/10 border-accent/20",
+    emerald: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    amber: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+  };
+  const colors = colorMap[accent] || colorMap.accent;
+  const iconColor = accent === "emerald" ? "text-emerald-500" : accent === "amber" ? "text-amber-500" : "text-accent";
+
   return (
-    <div className="bg-card border border-border/50 rounded-xl p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <Icon className={`w-5 h-5 ${color}`} />
+    <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-5 hover:shadow-card transition-shadow">
+      <div className={`w-10 h-10 rounded-xl ${colors} border flex items-center justify-center mb-3`}>
+        <Icon className={`w-5 h-5 ${iconColor}`} />
       </div>
-      <p className="font-display text-2xl font-bold text-foreground">{value}</p>
-      <p className="font-body text-xs text-muted-foreground mt-0.5">{label}</p>
+      <p className="font-display text-2xl sm:text-3xl font-bold text-foreground">{value}</p>
+      <p className="font-body text-xs text-muted-foreground mt-1">{label}</p>
     </div>
   );
 }
