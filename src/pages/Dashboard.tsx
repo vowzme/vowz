@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useSiteAnalytics } from "@/hooks/use-analytics";
 import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
+import BudgetTracker from "@/components/BudgetTracker";
 import {
   Tabs,
   TabsContent,
