@@ -1096,7 +1096,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
         </button>
 
         {/* ── Hero Section with Parallax ── */}
-        <div className="relative overflow-hidden" style={{ minHeight: "480px" }}>
+        <div className="relative overflow-hidden" style={{ minHeight: "min(480px, 85vh)" }}>
           {/* Parallax hero background */}
           <div
             className="absolute inset-0 will-change-transform"
