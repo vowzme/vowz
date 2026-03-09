@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import bhalfLogo from "@/assets/bhalf-logo.png";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -18,8 +19,8 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2">
-          <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-          <span className="font-display text-xl font-bold text-foreground">ShaadiSite</span>
+          <img src={bhalfLogo} alt="Bhalf" className="w-8 h-8 object-contain" />
+          <span className="font-display text-xl font-bold text-foreground">Bhalf</span>
         </a>
 
         {/* Desktop */}

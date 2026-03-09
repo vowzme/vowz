@@ -152,7 +152,7 @@ const Affiliate = () => {
     if (error) {
       toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Welcome aboard! 🎉", description: "You're now a ShaadiSite affiliate partner." });
+      toast({ title: "Welcome aboard! 🎉", description: "You're now a Bhalf affiliate partner." });
       await loadAffiliateData(user.id);
     }
     setAuthLoading(false);
@@ -213,7 +213,7 @@ const Affiliate = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2.5 group">
             <Heart className="w-5 h-5 text-accent transition-transform group-hover:scale-110" fill="currentColor" />
-            <span className="font-display text-xl font-semibold text-foreground">ShaadiSite</span>
+            <span className="font-display text-xl font-semibold text-foreground">Bhalf</span>
           </Link>
           <span className="text-border mx-2">|</span>
           <span className="font-body text-sm text-muted-foreground">Affiliate Program</span>
@@ -380,7 +380,7 @@ const Affiliate = () => {
                   ))}
                 </motion.div>
                 <motion.blockquote variants={fadeUp} custom={1} className="font-display text-xl sm:text-2xl text-foreground italic leading-relaxed mb-6">
-                  "I started sharing ShaadiSite links in my wedding planning community and earned ₹12,000 in my first month alone. The tracking is seamless and payouts are always on time."
+                  "I started sharing Bhalf links in my wedding planning community and earned ₹12,000 in my first month alone. The tracking is seamless and payouts are always on time."
                 </motion.blockquote>
                 <motion.div variants={fadeUp} custom={2}>
                   <p className="font-body text-sm font-semibold text-foreground">Priya Sharma</p>
@@ -651,7 +651,7 @@ const Affiliate = () => {
               <p className="text-xs text-muted-foreground">• If a referred user signs up on the free plan and later upgrades, you still earn the commission.</p>
               <p className="text-xs text-muted-foreground">• Commissions are tracked in real-time and paid out monthly to your registered payment method.</p>
               <p className="text-xs text-muted-foreground">• Self-referrals, fraudulent signups, or abuse of the program will result in account termination.</p>
-              <p className="text-xs text-muted-foreground">• ShaadiSite reserves the right to modify commission rates with 30 days notice.</p>
+              <p className="text-xs text-muted-foreground">• Bhalf reserves the right to modify commission rates with 30 days notice.</p>
             </div>
           </motion.div>
         )}
@@ -662,9 +662,9 @@ const Affiliate = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Heart className="w-4 h-4 text-accent" fill="currentColor" />
-            <span className="font-display text-sm text-foreground">ShaadiSite</span>
+            <span className="font-display text-sm text-foreground">Bhalf</span>
           </div>
-          <p className="font-body text-xs text-muted-foreground">© {new Date().getFullYear()} ShaadiSite. All rights reserved.</p>
+          <p className="font-body text-xs text-muted-foreground">© {new Date().getFullYear()} Bhalf (bhalf.in). All rights reserved.</p>
           <Link to="/" className="font-body text-xs text-accent hover:underline">Back to Homepage</Link>
         </div>
       </footer>

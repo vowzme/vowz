@@ -99,7 +99,7 @@ const PublicSite = () => {
     setMeta("description", description);
 
     return () => {
-      document.title = "ShaadiSite — Beautiful Indian Wedding Websites";
+      document.title = "Bhalf — Your Better Half, Online";
     };
   }, [site]);
 
@@ -199,7 +199,7 @@ const PublicSite = () => {
           </a>
         </div>
         <p className="text-xs text-muted-foreground font-body">
-          Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on ShaadiSite
+          Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Bhalf
         </p>
       </footer>
     </div>

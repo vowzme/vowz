@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
-import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import bhalfLogo from "@/assets/bhalf-logo.png";
 
 const HeroSection = () => {
   return (
@@ -45,7 +45,7 @@ const HeroSection = () => {
         >
           <div className="flex items-center justify-center gap-2 mb-6">
             <div className="h-px w-12 bg-gold/60" />
-            <Heart className="w-5 h-5 text-gold" fill="currentColor" />
+            <img src={bhalfLogo} alt="Bhalf" className="w-10 h-10 object-contain" />
             <div className="h-px w-12 bg-gold/60" />
           </div>
 
