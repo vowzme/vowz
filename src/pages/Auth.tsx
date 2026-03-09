@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 
 const Auth = () => {
+  useCaptureAffiliate();
   const navigate = useNavigate();
   const { signUp, signIn } = useAuth();
   const [isLogin, setIsLogin] = useState(false);
