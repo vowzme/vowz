@@ -651,7 +651,7 @@ const Affiliate = () => {
               <p className="text-xs text-muted-foreground">• If a referred user signs up on the free plan and later upgrades, you still earn the commission.</p>
               <p className="text-xs text-muted-foreground">• Commissions are tracked in real-time and paid out monthly to your registered payment method.</p>
               <p className="text-xs text-muted-foreground">• Self-referrals, fraudulent signups, or abuse of the program will result in account termination.</p>
-              <p className="text-xs text-muted-foreground">• ShaadiSite reserves the right to modify commission rates with 30 days notice.</p>
+              <p className="text-xs text-muted-foreground">• Bhalf reserves the right to modify commission rates with 30 days notice.</p>
             </div>
           </motion.div>
         )}
