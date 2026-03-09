@@ -62,14 +62,25 @@ const Navbar = () => {
           >
             <div className="px-4 py-4 flex flex-col gap-3">
               {links.map((l) => (
-                <a
-                  key={l.label}
-                  href={l.href}
-                  className="font-body text-sm text-muted-foreground py-2"
-                  onClick={() => setOpen(false)}
-                >
-                  {l.label}
-                </a>
+                l.isRoute ? (
+                  <Link
+                    key={l.label}
+                    to={l.href}
+                    className="font-body text-sm text-muted-foreground py-2"
+                    onClick={() => setOpen(false)}
+                  >
+                    {l.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={l.label}
+                    href={l.href}
+                    className="font-body text-sm text-muted-foreground py-2"
+                    onClick={() => setOpen(false)}
+                  >
+                    {l.label}
+                  </a>
+                )
               ))}
               <Button variant="gold" size="sm" className="mt-2" asChild><Link to="/auth">Get Started</Link></Button>
             </div>
