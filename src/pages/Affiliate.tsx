@@ -380,7 +380,7 @@ const Affiliate = () => {
                   ))}
                 </motion.div>
                 <motion.blockquote variants={fadeUp} custom={1} className="font-display text-xl sm:text-2xl text-foreground italic leading-relaxed mb-6">
-                  "I started sharing ShaadiSite links in my wedding planning community and earned ₹12,000 in my first month alone. The tracking is seamless and payouts are always on time."
+                  "I started sharing Bhalf links in my wedding planning community and earned ₹12,000 in my first month alone. The tracking is seamless and payouts are always on time."
                 </motion.blockquote>
                 <motion.div variants={fadeUp} custom={2}>
                   <p className="font-body text-sm font-semibold text-foreground">Priya Sharma</p>
