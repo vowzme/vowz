@@ -58,7 +58,7 @@ const Footer = () => {
         </div>
         <div className="border-t border-border/50 pt-6 text-center">
           <p className="text-xs text-muted-foreground font-body">
-            © 2026 ShaadiSite. Made with love in Kerala 🇮🇳
+            © 2026 Bhalf (bhalf.in). Made with love in Kerala 🇮🇳
           </p>
         </div>
       </div>

@@ -90,7 +90,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-            <span className="font-display text-xl font-bold text-foreground">ShaadiSite</span>
+            <span className="font-display text-xl font-bold text-foreground">Bhalf</span>
           </div>
 
           <motion.div key={isLogin ? "login" : "signup"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>

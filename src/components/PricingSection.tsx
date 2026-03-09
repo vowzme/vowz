@@ -16,7 +16,7 @@ const plans = [
       "QR code invites",
       "Mobile-responsive site",
       "Basic analytics",
-      "Subdomain (you.shaadisite.com)",
+      "Subdomain (you.bhalf.in)",
     ],
     cta: "Get Started Free",
     featured: false,

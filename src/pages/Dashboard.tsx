@@ -138,7 +138,7 @@ const Dashboard = () => {
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-            <span className="font-display text-lg font-semibold text-foreground">ShaadiSite</span>
+            <span className="font-display text-lg font-semibold text-foreground">Bhalf</span>
           </Link>
           <div className="flex-1" />
           <Button variant="outline" size="sm" onClick={handleSignOut}>
