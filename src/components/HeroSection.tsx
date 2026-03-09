@@ -49,12 +49,12 @@ const HeroSection = () => {
             <div className="h-px w-12 bg-gold/60" />
           </div>
 
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-6 leading-tight">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4 sm:mb-6 leading-tight">
             Your Love Story,{" "}
             <span className="text-gradient-gold italic">Beautifully Told</span>
           </h1>
 
-          <p className="font-body text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="font-body text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
             Create stunning, personalized Indian wedding websites in minutes.
             From Mehendi to Reception — celebrate every ritual with elegance.
           </p>
@@ -68,7 +68,7 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          <p className="mt-6 text-sm text-primary-foreground/50 font-body">
+          <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-primary-foreground/50 font-body">
             Free forever • No credit card required • 5 min setup with AI
           </p>
         </motion.div>

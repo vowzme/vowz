@@ -181,18 +181,18 @@ const Dashboard = () => {
         ) : (
           /* Has site */
           <Tabs defaultValue="overview" className="space-y-6">
-             <TabsList className="bg-card border border-border/50">
-              <TabsTrigger value="overview" className="font-body">Overview</TabsTrigger>
-              <TabsTrigger value="checklist" className="font-body">
-                Checklist <ClipboardList className="w-3.5 h-3.5 ml-1" />
+             <TabsList className="bg-card border border-border/50 w-full overflow-x-auto flex-nowrap justify-start sm:justify-center">
+              <TabsTrigger value="overview" className="font-body text-xs sm:text-sm">Overview</TabsTrigger>
+              <TabsTrigger value="checklist" className="font-body text-xs sm:text-sm">
+                Checklist <ClipboardList className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="font-body">
-                Analytics <BarChart3 className="w-3.5 h-3.5 ml-1" />
+              <TabsTrigger value="analytics" className="font-body text-xs sm:text-sm">
+                Analytics <BarChart3 className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="rsvps" className="font-body">
-                RSVPs {rsvps.length > 0 && <span className="ml-1.5 bg-gold/20 text-gold text-xs px-1.5 py-0.5 rounded-full">{rsvps.length}</span>}
+              <TabsTrigger value="rsvps" className="font-body text-xs sm:text-sm">
+                RSVPs {rsvps.length > 0 && <span className="ml-1 sm:ml-1.5 bg-gold/20 text-gold text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full">{rsvps.length}</span>}
               </TabsTrigger>
-              <TabsTrigger value="settings" className="font-body">Settings</TabsTrigger>
+              <TabsTrigger value="settings" className="font-body text-xs sm:text-sm">Settings</TabsTrigger>
             </TabsList>
 
             {/* ─── Overview Tab ─── */}

@@ -1096,7 +1096,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
         </button>
 
         {/* ── Hero Section with Parallax ── */}
-        <div className="relative overflow-hidden" style={{ minHeight: "480px" }}>
+        <div className="relative overflow-hidden" style={{ minHeight: "min(480px, 85vh)" }}>
           {/* Parallax hero background */}
           <div
             className="absolute inset-0 will-change-transform"
@@ -1118,13 +1118,13 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               </p>
             </motion.div>
             <motion.h1
-              className="font-display text-5xl md:text-7xl font-bold mb-3 drop-shadow-lg"
+              className="font-display text-4xl sm:text-5xl md:text-7xl font-bold mb-3 drop-shadow-lg"
               style={{ color: text }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.6 }}
             >
-              {t.partner1} <span className="font-normal italic text-3xl md:text-4xl mx-2" style={{ color: accent }}>&</span> {t.partner2}
+              {t.partner1} <span className="font-normal italic text-2xl sm:text-3xl md:text-4xl mx-1 sm:mx-2" style={{ color: accent }}>&</span> {t.partner2}
             </motion.h1>
             <motion.p
               className="font-display text-xl italic mb-6"
@@ -1138,7 +1138,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
 
             {/* Couple photo circle */}
             <motion.div
-              className="mx-auto mb-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl"
+              className="mx-auto mb-4 sm:mb-6 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl"
               style={{ borderColor: accent }}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -1148,7 +1148,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
             </motion.div>
 
             <motion.div
-              className="flex items-center justify-center gap-6 text-sm"
+              className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm"
               style={{ color: `${text}cc` }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1157,7 +1157,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               <span className="flex items-center gap-1.5 font-body">
                 <Calendar className="w-4 h-4" /> {t.weddingDate}
               </span>
-              <span className="w-1 h-1 rounded-full" style={{ backgroundColor: accent }} />
+              <span className="w-1 h-1 rounded-full hidden sm:block" style={{ backgroundColor: accent }} />
               <span className="flex items-center gap-1.5 font-body">
                 <MapPin className="w-4 h-4" /> {t.location}
               </span>
@@ -1441,7 +1441,7 @@ const TemplatesSection = () => {
 
   return (
     <>
-      <section className="py-24 px-4" id="templates">
+      <section className="py-16 sm:py-24 px-4" id="templates">
         <div className="max-w-6xl mx-auto">
           <motion.div
             className="text-center mb-16"
@@ -1460,7 +1460,7 @@ const TemplatesSection = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
             {templates.slice(0, 6).map((t, i) => (
               <motion.div
                 key={t.name}
@@ -1473,7 +1473,7 @@ const TemplatesSection = () => {
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
                   {/* Template preview with hero photo */}
-                  <div className="h-60 relative">
+                  <div className="h-52 sm:h-60 relative">
                     <img src={t.heroPhoto} alt={t.name} className="w-full h-full object-cover" />
                     <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${t.colors[0]}88 0%, ${t.colors[0]}cc 50%, ${t.colors[0]}ee 100%)` }} />
                     
