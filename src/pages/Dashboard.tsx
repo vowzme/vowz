@@ -7,7 +7,8 @@ import {
   Settings, LogOut, Sparkles, Plus, Check, X, Copy,
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
-  ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon
+  ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
+  IndianRupee
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useSiteAnalytics } from "@/hooks/use-analytics";
 import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
+import BudgetTracker from "@/components/BudgetTracker";
 import {
   Tabs,
   TabsContent,
@@ -183,6 +185,9 @@ const Dashboard = () => {
           <Tabs defaultValue="overview" className="space-y-6">
              <TabsList className="bg-card border border-border/50 w-full overflow-x-auto flex-nowrap justify-start sm:justify-center">
               <TabsTrigger value="overview" className="font-body text-xs sm:text-sm">Overview</TabsTrigger>
+              <TabsTrigger value="budget" className="font-body text-xs sm:text-sm">
+                Budget <IndianRupee className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+              </TabsTrigger>
               <TabsTrigger value="checklist" className="font-body text-xs sm:text-sm">
                 Checklist <ClipboardList className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
               </TabsTrigger>
@@ -283,6 +288,11 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* ─── Budget Tab ─── */}
+            <TabsContent value="budget">
+              <BudgetTracker siteId={site?.id} />
             </TabsContent>
 
             {/* ─── Checklist Tab ─── */}
