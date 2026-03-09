@@ -15,6 +15,7 @@ import PublicSite from "./pages/PublicSite";
 import Templates from "./pages/Templates";
 import NotFound from "./pages/NotFound";
 import DomainWizardDemo from "./pages/DomainWizardDemo";
+import Affiliate from "./pages/Affiliate";
 
 const queryClient = new QueryClient();
 
