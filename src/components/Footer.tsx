@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="border-t border-border/50 py-8 sm:py-12 px-4 bg-card">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               <Heart className="w-5 h-5 text-gold" fill="currentColor" />
