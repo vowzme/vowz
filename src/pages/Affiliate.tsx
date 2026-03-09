@@ -513,7 +513,7 @@ const Affiliate = () => {
             {/* Terms */}
             <div className="bg-muted/30 border border-border/30 rounded-xl p-4 text-xs text-muted-foreground font-body space-y-1">
               <p className="font-semibold text-foreground text-sm mb-2">Affiliate Program Terms</p>
-              <p>• You earn ₹{COMMISSION_AMOUNT} for every referred user who subscribes to Premium (₹9.99/month or ₹99/6 months).</p>
+              <p>• You earn ₹{COMMISSION_AMOUNT} for every referred user who subscribes to Premium (₹499/month or ₹4,999 one-time).</p>
               <p>• If a referred user signs up on the free plan and later upgrades, you still earn the commission.</p>
               <p>• Commissions are tracked in real-time and paid out monthly to your registered payment method.</p>
               <p>• Self-referrals, fraudulent signups, or abuse of the program will result in account termination.</p>

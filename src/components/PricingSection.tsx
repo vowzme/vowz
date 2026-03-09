@@ -23,9 +23,9 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "₹799",
+    price: "₹499",
     period: "/month",
-    altPrice: "or ₹7,999 one-time",
+    altPrice: "or ₹4,999 one-time",
     description: "Everything for your perfect day",
     features: [
       "Everything in Free, plus:",
