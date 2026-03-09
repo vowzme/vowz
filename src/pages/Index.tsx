@@ -4,7 +4,6 @@ import FeaturesSection from "@/components/FeaturesSection";
 import TemplatesSection from "@/components/TemplatesSection";
 import PricingSection from "@/components/PricingSection";
 import CTASection from "@/components/CTASection";
-import Footer from "@/components/Footer";
 import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 
 const Index = () => {
@@ -17,7 +16,6 @@ const Index = () => {
       <TemplatesSection />
       <PricingSection />
       <CTASection />
-      <Footer />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import Layout from "@/components/Layout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -28,20 +29,19 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<Index />} />
-    <Route path="/auth" element={<Auth />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/reset-password" element={<ResetPassword />} />
+    <Route path="/" element={<Layout><Index /></Layout>} />
+    <Route path="/auth" element={<Layout><Auth /></Layout>} />
+    <Route path="/forgot-password" element={<Layout><ForgotPassword /></Layout>} />
+    <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/site/:slug" element={<PublicSite />} />
-    <Route path="/templates" element={<Templates />} />
-    <Route path="/domain-demo" element={<DomainWizardDemo />} />
-    <Route path="/affiliate" element={<Affiliate />} />
-    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-    <Route path="*" element={<NotFound />} />
+    <Route path="/templates" element={<Layout><Templates /></Layout>} />
+    <Route path="/domain-demo" element={<Layout><DomainWizardDemo /></Layout>} />
+    <Route path="/affiliate" element={<Layout><Affiliate /></Layout>} />
+    <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>
 );
 

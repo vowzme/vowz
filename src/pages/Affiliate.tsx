@@ -656,18 +656,6 @@ const Affiliate = () => {
           </motion.div>
         )}
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-border/30 bg-card/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-accent" fill="currentColor" />
-            <span className="font-display text-sm text-foreground">Bhalf</span>
-          </div>
-          <p className="font-body text-xs text-muted-foreground">© {new Date().getFullYear()} Bhalf (bhalf.in). All rights reserved.</p>
-          <Link to="/" className="font-body text-xs text-accent hover:underline">Back to Homepage</Link>
-        </div>
-      </footer>
     </div>
   );
 };
