@@ -1473,7 +1473,7 @@ const TemplatesSection = () => {
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
                   {/* Template preview with hero photo */}
-                  <div className="h-60 relative">
+                  <div className="h-52 sm:h-60 relative">
                     <img src={t.heroPhoto} alt={t.name} className="w-full h-full object-cover" />
                     <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${t.colors[0]}88 0%, ${t.colors[0]}cc 50%, ${t.colors[0]}ee 100%)` }} />
                     
