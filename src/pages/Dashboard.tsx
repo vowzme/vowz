@@ -7,7 +7,8 @@ import {
   Settings, LogOut, Sparkles, Plus, Check, X, Copy,
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
-  ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon
+  ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
+  IndianRupee
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
