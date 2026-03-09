@@ -49,7 +49,7 @@ const HeroSection = () => {
             <div className="h-px w-12 bg-gold/60" />
           </div>
 
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-6 leading-tight">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4 sm:mb-6 leading-tight">
             Your Love Story,{" "}
             <span className="text-gradient-gold italic">Beautifully Told</span>
           </h1>
