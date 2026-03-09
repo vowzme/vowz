@@ -1138,7 +1138,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
 
             {/* Couple photo circle */}
             <motion.div
-              className="mx-auto mb-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl"
+              className="mx-auto mb-4 sm:mb-6 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl"
               style={{ borderColor: accent }}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
