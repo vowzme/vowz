@@ -181,11 +181,17 @@ const Dashboard = () => {
               </Link>
             </Button>
           </motion.div>
+          <div className="mt-8">
+            <GettingStartedGuide />
+          </div>
         ) : (
           /* Has site */
           <Tabs defaultValue="overview" className="space-y-6">
-             <TabsList className="bg-card border border-border/50 w-full overflow-x-auto flex-nowrap justify-start sm:justify-center">
+            <TabsList className="bg-card border border-border/50 w-full overflow-x-auto flex-nowrap justify-start sm:justify-center">
               <TabsTrigger value="overview" className="font-body text-xs sm:text-sm">Overview</TabsTrigger>
+              <TabsTrigger value="guide" className="font-body text-xs sm:text-sm">
+                Guide <BookOpen className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+              </TabsTrigger>
               <TabsTrigger value="budget" className="font-body text-xs sm:text-sm">
                 Budget <IndianRupee className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
               </TabsTrigger>
