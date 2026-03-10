@@ -101,8 +101,9 @@ const PricingSection = () => {
                 variant={plan.featured ? "gold" : "outline"}
                 size="lg"
                 className="w-full mb-8"
+                asChild
               >
-                {plan.cta}
+                <Link to="/auth">{plan.cta}</Link>
               </Button>
 
               <ul className="space-y-3">
