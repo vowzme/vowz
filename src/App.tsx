@@ -17,6 +17,9 @@ import Templates from "./pages/Templates";
 import NotFound from "./pages/NotFound";
 import DomainWizardDemo from "./pages/DomainWizardDemo";
 import Affiliate from "./pages/Affiliate";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +44,9 @@ const AppRoutes = () => (
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
     <Route path="/domain-demo" element={<Layout><DomainWizardDemo /></Layout>} />
     <Route path="/affiliate" element={<Layout><Affiliate /></Layout>} />
+    <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
+    <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
+    <Route path="/contact" element={<Layout><Contact /></Layout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>
 );
