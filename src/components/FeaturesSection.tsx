@@ -56,7 +56,7 @@ const FeaturesSection = () => {
             Celebrate Every <span className="text-gradient-gold italic">Ritual</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto font-body">
-            From traditional ceremonies to modern fusion celebrations, ShaadiSite has you covered.
+            From traditional ceremonies to modern fusion celebrations, Bhalf has you covered.
           </p>
         </motion.div>
 

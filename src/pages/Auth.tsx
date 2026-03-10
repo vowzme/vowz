@@ -89,7 +89,7 @@ const Auth = () => {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <Heart className="w-5 h-5 text-gold" fill="currentColor" />
+            <img src="/favicon.png" alt="Bhalf" className="h-7 w-7 object-contain" />
             <span className="font-display text-xl font-bold text-foreground">Bhalf</span>
           </div>
 

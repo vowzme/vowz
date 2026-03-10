@@ -13,6 +13,8 @@ const HeroSection = () => {
           src={heroBg}
           alt="Indian wedding decorations with marigold flowers and mandala patterns"
           className="w-full h-full object-cover"
+          loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-hero opacity-70" />
       </div>
@@ -63,8 +65,8 @@ const HeroSection = () => {
             <Button variant="gold" size="xl" asChild>
               <Link to="/auth">Create Your Wedding Site</Link>
             </Button>
-            <Button variant="heroOutline" size="xl">
-              View Templates
+            <Button variant="heroOutline" size="xl" asChild>
+              <a href="#templates">View Templates</a>
             </Button>
           </div>
 
