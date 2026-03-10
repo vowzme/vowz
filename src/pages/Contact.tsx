@@ -44,7 +44,7 @@ const Contact = () => {
           {/* Info cards */}
           <div className="md:col-span-2 space-y-6">
             {[
-              { icon: Mail, label: "Email", value: "hello@vowz.co" },
+              { icon: Mail, label: "Email", value: "hello@vowz.me" },
               { icon: MessageSquare, label: "Response Time", value: "Within 24 hours" },
               { icon: MapPin, label: "Based In", value: "India 🇮🇳" },
             ].map((item) => (

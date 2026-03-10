@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg-new.jpg";
 import { Button } from "@/components/ui/button";
-import vowzLogo from "@/assets/vowz-logo.png";
+import VowzLogo from "@/components/VowzLogo";
 
 const HeroSection = () => {
   return (
@@ -47,7 +47,7 @@ const HeroSection = () => {
         >
           <div className="flex items-center justify-center gap-3 mb-8">
             <div className="h-px w-16 bg-gold/40" />
-            <img src={vowzLogo} alt="Vowz" className="h-14 object-contain brightness-0 invert opacity-90" />
+            <VowzLogo iconSize="h-10" textSize="text-3xl" invertIcon light />
             <div className="h-px w-16 bg-gold/40" />
           </div>
 
