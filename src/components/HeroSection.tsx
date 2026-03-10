@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg-new.jpg";
 import { Button } from "@/components/ui/button";
-import vowzLogo from "@/assets/vowz-logo.png";
+import VowzLogo from "@/components/VowzLogo";
 
 const HeroSection = () => {
   return (
