@@ -11,6 +11,7 @@ const Navbar = () => {
     { label: "Features", href: "#features" },
     { label: "Templates", href: "#templates" },
     { label: "Pricing", href: "#pricing" },
+    { label: "FAQ", href: "#faq" },
     { label: "Domain Demo", href: "/domain-demo", isRoute: true },
     { label: "Affiliate", href: "/affiliate", isRoute: true },
   ];
