@@ -1,6 +1,6 @@
 import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import vowzLogo from "@/assets/vowz-logo.png";
+import VowzLogo from "@/components/VowzLogo";
 
 const Footer = () => {
   return (
@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           <div className="col-span-2 sm:col-span-2 md:col-span-1">
             <div className="mb-3">
-              <img src={vowzLogo} alt="Vowz" className="h-8 object-contain" />
+              <VowzLogo iconSize="h-8" textSize="text-xl" />
             </div>
             <p className="text-muted-foreground font-body text-sm">
               Where Vows Come Alive. Beautiful wedding websites, made simple.
