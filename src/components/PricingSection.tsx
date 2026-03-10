@@ -16,7 +16,7 @@ const plans = [
       "QR code invites",
       "Mobile-responsive site",
       "Basic analytics",
-      "Subdomain (you.bhalf.in)",
+      "Subdomain (you.vowz.co)",
     ],
     cta: "Get Started Free",
     featured: false,

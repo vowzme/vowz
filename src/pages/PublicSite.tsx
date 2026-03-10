@@ -201,7 +201,7 @@ const PublicSite = () => {
           </a>
         </div>
         <p className="text-xs text-muted-foreground font-body">
-          Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Bhalf
+          Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Vowz
         </p>
       </footer>
     </div>

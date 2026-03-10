@@ -1400,7 +1400,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
             {t.weddingDate} • {t.location}
           </p>
           <p className="font-body text-xs mt-3" style={{ color: `${text}50` }}>
-            Made with ❤️ on Bhalf
+            Made with ❤️ on Vowz
           </p>
         </div>
 

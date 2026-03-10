@@ -139,8 +139,8 @@ const Dashboard = () => {
       <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link to="/" className="flex items-center">
-            <img src="/favicon.png" alt="Bhalf" className="h-7 w-7 object-contain mr-2" />
-            <span className="font-display text-lg font-semibold text-foreground">Bhalf</span>
+            <img src="/favicon.png" alt="Vowz" className="h-7 w-7 object-contain mr-2" />
+            <span className="font-display text-lg font-semibold text-foreground">Vowz</span>
           </Link>
           <div className="flex-1" />
           <Button variant="outline" size="sm" onClick={handleSignOut}>

@@ -165,7 +165,7 @@ const DomainWizardDemo = () => {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-            <span className="font-display text-lg font-semibold text-foreground">Bhalf</span>
+            <span className="font-display text-lg font-semibold text-foreground">Vowz</span>
           </Link>
           <div className="flex-1" />
           <span className="bg-amber-500/20 text-amber-600 text-xs font-body font-semibold px-3 py-1 rounded-full">

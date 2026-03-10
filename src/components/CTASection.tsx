@@ -17,7 +17,7 @@ const CTASection = () => {
             Your Wedding Deserves a{" "}
             <span className="text-gradient-gold italic">Beautiful Beginning</span>
           </h2>
-          <p className="text-muted-foreground font-body text-lg mb-10 max-w-xl mx-auto">
+          <p className="text-muted-foreground font-body text-lg mb-10 max-w-xl mx-auto font-light">
             Join thousands of couples creating unforgettable wedding experiences.
             Start with AI — publish in minutes.
           </p>
@@ -25,7 +25,7 @@ const CTASection = () => {
             <Link to="/auth">Create Your Free Wedding Site</Link>
           </Button>
           <p className="mt-4 text-xs text-muted-foreground font-body">
-            Trusted by 10,000+ Indian couples worldwide
+            Trusted by 10,000+ couples worldwide
           </p>
         </motion.div>
       </div>

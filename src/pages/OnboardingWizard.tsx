@@ -76,7 +76,7 @@ const OnboardingWizard = () => {
               <Sparkles className="w-4 h-4 text-gold" />
             </div>
             <div>
-              <p className="font-display text-sm font-semibold text-foreground">Bhalf AI</p>
+              <p className="font-display text-sm font-semibold text-foreground">Vowz AI</p>
               <p className="text-xs text-muted-foreground font-body">Wedding Wizard</p>
             </div>
           </div>

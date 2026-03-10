@@ -1,6 +1,6 @@
 import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import bhalfLogo from "@/assets/bhalf-logo.png";
+import vowzLogo from "@/assets/vowz-logo.png";
 
 const Footer = () => {
   return (
@@ -9,10 +9,10 @@ const Footer = () => {
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           <div className="col-span-2 sm:col-span-2 md:col-span-1">
             <div className="mb-3">
-              <img src={bhalfLogo} alt="Bhalf" className="h-8 object-contain" />
+              <img src={vowzLogo} alt="Vowz" className="h-8 object-contain" />
             </div>
             <p className="text-muted-foreground font-body text-sm">
-              Your Better Half, Online. Beautiful Indian wedding websites, made simple.
+              Where Vows Come Alive. Beautiful wedding websites, made simple.
             </p>
           </div>
           {[
@@ -57,7 +57,7 @@ const Footer = () => {
         </div>
         <div className="border-t border-border/50 pt-6 text-center">
           <p className="text-xs text-muted-foreground font-body">
-            © 2026 Bhalf (bhalf.in). Made with love in Kerala 🇮🇳
+            © 2026 Vowz (vowz.co). Crafted with love 💍
           </p>
         </div>
       </div>
