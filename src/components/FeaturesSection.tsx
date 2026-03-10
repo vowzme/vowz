@@ -109,9 +109,12 @@ const FeaturesSection = () => {
             <motion.div
               key={f.title}
               variants={itemVariants}
-              className="bg-gradient-card rounded-xl p-5 border border-gold/20 hover:border-gold/40 transition-colors duration-300"
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="bg-gradient-card rounded-xl p-5 border border-gold/20 hover:border-gold/40 transition-colors duration-300 group"
             >
-              <f.icon className="w-5 h-5 text-gold mb-3" />
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--navy))] to-[hsl(var(--maroon-light))] flex items-center justify-center mb-3 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                <f.icon className="w-5 h-5 text-[hsl(var(--gold))]" />
+              </div>
               <h3 className="font-display text-lg font-semibold text-foreground mb-1">{f.title}</h3>
               <p className="text-muted-foreground font-body text-sm">{f.desc}</p>
             </motion.div>
