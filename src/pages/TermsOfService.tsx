@@ -8,7 +8,7 @@ const TermsOfService = () => (
       <p className="text-muted-foreground font-body text-sm mb-10">Last updated: March 10, 2026</p>
 
       {[
-        { title: "1. Acceptance of Terms", body: "By accessing or using Vowz (vowz.co), you agree to be bound by these Terms of Service. If you do not agree, please do not use our service." },
+        { title: "1. Acceptance of Terms", body: "By accessing or using VowZ (vowz.me), you agree to be bound by these Terms of Service. If you do not agree, please do not use our service." },
         { title: "2. Service Description", body: "Vowz provides an AI-powered platform for creating personalized wedding websites. Our free plan includes basic features; premium features require a paid subscription." },
         { title: "3. User Accounts", body: "You are responsible for maintaining the security of your account credentials. You must provide accurate information when creating an account. One account per person is permitted." },
         { title: "4. Acceptable Use", body: "You may not use Vowz for unlawful purposes, to upload harmful or offensive content, or to violate the rights of others. We reserve the right to remove content that violates these terms." },
