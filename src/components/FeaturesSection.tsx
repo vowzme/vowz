@@ -72,10 +72,11 @@ const FeaturesSection = () => {
             <motion.div
               key={f.title}
               variants={itemVariants}
-              className="bg-card rounded-xl p-6 shadow-card hover:shadow-elegant transition-shadow duration-300 border border-border/50"
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="bg-card rounded-xl p-6 shadow-card hover:shadow-elegant transition-shadow duration-300 border border-border/50 group"
             >
-              <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center mb-4">
-                <f.icon className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(var(--gold-dark))] flex items-center justify-center mb-4 shadow-gold group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                <f.icon className="w-6 h-6 text-primary-foreground" />
               </div>
               <h3 className="font-display text-xl font-semibold text-foreground mb-2">{f.title}</h3>
               <p className="text-muted-foreground font-body text-sm leading-relaxed">{f.desc}</p>
