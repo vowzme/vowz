@@ -17,7 +17,7 @@ const TermsOfService = () => (
         { title: "7. Service Availability", body: "We strive for 99.9% uptime but do not guarantee uninterrupted service. We are not liable for temporary outages or data loss beyond our reasonable control." },
         { title: "8. Termination", body: "We may suspend or terminate accounts that violate these terms. You may delete your account at any time. Upon termination, your data will be permanently removed within 30 days." },
         { title: "9. Changes to Terms", body: "We may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the updated terms." },
-        { title: "10. Contact", body: "For questions about these terms, please contact us at legal@vowz.co." },
+        { title: "10. Contact", body: "For questions about these terms, please contact us at legal@vowz.me." },
       ].map((s) => (
         <div key={s.title} className="mb-8">
           <h2 className="font-display text-xl font-semibold text-foreground mb-2">{s.title}</h2>

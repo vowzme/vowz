@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import vowzLogo from "@/assets/vowz-logo.png";
+import VowzLogo from "@/components/VowzLogo";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -20,7 +20,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <a href="/" className="flex items-center">
-          <img src={vowzLogo} alt="Vowz" className="h-7 sm:h-8 object-contain" />
+          <VowzLogo iconSize="h-7" textSize="text-lg" />
         </a>
 
         {/* Desktop */}

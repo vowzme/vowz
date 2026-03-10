@@ -9,7 +9,7 @@ import {
 const faqs = [
   {
     q: "Is Vowz really free?",
-    a: "Yes! Our free plan includes the AI wizard, 5 templates, 50 photo uploads, RSVP management, QR invites, and a vowz.co subdomain — forever, no credit card required.",
+    a: "Yes! Our free plan includes the AI wizard, 5 templates, 50 photo uploads, RSVP management, QR invites, and a vowz.me subdomain — forever, no credit card required.",
   },
   {
     q: "How does the AI Wedding Wizard work?",

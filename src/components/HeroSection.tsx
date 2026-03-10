@@ -47,7 +47,7 @@ const HeroSection = () => {
         >
           <div className="flex items-center justify-center gap-3 mb-8">
             <div className="h-px w-16 bg-gold/40" />
-            <img src={vowzLogo} alt="Vowz" className="h-14 object-contain brightness-0 invert opacity-90" />
+            <VowzLogo iconSize="h-10" textSize="text-3xl" invertIcon className="[&_span]:!text-primary-foreground" />
             <div className="h-px w-16 bg-gold/40" />
           </div>
 

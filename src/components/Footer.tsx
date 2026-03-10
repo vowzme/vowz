@@ -53,7 +53,7 @@ const Footer = () => {
         </div>
         <div className="border-t border-border/50 pt-6 text-center">
           <p className="text-xs text-muted-foreground font-body">
-            © 2026 Vowz (vowz.co). Crafted with love 💍
+            © 2026 VowZ (vowz.me). Crafted with love 💍
           </p>
         </div>
       </div>
