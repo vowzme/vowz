@@ -53,6 +53,11 @@ const AppRoutes = () => (
     <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
     <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
     <Route path="/contact" element={<Layout><Contact /></Layout>} />
+    <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
+    <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
+    <Route path="/admin/sites" element={<AdminLayout><AdminSites /></AdminLayout>} />
+    <Route path="/admin/payments" element={<AdminLayout><AdminPayments /></AdminLayout>} />
+    <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>
 );
