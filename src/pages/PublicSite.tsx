@@ -133,9 +133,11 @@ const PublicSite = () => {
   const sections = (site.sections as any[]) || [];
 
   const siteUrl = `${window.location.origin}/site/${site.slug}`;
+  // Use og-meta proxy URL for sharing so crawlers get proper OG tags
+  const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-meta?slug=${site.slug}`;
   const shareText = `You're invited to ${site.partner1} & ${site.partner2}'s wedding! 💍✨`;
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${siteUrl}`)}`;
-  const emailUrl = `mailto:?subject=${encodeURIComponent(`${site.partner1} & ${site.partner2}'s Wedding Invitation`)}&body=${encodeURIComponent(`${shareText}\n\nView our wedding site: ${siteUrl}`)}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`;
+  const emailUrl = `mailto:?subject=${encodeURIComponent(`${site.partner1} & ${site.partner2}'s Wedding Invitation`)}&body=${encodeURIComponent(`${shareText}\n\nView our wedding site: ${shareUrl}`)}`;
 
   return (
     <div className="min-h-screen bg-background relative">
