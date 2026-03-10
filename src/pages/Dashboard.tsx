@@ -8,7 +8,7 @@ import {
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
-  IndianRupee
+  IndianRupee, BookOpen
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { toast } from "@/hooks/use-toast";
 import { useSiteAnalytics } from "@/hooks/use-analytics";
 import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
 import BudgetTracker from "@/components/BudgetTracker";
+import GettingStartedGuide from "@/components/GettingStartedGuide";
 import {
   Tabs,
   TabsContent,
@@ -162,29 +163,37 @@ const Dashboard = () => {
 
         {!site ? (
           /* No site yet */
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-card border border-border/50 rounded-2xl p-8 sm:p-12 text-center"
-          >
-            <Sparkles className="w-12 h-12 text-gold mx-auto mb-4" />
-            <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-              Create Your Wedding Site
-            </h2>
-            <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">
-              Our AI wizard will help you build a beautiful wedding website in minutes.
-            </p>
-            <Button variant="gold" size="lg" asChild>
-              <Link to="/wizard">
-                <Sparkles className="w-4 h-4 mr-2" /> Start AI Wizard
-              </Link>
-            </Button>
-          </motion.div>
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-card border border-border/50 rounded-2xl p-8 sm:p-12 text-center"
+            >
+              <Sparkles className="w-12 h-12 text-gold mx-auto mb-4" />
+              <h2 className="font-display text-2xl font-bold text-foreground mb-2">
+                Create Your Wedding Site
+              </h2>
+              <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">
+                Our AI wizard will help you build a beautiful wedding website in minutes.
+              </p>
+              <Button variant="gold" size="lg" asChild>
+                <Link to="/wizard">
+                  <Sparkles className="w-4 h-4 mr-2" /> Start AI Wizard
+                </Link>
+              </Button>
+            </motion.div>
+            <div className="mt-8">
+              <GettingStartedGuide />
+            </div>
+          </>
         ) : (
           /* Has site */
           <Tabs defaultValue="overview" className="space-y-6">
-             <TabsList className="bg-card border border-border/50 w-full overflow-x-auto flex-nowrap justify-start sm:justify-center">
+            <TabsList className="bg-card border border-border/50 w-full overflow-x-auto flex-nowrap justify-start sm:justify-center">
               <TabsTrigger value="overview" className="font-body text-xs sm:text-sm">Overview</TabsTrigger>
+              <TabsTrigger value="guide" className="font-body text-xs sm:text-sm">
+                Guide <BookOpen className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+              </TabsTrigger>
               <TabsTrigger value="budget" className="font-body text-xs sm:text-sm">
                 Budget <IndianRupee className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
               </TabsTrigger>
@@ -288,6 +297,11 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* ─── Guide Tab ─── */}
+            <TabsContent value="guide">
+              <GettingStartedGuide />
             </TabsContent>
 
             {/* ─── Budget Tab ─── */}
