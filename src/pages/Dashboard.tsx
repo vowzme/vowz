@@ -299,6 +299,11 @@ const Dashboard = () => {
               </div>
             </TabsContent>
 
+            {/* ─── Guide Tab ─── */}
+            <TabsContent value="guide">
+              <GettingStartedGuide />
+            </TabsContent>
+
             {/* ─── Budget Tab ─── */}
             <TabsContent value="budget">
               <BudgetTracker siteId={site?.id} />
