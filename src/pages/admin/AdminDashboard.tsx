@@ -1,0 +1,60 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Globe, Heart, CreditCard } from "lucide-react";
+
+export default function AdminDashboard() {
+  const [stats, setStats] = useState({ users: 0, sites: 0, publishedSites: 0, rsvps: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [profilesRes, sitesRes, rsvpsRes] = await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("wedding_sites").select("id, is_published", { count: "exact" }),
+        supabase.from("rsvps").select("id", { count: "exact", head: true }),
+      ]);
+
+      const publishedCount = sitesRes.data?.filter((s: any) => s.is_published).length ?? 0;
+
+      setStats({
+        users: profilesRes.count ?? 0,
+        sites: sitesRes.count ?? sitesRes.data?.length ?? 0,
+        publishedSites: publishedCount,
+        rsvps: rsvpsRes.count ?? 0,
+      });
+      setLoading(false);
+    };
+    fetchStats();
+  }, []);
+
+  const cards = [
+    { label: "Total Users", value: stats.users, icon: Users, color: "text-[hsl(var(--navy))]" },
+    { label: "Wedding Sites", value: stats.sites, icon: Globe, color: "text-[hsl(var(--gold))]" },
+    { label: "Published Sites", value: stats.publishedSites, icon: Globe, color: "text-emerald" },
+    { label: "Total RSVPs", value: stats.rsvps, icon: Heart, color: "text-[hsl(var(--gold-dark))]" },
+  ];
+
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-bold text-foreground mb-6">Dashboard Overview</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {cards.map((c) => (
+          <Card key={c.label} className="border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-body font-medium text-muted-foreground">
+                {c.label}
+              </CardTitle>
+              <c.icon className={`h-5 w-5 ${c.color}`} />
+            </CardHeader>
+            <CardContent>
+              <div className="font-display text-3xl font-bold text-foreground">
+                {loading ? "—" : c.value}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
