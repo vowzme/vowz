@@ -6,6 +6,7 @@ interface VowzLogoProps {
   className?: string;
   showIcon?: boolean;
   invertIcon?: boolean;
+  light?: boolean;
 }
 
 const VowzLogo = ({
@@ -14,6 +15,7 @@ const VowzLogo = ({
   className = "",
   showIcon = true,
   invertIcon = false,
+  light = false,
 }: VowzLogoProps) => {
   return (
     <span className={`inline-flex items-center gap-1.5 ${className}`}>
@@ -25,9 +27,9 @@ const VowzLogo = ({
         />
       )}
       <span className={`font-display font-bold tracking-tight ${textSize}`}>
-        <span className="text-[hsl(var(--navy))]">V</span>
-        <span className="text-[hsl(var(--navy))] lowercase">ow</span>
-        <span className="text-[hsl(var(--gold))]">Z</span>
+        <span className={light ? "text-primary-foreground" : "text-[hsl(var(--navy))]"}>V</span>
+        <span className={`${light ? "text-primary-foreground" : "text-[hsl(var(--navy))]"} lowercase`}>ow</span>
+        <span className={light ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--gold))]"}>Z</span>
       </span>
     </span>
   );
