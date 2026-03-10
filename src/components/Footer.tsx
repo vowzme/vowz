@@ -23,16 +23,12 @@ const Footer = () => {
               { label: "AI Wizard", href: "/wizard" },
             ]},
             { title: "Support", links: [
-              { label: "Help Center", href: "#" },
-              { label: "Contact Us", href: "#" },
-              { label: "Privacy Policy", href: "#" },
-              { label: "Terms", href: "#" },
+              { label: "Contact Us", href: "/contact" },
+              { label: "Privacy Policy", href: "/privacy" },
+              { label: "Terms of Service", href: "/terms" },
             ]},
             { title: "Company", links: [
-              { label: "About", href: "#" },
-              { label: "Blog", href: "#" },
               { label: "Join as Affiliate", href: "/affiliate" },
-              { label: "Careers", href: "#" },
             ]},
           ].map((col) => (
             <div key={col.title}>
