@@ -163,27 +163,29 @@ const Dashboard = () => {
 
         {!site ? (
           /* No site yet */
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-card border border-border/50 rounded-2xl p-8 sm:p-12 text-center"
-          >
-            <Sparkles className="w-12 h-12 text-gold mx-auto mb-4" />
-            <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-              Create Your Wedding Site
-            </h2>
-            <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">
-              Our AI wizard will help you build a beautiful wedding website in minutes.
-            </p>
-            <Button variant="gold" size="lg" asChild>
-              <Link to="/wizard">
-                <Sparkles className="w-4 h-4 mr-2" /> Start AI Wizard
-              </Link>
-            </Button>
-          </motion.div>
-          <div className="mt-8">
-            <GettingStartedGuide />
-          </div>
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-card border border-border/50 rounded-2xl p-8 sm:p-12 text-center"
+            >
+              <Sparkles className="w-12 h-12 text-gold mx-auto mb-4" />
+              <h2 className="font-display text-2xl font-bold text-foreground mb-2">
+                Create Your Wedding Site
+              </h2>
+              <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">
+                Our AI wizard will help you build a beautiful wedding website in minutes.
+              </p>
+              <Button variant="gold" size="lg" asChild>
+                <Link to="/wizard">
+                  <Sparkles className="w-4 h-4 mr-2" /> Start AI Wizard
+                </Link>
+              </Button>
+            </motion.div>
+            <div className="mt-8">
+              <GettingStartedGuide />
+            </div>
+          </>
         ) : (
           /* Has site */
           <Tabs defaultValue="overview" className="space-y-6">
