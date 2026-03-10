@@ -1,13 +1,1 @@
-project_id = "abnutuvscchnaabbljek"
-
-[functions.wedding-wizard]
-verify_jwt = false
-
-[functions.editor-ai]
-verify_jwt = false
-
-[functions.check-domain]
-verify_jwt = false
-
-[functions.verify-domain]
-verify_jwt = false
+project_id = "qkjuywqrncsbxjzwtlzm"
