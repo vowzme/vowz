@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /dashboard
 Disallow: /editor
-Disallow: /onboarding
+Disallow: /wizard
 Disallow: /reset-password
 Disallow: /forgot-password
 
@@ -18,4 +18,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://wedding-tales-ai.lovable.app/sitemap.xml
+Sitemap: https://vowz.co/sitemap.xml
