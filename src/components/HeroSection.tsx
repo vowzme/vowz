@@ -63,8 +63,8 @@ const HeroSection = () => {
             <Button variant="gold" size="xl" asChild>
               <Link to="/auth">Create Your Wedding Site</Link>
             </Button>
-            <Button variant="heroOutline" size="xl">
-              View Templates
+            <Button variant="heroOutline" size="xl" asChild>
+              <a href="#templates">View Templates</a>
             </Button>
           </div>
 
