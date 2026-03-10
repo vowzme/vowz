@@ -152,7 +152,7 @@ const Affiliate = () => {
     if (error) {
       toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Welcome aboard! 🎉", description: "You're now a Bhalf affiliate partner." });
+      toast({ title: "Welcome aboard! 🎉", description: "You're now a Vowz affiliate partner." });
       await loadAffiliateData(user.id);
     }
     setAuthLoading(false);
@@ -213,7 +213,7 @@ const Affiliate = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2.5 group">
             <Heart className="w-5 h-5 text-accent transition-transform group-hover:scale-110" fill="currentColor" />
-            <span className="font-display text-xl font-semibold text-foreground">Bhalf</span>
+            <span className="font-display text-xl font-semibold text-foreground">Vowz</span>
           </Link>
           <span className="text-border mx-2">|</span>
           <span className="font-body text-sm text-muted-foreground">Affiliate Program</span>
@@ -380,7 +380,7 @@ const Affiliate = () => {
                   ))}
                 </motion.div>
                 <motion.blockquote variants={fadeUp} custom={1} className="font-display text-xl sm:text-2xl text-foreground italic leading-relaxed mb-6">
-                  "I started sharing Bhalf links in my wedding planning community and earned ₹12,000 in my first month alone. The tracking is seamless and payouts are always on time."
+                  "I started sharing Vowz links in my wedding planning community and earned ₹12,000 in my first month alone. The tracking is seamless and payouts are always on time."
                 </motion.blockquote>
                 <motion.div variants={fadeUp} custom={2}>
                   <p className="font-body text-sm font-semibold text-foreground">Priya Sharma</p>

@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/hero-bg-new.jpg";
 import { Button } from "@/components/ui/button";
-import bhalfLogo from "@/assets/bhalf-logo.png";
+import vowzLogo from "@/assets/vowz-logo.png";
 
 const HeroSection = () => {
   return (
@@ -11,19 +11,19 @@ const HeroSection = () => {
       <div className="absolute inset-0">
         <img
           src={heroBg}
-          alt="Indian wedding decorations with marigold flowers and mandala patterns"
+          alt="Elegant navy and gold wedding backdrop"
           className="w-full h-full object-cover"
           loading="eager"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-hero opacity-70" />
+        <div className="absolute inset-0 bg-gradient-hero opacity-60" />
       </div>
 
-      {/* Floating petals animation */}
+      {/* Floating particles animation */}
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-3 h-3 rounded-full bg-gold/40"
+          className="absolute w-2 h-2 rounded-full bg-gold/30"
           initial={{ y: -20, x: Math.random() * 100 + "%", opacity: 0 }}
           animate={{
             y: "110vh",
@@ -45,20 +45,20 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="h-px w-12 bg-gold/60" />
-            <img src={bhalfLogo} alt="Bhalf" className="h-12 object-contain brightness-0 invert opacity-80" />
-            <div className="h-px w-12 bg-gold/60" />
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="h-px w-16 bg-gold/40" />
+            <img src={vowzLogo} alt="Vowz" className="h-14 object-contain brightness-0 invert opacity-90" />
+            <div className="h-px w-16 bg-gold/40" />
           </div>
 
-          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4 sm:mb-6 leading-tight">
-            Your Love Story,{" "}
-            <span className="text-gradient-gold italic">Beautifully Told</span>
+          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4 sm:mb-6 leading-tight tracking-tight">
+            Where Vows{" "}
+            <span className="text-gradient-gold italic">Come Alive</span>
           </h1>
 
-          <p className="font-body text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
-            Create stunning, personalized Indian wedding websites in minutes.
-            From Mehendi to Reception — celebrate every ritual with elegance.
+          <p className="font-body text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2 font-light">
+            Create stunning, personalized wedding websites in minutes.
+            Every ceremony, every tradition — celebrated with elegance.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -70,13 +70,13 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-primary-foreground/50 font-body">
+          <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-primary-foreground/50 font-body font-light tracking-wide">
             Free forever • No credit card required • 5 min setup with AI
           </p>
         </motion.div>
       </div>
 
-      {/* Bottom mandala fade */}
+      {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
     </section>
   );

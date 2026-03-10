@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import bhalfLogo from "@/assets/bhalf-logo.png";
+import vowzLogo from "@/assets/vowz-logo.png";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -19,7 +19,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <a href="/" className="flex items-center">
-          <img src={bhalfLogo} alt="Bhalf" className="h-7 sm:h-8 object-contain" />
+          <img src={vowzLogo} alt="Vowz" className="h-7 sm:h-8 object-contain" />
         </a>
 
         {/* Desktop */}
@@ -29,7 +29,7 @@ const Navbar = () => {
               <Link
                 key={l.label}
                 to={l.href}
-                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
               >
                 {l.label}
               </Link>
@@ -37,7 +37,7 @@ const Navbar = () => {
               <a
                 key={l.label}
                 href={l.href}
-                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
               >
                 {l.label}
               </a>

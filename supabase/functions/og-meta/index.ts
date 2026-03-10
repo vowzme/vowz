@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
   <meta property="og:image" content="${escapeHtml(ogImageUrl)}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:site_name" content="Bhalf" />
+  <meta property="og:site_name" content="Vowz" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />

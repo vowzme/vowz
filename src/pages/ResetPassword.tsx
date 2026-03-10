@@ -67,7 +67,7 @@ const ResetPassword = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="flex items-center gap-2 mb-8">
           <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-          <span className="font-display text-xl font-bold text-foreground">Bhalf</span>
+          <span className="font-display text-xl font-bold text-foreground">Vowz</span>
         </div>
 
         <h1 className="font-display text-3xl font-bold text-foreground mb-1">Set new password</h1>
