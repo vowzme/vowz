@@ -99,7 +99,7 @@ const PublicSite = () => {
     setMeta("description", description);
 
     return () => {
-      document.title = "Bhalf — Your Better Half, Online";
+      document.title = "Vowz — Where Vows Come Alive";
     };
   }, [site]);
 
