@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
@@ -100,8 +101,9 @@ const PricingSection = () => {
                 variant={plan.featured ? "gold" : "outline"}
                 size="lg"
                 className="w-full mb-8"
+                asChild
               >
-                {plan.cta}
+                <Link to="/auth">{plan.cta}</Link>
               </Button>
 
               <ul className="space-y-3">
