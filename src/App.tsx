@@ -20,6 +20,12 @@ import Affiliate from "./pages/Affiliate";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Contact from "./pages/Contact";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminSites from "./pages/admin/AdminSites";
+import AdminPayments from "./pages/admin/AdminPayments";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +53,11 @@ const AppRoutes = () => (
     <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
     <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
     <Route path="/contact" element={<Layout><Contact /></Layout>} />
+    <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
+    <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
+    <Route path="/admin/sites" element={<AdminLayout><AdminSites /></AdminLayout>} />
+    <Route path="/admin/payments" element={<AdminLayout><AdminPayments /></AdminLayout>} />
+    <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>
 );
