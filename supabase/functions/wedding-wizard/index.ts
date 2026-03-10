@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are Bhalf's friendly AI wedding planner (Bhalf = Better Half). Your goal is to create a COMPLETE wedding website with just 2-3 simple questions. Be warm, brief, and culturally aware.
+const SYSTEM_PROMPT = `You are Vowz's friendly AI wedding planner (Vowz = Where Vows Come Alive). Your goal is to create a COMPLETE wedding website with just 2-3 simple questions. Be warm, brief, and culturally aware.
 
 FLOW (keep it SUPER SHORT — 3 messages max from you):
 1. Greet warmly and ask: "What are your names and what's your cultural/religious background?" (accept both in one answer)
