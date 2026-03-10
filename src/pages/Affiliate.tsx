@@ -213,7 +213,7 @@ const Affiliate = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2.5 group">
             <Heart className="w-5 h-5 text-accent transition-transform group-hover:scale-110" fill="currentColor" />
-            <span className="font-display text-xl font-semibold text-foreground">Bhalf</span>
+            <span className="font-display text-xl font-semibold text-foreground">Vowz</span>
           </Link>
           <span className="text-border mx-2">|</span>
           <span className="font-body text-sm text-muted-foreground">Affiliate Program</span>
