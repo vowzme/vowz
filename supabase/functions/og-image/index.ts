@@ -6,6 +6,43 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+function generateSVG(partner1: string, partner2: string, tagline: string, colors: string[]): string {
+  const [bg, accent, light] = colors.length >= 3 ? colors : ["#6B1D2A", "#D4A853", "#FFF5E6"];
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <defs>
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:${bg};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:${bg};stop-opacity:0.85" />
+      </linearGradient>
+    </defs>
+    <rect width="1200" height="630" fill="url(#bg)"/>
+    <!-- Decorative circles -->
+    ${[...Array(6)].map((_, i) => `<circle cx="600" cy="315" r="${80 + i * 50}" fill="none" stroke="${light}" stroke-opacity="0.08" stroke-width="1"/>`).join("")}
+    <!-- Decorative corners -->
+    <path d="M40,40 L120,40 M40,40 L40,120" stroke="${accent}" stroke-width="2" fill="none" stroke-opacity="0.6"/>
+    <path d="M1160,40 L1080,40 M1160,40 L1160,120" stroke="${accent}" stroke-width="2" fill="none" stroke-opacity="0.6"/>
+    <path d="M40,590 L120,590 M40,590 L40,510" stroke="${accent}" stroke-width="2" fill="none" stroke-opacity="0.6"/>
+    <path d="M1160,590 L1080,590 M1160,590 L1160,510" stroke="${accent}" stroke-width="2" fill="none" stroke-opacity="0.6"/>
+    <!-- Heart -->
+    <text x="600" y="200" text-anchor="middle" fill="${accent}" font-size="40">♥</text>
+    <!-- Subtitle -->
+    <text x="600" y="250" text-anchor="middle" fill="${light}" font-family="serif" font-size="16" letter-spacing="6" opacity="0.7">YOU'RE INVITED TO THE WEDDING OF</text>
+    <!-- Names -->
+    <text x="600" y="340" text-anchor="middle" fill="${light}" font-family="Georgia, serif" font-size="64" font-weight="bold">${escapeXml(partner1)} &amp; ${escapeXml(partner2)}</text>
+    <!-- Tagline -->
+    <text x="600" y="400" text-anchor="middle" fill="${accent}" font-family="Georgia, serif" font-size="22" font-style="italic">${escapeXml(tagline)}</text>
+    <!-- Divider -->
+    <line x1="480" y1="440" x2="720" y2="440" stroke="${accent}" stroke-width="1" stroke-opacity="0.5"/>
+    <!-- Powered by -->
+    <text x="600" y="560" text-anchor="middle" fill="${light}" font-family="sans-serif" font-size="12" opacity="0.4">vowz.lovable.app</text>
+  </svg>`;
+}
+
+function escapeXml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -30,7 +67,6 @@ Deno.serve(async (req) => {
     .createSignedUrl(cachedPath, 60);
 
   if (existing?.signedUrl) {
-    // Serve cached — redirect to public URL
     const { data: pub } = supabase.storage
       .from("wedding-photos")
       .getPublicUrl(cachedPath);
@@ -50,90 +86,22 @@ Deno.serve(async (req) => {
   }
 
   const colors = Array.isArray(site.suggested_colors)
-    ? site.suggested_colors
+    ? site.suggested_colors as string[]
     : ["#6B1D2A", "#D4A853", "#FFF5E6"];
 
-  const prompt = `Create a beautiful, elegant wedding invitation card style image in 1200x630 landscape format. 
-Use these exact colors: background ${colors[2] || "#FFF5E6"}, accent ${colors[0] || "#6B1D2A"}, gold highlights ${colors[1] || "#D4A853"}.
-The image should have ornate decorative borders and floral motifs.
-Display the names "${site.partner1} & ${site.partner2}" prominently in elegant script typography in the center.
-Below the names show "${site.tagline || "We're getting married!"}".
-Style: ${site.theme || "traditional"} Indian wedding aesthetic with mandala patterns and subtle paisley designs.
-The overall feel should be luxurious, romantic, and culturally rich. 16:9 aspect ratio.`;
+  const svg = generateSVG(
+    site.partner1,
+    site.partner2,
+    site.tagline || "We're getting married!",
+    colors
+  );
 
-  try {
-    const aiResponse = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image",
-          messages: [{ role: "user", content: prompt }],
-          modalities: ["image", "text"],
-        }),
-      }
-    );
-
-    if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      console.error("AI error:", errText);
-      return new Response("Image generation failed", {
-        status: 500,
-        headers: corsHeaders,
-      });
-    }
-
-    const aiData = await aiResponse.json();
-    const imageData =
-      aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-    if (!imageData) {
-      console.error("No image in response:", JSON.stringify(aiData).slice(0, 500));
-      return new Response("No image generated", {
-        status: 500,
-        headers: corsHeaders,
-      });
-    }
-
-    // Decode base64
-    const base64 = imageData.replace(/^data:image\/\w+;base64,/, "");
-    const binaryStr = atob(base64);
-    const bytes = new Uint8Array(binaryStr.length);
-    for (let i = 0; i < binaryStr.length; i++) {
-      bytes[i] = binaryStr.charCodeAt(i);
-    }
-
-    // Upload to storage
-    const { error: uploadError } = await supabase.storage
-      .from("wedding-photos")
-      .upload(cachedPath, bytes, {
-        contentType: "image/png",
-        upsert: true,
-      });
-
-    if (uploadError) {
-      console.error("Upload error:", uploadError);
-      return new Response("Upload failed", {
-        status: 500,
-        headers: corsHeaders,
-      });
-    }
-
-    // Return public URL
-    const { data: pub } = supabase.storage
-      .from("wedding-photos")
-      .getPublicUrl(cachedPath);
-
-    return Response.redirect(pub.publicUrl, 302);
-  } catch (err) {
-    console.error("Unexpected error:", err);
-    return new Response("Internal error", {
-      status: 500,
-      headers: corsHeaders,
-    });
-  }
+  // Return SVG directly (no AI, no cost)
+  return new Response(svg, {
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, max-age=86400",
+    },
+  });
 });
