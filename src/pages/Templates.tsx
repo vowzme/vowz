@@ -64,6 +64,7 @@ const Templates = () => {
         twitterDescription="Browse 25+ stunning wedding invitation templates. Traditional to modern, free to start."
         twitterImage="https://vowz.me/og-templates.jpg"
         canonical="https://vowz.me/templates"
+        robots="index, follow"
       />
       <Navbar />
       

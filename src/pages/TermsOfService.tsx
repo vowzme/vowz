@@ -13,6 +13,7 @@ const TermsOfService = () => (
       ogType="website"
       twitterCard="summary"
       canonical="https://vowz.me/terms"
+      robots="index, follow"
     />
     <Navbar />
     <div className="max-w-3xl mx-auto px-4 pt-28 pb-16">

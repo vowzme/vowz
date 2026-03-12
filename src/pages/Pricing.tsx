@@ -66,6 +66,7 @@ const Pricing = () => {
         twitterDescription="Free plan available. Pro ₹499 – Premium ₹999. Unlimited invites, premium themes, no watermarks, custom domains."
         twitterImage="https://vowz.me/og-pricing.jpg"
         canonical="https://vowz.me/pricing"
+        robots="index, follow"
       />
       <div className="min-h-screen bg-background">
         <Navbar />
