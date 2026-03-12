@@ -448,38 +448,36 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
 }
 
 // ─── Gallery ──────────────────────────────────────────────────────────
-function GallerySection({ data, accent }: { data: any; accent: string }) {
+function GallerySection({ data, accent, coupleNames }: { data: any; accent: string; coupleNames: string }) {
   const photos: GalleryPhoto[] = data.photos || [];
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   if (photos.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6 }}
+    <section
+      aria-label={data.heading || "Photo Gallery"}
       className="bg-card py-16 md:py-20 px-6"
     >
       <div className="max-w-4xl mx-auto">
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-3">
           {data.heading || "Our Moments"}
         </h2>
-        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} />
+        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} aria-hidden="true" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {photos.map((photo, i) => (
-            <motion.div
+            <div
               key={photo.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
               className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
               onClick={() => setLightboxIndex(i)}
             >
-              <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
-            </motion.div>
+              <img
+                src={photo.url}
+                alt={photo.name ? `Wedding photo of ${coupleNames} – ${photo.name}` : `Wedding photo of ${coupleNames}`}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -492,7 +490,7 @@ function GallerySection({ data, accent }: { data: any; accent: string }) {
           />
         )}
       </AnimatePresence>
-    </motion.div>
+    </section>
   );
 }
 
