@@ -20,6 +20,7 @@ import { toast } from "@/hooks/use-toast";
 import { useSiteAnalytics } from "@/hooks/use-analytics";
 import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
 import BudgetTracker from "@/components/BudgetTracker";
+import SEOHead from "@/components/SEOHead";
 import GettingStartedGuide from "@/components/GettingStartedGuide";
 import {
   Tabs,
@@ -136,6 +137,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Dashboard – Vowz" description="Manage your wedding website, RSVPs, and settings." robots="noindex, nofollow" />
       {/* Header */}
       <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">

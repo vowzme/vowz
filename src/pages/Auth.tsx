@@ -70,6 +70,7 @@ const Auth = () => {
         twitterDescription="Create your free wedding website account. No credit card required."
         twitterImage="https://vowz.me/og-auth.jpg"
         canonical="https://vowz.me/auth"
+        robots="noindex, nofollow"
       />
       <div className="min-h-screen bg-background flex">
         {/* Left decorative panel */}

@@ -37,6 +37,7 @@ const Contact = () => {
         twitterDescription="Get help with your wedding invitation or website. Fast support within 24 hours."
         twitterImage="https://vowz.me/og-contact.jpg"
         canonical="https://vowz.me/contact"
+        robots="index, follow"
       />
       <Navbar />
       <div className="max-w-5xl mx-auto px-4 pt-28 pb-16">

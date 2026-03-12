@@ -37,7 +37,7 @@ const ForgotPassword = () => {
         ogDescription="Reset your Vowz account password. Quick and secure."
         ogImage="https://vowz.me/og-auth.jpg"
         ogUrl="https://vowz.me/forgot-password"
-        robots="noindex, follow"
+        robots="noindex, nofollow"
         canonical="https://vowz.me/forgot-password"
       />
       <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">

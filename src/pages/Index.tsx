@@ -25,6 +25,7 @@ const Index = () => {
         twitterDescription="Free digital wedding cards & websites for Indian couples."
         twitterImage="https://vowz.me/og-home.jpg"
         canonical="https://vowz.me"
+        robots="index, follow"
       />
       <Navbar />
       <HeroSection />

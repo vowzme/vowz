@@ -222,6 +222,7 @@ const Affiliate = () => {
         twitterDescription="Join our affiliate program and earn ₹200 per wedding website referral. Free to join."
         twitterImage="https://vowz.me/og-affiliate.jpg"
         canonical="https://vowz.me/affiliate"
+        robots="index, follow"
       />
       {/* Header */}
       <header className="border-b border-border/40 bg-card/80 backdrop-blur-md sticky top-0 z-20">

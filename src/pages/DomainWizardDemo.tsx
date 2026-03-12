@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import SEOHead from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -160,6 +161,7 @@ const DomainWizardDemo = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Custom Domain Setup – Vowz" description="Learn how to connect a custom domain to your Vowz wedding website." robots="index, follow" />
       {/* Header */}
       <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
