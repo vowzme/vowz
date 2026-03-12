@@ -70,12 +70,22 @@ const OnboardingWizard = () => {
     }
   };
 
+  const [customEvent, setCustomEvent] = useState("");
+
   const toggleEvent = (event: string) => {
     const current = wizardData.functions;
     if (current.includes(event)) {
       updateField("functions", current.filter((e) => e !== event));
     } else {
       updateField("functions", [...current, event]);
+    }
+  };
+
+  const addCustomEvent = () => {
+    const val = customEvent.trim();
+    if (val && !wizardData.functions.includes(val)) {
+      updateField("functions", [...wizardData.functions, val]);
+      setCustomEvent("");
     }
   };
 
