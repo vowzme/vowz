@@ -87,6 +87,13 @@ const Navbar = () => {
                   </a>
                 )
               ))}
+              <Link
+                to="/auth"
+                className="font-body text-sm text-muted-foreground py-2"
+                onClick={() => setOpen(false)}
+              >
+                Log In
+              </Link>
               <Button variant="gold" size="sm" className="mt-2" asChild><Link to="/auth">Get Started</Link></Button>
             </div>
           </motion.div>
