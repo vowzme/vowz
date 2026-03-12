@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MapPin, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
+import SEOHead from "@/components/SEOHead";
 
 import { templates, TemplateData } from "@/components/TemplatesSection";
 
