@@ -20,7 +20,7 @@ const Footer = () => {
               { label: "Templates", href: "/templates" },
               { label: "Features", href: "#features" },
               { label: "Pricing", href: "#pricing" },
-              { label: "AI Wizard", href: "/wizard" },
+              { label: "Create Site", href: "/auth" },
             ]},
             { title: "Support", links: [
               { label: "Contact Us", href: "/contact" },

@@ -174,11 +174,11 @@ const Dashboard = () => {
                 Create Your Wedding Site
               </h2>
               <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">
-                Our AI wizard will help you build a beautiful wedding website in minutes.
+                Our step-by-step wizard will help you build a beautiful wedding website in minutes.
               </p>
               <Button variant="gold" size="lg" asChild>
                 <Link to="/wizard">
-                  <Sparkles className="w-4 h-4 mr-2" /> Start AI Wizard
+                  <Sparkles className="w-4 h-4 mr-2" /> Start Wedding Wizard
                 </Link>
               </Button>
             </motion.div>

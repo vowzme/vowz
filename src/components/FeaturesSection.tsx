@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 const freeFeatures = [
-  { icon: Sparkles, title: "AI Wedding Wizard", desc: "Answer 5 questions, get a complete wedding site draft instantly" },
+  { icon: Sparkles, title: "Easy Wedding Wizard", desc: "Answer 5 simple questions and get a complete wedding site draft instantly" },
   { icon: Image, title: "50 Photo Gallery", desc: "Showcase your best moments with a beautiful, responsive gallery" },
   { icon: Calendar, title: "Event Schedule", desc: "Mehendi, Sangeet, Pheras — list all functions with maps & times" },
   { icon: Heart, title: "Our Story Page", desc: "Share your love story timeline with photos and milestones" },
@@ -117,6 +117,9 @@ const FeaturesSection = () => {
               </div>
               <h3 className="font-display text-lg font-semibold text-foreground mb-1">{f.title}</h3>
               <p className="text-muted-foreground font-body text-sm">{f.desc}</p>
+              <span className="inline-block mt-2 text-[10px] font-body font-semibold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
+                Coming Soon
+              </span>
             </motion.div>
           ))}
         </motion.div>

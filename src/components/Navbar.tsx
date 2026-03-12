@@ -44,11 +44,14 @@ const Navbar = () => {
               </a>
             )
           ))}
+          <Link to="/auth" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors font-medium">
+            Log In
+          </Link>
           <Button variant="gold" size="sm" asChild><Link to="/auth">Get Started</Link></Button>
         </div>
 
         {/* Mobile toggle */}
-        <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
+      <button className="md:hidden text-foreground" onClick={() => setOpen(!open)} aria-label={open ? "Close menu" : "Open menu"}>
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
@@ -84,6 +87,13 @@ const Navbar = () => {
                   </a>
                 )
               ))}
+              <Link
+                to="/auth"
+                className="font-body text-sm text-muted-foreground py-2"
+                onClick={() => setOpen(false)}
+              >
+                Log In
+              </Link>
               <Button variant="gold" size="sm" className="mt-2" asChild><Link to="/auth">Get Started</Link></Button>
             </div>
           </motion.div>

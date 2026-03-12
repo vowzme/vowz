@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -10,14 +10,14 @@ const plans = [
     period: "forever",
     description: "Perfect for getting started",
     features: [
-      "AI Wedding Wizard",
-      "5 beautiful templates",
-      "50 photo uploads (100MB)",
-      "RSVP form with notifications",
-      "QR code invites",
-      "Mobile-responsive site",
-      "Basic analytics",
-      "Subdomain (you.vowz.me)",
+      { text: "Easy Wedding Wizard", coming: false },
+      { text: "5 beautiful templates", coming: false },
+      { text: "50 photo uploads (100MB)", coming: false },
+      { text: "RSVP form with notifications", coming: false },
+      { text: "QR code invites", coming: false },
+      { text: "Mobile-responsive site", coming: false },
+      { text: "Basic analytics", coming: false },
+      { text: "Subdomain (you.vowz.me)", coming: false },
     ],
     cta: "Get Started Free",
     featured: false,
@@ -29,17 +29,17 @@ const plans = [
     altPrice: "or ₹4,999 one-time",
     description: "Everything for your perfect day",
     features: [
-      "Everything in Free, plus:",
-      "Custom domain (yournames.com)",
-      "20+ premium templates",
-      "5GB storage for photos & videos",
-      "Video embeds",
-      "Password-protected sites",
-      "Multilingual auto-translation",
-      "AI story writer & invite wording",
-      "Countdown timer & guestbook",
-      "No watermarks, ad-free",
-      "Priority support",
+      { text: "Everything in Free, plus:", coming: false },
+      { text: "Custom domain (yournames.com)", coming: true },
+      { text: "20+ premium templates", coming: true },
+      { text: "5GB storage for photos & videos", coming: false },
+      { text: "Video embeds", coming: true },
+      { text: "Password-protected sites", coming: true },
+      { text: "Multilingual auto-translation", coming: true },
+      { text: "AI story writer & invite wording", coming: true },
+      { text: "Countdown timer & guestbook", coming: false },
+      { text: "No watermarks, ad-free", coming: false },
+      { text: "Priority support", coming: false },
     ],
     cta: "Upgrade to Premium",
     featured: true,
@@ -108,9 +108,16 @@ const PricingSection = () => {
 
               <ul className="space-y-3">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm font-body">
-                    <Check className="w-4 h-4 text-emerald mt-0.5 shrink-0" />
-                    <span className="text-foreground">{f}</span>
+                  <li key={f.text} className="flex items-start gap-3 text-sm font-body">
+                    {f.coming ? (
+                      <Clock className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                    ) : (
+                      <Check className="w-4 h-4 text-emerald mt-0.5 shrink-0" />
+                    )}
+                    <span className={f.coming ? "text-muted-foreground" : "text-foreground"}>
+                      {f.text}
+                      {f.coming && <span className="ml-1.5 text-[10px] bg-gold/15 text-gold px-1.5 py-0.5 rounded-full font-semibold">Coming Soon</span>}
+                    </span>
                   </li>
                 ))}
               </ul>
