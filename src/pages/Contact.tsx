@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import SEOHead from "@/components/SEOHead";
 
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
