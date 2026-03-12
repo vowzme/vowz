@@ -3,10 +3,19 @@ import { motion } from "framer-motion";
 import { Heart, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
+import SEOHead from "@/components/SEOHead";
 
 const NotFound = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Page Not Found – Vowz"
+        description="The page you're looking for doesn't exist. Explore our wedding website templates and start creating your free invitation."
+        ogTitle="Page Not Found – Vowz"
+        ogDescription="Sorry, we couldn't find that page. Browse our wedding website templates instead."
+        ogImage="https://vowz.me/og-home.jpg"
+        robots="noindex, follow"
+      />
       <Navbar />
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4">
         <motion.div

@@ -83,7 +83,7 @@ const ForgotPassword = () => {
           <ArrowLeft className="w-4 h-4" /> Back to login
         </Link>
       </motion.div>
-    </div>
+    </>
   );
 };
 
