@@ -5,6 +5,7 @@ import TemplatesSection from "@/components/TemplatesSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
+import SEOHead from "@/components/SEOHead";
 import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 
 const Index = () => {
