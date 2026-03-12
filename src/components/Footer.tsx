@@ -1,4 +1,3 @@
-import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import VowzLogo from "@/components/VowzLogo";
 
@@ -12,7 +11,7 @@ const Footer = () => {
               <VowzLogo iconSize="h-8" textSize="text-xl" />
             </div>
             <p className="text-muted-foreground font-body text-sm">
-              Where Vows Come Alive. Beautiful wedding websites, made simple.
+              A product of <strong className="text-foreground">AXPIR TECH</strong>. Where Vows Come Alive.
             </p>
           </div>
           {[
@@ -22,13 +21,14 @@ const Footer = () => {
               { label: "Pricing", href: "#pricing" },
               { label: "Create Site", href: "/auth" },
             ]},
-            { title: "Support", links: [
+            { title: "Company", links: [
+              { label: "About Us", href: "/about" },
               { label: "Contact Us", href: "/contact" },
+              { label: "Join as Affiliate", href: "/affiliate" },
+            ]},
+            { title: "Legal", links: [
               { label: "Privacy Policy", href: "/privacy" },
               { label: "Terms of Service", href: "/terms" },
-            ]},
-            { title: "Company", links: [
-              { label: "Join as Affiliate", href: "/affiliate" },
             ]},
           ].map((col) => (
             <div key={col.title}>
@@ -53,7 +53,7 @@ const Footer = () => {
         </div>
         <div className="border-t border-border/50 pt-6 text-center">
           <p className="text-xs text-muted-foreground font-body">
-            © 2026 VowZ (vowz.me). Crafted with love 💍
+            © 2026 AXPIR TECH · VowZ (vowz.me). Crafted with love 💍
           </p>
         </div>
       </div>
