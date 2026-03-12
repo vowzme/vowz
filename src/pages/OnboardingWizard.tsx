@@ -302,16 +302,13 @@ const OnboardingWizard = () => {
                     <div className="flex gap-2">
                       <Input
                         placeholder="e.g. Cocktail Night"
-                        id="custom-event"
                         className="h-10 font-body"
+                        value={customEvent}
+                        onChange={(e) => setCustomEvent(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
-                            const input = e.currentTarget;
-                            const val = input.value.trim();
-                            if (val && !wizardData.functions.includes(val)) {
-                              updateField("functions", [...wizardData.functions, val]);
-                              input.value = "";
-                            }
+                            e.preventDefault();
+                            addCustomEvent();
                           }
                         }}
                       />
@@ -319,14 +316,8 @@ const OnboardingWizard = () => {
                         variant="outline"
                         size="sm"
                         className="h-10"
-                        onClick={() => {
-                          const input = document.getElementById("custom-event") as HTMLInputElement;
-                          const val = input?.value.trim();
-                          if (val && !wizardData.functions.includes(val)) {
-                            updateField("functions", [...wizardData.functions, val]);
-                            input.value = "";
-                          }
-                        }}
+                        type="button"
+                        onClick={addCustomEvent}
                       >
                         Add
                       </Button>
