@@ -22,6 +22,7 @@ import Affiliate from "./pages/Affiliate";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Contact from "./pages/Contact";
+import AboutUs from "./pages/AboutUs";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -55,6 +56,7 @@ const AppRoutes = () => (
     <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
     <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
     <Route path="/contact" element={<Layout><Contact /></Layout>} />
+    <Route path="/about" element={<Layout><AboutUs /></Layout>} />
     <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
     <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
     <Route path="/admin/sites" element={<AdminLayout><AdminSites /></AdminLayout>} />
