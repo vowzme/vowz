@@ -65,12 +65,23 @@ const ResetPassword = () => {
           <p className="font-body text-muted-foreground">Verifying reset link…</p>
           <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mt-4" />
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
+    <>
+      <SEOHead
+        title="Set New Password – Vowz"
+        description="Create a new secure password for your Vowz account."
+        ogTitle="Set New Password – Vowz"
+        ogDescription="Create a new password for your Vowz wedding website account."
+        ogImage="https://vowz.me/og-auth.jpg"
+        ogUrl="https://vowz.me/reset-password"
+        robots="noindex, nofollow"
+        canonical="https://vowz.me/reset-password"
+      />
+      <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="flex items-center gap-2 mb-8">
           <Heart className="w-5 h-5 text-gold" fill="currentColor" />
