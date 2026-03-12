@@ -53,7 +53,13 @@ const ResetPassword = () => {
 
   if (!ready) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+      <>
+        <SEOHead
+          title="Reset Password – Vowz"
+          description="Verifying your password reset link..."
+          robots="noindex, nofollow"
+        />
+        <div className="min-h-screen bg-background flex items-center justify-center px-6">
         <div className="text-center">
           <Heart className="w-8 h-8 text-gold mx-auto mb-4" fill="currentColor" />
           <p className="font-body text-muted-foreground">Verifying reset link…</p>
