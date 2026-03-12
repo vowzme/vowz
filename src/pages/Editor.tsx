@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { useAuth } from "@/hooks/use-auth";
 import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
+import SEOHead from "@/components/SEOHead";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
