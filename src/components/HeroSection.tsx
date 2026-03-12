@@ -71,7 +71,7 @@ const HeroSection = () => {
           </div>
 
           <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-primary-foreground/50 font-body font-light tracking-wide">
-            Free forever • No credit card required • 5 min setup with AI
+            Free forever • No credit card required • 5 min setup
           </p>
         </motion.div>
       </div>

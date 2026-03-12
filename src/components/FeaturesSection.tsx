@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 const freeFeatures = [
-  { icon: Sparkles, title: "AI Wedding Wizard", desc: "Answer 5 questions, get a complete wedding site draft instantly" },
+  { icon: Sparkles, title: "Easy Wedding Wizard", desc: "Answer 5 simple questions and get a complete wedding site draft instantly" },
   { icon: Image, title: "50 Photo Gallery", desc: "Showcase your best moments with a beautiful, responsive gallery" },
   { icon: Calendar, title: "Event Schedule", desc: "Mehendi, Sangeet, Pheras — list all functions with maps & times" },
   { icon: Heart, title: "Our Story Page", desc: "Share your love story timeline with photos and milestones" },
