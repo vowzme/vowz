@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf } from "lucide-react";
@@ -11,6 +11,7 @@ import Lightbox from "@/components/Lightbox";
 import type { GalleryPhoto } from "@/hooks/use-gallery-photos";
 import { useAnalyticsTracker } from "@/hooks/use-analytics";
 import { z } from "zod";
+import SEOHead from "@/components/SEOHead";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
