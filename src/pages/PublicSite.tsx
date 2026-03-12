@@ -291,17 +291,15 @@ function PublicSection({
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────
-function HeroSection({ data, bg, accent, light }: { data: any; bg: string; accent: string; light: string }) {
+function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: string; accent: string; light: string; coupleNames: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
+    <section
+      aria-label={`${coupleNames} wedding hero`}
       className="relative py-28 md:py-40 px-6 text-center overflow-hidden"
       style={{ background: `linear-gradient(135deg, ${bg}, ${bg}dd)` }}
     >
-      <div className="absolute inset-0 opacity-10">
-        <svg viewBox="0 0 400 400" className="w-full h-full">
+      <div className="absolute inset-0 opacity-10" aria-hidden="true">
+        <svg viewBox="0 0 400 400" className="w-full h-full" role="img" aria-label="Decorative circles">
           {[...Array(8)].map((_, i) => (
             <circle key={i} cx="200" cy="200" r={50 + i * 30} fill="none" stroke={light} strokeWidth="0.5" />
           ))}
@@ -311,14 +309,14 @@ function HeroSection({ data, bg, accent, light }: { data: any; bg: string; accen
         {data.logoUrl && (
           <motion.img
             src={data.logoUrl}
-            alt="Wedding logo"
+            alt={`${coupleNames} wedding logo`}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             className="w-24 h-24 md:w-28 md:h-28 mx-auto mb-5 object-contain rounded-xl"
           />
         )}
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }}>
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }} aria-hidden="true">
           <Heart className="w-10 h-10 mx-auto mb-5" style={{ color: accent }} fill="currentColor" />
         </motion.div>
         <motion.p
@@ -353,11 +351,12 @@ function HeroSection({ data, bg, accent, light }: { data: any; bg: string; accen
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
           className="mt-8"
+          aria-hidden="true"
         >
           <ChevronDown className="w-6 h-6 mx-auto animate-bounce" style={{ color: `${light}60` }} />
         </motion.div>
       </div>
-    </motion.div>
+    </section>
   );
 }
 
