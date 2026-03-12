@@ -3,6 +3,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { useAdmin } from "@/hooks/use-admin";
 import VowzLogo from "@/components/VowzLogo";
+import SEOHead from "@/components/SEOHead";
+import VowzLogo from "@/components/VowzLogo";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isAdmin, loading } = useAdmin();
