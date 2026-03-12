@@ -38,9 +38,9 @@ const freeFeatures = [
 const premiumFeatures = [
   { icon: Globe, title: "Custom Domain", desc: "Connect your own domain like arjunandmeera.com with guided DNS setup", available: true },
   { icon: Bot, title: "AI Editor Assistant", desc: "Get AI-powered theme suggestions, content writing & cultural advice", available: true },
-  { icon: Video, title: "Video Embeds", desc: "Add pre-wedding shoots and ceremony videos" },
-  { icon: Lock, title: "Password Protection", desc: "Keep your site private with guest-only access" },
-  { icon: Languages, title: "Multilingual", desc: "Auto-translate your site into Hindi, Tamil, and more" },
+  { icon: Video, title: "Video Embeds", desc: "Add pre-wedding shoots and ceremony videos", available: true },
+  { icon: Lock, title: "Password Protection", desc: "Keep your site private with guest-only access", available: true },
+  { icon: Languages, title: "Multilingual", desc: "Auto-translate your site into Hindi, Tamil, and more", available: true },
 ];
 
 const containerVariants = {
