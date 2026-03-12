@@ -384,35 +384,29 @@ function StorySection({ data, accent }: { data: any; accent: string }) {
 function EventsSection({ data, accent }: { data: any; accent: string }) {
   const events = data.events || [];
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6 }}
+    <section
+      aria-label={data.heading || "Wedding Events"}
       className="py-16 md:py-20 px-6"
     >
       <div className="max-w-3xl mx-auto">
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-3">
           {data.heading}
         </h2>
-        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} />
+        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} aria-hidden="true" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {events.map((event: any, i: number) => (
-            <motion.div
+            <article
               key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
               className="border border-border/50 rounded-2xl p-6 text-center bg-card hover:shadow-elegant transition-shadow"
             >
               <div
                 className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center"
                 style={{ backgroundColor: `${accent}20` }}
+                aria-hidden="true"
               >
                 <Calendar className="w-6 h-6" style={{ color: accent }} />
               </div>
-              <p className="font-display text-lg font-semibold text-foreground mb-1">{event.name}</p>
+              <h3 className="font-display text-lg font-semibold text-foreground mb-1">{event.name}</h3>
               {event.date && <p className="text-sm text-muted-foreground font-body">{event.date}</p>}
               {event.time && <p className="text-sm text-muted-foreground font-body">{event.time}</p>}
               {event.venue && (
@@ -445,11 +439,11 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
               {!event.date && !event.time && (
                 <p className="text-sm text-muted-foreground font-body">Date & time TBD</p>
               )}
-            </motion.div>
+            </article>
           ))}
         </div>
       </div>
-    </motion.div>
+    </section>
   );
 }
 
