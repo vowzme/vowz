@@ -1,7 +1,19 @@
 import Navbar from "@/components/Navbar";
+import SEOHead from "@/components/SEOHead";
 
 const TermsOfService = () => (
   <div className="min-h-screen bg-background">
+    <SEOHead
+      title="Terms of Service – Vowz Wedding Website Builder"
+      description="Read the Vowz Terms of Service. Learn about acceptable use, content ownership, payments, and your rights when using our wedding website platform."
+      ogTitle="Terms of Service – Vowz"
+      ogDescription="Terms and conditions for using the Vowz wedding website platform."
+      ogImage="https://vowz.me/og-home.jpg"
+      ogUrl="https://vowz.me/terms"
+      ogType="website"
+      twitterCard="summary"
+      canonical="https://vowz.me/terms"
+    />
     <Navbar />
     <div className="max-w-3xl mx-auto px-4 pt-28 pb-16">
       <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-2">Terms of Service</h1>

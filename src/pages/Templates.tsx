@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MapPin, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
+import SEOHead from "@/components/SEOHead";
 
 import { templates, TemplateData } from "@/components/TemplatesSection";
 
@@ -50,6 +51,20 @@ const Templates = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Wedding Invitation Templates – Vowz | 25+ Beautiful Designs"
+        description="Browse 25+ stunning wedding invitation templates and themes. Traditional, modern, regional, and fusion styles — all mobile-responsive and free to start."
+        ogTitle="Wedding Invitation Templates – Vowz | 25+ Beautiful Designs"
+        ogDescription="Browse our collection of stunning wedding invitation templates. Traditional Indian, modern fusion, regional styles — all beautifully designed."
+        ogImage="https://vowz.me/og-templates.jpg"
+        ogUrl="https://vowz.me/templates"
+        ogType="website"
+        twitterCard="summary_large_image"
+        twitterTitle="Wedding Invitation Templates – 25+ Beautiful Designs"
+        twitterDescription="Browse 25+ stunning wedding invitation templates. Traditional to modern, free to start."
+        twitterImage="https://vowz.me/og-templates.jpg"
+        canonical="https://vowz.me/templates"
+      />
       <Navbar />
       
       <section className="pt-32 pb-24 px-4">

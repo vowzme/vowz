@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { generateReferralCode } from "@/hooks/use-affiliate";
+import SEOHead from "@/components/SEOHead";
 
 const COMMISSION_AMOUNT = 200;
 
@@ -208,6 +209,20 @@ const Affiliate = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Vowz Affiliate Program – Earn ₹200 Per Referral"
+        description="Join the Vowz affiliate program and earn ₹200 for every successful wedding website referral. Free to join, lifetime attribution, real-time dashboard."
+        ogTitle="Vowz Affiliate Program – Earn ₹200 Per Referral"
+        ogDescription="Earn ₹200 per successful referral. Join our wedding invitation affiliate program — free to join with lifetime attribution and real-time tracking."
+        ogImage="https://vowz.me/og-affiliate.jpg"
+        ogUrl="https://vowz.me/affiliate"
+        ogType="website"
+        twitterCard="summary_large_image"
+        twitterTitle="Vowz Affiliate – Earn ₹200 Per Referral"
+        twitterDescription="Join our affiliate program and earn ₹200 per wedding website referral. Free to join."
+        twitterImage="https://vowz.me/og-affiliate.jpg"
+        canonical="https://vowz.me/affiliate"
+      />
       {/* Header */}
       <header className="border-b border-border/40 bg-card/80 backdrop-blur-md sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">

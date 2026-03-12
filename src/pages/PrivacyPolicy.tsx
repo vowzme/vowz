@@ -1,7 +1,19 @@
 import Navbar from "@/components/Navbar";
+import SEOHead from "@/components/SEOHead";
 
 const PrivacyPolicy = () => (
   <div className="min-h-screen bg-background">
+    <SEOHead
+      title="Privacy Policy – Vowz Wedding Website Builder"
+      description="Read the Vowz Privacy Policy. Learn how we collect, use, and protect your personal information when you create wedding websites and invitations."
+      ogTitle="Privacy Policy – Vowz"
+      ogDescription="How Vowz collects, uses, and protects your personal data."
+      ogImage="https://vowz.me/og-home.jpg"
+      ogUrl="https://vowz.me/privacy"
+      ogType="website"
+      twitterCard="summary"
+      canonical="https://vowz.me/privacy"
+    />
     <Navbar />
     <div className="max-w-3xl mx-auto px-4 pt-28 pb-16">
       <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-2">Privacy Policy</h1>

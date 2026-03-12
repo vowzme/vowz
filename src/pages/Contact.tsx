@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import SEOHead from "@/components/SEOHead";
 
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -23,6 +24,20 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Contact Vowz – Get Help With Your Wedding Website"
+        description="Need help with your wedding invitation or website? Contact the Vowz support team. We typically respond within 24 hours."
+        ogTitle="Contact Vowz – Wedding Website Support"
+        ogDescription="Get help with your wedding website. Contact our support team — we respond within 24 hours."
+        ogImage="https://vowz.me/og-contact.jpg"
+        ogUrl="https://vowz.me/contact"
+        ogType="website"
+        twitterCard="summary_large_image"
+        twitterTitle="Contact Vowz – Wedding Website Support"
+        twitterDescription="Get help with your wedding invitation or website. Fast support within 24 hours."
+        twitterImage="https://vowz.me/og-contact.jpg"
+        canonical="https://vowz.me/contact"
+      />
       <Navbar />
       <div className="max-w-5xl mx-auto px-4 pt-28 pb-16">
         <motion.div
