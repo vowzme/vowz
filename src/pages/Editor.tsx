@@ -1723,6 +1723,62 @@ function SectionEditor({
           </div>
         </>
       )}
+
+      {type === "video" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="font-body text-sm font-medium text-foreground block">Videos</label>
+            {(data.videos || []).map((video: any, i: number) => (
+              <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                <Input
+                  placeholder="YouTube or Vimeo URL"
+                  value={video.url || ""}
+                  onChange={(e) => {
+                    const videos = [...(data.videos || [])];
+                    videos[i] = { ...video, url: e.target.value };
+                    onUpdateData({ videos });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Caption (optional)"
+                    value={video.caption || ""}
+                    onChange={(e) => {
+                      const videos = [...(data.videos || [])];
+                      videos[i] = { ...video, caption: e.target.value };
+                      onUpdateData({ videos });
+                    }}
+                    className="font-body text-sm h-8 flex-1"
+                  />
+                  <button
+                    onClick={() => onUpdateData({ videos: (data.videos || []).filter((_: any, j: number) => j !== i) })}
+                    className="text-muted-foreground hover:text-destructive p-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body"
+              onClick={() => onUpdateData({ videos: [...(data.videos || []), { url: "", caption: "" }] })}
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Video
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
