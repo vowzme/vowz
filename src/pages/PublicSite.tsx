@@ -273,12 +273,13 @@ function PublicSection({
   trackEvent: (type: string, meta?: Record<string, any>) => void;
 }) {
   const { type, data } = section;
+  const coupleNames = `${site.partner1} & ${site.partner2}`;
 
-  if (type === "hero") return <HeroSection data={data} bg={bg} accent={accent} light={light} />;
+  if (type === "hero") return <HeroSection data={data} bg={bg} accent={accent} light={light} coupleNames={coupleNames} />;
   if (type === "countdown") return <CountdownSection data={data} accent={accent} bg={bg} />;
   if (type === "story") return <StorySection data={data} accent={accent} />;
   if (type === "events") return <EventsSection data={data} accent={accent} />;
-  if (type === "gallery") return <GallerySection data={data} accent={accent} />;
+  if (type === "gallery") return <GallerySection data={data} accent={accent} coupleNames={coupleNames} />;
   if (type === "travel") return <TravelSection data={data} accent={accent} />;
   if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} trackEvent={trackEvent} />;
   if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
@@ -290,17 +291,15 @@ function PublicSection({
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────
-function HeroSection({ data, bg, accent, light }: { data: any; bg: string; accent: string; light: string }) {
+function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: string; accent: string; light: string; coupleNames: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
+    <section
+      aria-label={`${coupleNames} wedding hero`}
       className="relative py-28 md:py-40 px-6 text-center overflow-hidden"
       style={{ background: `linear-gradient(135deg, ${bg}, ${bg}dd)` }}
     >
-      <div className="absolute inset-0 opacity-10">
-        <svg viewBox="0 0 400 400" className="w-full h-full">
+      <div className="absolute inset-0 opacity-10" aria-hidden="true">
+        <svg viewBox="0 0 400 400" className="w-full h-full" role="img" aria-label="Decorative circles">
           {[...Array(8)].map((_, i) => (
             <circle key={i} cx="200" cy="200" r={50 + i * 30} fill="none" stroke={light} strokeWidth="0.5" />
           ))}
@@ -310,14 +309,14 @@ function HeroSection({ data, bg, accent, light }: { data: any; bg: string; accen
         {data.logoUrl && (
           <motion.img
             src={data.logoUrl}
-            alt="Wedding logo"
+            alt={`${coupleNames} wedding logo`}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             className="w-24 h-24 md:w-28 md:h-28 mx-auto mb-5 object-contain rounded-xl"
           />
         )}
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }}>
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }} aria-hidden="true">
           <Heart className="w-10 h-10 mx-auto mb-5" style={{ color: accent }} fill="currentColor" />
         </motion.div>
         <motion.p
@@ -352,34 +351,32 @@ function HeroSection({ data, bg, accent, light }: { data: any; bg: string; accen
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
           className="mt-8"
+          aria-hidden="true"
         >
           <ChevronDown className="w-6 h-6 mx-auto animate-bounce" style={{ color: `${light}60` }} />
         </motion.div>
       </div>
-    </motion.div>
+    </section>
   );
 }
 
 // ─── Story ────────────────────────────────────────────────────────────
 function StorySection({ data, accent }: { data: any; accent: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6 }}
+    <section
+      aria-label={data.heading || "Our Story"}
       className="bg-card py-16 md:py-20 px-6"
     >
       <div className="max-w-2xl mx-auto text-center">
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
           {data.heading}
         </h2>
-        <div className="w-14 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
+        <div className="w-14 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} aria-hidden="true" />
         <p className="text-muted-foreground font-body text-lg leading-relaxed whitespace-pre-wrap">
           {data.body}
         </p>
       </div>
-    </motion.div>
+    </section>
   );
 }
 
@@ -387,35 +384,29 @@ function StorySection({ data, accent }: { data: any; accent: string }) {
 function EventsSection({ data, accent }: { data: any; accent: string }) {
   const events = data.events || [];
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6 }}
+    <section
+      aria-label={data.heading || "Wedding Events"}
       className="py-16 md:py-20 px-6"
     >
       <div className="max-w-3xl mx-auto">
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-3">
           {data.heading}
         </h2>
-        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} />
+        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} aria-hidden="true" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {events.map((event: any, i: number) => (
-            <motion.div
+            <article
               key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
               className="border border-border/50 rounded-2xl p-6 text-center bg-card hover:shadow-elegant transition-shadow"
             >
               <div
                 className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center"
                 style={{ backgroundColor: `${accent}20` }}
+                aria-hidden="true"
               >
                 <Calendar className="w-6 h-6" style={{ color: accent }} />
               </div>
-              <p className="font-display text-lg font-semibold text-foreground mb-1">{event.name}</p>
+              <h3 className="font-display text-lg font-semibold text-foreground mb-1">{event.name}</h3>
               {event.date && <p className="text-sm text-muted-foreground font-body">{event.date}</p>}
               {event.time && <p className="text-sm text-muted-foreground font-body">{event.time}</p>}
               {event.venue && (
@@ -448,47 +439,45 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
               {!event.date && !event.time && (
                 <p className="text-sm text-muted-foreground font-body">Date & time TBD</p>
               )}
-            </motion.div>
+            </article>
           ))}
         </div>
       </div>
-    </motion.div>
+    </section>
   );
 }
 
 // ─── Gallery ──────────────────────────────────────────────────────────
-function GallerySection({ data, accent }: { data: any; accent: string }) {
+function GallerySection({ data, accent, coupleNames }: { data: any; accent: string; coupleNames: string }) {
   const photos: GalleryPhoto[] = data.photos || [];
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   if (photos.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6 }}
+    <section
+      aria-label={data.heading || "Photo Gallery"}
       className="bg-card py-16 md:py-20 px-6"
     >
       <div className="max-w-4xl mx-auto">
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-3">
           {data.heading || "Our Moments"}
         </h2>
-        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} />
+        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} aria-hidden="true" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {photos.map((photo, i) => (
-            <motion.div
+            <div
               key={photo.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
               className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
               onClick={() => setLightboxIndex(i)}
             >
-              <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
-            </motion.div>
+              <img
+                src={photo.url}
+                alt={photo.name ? `Wedding photo of ${coupleNames} – ${photo.name}` : `Wedding photo of ${coupleNames}`}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -501,7 +490,7 @@ function GallerySection({ data, accent }: { data: any; accent: string }) {
           />
         )}
       </AnimatePresence>
-    </motion.div>
+    </section>
   );
 }
 
@@ -529,19 +518,16 @@ function CountdownSection({ data, accent, bg }: { data: any; accent: string; bg:
   if (!targetDate) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6 }}
+    <section
+      aria-label={data.label || "Countdown"}
       className="py-12 md:py-16 px-6 text-center"
       style={{ background: `linear-gradient(135deg, ${bg}08, ${accent}08)` }}
     >
-      <Clock className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} />
+      <Clock className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} aria-hidden="true" />
       <h2 className="font-display text-xl md:text-2xl font-semibold text-foreground mb-6">
         {data.label || "Counting Down"}
       </h2>
-      <div className="flex justify-center gap-4 sm:gap-8">
+      <div className="flex justify-center gap-4 sm:gap-8" role="timer" aria-label="Wedding countdown">
         {[
           { value: timeLeft.days, label: "Days" },
           { value: timeLeft.hours, label: "Hours" },
@@ -556,7 +542,7 @@ function CountdownSection({ data, accent, bg }: { data: any; accent: string; bg:
           </div>
         ))}
       </div>
-    </motion.div>
+    </section>
   );
 }
 
