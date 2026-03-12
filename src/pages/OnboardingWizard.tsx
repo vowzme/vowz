@@ -72,7 +72,6 @@ const OnboardingWizard = () => {
     }
   };
 
-  const [customEvent, setCustomEvent] = useState("");
 
   const toggleEvent = (event: string) => {
     const current = wizardData.functions;
