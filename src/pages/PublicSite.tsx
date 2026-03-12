@@ -363,23 +363,20 @@ function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: 
 // ─── Story ────────────────────────────────────────────────────────────
 function StorySection({ data, accent }: { data: any; accent: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6 }}
+    <section
+      aria-label={data.heading || "Our Story"}
       className="bg-card py-16 md:py-20 px-6"
     >
       <div className="max-w-2xl mx-auto text-center">
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
           {data.heading}
         </h2>
-        <div className="w-14 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} />
+        <div className="w-14 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} aria-hidden="true" />
         <p className="text-muted-foreground font-body text-lg leading-relaxed whitespace-pre-wrap">
           {data.body}
         </p>
       </div>
-    </motion.div>
+    </section>
   );
 }
 
