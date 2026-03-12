@@ -48,6 +48,8 @@ export interface WeddingSiteData {
   displayFont?: string;
   bodyFont?: string;
   memoryMode?: boolean;
+  sitePassword?: string;
+  siteLanguage?: string;
 }
 
 interface EditorState {
