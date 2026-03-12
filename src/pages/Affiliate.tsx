@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { generateReferralCode } from "@/hooks/use-affiliate";
+import SEOHead from "@/components/SEOHead";
 
 const COMMISSION_AMOUNT = 200;
 
