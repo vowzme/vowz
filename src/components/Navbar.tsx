@@ -44,6 +44,9 @@ const Navbar = () => {
               </a>
             )
           ))}
+          <Link to="/auth" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors font-medium">
+            Log In
+          </Link>
           <Button variant="gold" size="sm" asChild><Link to="/auth">Get Started</Link></Button>
         </div>
 
