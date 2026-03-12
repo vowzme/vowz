@@ -125,6 +125,23 @@ const PublicSite = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      {seoData && (
+        <SEOHead
+          title={`${seoData.coupleNames} Wedding Invitation | Vowz`}
+          description={seoData.description}
+          ogTitle={`${seoData.coupleNames} Wedding Invitation`}
+          ogDescription={site.tagline || "You are invited to our special day!"}
+          ogImage={seoData.ogImageUrl}
+          ogUrl={seoData.publicURL}
+          ogType="website"
+          twitterCard="summary_large_image"
+          twitterTitle={`${seoData.coupleNames} Wedding`}
+          twitterDescription="Digital invitation & website by Vowz"
+          twitterImage={seoData.ogImageUrl}
+          canonical={seoData.publicURL}
+          robots="index, follow"
+        />
+      )}
       {sections.filter((s) => s.visible !== false).map((section) => (
         <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} trackEvent={trackEvent} />
       ))}
