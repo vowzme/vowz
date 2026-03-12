@@ -657,6 +657,7 @@ function SectionsPanel({
               { id: "custom", label: "📝 Custom Section", desc: "Text content" },
               { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting" },
               { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability" },
+              { id: "video", label: "🎬 Video Embed", desc: "YouTube/Vimeo" },
             ].map((item) => (
               <button
                 key={item.id}
