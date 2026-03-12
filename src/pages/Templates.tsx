@@ -142,12 +142,12 @@ const Templates = () => {
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
                   <div className="h-60 relative">
-                    <img src={t.heroPhoto} alt={t.name} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={t.heroPhoto} alt={`${t.name} wedding template preview – ${t.style} theme`} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${t.colors[0]}88 0%, ${t.colors[0]}cc 50%, ${t.colors[0]}ee 100%)` }} />
                     
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 mb-3 shadow-lg" style={{ borderColor: t.colors[1] }}>
-                        <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={t.couplePhoto} alt={`${t.couple} portrait`} className="w-full h-full object-cover" loading="lazy" />
                       </div>
                       <Heart className="w-3.5 h-3.5 mb-1.5" style={{ color: t.colors[1] }} fill="currentColor" />
                       <p className="font-display text-2xl font-bold drop-shadow-md" style={{ color: t.colors[2] }}>
