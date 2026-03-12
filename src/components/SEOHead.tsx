@@ -35,6 +35,9 @@ export const SEOHead = ({
   twitterCard = "summary_large_image",
   twitterSite = "@vowzco",
   twitterCreator = "@vowzco",
+  twitterTitle,
+  twitterDescription,
+  twitterImage,
   robots = "index, follow",
   canonical,
   lang = "en",
@@ -44,6 +47,9 @@ export const SEOHead = ({
   const resolvedOgDescription = ogDescription || description;
   const resolvedCanonical = canonical || (typeof window !== "undefined" ? window.location.href : "");
   const resolvedOgUrl = ogUrl || resolvedCanonical;
+  const resolvedTwitterTitle = twitterTitle || resolvedOgTitle;
+  const resolvedTwitterDescription = twitterDescription || resolvedOgDescription;
+  const resolvedTwitterImage = twitterImage || ogImage;
 
   return (
     <Helmet htmlAttributes={{ lang }}>
@@ -66,11 +72,11 @@ export const SEOHead = ({
 
       {/* Twitter Card */}
       <meta name="twitter:card" content={twitterCard} />
-      <meta name="twitter:title" content={resolvedOgTitle} />
-      <meta name="twitter:description" content={resolvedOgDescription} />
+      <meta name="twitter:title" content={resolvedTwitterTitle} />
+      <meta name="twitter:description" content={resolvedTwitterDescription} />
       {twitterSite && <meta name="twitter:site" content={twitterSite} />}
       {twitterCreator && <meta name="twitter:creator" content={twitterCreator} />}
-      {ogImage && <meta name="twitter:image" content={ogImage} />}
+      {resolvedTwitterImage && <meta name="twitter:image" content={resolvedTwitterImage} />}
 
       {/* Additional meta can be passed as children */}
       {children}
