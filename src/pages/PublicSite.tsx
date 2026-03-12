@@ -286,6 +286,7 @@ function PublicSection({
   if (type === "custom") return <StorySection data={data} accent={accent} />;
   if (type === "polls") return <PollsSection data={data} site={site} accent={accent} />;
   if (type === "ecotips") return <EcoTipsSection data={data} accent={accent} />;
+  if (type === "video") return <VideoSection data={data} accent={accent} coupleNames={coupleNames} />;
 
   return null;
 }
