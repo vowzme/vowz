@@ -23,6 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <SidebarProvider>
+      <SEOHead title="Admin – Vowz" description="Admin panel for managing Vowz." robots="noindex, nofollow" />
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0">

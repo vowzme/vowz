@@ -20,6 +20,7 @@ import { toast } from "@/hooks/use-toast";
 import { useSiteAnalytics } from "@/hooks/use-analytics";
 import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
 import BudgetTracker from "@/components/BudgetTracker";
+import SEOHead from "@/components/SEOHead";
 import GettingStartedGuide from "@/components/GettingStartedGuide";
 import {
   Tabs,

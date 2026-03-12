@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import SEOHead from "@/components/SEOHead";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar } from "lucide-react";
