@@ -51,14 +51,22 @@ const Dashboard = () => {
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
 
-  // Load site & profile
+  // Load site & profile (with retry for new signups where profile may not exist yet)
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    Promise.all([
-      loadUserSite(),
-      supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-    ]).then(([siteData, { data: profile }]) => {
+
+    const loadProfile = async (retries = 3): Promise<any> => {
+      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      if (data) return data;
+      if (retries > 0) {
+        await new Promise((r) => setTimeout(r, 500));
+        return loadProfile(retries - 1);
+      }
+      return null;
+    };
+
+    Promise.all([loadUserSite(), loadProfile()]).then(([siteData, profile]) => {
       setSite(siteData);
       setProfileData(profile);
       setLoading(false);
