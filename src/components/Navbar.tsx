@@ -10,7 +10,7 @@ const Navbar = () => {
   const links = [
     { label: "Features", href: "#features" },
     { label: "Templates", href: "#templates" },
-    { label: "Pricing", href: "#pricing" },
+    { label: "Pricing", href: "/pricing", isRoute: true },
     { label: "FAQ", href: "#faq" },
     { label: "Domain Demo", href: "/domain-demo", isRoute: true },
     { label: "Affiliate", href: "/affiliate", isRoute: true },
