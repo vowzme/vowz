@@ -1102,7 +1102,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
             className="absolute inset-0 will-change-transform"
             style={{ transform: `translateY(${parallaxY}px) scale(1.15)`, top: "-15%" , bottom: "-15%" }}
           >
-            <img src={t.heroPhoto} alt={t.venue} className="w-full h-full object-cover" />
+            <img src={t.heroPhoto} alt={`${t.couple} wedding venue at ${t.venue}`} className="w-full h-full object-cover" />
             <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bg}bb 0%, ${bg}88 40%, ${bg}dd 100%)` }} />
           </div>
 
