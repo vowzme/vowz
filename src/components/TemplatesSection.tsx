@@ -1117,7 +1117,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
                 You're Invited to the Wedding of
               </p>
             </motion.div>
-            <motion.h1
+            <motion.h2
               className="font-display text-4xl sm:text-5xl md:text-7xl font-bold mb-3 drop-shadow-lg"
               style={{ color: text }}
               initial={{ opacity: 0, y: 30 }}
@@ -1125,7 +1125,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               transition={{ delay: 0.35, duration: 0.6 }}
             >
               {t.partner1} <span className="font-normal italic text-2xl sm:text-3xl md:text-4xl mx-1 sm:mx-2" style={{ color: accent }}>&</span> {t.partner2}
-            </motion.h1>
+            </motion.h2>
             <motion.p
               className="font-display text-xl italic mb-6"
               style={{ color: accent }}
