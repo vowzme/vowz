@@ -181,7 +181,13 @@ const PublicSite = () => {
           twitterImage={seoData.ogImageUrl}
           canonical={seoData.publicURL}
           robots="index, follow"
-        />
+        >
+          {jsonLd && (
+            <script type="application/ld+json">
+              {JSON.stringify(jsonLd)}
+            </script>
+          )}
+        </SEOHead>
       )}
       {sections.filter((s) => s.visible !== false).map((section) => (
         <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} trackEvent={trackEvent} />
