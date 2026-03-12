@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Heart, Edit3, Eye, ExternalLink, Globe, GlobeLock,
@@ -153,6 +153,14 @@ const Dashboard = () => {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-5 sm:py-8">
+        {/* Email Verification Banner */}
+        {profileData && !profileData.email_verified && (
+          <EmailVerifyBanner
+            userEmail={user?.email || ""}
+            onVerified={() => setProfileData({ ...profileData, email_verified: true })}
+          />
+        )}
+
         {/* Welcome */}
         <div className="mb-6 sm:mb-8">
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
@@ -1549,6 +1557,82 @@ function CustomDomainPanel({ siteId, siteSlug, siteName, savedDomain, savedStatu
         </div>
       </div>
     </div>
+  );
+}
+
+/* ─── Email Verify Banner ─── */
+function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVerified: () => void }) {
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("verified") === "true") {
+      // Mark as verified in the database
+      const markVerified = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("profiles").update({ email_verified: true } as any).eq("id", user.id);
+          onVerified();
+          toast({ title: "Email verified! ✅", description: "Your email has been successfully verified." });
+          // Remove the query param
+          searchParams.delete("verified");
+          setSearchParams(searchParams, { replace: true });
+        }
+      };
+      markVerified();
+    }
+  }, [searchParams]);
+
+  const handleSendVerification = async () => {
+    setSending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: userEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard?verified=true`,
+        },
+      });
+      if (error) throw error;
+      setSent(true);
+      toast({ title: "Verification email sent! 📧", description: `Check your inbox at ${userEmail}` });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-6 bg-accent/10 border border-accent/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3"
+    >
+      <div className="flex items-center gap-2 flex-1">
+        <Mail className="w-5 h-5 text-accent shrink-0" />
+        <div>
+          <p className="font-body text-sm font-medium text-foreground">Verify your email</p>
+          <p className="font-body text-xs text-muted-foreground">
+            {sent
+              ? `Verification link sent to ${userEmail}. Check your inbox!`
+              : `Please verify ${userEmail} to secure your account.`}
+          </p>
+        </div>
+      </div>
+      {!sent && (
+        <Button variant="gold" size="sm" onClick={handleSendVerification} disabled={sending}>
+          <Mail className="w-4 h-4 mr-1" />
+          {sending ? "Sending..." : "Verify Email"}
+        </Button>
+      )}
+      {sent && (
+        <Button variant="outline" size="sm" onClick={handleSendVerification} disabled={sending}>
+          {sending ? "Sending..." : "Resend"}
+        </Button>
+      )}
+    </motion.div>
   );
 }
 

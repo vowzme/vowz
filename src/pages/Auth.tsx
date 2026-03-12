@@ -36,17 +36,9 @@ const Auth = () => {
         }
         const { error } = await signUp(form.email, form.password, form.name);
         if (error) throw error;
-        const { data: { session } } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
-        if (session) {
-          toast({ title: "Welcome! 💍" });
-          const pending = sessionStorage.getItem("pendingTemplate");
-          navigate(pending ? "/wizard" : "/dashboard");
-        } else {
-          toast({
-            title: "Check your email! 📧",
-            description: "We've sent a confirmation link to verify your account.",
-          });
-        }
+        toast({ title: "Welcome to Vowz! 💍", description: "Your account has been created." });
+        const pending = sessionStorage.getItem("pendingTemplate");
+        navigate(pending ? "/wizard" : "/dashboard");
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
