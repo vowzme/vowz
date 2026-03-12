@@ -76,6 +76,8 @@ const PublicSite = () => {
     const coupleNames = `${site.partner1} & ${site.partner2}`;
     const weddingDate = firstEvent?.date || "";
     const venue = firstEvent?.venue || "";
+    const venueAddress = firstEvent?.address || "";
+    const city = firstEvent?.city || "";
     const publicURL = `https://vowz.me/site/${site.slug}`;
     const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?slug=${site.slug}`;
     const description = site.tagline
@@ -84,8 +86,47 @@ const PublicSite = () => {
         ? `Join ${site.partner1} & ${site.partner2}'s wedding on ${weddingDate} at ${venue}. RSVP now! Created with Vowz.`
         : `You're invited to celebrate the wedding of ${site.partner1} & ${site.partner2}. RSVP now! Created with Vowz.`;
 
-    return { coupleNames, weddingDate, venue, publicURL, ogImageUrl, description };
+    return { coupleNames, weddingDate, venue, venueAddress, city, publicURL, ogImageUrl, description };
   }, [site]);
+
+  // JSON-LD structured data for published wedding pages
+  const jsonLd = useMemo(() => {
+    if (!site || !seoData) return null;
+    // Try to parse date into ISO format
+    let startDateISO = seoData.weddingDate;
+    try {
+      const parsed = new Date(seoData.weddingDate);
+      if (!isNaN(parsed.getTime())) startDateISO = parsed.toISOString().split("T")[0];
+    } catch {}
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      "name": `${seoData.coupleNames} Wedding`,
+      "startDate": startDateISO,
+      "endDate": startDateISO,
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "location": {
+        "@type": "Place",
+        "name": seoData.venue || "Wedding Venue",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": seoData.venueAddress,
+          "addressLocality": seoData.city,
+          "addressCountry": "IN",
+        },
+      },
+      "image": seoData.ogImageUrl,
+      "description": `Digital wedding invitation for ${site.partner1} and ${site.partner2} – created with Vowz`,
+      "url": seoData.publicURL,
+      "organizer": {
+        "@type": "Organization",
+        "name": "Vowz",
+        "url": "https://vowz.me",
+      },
+    };
+  }, [site, seoData]);
 
   if (loading) {
     return (
@@ -140,7 +181,13 @@ const PublicSite = () => {
           twitterImage={seoData.ogImageUrl}
           canonical={seoData.publicURL}
           robots="index, follow"
-        />
+        >
+          {jsonLd && (
+            <script type="application/ld+json">
+              {JSON.stringify(jsonLd)}
+            </script>
+          )}
+        </SEOHead>
       )}
       {sections.filter((s) => s.visible !== false).map((section) => (
         <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} trackEvent={trackEvent} />
