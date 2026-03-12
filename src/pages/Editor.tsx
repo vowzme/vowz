@@ -22,7 +22,7 @@ import SEOHead from "@/components/SEOHead";
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -48,6 +48,8 @@ export interface WeddingSiteData {
   displayFont?: string;
   bodyFont?: string;
   memoryMode?: boolean;
+  sitePassword?: string;
+  siteLanguage?: string;
 }
 
 interface EditorState {
@@ -299,6 +301,7 @@ const Editor = () => {
       custom: { type: "custom", title: "New Section", data: { heading: "New Section", body: "Add your content here..." } },
       polls: { type: "polls", title: "Guest Polls", data: { heading: "Have Your Say! 🗳️", polls: [{ question: "Vote for your favourite Sangeet song!", options: ["Gallan Goodiyaan", "London Thumakda", "Nachde Ne Saare"] }] } },
       ecotips: { type: "ecotips", title: "Eco Wedding", data: { heading: "Our Green Wedding 🌿", description: "We're committed to celebrating responsibly.", tips: ["Digital invites — saving 200+ paper cards", "Locally sourced flowers & décor", "Carpooling encouraged — share rides with fellow guests", "Plant a sapling as your blessing to us"], showDigitalInviteTracker: true } },
+      video: { type: "video", title: "Videos", data: { heading: "Our Moments 🎬", videos: [{ url: "", caption: "Pre-wedding video" }] } },
     };
     const config = typeMap[sectionType || "custom"] || typeMap.custom;
     const newSection: WeddingSection = {
@@ -330,6 +333,8 @@ const Editor = () => {
       tagline: siteData.tagline,
       suggested_colors: siteData.suggestedColors,
       sections: sections as any,
+      site_password: siteData.sitePassword || null,
+      site_language: siteData.siteLanguage || "en",
     });
     if (success) {
       toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
@@ -631,7 +636,7 @@ function SectionsPanel({
               >
                 {section.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               </button>
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips") && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
@@ -654,6 +659,7 @@ function SectionsPanel({
               { id: "custom", label: "📝 Custom Section", desc: "Text content" },
               { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting" },
               { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability" },
+              { id: "video", label: "🎬 Video Embed", desc: "YouTube/Vimeo" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -1274,6 +1280,62 @@ function SettingsPanel({
             </div>
           </div>
         </div>
+
+        {/* Password Protection */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Password Protection 🔒</label>
+          <div className="space-y-2">
+            <div className="flex items-start gap-3 p-3 rounded-lg border border-border/30 bg-background">
+              <input
+                type="checkbox"
+                checked={!!siteData.sitePassword}
+                onChange={(e) => onUpdate({ ...siteData, sitePassword: e.target.checked ? "wedding2026" : "" })}
+                className="rounded mt-0.5"
+              />
+              <div className="flex-1">
+                <p className="font-body text-sm text-foreground">Require password to view site</p>
+                <p className="font-body text-xs text-muted-foreground mt-0.5">
+                  Guests will need to enter a password before they can see your wedding site.
+                </p>
+              </div>
+            </div>
+            {siteData.sitePassword && (
+              <Input
+                value={siteData.sitePassword}
+                onChange={(e) => onUpdate({ ...siteData, sitePassword: e.target.value })}
+                placeholder="Enter site password"
+                className="font-body"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Multilingual */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Site Language 🌐</label>
+          <select
+            value={siteData.siteLanguage || "en"}
+            onChange={(e) => onUpdate({ ...siteData, siteLanguage: e.target.value })}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 font-body text-sm text-foreground"
+          >
+            <option value="en">English</option>
+            <option value="hi">Hindi (हिन्दी)</option>
+            <option value="ta">Tamil (தமிழ்)</option>
+            <option value="te">Telugu (తెలుగు)</option>
+            <option value="bn">Bengali (বাংলা)</option>
+            <option value="mr">Marathi (मराठी)</option>
+            <option value="gu">Gujarati (ગુજરાતી)</option>
+            <option value="kn">Kannada (ಕನ್ನಡ)</option>
+            <option value="ml">Malayalam (മലയാളം)</option>
+            <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+            <option value="or">Odia (ଓଡ଼ିଆ)</option>
+            <option value="as">Assamese (অসমীয়া)</option>
+            <option value="ur">Urdu (اردو)</option>
+          </select>
+          <p className="font-body text-xs text-muted-foreground mt-1.5">
+            Select a language to auto-translate your site content for guests.
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -1717,6 +1779,62 @@ function SectionEditor({
           </div>
         </>
       )}
+
+      {type === "video" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="font-body text-sm font-medium text-foreground block">Videos</label>
+            {(data.videos || []).map((video: any, i: number) => (
+              <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                <Input
+                  placeholder="YouTube or Vimeo URL"
+                  value={video.url || ""}
+                  onChange={(e) => {
+                    const videos = [...(data.videos || [])];
+                    videos[i] = { ...video, url: e.target.value };
+                    onUpdateData({ videos });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Caption (optional)"
+                    value={video.caption || ""}
+                    onChange={(e) => {
+                      const videos = [...(data.videos || [])];
+                      videos[i] = { ...video, caption: e.target.value };
+                      onUpdateData({ videos });
+                    }}
+                    className="font-body text-sm h-8 flex-1"
+                  />
+                  <button
+                    onClick={() => onUpdateData({ videos: (data.videos || []).filter((_: any, j: number) => j !== i) })}
+                    className="text-muted-foreground hover:text-destructive p-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body"
+              onClick={() => onUpdateData({ videos: [...(data.videos || []), { url: "", caption: "" }] })}
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Video
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -2124,6 +2242,18 @@ function InlineEditable({
   );
 }
 
+// ─── Video Embed URL Parser ───────────────────────────────────────────
+function getVideoEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  // YouTube
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  return null;
+}
+
 function SectionRenderer({
   section,
   bg,
@@ -2442,6 +2572,49 @@ function SectionRenderer({
             <p className="text-xs text-muted-foreground" style={{ fontFamily: bFont }}>🌍 Digital invites sent — saving trees, one card at a time!</p>
           </div>
         )}
+      </div>
+    );
+  }
+
+  if (type === "video") {
+    const videos = data.videos || [];
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        <div className="max-w-2xl mx-auto space-y-6">
+          {videos.map((video: any, i: number) => {
+            const embedUrl = getVideoEmbedUrl(video.url);
+            return (
+              <div key={i}>
+                {embedUrl ? (
+                  <div className="aspect-video rounded-lg overflow-hidden">
+                    <iframe
+                      src={embedUrl}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      title={video.caption || `Video ${i + 1}`}
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video rounded-lg bg-muted flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>Paste a YouTube or Vimeo URL</p>
+                  </div>
+                )}
+                {video.caption && (
+                  <p className="text-center text-sm text-muted-foreground mt-2" style={{ fontFamily: bFont }}>{video.caption}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }

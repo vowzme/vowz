@@ -26,6 +26,8 @@ interface WeddingSite {
   sections: any[];
   slug: string;
   is_published: boolean;
+  site_password?: string | null;
+  site_language?: string;
 }
 
 // ─── RSVP Validation ──────────────────────────────────────────────────
@@ -45,6 +47,9 @@ const PublicSite = () => {
   const [site, setSite] = useState<WeddingSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [passwordUnlocked, setPasswordUnlocked] = useState(false);
+  const [pwInput, setPwInput] = useState("");
+  const [pwError, setPwError] = useState(false);
   const { trackEvent, trackPageView } = useAnalyticsTracker(site?.id);
 
   useEffect(() => {
@@ -163,6 +168,43 @@ const PublicSite = () => {
   const shareText = `You're invited to ${site.partner1} & ${site.partner2}'s wedding! 💍✨`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`;
   const emailUrl = `mailto:?subject=${encodeURIComponent(`${site.partner1} & ${site.partner2}'s Wedding Invitation`)}&body=${encodeURIComponent(`${shareText}\n\nView our wedding site: ${shareUrl}`)}`;
+
+  // Password gate
+  if (site.site_password && !passwordUnlocked) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-sm w-full">
+          <Heart className="w-10 h-10 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
+          <h1 className="font-display text-2xl font-bold text-foreground mb-2">This site is private</h1>
+          <p className="text-muted-foreground font-body text-sm mb-6">Enter the password to view this wedding site.</p>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (pwInput === site.site_password) {
+              setPasswordUnlocked(true);
+              setPwError(false);
+            } else {
+              setPwError(true);
+            }
+          }} className="space-y-3">
+            <input
+              type="password"
+              value={pwInput}
+              onChange={(e) => { setPwInput(e.target.value); setPwError(false); }}
+              placeholder="Enter password"
+              className="w-full rounded-lg border border-border bg-card px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-gold/50"
+            />
+            {pwError && <p className="text-sm text-destructive font-body">Incorrect password. Try again.</p>}
+            <Button type="submit" className="w-full font-body" style={{ backgroundColor: accent, color: light }}>
+              Enter
+            </Button>
+          </form>
+          <p className="text-xs text-muted-foreground font-body mt-6">
+            Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Vowz
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -286,6 +328,7 @@ function PublicSection({
   if (type === "custom") return <StorySection data={data} accent={accent} />;
   if (type === "polls") return <PollsSection data={data} site={site} accent={accent} />;
   if (type === "ecotips") return <EcoTipsSection data={data} accent={accent} />;
+  if (type === "video") return <VideoSection data={data} accent={accent} coupleNames={coupleNames} />;
 
   return null;
 }
@@ -1181,6 +1224,100 @@ function EcoTipsSection({ data, accent }: { data: any; accent: string }) {
         )}
       </div>
     </motion.div>
+  );
+}
+
+// ─── Video ────────────────────────────────────────────────────────────
+function getVideoEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  return null;
+}
+
+function VideoSection({ data, accent, coupleNames }: { data: any; accent: string; coupleNames: string }) {
+  const videos = data.videos || [];
+  if (videos.length === 0 || !videos.some((v: any) => v.url)) return null;
+
+  return (
+    <section aria-label={data.heading || "Videos"} className="bg-card py-16 md:py-20 px-6">
+      <div className="max-w-3xl mx-auto">
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-3">{data.heading || "Our Moments"}</h2>
+        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} aria-hidden="true" />
+        <div className="space-y-8">
+          {videos.filter((v: any) => v.url).map((video: any, i: number) => {
+            const embedUrl = getVideoEmbedUrl(video.url);
+            if (!embedUrl) return null;
+            return (
+              <div key={i}>
+                <div className="aspect-video rounded-xl overflow-hidden shadow-elegant">
+                  <iframe
+                    src={embedUrl}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    title={video.caption || `${coupleNames} wedding video ${i + 1}`}
+                    loading="lazy"
+                  />
+                </div>
+                {video.caption && (
+                  <p className="text-center text-sm text-muted-foreground font-body mt-3">{video.caption}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Password Gate ────────────────────────────────────────────────────
+function PasswordGate({ onUnlock, accent }: { onUnlock: () => void; accent: string }) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+  const [storedPassword, setStoredPassword] = useState("");
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center max-w-sm w-full"
+      >
+        <Heart className="w-10 h-10 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
+        <h1 className="font-display text-2xl font-bold text-foreground mb-2">This site is private</h1>
+        <p className="text-muted-foreground font-body text-sm mb-6">Enter the password to view this wedding site.</p>
+        <form onSubmit={(e) => { e.preventDefault(); onUnlock(); }} className="space-y-3">
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); setError(false); }}
+            placeholder="Enter password"
+            className="w-full rounded-lg border border-border bg-card px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-gold/50"
+          />
+          {error && <p className="text-sm text-destructive font-body">Incorrect password. Try again.</p>}
+          <Button
+            type="submit"
+            className="w-full font-body"
+            style={{ backgroundColor: accent }}
+            onClick={(e) => {
+              e.preventDefault();
+              // Password check happens in parent
+              const input = password;
+              (window as any).__pwCheck?.(input);
+            }}
+          >
+            Enter
+          </Button>
+        </form>
+        <p className="text-xs text-muted-foreground font-body mt-6">
+          Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Vowz
+        </p>
+      </motion.div>
+    </div>
   );
 }
 

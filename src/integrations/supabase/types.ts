@@ -624,10 +624,13 @@ export type Database = {
           partner1: string
           partner2: string
           sections: Json
+          site_language: string | null
+          site_password: string | null
           slug: string | null
           suggested_colors: Json
           tagline: string
           theme: string
+          translations: Json | null
           updated_at: string
           user_id: string
         }
@@ -643,10 +646,13 @@ export type Database = {
           partner1?: string
           partner2?: string
           sections?: Json
+          site_language?: string | null
+          site_password?: string | null
           slug?: string | null
           suggested_colors?: Json
           tagline?: string
           theme?: string
+          translations?: Json | null
           updated_at?: string
           user_id: string
         }
@@ -662,10 +668,13 @@ export type Database = {
           partner1?: string
           partner2?: string
           sections?: Json
+          site_language?: string | null
+          site_password?: string | null
           slug?: string | null
           suggested_colors?: Json
           tagline?: string
           theme?: string
+          translations?: Json | null
           updated_at?: string
           user_id?: string
         }
