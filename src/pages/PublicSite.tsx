@@ -47,6 +47,9 @@ const PublicSite = () => {
   const [site, setSite] = useState<WeddingSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [passwordUnlocked, setPasswordUnlocked] = useState(false);
+  const [pwInput, setPwInput] = useState("");
+  const [pwError, setPwError] = useState(false);
   const { trackEvent, trackPageView } = useAnalyticsTracker(site?.id);
 
   useEffect(() => {
