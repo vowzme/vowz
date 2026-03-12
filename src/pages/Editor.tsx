@@ -333,6 +333,8 @@ const Editor = () => {
       tagline: siteData.tagline,
       suggested_colors: siteData.suggestedColors,
       sections: sections as any,
+      site_password: siteData.sitePassword || null,
+      site_language: siteData.siteLanguage || "en",
     });
     if (success) {
       toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
