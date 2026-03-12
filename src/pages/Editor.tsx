@@ -2508,6 +2508,49 @@ function SectionRenderer({
     );
   }
 
+  if (type === "video") {
+    const videos = data.videos || [];
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <InlineEditable
+          tag="h2"
+          value={data.heading || ""}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        <div className="max-w-2xl mx-auto space-y-6">
+          {videos.map((video: any, i: number) => {
+            const embedUrl = getVideoEmbedUrl(video.url);
+            return (
+              <div key={i}>
+                {embedUrl ? (
+                  <div className="aspect-video rounded-lg overflow-hidden">
+                    <iframe
+                      src={embedUrl}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      title={video.caption || `Video ${i + 1}`}
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video rounded-lg bg-muted flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>Paste a YouTube or Vimeo URL</p>
+                  </div>
+                )}
+                {video.caption && (
+                  <p className="text-center text-sm text-muted-foreground mt-2" style={{ fontFamily: bFont }}>{video.caption}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
 
