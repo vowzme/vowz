@@ -26,6 +26,8 @@ interface WeddingSite {
   sections: any[];
   slug: string;
   is_published: boolean;
+  site_password?: string | null;
+  site_language?: string;
 }
 
 // ─── RSVP Validation ──────────────────────────────────────────────────
