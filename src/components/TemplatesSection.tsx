@@ -1214,7 +1214,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-lg">
-                <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+                <img src={t.couplePhoto} alt={`${t.couple} love story portrait`} className="w-full h-full object-cover" />
               </div>
             </motion.div>
             <motion.div
