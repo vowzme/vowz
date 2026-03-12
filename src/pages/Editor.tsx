@@ -634,7 +634,7 @@ function SectionsPanel({
               >
                 {section.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               </button>
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips") && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
