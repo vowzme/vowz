@@ -57,7 +57,22 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <>
+      <SEOHead
+        title="Sign In / Sign Up – Vowz Wedding Website Builder"
+        description="Create your free account on Vowz and start building your beautiful wedding website. Sign up in seconds — no credit card required."
+        ogTitle="Sign In / Sign Up – Vowz"
+        ogDescription="Create your free Vowz account and start building your wedding website today. Free forever plan available."
+        ogImage="https://vowz.me/og-auth.jpg"
+        ogUrl="https://vowz.me/auth"
+        ogType="website"
+        twitterCard="summary_large_image"
+        twitterTitle="Sign In / Sign Up – Vowz"
+        twitterDescription="Create your free wedding website account. No credit card required."
+        twitterImage="https://vowz.me/og-auth.jpg"
+        canonical="https://vowz.me/auth"
+      />
+      <div className="min-h-screen bg-background flex">
       {/* Left decorative panel */}
       <div className="hidden lg:flex lg:w-5/12 bg-gradient-hero relative items-center justify-center overflow-hidden">
         <div className="absolute inset-0 opacity-10">
