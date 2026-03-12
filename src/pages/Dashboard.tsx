@@ -153,6 +153,14 @@ const Dashboard = () => {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-5 sm:py-8">
+        {/* Email Verification Banner */}
+        {profileData && !profileData.email_verified && (
+          <EmailVerifyBanner
+            userEmail={user?.email || ""}
+            onVerified={() => setProfileData({ ...profileData, email_verified: true })}
+          />
+        )}
+
         {/* Welcome */}
         <div className="mb-6 sm:mb-8">
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
