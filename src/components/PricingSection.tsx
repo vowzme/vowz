@@ -30,7 +30,7 @@ const plans = [
     description: "Everything for your perfect day",
     features: [
       { text: "Everything in Free, plus:", coming: false },
-      { text: "Custom domain (yournames.com)", coming: true },
+      { text: "Custom domain (yournames.com)", coming: false },
       { text: "20+ premium templates", coming: true },
       { text: "5GB storage for photos & videos", coming: false },
       { text: "Video embeds", coming: true },
