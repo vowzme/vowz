@@ -108,9 +108,16 @@ const PricingSection = () => {
 
               <ul className="space-y-3">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm font-body">
-                    <Check className="w-4 h-4 text-emerald mt-0.5 shrink-0" />
-                    <span className="text-foreground">{f}</span>
+                  <li key={f.text} className="flex items-start gap-3 text-sm font-body">
+                    {f.coming ? (
+                      <Clock className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                    ) : (
+                      <Check className="w-4 h-4 text-emerald mt-0.5 shrink-0" />
+                    )}
+                    <span className={f.coming ? "text-muted-foreground" : "text-foreground"}>
+                      {f.text}
+                      {f.coming && <span className="ml-1.5 text-[10px] bg-gold/15 text-gold px-1.5 py-0.5 rounded-full font-semibold">Coming Soon</span>}
+                    </span>
                   </li>
                 ))}
               </ul>
