@@ -1144,7 +1144,7 @@ function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { templat
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, duration: 0.5, type: "spring", stiffness: 200 }}
             >
-              <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+              <img src={t.couplePhoto} alt={`Portrait of ${t.couple}`} className="w-full h-full object-cover" />
             </motion.div>
 
             <motion.div
