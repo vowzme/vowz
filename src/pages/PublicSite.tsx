@@ -518,19 +518,16 @@ function CountdownSection({ data, accent, bg }: { data: any; accent: string; bg:
   if (!targetDate) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6 }}
+    <section
+      aria-label={data.label || "Countdown"}
       className="py-12 md:py-16 px-6 text-center"
       style={{ background: `linear-gradient(135deg, ${bg}08, ${accent}08)` }}
     >
-      <Clock className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} />
+      <Clock className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} aria-hidden="true" />
       <h2 className="font-display text-xl md:text-2xl font-semibold text-foreground mb-6">
         {data.label || "Counting Down"}
       </h2>
-      <div className="flex justify-center gap-4 sm:gap-8">
+      <div className="flex justify-center gap-4 sm:gap-8" role="timer" aria-label="Wedding countdown">
         {[
           { value: timeLeft.days, label: "Days" },
           { value: timeLeft.hours, label: "Hours" },
@@ -545,7 +542,7 @@ function CountdownSection({ data, accent, bg }: { data: any; accent: string; bg:
           </div>
         ))}
       </div>
-    </motion.div>
+    </section>
   );
 }
 

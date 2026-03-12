@@ -1481,7 +1481,7 @@ const TemplatesSection = () => {
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
                       {/* Couple photo circle */}
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 mb-3 shadow-lg" style={{ borderColor: t.colors[1] }}>
-                        <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+                        <img src={t.couplePhoto} alt={`${t.couple} portrait`} className="w-full h-full object-cover" />
                       </div>
                       <Heart className="w-3.5 h-3.5 mb-1.5" style={{ color: t.colors[1] }} fill="currentColor" />
                       <p className="font-display text-2xl font-bold drop-shadow-md" style={{ color: t.colors[2] }}>
