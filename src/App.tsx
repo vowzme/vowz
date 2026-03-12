@@ -17,6 +17,7 @@ import PublicSite from "./pages/PublicSite";
 import Templates from "./pages/Templates";
 import NotFound from "./pages/NotFound";
 import DomainWizardDemo from "./pages/DomainWizardDemo";
+import Pricing from "./pages/Pricing";
 import Affiliate from "./pages/Affiliate";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
