@@ -58,6 +58,7 @@ const AppRoutes = () => (
     <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
     <Route path="/contact" element={<Layout><Contact /></Layout>} />
     <Route path="/about" element={<Layout><AboutUs /></Layout>} />
+    <Route path="/refund-policy" element={<Layout><RefundPolicy /></Layout>} />
     <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
     <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
     <Route path="/admin/sites" element={<AdminLayout><AdminSites /></AdminLayout>} />
