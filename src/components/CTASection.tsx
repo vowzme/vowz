@@ -19,7 +19,7 @@ const CTASection = () => {
           </h2>
           <p className="text-muted-foreground font-body text-lg mb-10 max-w-xl mx-auto font-light">
             Join thousands of couples creating unforgettable wedding experiences.
-            Start with AI — publish in minutes.
+            Start free — publish in minutes.
           </p>
           <Button variant="gold" size="xl" asChild>
             <Link to="/auth">Create Your Free Wedding Site</Link>

@@ -9,23 +9,31 @@ import {
 const faqs = [
   {
     q: "Is Vowz really free?",
-    a: "Yes! Our free plan includes the AI wizard, 5 templates, 50 photo uploads, RSVP management, QR invites, and a vowz.me subdomain — forever, no credit card required.",
+    a: "Yes! Our free plan includes the wedding wizard, 25 templates, 50 photo uploads, RSVP management, QR invites, countdown timer, guestbook, budget tracker, wedding checklist, guest polls, and a vowz.me subdomain — forever, no credit card required.",
   },
   {
-    q: "How does the AI Wedding Wizard work?",
-    a: "Simply answer a few questions about your wedding — names, cultural background, love story, and ceremony details. Our AI generates a complete, personalized wedding website in under 5 minutes that you can edit anytime.",
+    q: "How does the Wedding Wizard work?",
+    a: "Answer a few simple questions — your names, cultural background, love story, and ceremony details. Vowz generates a complete, personalized wedding website in under 5 minutes with all your events pre-filled. You can edit everything anytime in the visual editor.",
+  },
+  {
+    q: "What AI features does Vowz offer?",
+    a: "Premium users get an AI assistant built into the editor. It can suggest color palettes and themes based on your culture and venue, rewrite your love story or tagline, generate event descriptions, and offer wedding planning advice — all with one click to apply changes.",
   },
   {
     q: "Can I use my own domain like ournames.com?",
-    a: "Absolutely! Premium users can connect a custom domain. We guide you through DNS setup and handle SSL certificates automatically.",
+    a: "Yes! Premium users can connect a custom domain through our guided 4-step wizard. Search for available domains, purchase from popular registrars (GoDaddy, BigRock, Hostinger, Namecheap), follow our DNS setup guide, and verify — we handle SSL automatically.",
   },
   {
     q: "What types of weddings does Vowz support?",
-    a: "Vowz supports all wedding styles — traditional Indian (Hindu, Muslim, Sikh, Christian), fusion, destination, eco-friendly, and more. Our AI adapts to your cultural background and includes relevant ceremony events.",
+    a: "Vowz supports all wedding styles — traditional Indian (Hindu, Muslim, Sikh, Christian), fusion, destination, eco-friendly, and more. The wizard adapts to your cultural background and includes relevant ceremony events like Mehendi, Sangeet, and Pheras.",
   },
   {
     q: "Can guests RSVP through my wedding site?",
-    a: "Yes! Every site includes an RSVP form where guests can confirm attendance, select events, choose meal preferences, and leave messages. You can track all responses in your dashboard.",
+    a: "Yes! Every site includes an RSVP form where guests can confirm attendance, select specific events, choose meal preferences (veg/non-veg/vegan), and leave messages. You can track all responses in real-time from your dashboard.",
+  },
+  {
+    q: "What planning tools are included?",
+    a: "Beyond the wedding website, Vowz includes a budget & expense tracker across 13 categories, a pre-seeded wedding checklist, interactive guest polls, visitor analytics, and a getting-started guide — all accessible from your dashboard.",
   },
   {
     q: "Is my wedding site mobile-friendly?",
@@ -33,7 +41,7 @@ const faqs = [
   },
   {
     q: "Can I add photos and videos?",
-    a: "Free users get 50 photo uploads. Premium users get 5GB of storage for photos and videos, including support for video embeds from YouTube or Vimeo.",
+    a: "Free users get 50 photo uploads with a built-in gallery and lightbox viewer. Video embed support and expanded 5GB storage for photos and videos are coming soon with Premium.",
   },
   {
     q: "What happens to my site after the wedding?",

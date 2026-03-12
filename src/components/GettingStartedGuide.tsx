@@ -22,12 +22,12 @@ interface GuideStep {
 const steps: GuideStep[] = [
   {
     icon: Sparkles,
-    title: "1. Create with AI Wizard",
-    description: "Answer a few questions about your wedding and let our AI generate a complete site draft.",
+    title: "1. Create with the Wedding Wizard",
+    description: "Answer a few questions about your wedding and get a complete site draft instantly.",
     tips: [
-      "Share your love story — the AI uses it to write beautiful copy",
+      "Share your love story — it becomes your 'Our Story' page",
       "Mention your cultural background for ceremony-specific events",
-      "You can always edit everything later in the editor",
+      "You can always edit everything later in the visual editor",
     ],
   },
   {
@@ -37,7 +37,7 @@ const steps: GuideStep[] = [
     tips: [
       "Upload high-quality couple photos for the hero section",
       "Add all ceremony events with times and venues",
-      "Use the AI assistant in the editor for quick content changes",
+      "Premium users can use the AI assistant for quick content & theme changes",
     ],
   },
   {
