@@ -22,7 +22,7 @@ const freeFeatures = [
 ];
 
 const premiumFeatures = [
-  { icon: Globe, title: "Custom Domain", desc: "Use your own domain like arjunandmeera.com" },
+  { icon: Globe, title: "Custom Domain", desc: "Use your own domain like arjunandmeera.com", available: true },
   { icon: Video, title: "Video Embeds", desc: "Add pre-wedding shoots and ceremony videos" },
   { icon: Lock, title: "Password Protection", desc: "Keep your site private with guest-only access" },
   { icon: Languages, title: "Multilingual", desc: "Auto-translate your site into Hindi, Tamil, and more" },
@@ -117,9 +117,15 @@ const FeaturesSection = () => {
               </div>
               <h3 className="font-display text-lg font-semibold text-foreground mb-1">{f.title}</h3>
               <p className="text-muted-foreground font-body text-sm">{f.desc}</p>
-              <span className="inline-block mt-2 text-[10px] font-body font-semibold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
-                Coming Soon
-              </span>
+              {'available' in f && f.available ? (
+                <span className="inline-block mt-2 text-[10px] font-body font-semibold text-emerald bg-emerald/10 px-2 py-0.5 rounded-full">
+                  Available
+                </span>
+              ) : (
+                <span className="inline-block mt-2 text-[10px] font-body font-semibold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
+                  Coming Soon
+                </span>
+              )}
             </motion.div>
           ))}
         </motion.div>
