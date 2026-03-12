@@ -67,41 +67,24 @@ const PublicSite = () => {
     if (site) trackPageView();
   }, [site, trackPageView]);
 
-  // Dynamically set OG meta tags when site data loads
-  useEffect(() => {
-    if (!site) return;
-    const title = `${site.partner1} & ${site.partner2} — Wedding`;
-    const description = site.tagline || `You're invited to celebrate the wedding of ${site.partner1} & ${site.partner2}`;
-    const url = `${window.location.origin}/site/${site.slug}`;
-
-    document.title = title;
-
-    const setMeta = (property: string, content: string) => {
-      let el = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(property.startsWith("og:") || property.startsWith("twitter:") ? "property" : "name", property);
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", content);
-    };
-
+  // Extract dynamic SEO data from site
+  const seoData = useMemo(() => {
+    if (!site) return null;
+    const sections = (site.sections as any[]) || [];
+    const eventsSection = sections.find((s) => s.type === "events");
+    const firstEvent = eventsSection?.data?.events?.[0];
+    const coupleNames = `${site.partner1} & ${site.partner2}`;
+    const weddingDate = firstEvent?.date || "";
+    const venue = firstEvent?.venue || "";
+    const publicURL = `https://vowz.me/site/${site.slug}`;
     const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?slug=${site.slug}`;
+    const description = site.tagline
+      ? site.tagline
+      : venue && weddingDate
+        ? `Join ${site.partner1} & ${site.partner2}'s wedding on ${weddingDate} at ${venue}. RSVP now! Created with Vowz.`
+        : `You're invited to celebrate the wedding of ${site.partner1} & ${site.partner2}. RSVP now! Created with Vowz.`;
 
-    setMeta("og:title", title);
-    setMeta("og:description", description);
-    setMeta("og:type", "website");
-    setMeta("og:url", url);
-    setMeta("og:image", ogImageUrl);
-    setMeta("twitter:card", "summary_large_image");
-    setMeta("twitter:title", title);
-    setMeta("twitter:description", description);
-    setMeta("twitter:image", ogImageUrl);
-    setMeta("description", description);
-
-    return () => {
-      document.title = "Vowz — Where Vows Come Alive";
-    };
+    return { coupleNames, weddingDate, venue, publicURL, ogImageUrl, description };
   }, [site]);
 
   if (loading) {
