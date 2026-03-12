@@ -1280,6 +1280,62 @@ function SettingsPanel({
             </div>
           </div>
         </div>
+
+        {/* Password Protection */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Password Protection 🔒</label>
+          <div className="space-y-2">
+            <div className="flex items-start gap-3 p-3 rounded-lg border border-border/30 bg-background">
+              <input
+                type="checkbox"
+                checked={!!siteData.sitePassword}
+                onChange={(e) => onUpdate({ ...siteData, sitePassword: e.target.checked ? "wedding2026" : "" })}
+                className="rounded mt-0.5"
+              />
+              <div className="flex-1">
+                <p className="font-body text-sm text-foreground">Require password to view site</p>
+                <p className="font-body text-xs text-muted-foreground mt-0.5">
+                  Guests will need to enter a password before they can see your wedding site.
+                </p>
+              </div>
+            </div>
+            {siteData.sitePassword && (
+              <Input
+                value={siteData.sitePassword}
+                onChange={(e) => onUpdate({ ...siteData, sitePassword: e.target.value })}
+                placeholder="Enter site password"
+                className="font-body"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Multilingual */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Site Language 🌐</label>
+          <select
+            value={siteData.siteLanguage || "en"}
+            onChange={(e) => onUpdate({ ...siteData, siteLanguage: e.target.value })}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 font-body text-sm text-foreground"
+          >
+            <option value="en">English</option>
+            <option value="hi">Hindi (हिन्दी)</option>
+            <option value="ta">Tamil (தமிழ்)</option>
+            <option value="te">Telugu (తెలుగు)</option>
+            <option value="bn">Bengali (বাংলা)</option>
+            <option value="mr">Marathi (मराठी)</option>
+            <option value="gu">Gujarati (ગુજરાતી)</option>
+            <option value="kn">Kannada (ಕನ್ನಡ)</option>
+            <option value="ml">Malayalam (മലയാളം)</option>
+            <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+            <option value="or">Odia (ଓଡ଼ିଆ)</option>
+            <option value="as">Assamese (অসমীয়া)</option>
+            <option value="ur">Urdu (اردو)</option>
+          </select>
+          <p className="font-body text-xs text-muted-foreground mt-1.5">
+            Select a language to auto-translate your site content for guests.
+          </p>
+        </div>
       </div>
     </div>
   );
