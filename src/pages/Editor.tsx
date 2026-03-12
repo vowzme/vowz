@@ -355,6 +355,7 @@ const Editor = () => {
   // ─── Editor Layout ─────────────────────────────────────────────────
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
+      <SEOHead title="Editor – Vowz" description="Edit your wedding website." robots="noindex, nofollow" />
       {/* Top toolbar */}
       <header className="h-14 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center px-3 sm:px-4 gap-2 sm:gap-3 shrink-0 z-20">
         <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors">
