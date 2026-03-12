@@ -35,6 +35,8 @@ const OnboardingWizard = () => {
     nextStep, prevStep, completeWizard, isComplete,
   } = useWeddingWizard();
 
+  const [customEvent, setCustomEvent] = useState("");
+
   // Apply template preset if navigated from templates
   useEffect(() => {
     if (templateState?.templateColors) {
