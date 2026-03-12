@@ -11,6 +11,9 @@ interface SEOHeadProps {
   twitterCard?: "summary" | "summary_large_image" | "app" | "player";
   twitterSite?: string;
   twitterCreator?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
   robots?: string;
   canonical?: string;
   lang?: string;
