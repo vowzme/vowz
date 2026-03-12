@@ -22,7 +22,7 @@ import SEOHead from "@/components/SEOHead";
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video";
   title: string;
   visible: boolean;
   data: Record<string, any>;
