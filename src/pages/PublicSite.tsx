@@ -273,12 +273,13 @@ function PublicSection({
   trackEvent: (type: string, meta?: Record<string, any>) => void;
 }) {
   const { type, data } = section;
+  const coupleNames = `${site.partner1} & ${site.partner2}`;
 
-  if (type === "hero") return <HeroSection data={data} bg={bg} accent={accent} light={light} />;
+  if (type === "hero") return <HeroSection data={data} bg={bg} accent={accent} light={light} coupleNames={coupleNames} />;
   if (type === "countdown") return <CountdownSection data={data} accent={accent} bg={bg} />;
   if (type === "story") return <StorySection data={data} accent={accent} />;
   if (type === "events") return <EventsSection data={data} accent={accent} />;
-  if (type === "gallery") return <GallerySection data={data} accent={accent} />;
+  if (type === "gallery") return <GallerySection data={data} accent={accent} coupleNames={coupleNames} />;
   if (type === "travel") return <TravelSection data={data} accent={accent} />;
   if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} trackEvent={trackEvent} />;
   if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
