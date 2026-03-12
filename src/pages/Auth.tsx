@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
 import { useCaptureAffiliate } from "@/hooks/use-affiliate";
+import SEOHead from "@/components/SEOHead";
 
 const Auth = () => {
   useCaptureAffiliate();
