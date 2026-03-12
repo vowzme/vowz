@@ -31,7 +31,6 @@ const Footer = () => {
               { label: "Terms of Service", href: "/terms" },
               { label: "Refund Policy", href: "/refund-policy" },
             ]},
-            ]},
           ].map((col) => (
             <div key={col.title}>
               <h4 className="font-display text-sm font-semibold text-foreground mb-3">{col.title}</h4>
