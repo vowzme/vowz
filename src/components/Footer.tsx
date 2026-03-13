@@ -11,7 +11,7 @@ const Footer = () => {
               <VowzLogo iconSize="h-8" textSize="text-xl" />
             </div>
             <p className="text-muted-foreground font-body text-sm">
-              A product of <strong className="text-foreground">AXPIR TECH</strong>. Where Vows Come Alive.
+              A product of <strong className="text-foreground">AXPIR Tech India LLP</strong>. Where Vows Come Alive.
             </p>
           </div>
           {[

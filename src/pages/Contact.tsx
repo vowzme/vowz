@@ -57,7 +57,7 @@ const Contact = () => {
             {[
               { icon: Mail, label: "Email", value: "hi@vowz.me" },
               { icon: Phone, label: "Support", value: "+91 8111852030" },
-              { icon: MapPin, label: "Office", value: "1st Floor, CC 54, 2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi - 682020" },
+              { icon: MapPin, label: "Office", value: "1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020" },
             ].map((item) => (
               <div key={item.label} className="flex items-start gap-4 p-5 rounded-xl bg-card border border-border/50 shadow-card">
                 <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
