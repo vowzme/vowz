@@ -78,9 +78,10 @@ const Dashboard = () => {
         .limit(1)
         .maybeSingle();
 
-      if (!data) return null;
-      if (data.expires_at && new Date(data.expires_at).getTime() <= Date.now()) return null;
-      return data;
+      const activeSubscription: any = data;
+      if (!activeSubscription) return null;
+      if (activeSubscription.expires_at && new Date(activeSubscription.expires_at).getTime() <= Date.now()) return null;
+      return activeSubscription;
     };
 
     Promise.all([loadUserSite(), loadProfile(), loadSubscription()]).then(([siteData, profile, activeSubscription]) => {

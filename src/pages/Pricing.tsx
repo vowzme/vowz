@@ -4,6 +4,7 @@ import { Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import SEOHead from "@/components/SEOHead";
+import Navbar from "@/components/Navbar";
 
 const plans = [
   {
