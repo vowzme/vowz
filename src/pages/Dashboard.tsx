@@ -199,29 +199,49 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Upgrade to Premium Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6 bg-gradient-to-r from-gold/10 via-gold/5 to-transparent border border-gold/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4"
-        >
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        {/* Premium Status / Upgrade Banner */}
+        {isPremium ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 bg-gradient-to-r from-gold/10 via-gold/5 to-transparent border border-gold/30 rounded-2xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4"
+          >
             <div className="bg-gold/20 rounded-full p-2 shrink-0">
-              <Crown className="w-5 h-5 text-gold" />
+              <ShieldCheck className="w-5 h-5 text-gold" />
             </div>
             <div className="min-w-0">
-              <h3 className="font-display text-sm sm:text-base font-bold text-foreground">Upgrade to Premium</h3>
+              <h3 className="font-display text-sm sm:text-base font-bold text-foreground">Premium Active</h3>
               <p className="font-body text-xs sm:text-sm text-muted-foreground truncate">
-                Custom domain, AI editor, 5GB storage, no watermarks & more
+                Your Premium plan is active{subscription?.expires_at ? ` until ${new Date(subscription.expires_at).toLocaleDateString()}` : ""}.
               </p>
             </div>
-          </div>
-          <Button variant="gold" size="sm" className="shrink-0 w-full sm:w-auto" asChild>
-            <Link to="/pricing">
-              <Crown className="w-3.5 h-3.5 mr-1.5" /> ₹599/yr
-            </Link>
-          </Button>
-        </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 bg-gradient-to-r from-gold/10 via-gold/5 to-transparent border border-gold/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4"
+          >
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="bg-gold/20 rounded-full p-2 shrink-0">
+                <Crown className="w-5 h-5 text-gold" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-display text-sm sm:text-base font-bold text-foreground">Upgrade to Premium</h3>
+                <p className="font-body text-xs sm:text-sm text-muted-foreground truncate">
+                  Custom domain, AI editor, 5GB storage, no watermarks & more
+                </p>
+              </div>
+            </div>
+            <PremiumUpgradeButton
+              variant="gold"
+              size="sm"
+              className="shrink-0 w-full sm:w-auto"
+              label="₹599/yr"
+              onUpgraded={() => setSubscription({ status: "active", expires_at: null })}
+            />
+          </motion.div>
+        )}
 
         {!site ? (
           /* No site yet */

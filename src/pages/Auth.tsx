@@ -49,7 +49,7 @@ const Auth = () => {
         if (error) throw error;
         toast({ title: "Welcome to Vowz! 💍", description: "Your account has been created. Please verify your email." });
         const pending = sessionStorage.getItem("pendingTemplate");
-        navigate(pending ? "/wizard" : "/dashboard");
+        navigate(pending ? "/wizard" : redirectTarget);
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
