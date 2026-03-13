@@ -99,7 +99,7 @@ const Affiliate = () => {
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/affiliate`,
+        emailRedirectTo: "https://vowz.me/affiliate",
       },
     });
     if (error) {
