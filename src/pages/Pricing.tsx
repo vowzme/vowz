@@ -30,7 +30,8 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "₹499",
+    price: "₹599",
+    originalPrice: "₹999",
     period: "/year",
     description: "Everything for your perfect day",
     features: [
@@ -108,12 +109,15 @@ const Pricing = () => {
                   )}
                   <h2 className="font-display text-2xl font-bold text-foreground">{plan.name}</h2>
                   <p className="text-muted-foreground font-body text-sm mt-1">{plan.description}</p>
-                  <div className="mt-6 mb-2">
+                  <div className="mt-6 mb-2 flex items-baseline gap-2">
                     <span className="font-display text-5xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-muted-foreground font-body text-sm ml-1">{plan.period}</span>
+                    {plan.originalPrice && (
+                      <span className="font-display text-xl text-muted-foreground line-through">{plan.originalPrice}</span>
+                    )}
+                    <span className="text-muted-foreground font-body text-sm">{plan.period}</span>
                   </div>
                   {plan.featured && (
-                    <p className="text-xs text-gold font-body mb-6 font-semibold">Best value for your wedding</p>
+                    <p className="text-xs text-gold font-body mb-6 font-semibold">Limited offer — 40% off!</p>
                   )}
                   {!plan.featured && <div className="mb-6" />}
 
