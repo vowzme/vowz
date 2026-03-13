@@ -55,15 +55,15 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Pricing – Vowz Wedding Invitation Maker | Free & Paid Plans"
-        description="Choose from Free, Pro (₹499) and Premium (₹999) plans. Create digital invites, wedding websites, custom domains and more."
+        description="Choose from Free and Premium (₹599/year, was ₹999) plans. Create digital invites, wedding websites, custom domains and more."
         ogTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        ogDescription="Free plan available. Pro ₹499 – Premium ₹999. Unlimited invites, premium themes, no watermarks, custom domains."
+        ogDescription="Free plan available. Premium ₹599/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains."
         ogImage="https://vowz.me/og-pricing.jpg"
         ogUrl="https://vowz.me/pricing"
         ogType="website"
         twitterCard="summary_large_image"
         twitterTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        twitterDescription="Free plan available. Pro ₹499 – Premium ₹999. Unlimited invites, premium themes, no watermarks, custom domains."
+        twitterDescription="Free plan available. Premium ₹599/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains."
         twitterImage="https://vowz.me/og-pricing.jpg"
         canonical="https://vowz.me/pricing"
         robots="index, follow"

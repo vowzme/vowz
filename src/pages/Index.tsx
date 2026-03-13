@@ -16,7 +16,7 @@ const Index = () => {
         title="Vowz – Create Free Indian Wedding Invitations & Websites Online"
         description="Design beautiful digital wedding invitations and personalized wedding websites for Indian weddings. Free to start. Easy WhatsApp sharing. Made for couples in India & abroad."
         ogTitle="Vowz – Digital Wedding Invitations & Websites"
-        ogDescription="Create stunning Indian wedding invites and websites in minutes. WhatsApp sharing, RSVP, custom domains – free & paid plans starting at ₹499."
+        ogDescription="Create stunning Indian wedding invites and websites in minutes. WhatsApp sharing, RSVP, custom domains – free & Premium at ₹599/year."
         ogImage="https://vowz.me/og-home.jpg"
         ogUrl="https://vowz.me"
         ogType="website"
