@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import VowzLogo from "@/components/VowzLogo";
+import { useAuth } from "@/hooks/use-auth";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const { user, loading } = useAuth();
   const links = [
     { label: "Features", href: "#features" },
     { label: "Templates", href: "#templates" },
@@ -25,7 +27,7 @@ const Navbar = () => {
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
-          {links.map((l) => (
+          {links.map((l) =>
             l.isRoute ? (
               <Link
                 key={l.label}
@@ -43,15 +45,36 @@ const Navbar = () => {
                 {l.label}
               </a>
             )
-          ))}
-          <Link to="/auth" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors font-medium">
-            Log In
-          </Link>
-          <Button variant="gold" size="sm" asChild><Link to="/auth">Get Started</Link></Button>
+          )}
+          {!loading && (
+            user ? (
+              <Button variant="gold" size="sm" asChild>
+                <Link to="/dashboard">
+                  <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" /> Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Link
+                  to="/auth"
+                  className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+                >
+                  Log In
+                </Link>
+                <Button variant="gold" size="sm" asChild>
+                  <Link to="/auth">Get Started</Link>
+                </Button>
+              </>
+            )
+          )}
         </div>
 
         {/* Mobile toggle */}
-      <button className="md:hidden text-foreground" onClick={() => setOpen(!open)} aria-label={open ? "Close menu" : "Open menu"}>
+        <button
+          className="md:hidden text-foreground"
+          onClick={() => setOpen(!open)}
+          aria-label={open ? "Close menu" : "Open menu"}
+        >
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
@@ -66,7 +89,7 @@ const Navbar = () => {
             className="md:hidden bg-background border-b border-border/30 overflow-hidden"
           >
             <div className="px-4 py-4 flex flex-col gap-3">
-              {links.map((l) => (
+              {links.map((l) =>
                 l.isRoute ? (
                   <Link
                     key={l.label}
@@ -86,15 +109,31 @@ const Navbar = () => {
                     {l.label}
                   </a>
                 )
-              ))}
-              <Link
-                to="/auth"
-                className="font-body text-sm text-muted-foreground py-2"
-                onClick={() => setOpen(false)}
-              >
-                Log In
-              </Link>
-              <Button variant="gold" size="sm" className="mt-2" asChild><Link to="/auth">Get Started</Link></Button>
+              )}
+              {!loading && (
+                user ? (
+                  <Button variant="gold" size="sm" className="mt-2" asChild>
+                    <Link to="/dashboard" onClick={() => setOpen(false)}>
+                      <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" /> Dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Link
+                      to="/auth"
+                      className="font-body text-sm text-muted-foreground py-2"
+                      onClick={() => setOpen(false)}
+                    >
+                      Log In
+                    </Link>
+                    <Button variant="gold" size="sm" className="mt-2" asChild>
+                      <Link to="/auth" onClick={() => setOpen(false)}>
+                        Get Started
+                      </Link>
+                    </Button>
+                  </>
+                )
+              )}
             </div>
           </motion.div>
         )}
