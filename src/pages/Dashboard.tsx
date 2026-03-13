@@ -169,6 +169,8 @@ const Dashboard = () => {
             onVerified={() => setProfileData({ ...profileData, email_verified: true })}
           />
         )}
+        {profileData?.email_verified && searchParams.get("verified") === null && null}
+        
 
         {/* Welcome */}
         <div className="mb-6 sm:mb-8">
