@@ -456,6 +456,60 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          currency: string
+          expires_at: string | null
+          id: string
+          metadata: Json
+          payment_id: string | null
+          payment_order_id: string | null
+          payment_signature: string | null
+          plan: string
+          provider: string
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          metadata?: Json
+          payment_id?: string | null
+          payment_order_id?: string | null
+          payment_signature?: string | null
+          plan?: string
+          provider?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          metadata?: Json
+          payment_id?: string | null
+          payment_order_id?: string | null
+          payment_signature?: string | null
+          plan?: string
+          provider?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wedding_budget: {
         Row: {
           created_at: string

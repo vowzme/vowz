@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 
@@ -121,14 +122,18 @@ const Pricing = () => {
                   )}
                   {!plan.featured && <div className="mb-6" />}
 
-                  <Button
-                    variant={plan.featured ? "gold" : "outline"}
-                    size="lg"
-                    className="w-full mb-8"
-                    asChild
-                  >
-                    <Link to="/auth">{plan.cta}</Link>
-                  </Button>
+                  {plan.featured ? (
+                    <PremiumUpgradeButton
+                      variant="gold"
+                      size="lg"
+                      className="w-full mb-8"
+                      label={plan.cta}
+                    />
+                  ) : (
+                    <Button variant="outline" size="lg" className="w-full mb-8" asChild>
+                      <Link to="/auth">{plan.cta}</Link>
+                    </Button>
+                  )}
 
                   <ul className="space-y-3">
                     {plan.features.map((f) => (

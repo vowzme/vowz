@@ -22,6 +22,7 @@ import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
 import BudgetTracker from "@/components/BudgetTracker";
 import SEOHead from "@/components/SEOHead";
 import GettingStartedGuide from "@/components/GettingStartedGuide";
+import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import {
   Tabs,
   TabsContent,
@@ -50,8 +51,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
+  const [subscription, setSubscription] = useState<any>(null);
 
-  // Load site & profile (with retry for new signups where profile may not exist yet)
+  // Load site, profile and subscription status
   useEffect(() => {
     if (!user) return;
     setLoading(true);
@@ -66,9 +68,26 @@ const Dashboard = () => {
       return null;
     };
 
-    Promise.all([loadUserSite(), loadProfile()]).then(([siteData, profile]) => {
+    const loadSubscription = async () => {
+      const { data } = await supabase
+        .from("user_subscriptions" as any)
+        .select("status, expires_at")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const activeSubscription: any = data;
+      if (!activeSubscription) return null;
+      if (activeSubscription.expires_at && new Date(activeSubscription.expires_at).getTime() <= Date.now()) return null;
+      return activeSubscription;
+    };
+
+    Promise.all([loadUserSite(), loadProfile(), loadSubscription()]).then(([siteData, profile, activeSubscription]) => {
       setSite(siteData);
       setProfileData(profile);
+      setSubscription(activeSubscription);
       setLoading(false);
       if (siteData) loadRsvps(siteData.id);
     });
@@ -141,6 +160,7 @@ const Dashboard = () => {
   }
 
   const isVerified = profileData?.email_verified === true;
+  const isPremium = Boolean(subscription);
   const attendingCount = rsvps.filter((r) => r.attending).length;
   const totalGuests = rsvps.filter((r) => r.attending).reduce((sum, r) => sum + r.guest_count, 0);
 
@@ -180,29 +200,49 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Upgrade to Premium Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6 bg-gradient-to-r from-gold/10 via-gold/5 to-transparent border border-gold/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4"
-        >
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        {/* Premium Status / Upgrade Banner */}
+        {isPremium ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 bg-gradient-to-r from-gold/10 via-gold/5 to-transparent border border-gold/30 rounded-2xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4"
+          >
             <div className="bg-gold/20 rounded-full p-2 shrink-0">
-              <Crown className="w-5 h-5 text-gold" />
+              <ShieldCheck className="w-5 h-5 text-gold" />
             </div>
             <div className="min-w-0">
-              <h3 className="font-display text-sm sm:text-base font-bold text-foreground">Upgrade to Premium</h3>
+              <h3 className="font-display text-sm sm:text-base font-bold text-foreground">Premium Active</h3>
               <p className="font-body text-xs sm:text-sm text-muted-foreground truncate">
-                Custom domain, AI editor, 5GB storage, no watermarks & more
+                Your Premium plan is active{subscription?.expires_at ? ` until ${new Date(subscription.expires_at).toLocaleDateString()}` : ""}.
               </p>
             </div>
-          </div>
-          <Button variant="gold" size="sm" className="shrink-0 w-full sm:w-auto" asChild>
-            <Link to="/pricing">
-              <Crown className="w-3.5 h-3.5 mr-1.5" /> ₹599/yr
-            </Link>
-          </Button>
-        </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 bg-gradient-to-r from-gold/10 via-gold/5 to-transparent border border-gold/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4"
+          >
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="bg-gold/20 rounded-full p-2 shrink-0">
+                <Crown className="w-5 h-5 text-gold" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-display text-sm sm:text-base font-bold text-foreground">Upgrade to Premium</h3>
+                <p className="font-body text-xs sm:text-sm text-muted-foreground truncate">
+                  Custom domain, AI editor, 5GB storage, no watermarks & more
+                </p>
+              </div>
+            </div>
+            <PremiumUpgradeButton
+              variant="gold"
+              size="sm"
+              className="shrink-0 w-full sm:w-auto"
+              label="₹599/yr"
+              onUpgraded={() => setSubscription({ status: "active", expires_at: null })}
+            />
+          </motion.div>
+        )}
 
         {!site ? (
           /* No site yet */

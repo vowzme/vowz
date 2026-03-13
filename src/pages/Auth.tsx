@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,21 @@ import SEOHead from "@/components/SEOHead";
 const Auth = () => {
   useCaptureAffiliate();
   const navigate = useNavigate();
-  const { signUp, signIn } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { signUp, signIn, user } = useAuth();
   const [isLogin, setIsLogin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const redirectParam = searchParams.get("redirect");
+  const redirectTarget = redirectParam && redirectParam.startsWith("/") ? redirectParam : "/dashboard";
+
+  useEffect(() => {
+    if (user) {
+      navigate(redirectTarget, { replace: true });
+    }
+  }, [user, navigate, redirectTarget]);
+
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +39,7 @@ const Auth = () => {
         if (error) throw error;
         toast({ title: "Welcome back! 💍" });
         const pending = sessionStorage.getItem("pendingTemplate");
-        navigate(pending ? "/wizard" : "/dashboard");
+        navigate(pending ? "/wizard" : redirectTarget);
       } else {
         if (form.password.length < 6) {
           toast({ title: "Password must be at least 6 characters", variant: "destructive" });
@@ -39,7 +49,7 @@ const Auth = () => {
         if (error) throw error;
         toast({ title: "Welcome to Vowz! 💍", description: "Your account has been created. Please verify your email." });
         const pending = sessionStorage.getItem("pendingTemplate");
-        navigate(pending ? "/wizard" : "/dashboard");
+        navigate(pending ? "/wizard" : redirectTarget);
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
