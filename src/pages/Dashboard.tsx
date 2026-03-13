@@ -1600,16 +1600,15 @@ function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVer
 
   useEffect(() => {
     if (searchParams.get("verified") === "true") {
-      // Mark as verified in the database
       const markVerified = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase.from("profiles").update({ email_verified: true } as any).eq("id", user.id);
           onVerified();
-          toast({ title: "Email verified! ✅", description: "Your email has been successfully verified." });
-          // Remove the query param
+          toast({ title: "Email verified successfully! ✅", description: "Welcome to Vowz! Your account is now fully activated." });
           searchParams.delete("verified");
           setSearchParams(searchParams, { replace: true });
+          setVerified(true);
         }
       };
       markVerified();
