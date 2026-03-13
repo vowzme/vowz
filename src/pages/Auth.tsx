@@ -37,12 +37,9 @@ const Auth = () => {
         }
         const { error } = await signUp(form.email, form.password, form.name);
         if (error) throw error;
-        toast({ 
-          title: "Check your email! 📧", 
-          description: "We've sent a verification link to your email. Please verify to continue." 
-        });
-        setShowVerifyMessage(true);
-        return;
+        toast({ title: "Welcome to Vowz! 💍", description: "Your account has been created. Please verify your email." });
+        const pending = sessionStorage.getItem("pendingTemplate");
+        navigate(pending ? "/wizard" : "/dashboard");
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
