@@ -72,23 +72,24 @@ const Dashboard = () => {
     const loadSubscription = async () => {
       const { data } = await supabase
         .from("user_subscriptions" as any)
-        .select("status, expires_at")
+        .select("*")
         .eq("user_id", user.id)
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order("created_at", { ascending: false });
 
-      const activeSubscription: any = data;
-      if (!activeSubscription) return null;
-      if (activeSubscription.expires_at && new Date(activeSubscription.expires_at).getTime() <= Date.now()) return null;
-      return activeSubscription;
+      const allSubs = (data as any[]) || [];
+
+      const activeSub = allSubs.find(
+        (s: any) => s.status === "active" && (!s.expires_at || new Date(s.expires_at).getTime() > Date.now())
+      );
+
+      return { activeSub: activeSub || null, allSubs };
     };
 
-    Promise.all([loadUserSite(), loadProfile(), loadSubscription()]).then(([siteData, profile, activeSubscription]) => {
+    Promise.all([loadUserSite(), loadProfile(), loadSubscription()]).then(([siteData, profile, subResult]) => {
       setSite(siteData);
       setProfileData(profile);
-      setSubscription(activeSubscription);
+      setSubscription(subResult.activeSub);
+      setPaymentHistory(subResult.allSubs);
       setLoading(false);
       if (siteData) loadRsvps(siteData.id);
     });
