@@ -23,11 +23,11 @@ const RefundPolicy = () => (
       {[
         {
           title: "1. Overview",
-          body: "This Refund & Cancellation Policy applies to all paid subscriptions and services purchased on VowZ (vowz.me), a product of AXPIR TECH, proprietorship of Anooj Xavier.",
+          body: "This Refund & Cancellation Policy applies to all paid subscriptions and services purchased on VowZ (vowz.me), a product of AXPIR Tech India LLP.",
         },
         {
           title: "2. Refund Eligibility",
-          body: "Refunds are issued only in the event that AXPIR TECH is unable to provide the services offered and described on the VowZ platform. If the subscribed features and services are delivered as described, no refund will be applicable.",
+          body: "Refunds are issued only in the event that AXPIR Tech India LLP is unable to provide the services offered and described on the VowZ platform. If the subscribed features and services are delivered as described, no refund will be applicable.",
         },
         {
           title: "3. Non-Refundable Scenarios",
@@ -47,7 +47,7 @@ const RefundPolicy = () => (
         },
         {
           title: "7. Contact",
-          body: "For any questions regarding this policy, please contact AXPIR TECH at hi@vowz.me or call +91 8111852030. Address: 1st Floor, CC 54, 2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi - 682020.",
+          body: "For any questions regarding this policy, please contact AXPIR Tech India LLP at hi@vowz.me or call +91 8111852030. Address: 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020.",
         },
       ].map((s) => (
         <div key={s.title} className="mb-8">

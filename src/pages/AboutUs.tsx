@@ -38,19 +38,19 @@ const AboutUs = () => (
           {
             icon: Building2,
             label: "Company",
-            value: "AXPIR TECH",
+            value: "AXPIR Tech India LLP",
             description: "A technology company focused on building delightful digital experiences for life's most important moments.",
           },
           {
             icon: User,
-            label: "Proprietor",
+            label: "Partner",
             value: "Anooj Xavier",
             description: "Passionate about design, technology, and making wedding planning stress-free for every couple.",
           },
           {
             icon: MapPin,
             label: "Registered Address",
-            value: "1st Floor, CC 54, 2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi - 682020",
+            value: "1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020",
           },
           {
             icon: Mail,

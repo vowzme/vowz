@@ -25,7 +25,7 @@ const Contact = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Contact Vowz – Get Help With Your Wedding Website"
-        description="Need help with your wedding invitation or website? Contact the Vowz support team by AXPIR TECH. We typically respond within 24 hours."
+        description="Need help with your wedding invitation or website? Contact the Vowz support team by AXPIR Tech India LLP. We typically respond within 24 hours."
         ogTitle="Contact Vowz – Wedding Website Support"
         ogDescription="Get help with your wedding website. Contact our support team — we respond within 24 hours."
         ogImage="https://vowz.me/og-contact.jpg"
@@ -57,7 +57,7 @@ const Contact = () => {
             {[
               { icon: Mail, label: "Email", value: "hi@vowz.me" },
               { icon: Phone, label: "Support", value: "+91 8111852030" },
-              { icon: MapPin, label: "Office", value: "1st Floor, CC 54, 2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi - 682020" },
+              { icon: MapPin, label: "Office", value: "1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020" },
             ].map((item) => (
               <div key={item.label} className="flex items-start gap-4 p-5 rounded-xl bg-card border border-border/50 shadow-card">
                 <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">

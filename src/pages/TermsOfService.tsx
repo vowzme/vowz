@@ -21,7 +21,7 @@ const TermsOfService = () => (
       <p className="text-muted-foreground font-body text-sm mb-10">Last updated: March 12, 2026</p>
 
       {[
-        { title: "1. Acceptance of Terms", body: "By accessing or using VowZ (vowz.me), a product of AXPIR TECH, you agree to be bound by these Terms of Service. If you do not agree, please do not use our service." },
+        { title: "1. Acceptance of Terms", body: "By accessing or using VowZ (vowz.me), a product of AXPIR Tech India LLP, you agree to be bound by these Terms of Service. If you do not agree, please do not use our service." },
         { title: "2. Service Description", body: "Vowz provides an AI-powered platform for creating personalized wedding websites. Our free plan includes basic features; premium features require a paid subscription." },
         { title: "3. User Accounts", body: "You are responsible for maintaining the security of your account credentials. You must provide accurate information when creating an account. One account per person is permitted." },
         { title: "4. Acceptable Use", body: "You may not use Vowz for unlawful purposes, to upload harmful or offensive content, or to violate the rights of others. We reserve the right to remove content that violates these terms." },
@@ -31,7 +31,7 @@ const TermsOfService = () => (
         { title: "8. Termination", body: "We may suspend or terminate accounts that violate these terms. You may delete your account at any time. Upon termination, your data will be permanently removed within 30 days." },
         { title: "9. Governing Law", body: "These terms are governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in Kochi, Kerala." },
         { title: "10. Changes to Terms", body: "We may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the updated terms." },
-        { title: "11. Contact", body: "For questions about these terms, please contact AXPIR TECH at hi@vowz.me or call +91 8111852030. Address: 1st Floor, CC 54, 2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi - 682020." },
+        { title: "11. Contact", body: "For questions about these terms, please contact AXPIR Tech India LLP at hi@vowz.me or call +91 8111852030. Address: 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020." },
       ].map((s) => (
         <div key={s.title} className="mb-8">
           <h2 className="font-display text-xl font-semibold text-foreground mb-2">{s.title}</h2>
