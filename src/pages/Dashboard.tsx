@@ -1619,10 +1619,10 @@ function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVer
   const handleSendVerification = async () => {
     setSending(true);
     try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
+      const { error } = await supabase.auth.signInWithOtp({
         email: userEmail,
         options: {
+          shouldCreateUser: false,
           emailRedirectTo: `${window.location.origin}/dashboard?verified=true`,
         },
       });
