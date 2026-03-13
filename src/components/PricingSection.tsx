@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { Link } from "react-router-dom";
 
 const plans = [
