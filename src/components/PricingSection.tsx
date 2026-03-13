@@ -93,10 +93,10 @@ const PricingSection = () => {
                 <span className="font-display text-5xl font-bold text-foreground">{plan.price}</span>
                 <span className="text-muted-foreground font-body text-sm ml-1">{plan.period}</span>
               </div>
-              {plan.altPrice && (
-                <p className="text-xs text-muted-foreground font-body mb-6">{plan.altPrice}</p>
+              {plan.featured && (
+                <p className="text-xs text-gold font-body mb-6 font-semibold">Best value for your wedding</p>
               )}
-              {!plan.altPrice && <div className="mb-6" />}
+              {!plan.featured && <div className="mb-6" />}
 
               <Button
                 variant={plan.featured ? "gold" : "outline"}
