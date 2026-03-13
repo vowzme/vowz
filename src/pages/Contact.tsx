@@ -25,7 +25,7 @@ const Contact = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Contact Vowz – Get Help With Your Wedding Website"
-        description="Need help with your wedding invitation or website? Contact the Vowz support team by AXPIR TECH. We typically respond within 24 hours."
+        description="Need help with your wedding invitation or website? Contact the Vowz support team by AXPIR Tech India LLP. We typically respond within 24 hours."
         ogTitle="Contact Vowz – Wedding Website Support"
         ogDescription="Get help with your wedding website. Contact our support team — we respond within 24 hours."
         ogImage="https://vowz.me/og-contact.jpg"
