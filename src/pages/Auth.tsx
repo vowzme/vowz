@@ -39,7 +39,7 @@ const Auth = () => {
         if (error) throw error;
         toast({ title: "Welcome back! 💍" });
         const pending = sessionStorage.getItem("pendingTemplate");
-        navigate(pending ? "/wizard" : "/dashboard");
+        navigate(pending ? "/wizard" : redirectTarget);
       } else {
         if (form.password.length < 6) {
           toast({ title: "Password must be at least 6 characters", variant: "destructive" });
