@@ -1636,6 +1636,22 @@ function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVer
     }
   };
 
+  if (verified) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="mb-6 bg-emerald/10 border border-emerald/30 rounded-xl p-4 flex items-center gap-3"
+      >
+        <ShieldCheck className="w-5 h-5 text-emerald shrink-0" />
+        <div>
+          <p className="font-body text-sm font-medium text-foreground">Email verified successfully! 🎉</p>
+          <p className="font-body text-xs text-muted-foreground">Your account is fully activated. You're all set!</p>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
