@@ -52,6 +52,7 @@ const Dashboard = () => {
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
+  const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
 
   // Load site, profile and subscription status
   useEffect(() => {
