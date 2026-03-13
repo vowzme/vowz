@@ -8,7 +8,7 @@ import {
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
-  IndianRupee, BookOpen
+  IndianRupee, BookOpen, Receipt
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,7 @@ const Dashboard = () => {
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
+  const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
 
   // Load site, profile and subscription status
   useEffect(() => {
@@ -71,23 +72,24 @@ const Dashboard = () => {
     const loadSubscription = async () => {
       const { data } = await supabase
         .from("user_subscriptions" as any)
-        .select("status, expires_at")
+        .select("*")
         .eq("user_id", user.id)
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order("created_at", { ascending: false });
 
-      const activeSubscription: any = data;
-      if (!activeSubscription) return null;
-      if (activeSubscription.expires_at && new Date(activeSubscription.expires_at).getTime() <= Date.now()) return null;
-      return activeSubscription;
+      const allSubs = (data as any[]) || [];
+
+      const activeSub = allSubs.find(
+        (s: any) => s.status === "active" && (!s.expires_at || new Date(s.expires_at).getTime() > Date.now())
+      );
+
+      return { activeSub: activeSub || null, allSubs };
     };
 
-    Promise.all([loadUserSite(), loadProfile(), loadSubscription()]).then(([siteData, profile, activeSubscription]) => {
+    Promise.all([loadUserSite(), loadProfile(), loadSubscription()]).then(([siteData, profile, subResult]) => {
       setSite(siteData);
       setProfileData(profile);
-      setSubscription(activeSubscription);
+      setSubscription(subResult.activeSub);
+      setPaymentHistory(subResult.allSubs);
       setLoading(false);
       if (siteData) loadRsvps(siteData.id);
     });
@@ -296,6 +298,9 @@ const Dashboard = () => {
               <TabsTrigger value="rsvps" className="font-body text-xs sm:text-sm">
                 RSVPs {rsvps.length > 0 && <span className="ml-1 sm:ml-1.5 bg-gold/20 text-gold text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full">{rsvps.length}</span>}
               </TabsTrigger>
+              <TabsTrigger value="billing" className="font-body text-xs sm:text-sm">
+                Billing <Receipt className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+              </TabsTrigger>
               <TabsTrigger value="settings" className="font-body text-xs sm:text-sm">Settings</TabsTrigger>
             </TabsList>
 
@@ -438,6 +443,95 @@ const Dashboard = () => {
                         <Copy className="w-4 h-4 mr-1" /> Copy site link to share
                       </Button>
                     )}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* ─── Billing Tab ─── */}
+            <TabsContent value="billing">
+              <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-foreground">Billing & Payments</h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">
+                      {isPremium ? "Your Premium plan is active." : "You're on the Free plan."}
+                    </p>
+                  </div>
+                  {!isPremium && (
+                    <PremiumUpgradeButton
+                      variant="gold"
+                      size="sm"
+                      label="Upgrade"
+                      onUpgraded={() => {
+                        setSubscription({ status: "active", expires_at: null });
+                        // Reload payment history
+                        supabase
+                          .from("user_subscriptions" as any)
+                          .select("*")
+                          .eq("user_id", user!.id)
+                          .order("created_at", { ascending: false })
+                          .then(({ data }) => setPaymentHistory((data as any[]) || []));
+                      }}
+                    />
+                  )}
+                </div>
+
+                {paymentHistory.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Receipt className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                    <p className="font-body text-sm text-muted-foreground">No payment history yet.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-border/50">
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Order ID</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Plan</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Amount</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Status</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Date</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3">Expires</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paymentHistory.map((p: any) => (
+                          <tr key={p.id} className="border-b border-border/30 last:border-0">
+                            <td className="font-body text-xs text-foreground py-3 pr-4">
+                              <code className="bg-muted px-1.5 py-0.5 rounded text-[11px]">
+                                {p.payment_order_id ? p.payment_order_id.slice(-12) : "—"}
+                              </code>
+                            </td>
+                            <td className="font-body text-xs text-foreground py-3 pr-4 capitalize">
+                              {(p.plan || "").replace(/_/g, " ")}
+                            </td>
+                            <td className="font-display text-sm font-semibold text-foreground py-3 pr-4">
+                              {p.amount_paid > 0 ? `₹${Number(p.amount_paid).toLocaleString("en-IN")}` : "—"}
+                            </td>
+                            <td className="py-3 pr-4">
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold ${
+                                  p.status === "active"
+                                    ? "bg-emerald/15 text-emerald"
+                                    : p.status === "pending"
+                                    ? "bg-gold/15 text-gold"
+                                    : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {p.status}
+                              </span>
+                            </td>
+                            <td className="font-body text-xs text-muted-foreground py-3 pr-4">
+                              {p.started_at ? format(new Date(p.started_at), "dd MMM yyyy") : p.created_at ? format(new Date(p.created_at), "dd MMM yyyy") : "—"}
+                            </td>
+                            <td className="font-body text-xs text-muted-foreground py-3">
+                              {p.expires_at ? format(new Date(p.expires_at), "dd MMM yyyy") : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
