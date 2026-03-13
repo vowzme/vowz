@@ -51,6 +51,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
+  const [subscription, setSubscription] = useState<any>(null);
 
   // Load site & profile (with retry for new signups where profile may not exist yet)
   useEffect(() => {
