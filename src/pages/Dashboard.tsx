@@ -199,7 +199,7 @@ const Dashboard = () => {
           </div>
           <Button variant="gold" size="sm" className="shrink-0 w-full sm:w-auto" asChild>
             <Link to="/pricing">
-              <Crown className="w-3.5 h-3.5 mr-1.5" /> ₹499/mo
+              <Crown className="w-3.5 h-3.5 mr-1.5" /> ₹599/yr
             </Link>
           </Button>
         </motion.div>

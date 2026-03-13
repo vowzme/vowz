@@ -63,7 +63,7 @@ const Pricing = () => {
         ogType="website"
         twitterCard="summary_large_image"
         twitterTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        twitterDescription="Free plan available. Pro ₹499 – Premium ₹999. Unlimited invites, premium themes, no watermarks, custom domains."
+        twitterDescription="Free plan available. Premium ₹599/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains."
         twitterImage="https://vowz.me/og-pricing.jpg"
         canonical="https://vowz.me/pricing"
         robots="index, follow"
