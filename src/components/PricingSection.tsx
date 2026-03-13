@@ -7,7 +7,7 @@ const plans = [
   {
     name: "Free",
     price: "₹0",
-    period: "forever",
+    period: "/7 days",
     description: "Perfect for getting started",
     features: [
       { text: "Easy Wedding Wizard", coming: false },
@@ -28,9 +28,8 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "₹499",
-    period: "/month",
-    altPrice: "or ₹4,999 one-time",
+    price: "₹4,999",
+    period: "/year",
     description: "Everything for your perfect day",
     features: [
       { text: "Everything in Free, plus:", coming: false },
@@ -94,10 +93,10 @@ const PricingSection = () => {
                 <span className="font-display text-5xl font-bold text-foreground">{plan.price}</span>
                 <span className="text-muted-foreground font-body text-sm ml-1">{plan.period}</span>
               </div>
-              {plan.altPrice && (
-                <p className="text-xs text-muted-foreground font-body mb-6">{plan.altPrice}</p>
+              {plan.featured && (
+                <p className="text-xs text-gold font-body mb-6 font-semibold">Best value for your wedding</p>
               )}
-              {!plan.altPrice && <div className="mb-6" />}
+              {!plan.featured && <div className="mb-6" />}
 
               <Button
                 variant={plan.featured ? "gold" : "outline"}
