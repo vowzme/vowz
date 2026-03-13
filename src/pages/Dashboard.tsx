@@ -448,6 +448,95 @@ const Dashboard = () => {
               </div>
             </TabsContent>
 
+            {/* ─── Billing Tab ─── */}
+            <TabsContent value="billing">
+              <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-foreground">Billing & Payments</h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">
+                      {isPremium ? "Your Premium plan is active." : "You're on the Free plan."}
+                    </p>
+                  </div>
+                  {!isPremium && (
+                    <PremiumUpgradeButton
+                      variant="gold"
+                      size="sm"
+                      label="Upgrade"
+                      onUpgraded={() => {
+                        setSubscription({ status: "active", expires_at: null });
+                        // Reload payment history
+                        supabase
+                          .from("user_subscriptions" as any)
+                          .select("*")
+                          .eq("user_id", user!.id)
+                          .order("created_at", { ascending: false })
+                          .then(({ data }) => setPaymentHistory((data as any[]) || []));
+                      }}
+                    />
+                  )}
+                </div>
+
+                {paymentHistory.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Receipt className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                    <p className="font-body text-sm text-muted-foreground">No payment history yet.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-border/50">
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Order ID</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Plan</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Amount</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Status</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Date</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3">Expires</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paymentHistory.map((p: any) => (
+                          <tr key={p.id} className="border-b border-border/30 last:border-0">
+                            <td className="font-body text-xs text-foreground py-3 pr-4">
+                              <code className="bg-muted px-1.5 py-0.5 rounded text-[11px]">
+                                {p.payment_order_id ? p.payment_order_id.slice(-12) : "—"}
+                              </code>
+                            </td>
+                            <td className="font-body text-xs text-foreground py-3 pr-4 capitalize">
+                              {(p.plan || "").replace(/_/g, " ")}
+                            </td>
+                            <td className="font-display text-sm font-semibold text-foreground py-3 pr-4">
+                              {p.amount_paid > 0 ? `₹${Number(p.amount_paid).toLocaleString("en-IN")}` : "—"}
+                            </td>
+                            <td className="py-3 pr-4">
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold ${
+                                  p.status === "active"
+                                    ? "bg-emerald/15 text-emerald"
+                                    : p.status === "pending"
+                                    ? "bg-gold/15 text-gold"
+                                    : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {p.status}
+                              </span>
+                            </td>
+                            <td className="font-body text-xs text-muted-foreground py-3 pr-4">
+                              {p.started_at ? format(new Date(p.started_at), "dd MMM yyyy") : p.created_at ? format(new Date(p.created_at), "dd MMM yyyy") : "—"}
+                            </td>
+                            <td className="font-body text-xs text-muted-foreground py-3">
+                              {p.expires_at ? format(new Date(p.expires_at), "dd MMM yyyy") : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
             {/* ─── Settings Tab ─── */}
             <TabsContent value="settings">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
