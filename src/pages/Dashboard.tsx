@@ -53,7 +53,7 @@ const Dashboard = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
 
-  // Load site & profile (with retry for new signups where profile may not exist yet)
+  // Load site, profile and subscription status
   useEffect(() => {
     if (!user) return;
     setLoading(true);
@@ -68,9 +68,25 @@ const Dashboard = () => {
       return null;
     };
 
-    Promise.all([loadUserSite(), loadProfile()]).then(([siteData, profile]) => {
+    const loadSubscription = async () => {
+      const { data } = await supabase
+        .from("user_subscriptions" as any)
+        .select("status, expires_at")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!data) return null;
+      if (data.expires_at && new Date(data.expires_at).getTime() <= Date.now()) return null;
+      return data;
+    };
+
+    Promise.all([loadUserSite(), loadProfile(), loadSubscription()]).then(([siteData, profile, activeSubscription]) => {
       setSite(siteData);
       setProfileData(profile);
+      setSubscription(activeSubscription);
       setLoading(false);
       if (siteData) loadRsvps(siteData.id);
     });
