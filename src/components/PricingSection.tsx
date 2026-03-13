@@ -7,7 +7,7 @@ const plans = [
   {
     name: "Free",
     price: "₹0",
-    period: "forever",
+    period: "/7 days",
     description: "Perfect for getting started",
     features: [
       { text: "Easy Wedding Wizard", coming: false },
@@ -28,9 +28,8 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "₹499",
-    period: "/month",
-    altPrice: "or ₹4,999 one-time",
+    price: "₹4,999",
+    period: "/year",
     description: "Everything for your perfect day",
     features: [
       { text: "Everything in Free, plus:", coming: false },
