@@ -140,6 +140,7 @@ const Dashboard = () => {
     );
   }
 
+  const isVerified = profileData?.email_verified === true;
   const attendingCount = rsvps.filter((r) => r.attending).length;
   const totalGuests = rsvps.filter((r) => r.attending).reduce((sum, r) => sum + r.guest_count, 0);
 
@@ -216,10 +217,17 @@ const Dashboard = () => {
                 Create Your Wedding Site
               </h2>
               <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">
-                Our step-by-step wizard will help you build a beautiful wedding website in minutes.
+                {isVerified 
+                  ? "Our step-by-step wizard will help you build a beautiful wedding website in minutes."
+                  : "Verify your email first, then start building your beautiful wedding website."}
               </p>
-              <Button variant="gold" size="lg" asChild>
-                <Link to="/wizard">
+              <Button variant="gold" size="lg" asChild disabled={!isVerified}>
+                <Link to={isVerified ? "/wizard" : "#"} onClick={(e) => {
+                  if (!isVerified) {
+                    e.preventDefault();
+                    toast({ title: "Verify your email first", description: "Please verify your email to start the wizard.", variant: "destructive" });
+                  }
+                }}>
                   <Sparkles className="w-4 h-4 mr-2" /> Start Wedding Wizard
                 </Link>
               </Button>
@@ -273,16 +281,16 @@ const Dashboard = () => {
                   </div>
 
                   <div className="p-4 sm:p-6 flex flex-wrap gap-2 sm:gap-3">
-                    <Button variant="gold" size="sm" asChild>
-                      <Link to="/editor">
+                    <Button variant="gold" size="sm" asChild disabled={!isVerified}>
+                      <Link to={isVerified ? "/editor" : "#"} onClick={(e) => !isVerified && e.preventDefault()}>
                         <Edit3 className="w-4 h-4 mr-1" /> Edit Site
                       </Link>
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handleTogglePublish}
-                      disabled={saving}
+                      onClick={isVerified ? handleTogglePublish : () => toast({ title: "Verify your email first", description: "Please verify your email to publish your site.", variant: "destructive" })}
+                      disabled={saving || !isVerified}
                     >
                       {site.is_published ? (
                         <><GlobeLock className="w-4 h-4 mr-1" /> Unpublish</>
@@ -1619,10 +1627,10 @@ function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVer
   const handleSendVerification = async () => {
     setSending(true);
     try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
+      const { error } = await supabase.auth.signInWithOtp({
         email: userEmail,
         options: {
+          shouldCreateUser: false,
           emailRedirectTo: `${window.location.origin}/dashboard?verified=true`,
         },
       });

@@ -17,7 +17,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const [showVerifyMessage, setShowVerifyMessage] = useState(false);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,12 +37,9 @@ const Auth = () => {
         }
         const { error } = await signUp(form.email, form.password, form.name);
         if (error) throw error;
-        toast({ 
-          title: "Check your email! 📧", 
-          description: "We've sent a verification link to your email. Please verify to continue." 
-        });
-        setShowVerifyMessage(true);
-        return;
+        toast({ title: "Welcome to Vowz! 💍", description: "Your account has been created. Please verify your email." });
+        const pending = sessionStorage.getItem("pendingTemplate");
+        navigate(pending ? "/wizard" : "/dashboard");
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -105,21 +102,6 @@ const Auth = () => {
               <span className="font-display text-xl font-bold text-foreground">Vowz</span>
             </div>
 
-            {showVerifyMessage ? (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-8">
-                <div className="bg-accent/10 border border-accent/30 rounded-2xl p-8">
-                  <Mail className="w-12 h-12 text-accent mx-auto mb-4" />
-                  <h2 className="font-display text-2xl font-bold text-foreground mb-2">Check your email!</h2>
-                  <p className="font-body text-muted-foreground mb-4">
-                    We've sent a verification link to <strong className="text-foreground">{form.email}</strong>. Click the link in the email to verify your account and get started.
-                  </p>
-                  <p className="font-body text-xs text-muted-foreground">
-                    Didn't receive it? Check your spam folder or{" "}
-                    <button onClick={() => setShowVerifyMessage(false)} className="text-accent hover:underline">try again</button>.
-                  </p>
-                </div>
-              </motion.div>
-            ) : (
             <motion.div key={isLogin ? "login" : "signup"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
               <h1 className="font-display text-3xl font-bold text-foreground mb-1">
                 {isLogin ? "Welcome back" : "Create your account"}
@@ -207,7 +189,6 @@ const Auth = () => {
                 </button>
               </p>
             </motion.div>
-            )}
           </div>
         </div>
       </div>
