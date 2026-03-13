@@ -1,4 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import * as React from "npm:react@18.3.1";
+import { renderAsync } from "npm:@react-email/components@0.0.22";
+import { PaymentSuccessEmail } from "../_shared/email-templates/payment-success.tsx";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -236,6 +239,76 @@ Deno.serve(async (req) => {
       );
 
       if (activateError) throw activateError;
+
+      // Send payment success email
+      try {
+        const paymentDate = new Date().toLocaleDateString("en-IN", {
+          day: "numeric", month: "long", year: "numeric",
+        });
+        const expiryDate = new Date(expiresAt).toLocaleDateString("en-IN", {
+          day: "numeric", month: "long", year: "numeric",
+        });
+
+        const emailHtml = await renderAsync(
+          React.createElement(PaymentSuccessEmail, {
+            recipientName: user.user_metadata?.full_name || "there",
+            recipientEmail: user.email || "",
+            orderId,
+            paymentId,
+            plan: "Premium (1 Year)",
+            amount: `₹${amountPaid}`,
+            currency: payment.currency || "INR",
+            paymentDate,
+            expiresAt: expiryDate,
+            paymentMethod: payment.method || "",
+          })
+        );
+
+        const emailText = await renderAsync(
+          React.createElement(PaymentSuccessEmail, {
+            recipientName: user.user_metadata?.full_name || "there",
+            recipientEmail: user.email || "",
+            orderId,
+            paymentId,
+            plan: "Premium (1 Year)",
+            amount: `₹${amountPaid}`,
+            currency: payment.currency || "INR",
+            paymentDate,
+            expiresAt: expiryDate,
+            paymentMethod: payment.method || "",
+          }),
+          { plainText: true }
+        );
+
+        const messageId = crypto.randomUUID();
+
+        await adminClient.from("email_send_log").insert({
+          message_id: messageId,
+          template_name: "payment_success",
+          recipient_email: user.email || "",
+          status: "pending",
+        });
+
+        await adminClient.rpc("enqueue_email", {
+          queue_name: "auth_emails",
+          payload: {
+            message_id: messageId,
+            to: user.email,
+            from: "VowZ <noreply@vowz.me>",
+            sender_domain: "notify.vowz.me",
+            subject: "Payment Confirmed — VowZ Premium Activated 🎉",
+            html: emailHtml,
+            text: emailText,
+            purpose: "transactional",
+            label: "payment_success",
+            queued_at: new Date().toISOString(),
+          },
+        });
+
+        console.log("Payment success email enqueued", { email: user.email, orderId });
+      } catch (emailErr) {
+        console.error("Failed to send payment success email (non-blocking)", emailErr);
+      }
 
       return json({ success: true, expires_at: expiresAt });
     }
