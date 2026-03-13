@@ -1596,20 +1596,20 @@ function CustomDomainPanel({ siteId, siteSlug, siteName, savedDomain, savedStatu
 function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVerified: () => void }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     if (searchParams.get("verified") === "true") {
-      // Mark as verified in the database
       const markVerified = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase.from("profiles").update({ email_verified: true } as any).eq("id", user.id);
           onVerified();
-          toast({ title: "Email verified! ✅", description: "Your email has been successfully verified." });
-          // Remove the query param
+          toast({ title: "Email verified successfully! ✅", description: "Welcome to Vowz! Your account is now fully activated." });
           searchParams.delete("verified");
           setSearchParams(searchParams, { replace: true });
+          setVerified(true);
         }
       };
       markVerified();
@@ -1635,6 +1635,22 @@ function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVer
       setSending(false);
     }
   };
+
+  if (verified) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="mb-6 bg-emerald/10 border border-emerald/30 rounded-xl p-4 flex items-center gap-3"
+      >
+        <ShieldCheck className="w-5 h-5 text-emerald shrink-0" />
+        <div>
+          <p className="font-body text-sm font-medium text-foreground">Email verified successfully! 🎉</p>
+          <p className="font-body text-xs text-muted-foreground">Your account is fully activated. You're all set!</p>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
