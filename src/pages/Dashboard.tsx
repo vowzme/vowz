@@ -1631,7 +1631,7 @@ function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVer
         email: userEmail,
         options: {
           shouldCreateUser: false,
-          emailRedirectTo: `${window.location.origin}/dashboard?verified=true`,
+          emailRedirectTo: "https://vowz.me/dashboard?verified=true",
         },
       });
       if (error) throw error;
