@@ -1596,6 +1596,7 @@ function CustomDomainPanel({ siteId, siteSlug, siteName, savedDomain, savedStatu
 function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVerified: () => void }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
