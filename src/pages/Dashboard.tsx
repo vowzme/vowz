@@ -159,6 +159,7 @@ const Dashboard = () => {
   }
 
   const isVerified = profileData?.email_verified === true;
+  const isPremium = Boolean(subscription);
   const attendingCount = rsvps.filter((r) => r.attending).length;
   const totalGuests = rsvps.filter((r) => r.attending).reduce((sum, r) => sum + r.guest_count, 0);
 
