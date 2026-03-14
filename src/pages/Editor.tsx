@@ -1893,9 +1893,15 @@ function EventEditor({
             className="font-body text-sm h-8"
           />
           <Input
-            placeholder="Address / Location (e.g., 123 Main St, City)"
-            value={event.location || ""}
-            onChange={(e) => onChange({ ...event, location: e.target.value })}
+            placeholder="Venue address (e.g., 123 Main St, City)"
+            value={event.address || ""}
+            onChange={(e) => onChange({ ...event, address: e.target.value })}
+            className="font-body text-sm h-8"
+          />
+          <Input
+            placeholder="Google Maps link (paste URL)"
+            value={event.locationLink || ""}
+            onChange={(e) => onChange({ ...event, locationLink: e.target.value })}
             className="font-body text-sm h-8"
           />
         </div>
