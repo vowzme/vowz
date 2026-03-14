@@ -486,7 +486,8 @@ const Dashboard = () => {
                           <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Amount</th>
                           <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Status</th>
                           <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Date</th>
-                          <th className="font-body text-xs text-muted-foreground font-medium pb-3">Expires</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3 pr-4">Expires</th>
+                          <th className="font-body text-xs text-muted-foreground font-medium pb-3">Invoice</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -519,8 +520,20 @@ const Dashboard = () => {
                             <td className="font-body text-xs text-muted-foreground py-3 pr-4">
                               {p.started_at ? format(new Date(p.started_at), "dd MMM yyyy") : p.created_at ? format(new Date(p.created_at), "dd MMM yyyy") : "—"}
                             </td>
-                            <td className="font-body text-xs text-muted-foreground py-3">
+                            <td className="font-body text-xs text-muted-foreground py-3 pr-4">
                               {p.expires_at ? format(new Date(p.expires_at), "dd MMM yyyy") : "—"}
+                            </td>
+                            <td className="py-3">
+                              {p.status === "active" && p.amount_paid > 0 && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 px-2 text-[10px] gap-1"
+                                  onClick={() => generateInvoicePDF(p, profileData)}
+                                >
+                                  <Download className="w-3 h-3" /> PDF
+                                </Button>
+                              )}
                             </td>
                           </tr>
                         ))}
