@@ -160,7 +160,17 @@ const PublicSite = () => {
 
   const colors = (site.suggested_colors as string[]) || ["#6B1D2A", "#D4A853", "#FFF5E6"];
   const [bg, accent, light] = colors.length >= 3 ? colors : ["#6B1D2A", "#D4A853", "#FFF5E6"];
-  const sections = (site.sections as any[]) || [];
+  const rawSections = (site.sections as any[]) || [];
+
+  // Normalize old-format sections (from WizardPreview v1 which saved {type:"event", title:...})
+  const sections = rawSections.length > 0 && rawSections[0]?.type === "event"
+    ? [
+        { id: "hero", type: "hero", visible: true, data: { heading: `${site.partner1} & ${site.partner2}`, subheading: "You're Invited to the Wedding of", tagline: site.tagline } },
+        { id: "story", type: "story", visible: true, data: { heading: "Our Story", body: site.how_we_met } },
+        { id: "events", type: "events", visible: true, data: { heading: "Wedding Events", events: rawSections.map((s: any) => ({ name: s.title, date: s.date || "", time: s.time || "", venue: s.venue || "", location: "" })) } },
+        { id: "rsvp", type: "rsvp", visible: true, data: { heading: "Join Us", body: "We'd love to have you celebrate with us!" } },
+      ]
+    : rawSections;
 
   const siteUrl = `${window.location.origin}/site/${site.slug}`;
   // Use og-meta proxy URL for sharing so crawlers get proper OG tags

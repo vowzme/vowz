@@ -224,7 +224,10 @@ const Editor = () => {
             suggestedColors: (site.suggested_colors as any) || ["#6B1D2A", "#D4A853", "#FFF5E6"],
             tagline: site.tagline,
           };
-          const sections = (site.sections as any as WeddingSection[]);
+          const rawSections = (site.sections as any[]) || [];
+          // Normalize old-format sections ({type:"event"}) to proper format
+          const isOldFormat = rawSections.length > 0 && rawSections[0]?.type === "event";
+          const sections = isOldFormat ? buildSections(siteData) : (rawSections as any as WeddingSection[]);
           setState((prev) => ({
             ...prev,
             siteData,
