@@ -146,7 +146,7 @@ function generateInvoicePDF(payment: any, profile: any) {
   doc.save(`Vowz-Invoice-${invoiceNo}.pdf`);
 }
 
-  const navigate = useNavigate();
+  const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { loadUserSite, updateSite, saving } = useWeddingSite();
   const [site, setSite] = useState<any>(null);
