@@ -638,9 +638,23 @@ function TravelSection({ data, accent }: { data: any; accent: string }) {
                 </div>
                 <p className="font-display text-base font-semibold text-foreground">{hotel.name}</p>
                 <p className="text-sm text-muted-foreground font-body mt-1">{hotel.description}</p>
+                {hotel.address && (
+                  <p className="text-xs text-muted-foreground/70 font-body mt-1">{hotel.address}</p>
+                )}
                 <p className="text-sm font-body mt-2 flex items-center gap-1" style={{ color: accent }}>
                   <MapPin className="w-3.5 h-3.5" /> {hotel.distance}
                 </p>
+                {hotel.locationLink && (
+                  <a
+                    href={hotel.locationLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-body mt-1 inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
+                    style={{ color: accent }}
+                  >
+                    <MapPin className="w-3 h-3" /> View on Map
+                  </a>
+                )}
               </motion.div>
             ))}
           </div>
