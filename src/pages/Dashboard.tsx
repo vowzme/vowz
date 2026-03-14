@@ -8,7 +8,7 @@ import {
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
-  IndianRupee, BookOpen, Receipt
+  IndianRupee, BookOpen, Receipt, Download
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
