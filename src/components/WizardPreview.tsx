@@ -16,13 +16,82 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
     if (savedRef.current) return;
     savedRef.current = true;
 
-    const sections = data.functions.map((fn) => ({
-      type: "event",
-      title: fn,
-      date: "",
-      time: "",
-      venue: "",
-    }));
+    const sections = [
+      {
+        id: "hero",
+        type: "hero",
+        title: "Hero",
+        visible: true,
+        data: {
+          heading: `${data.partner1} & ${data.partner2}`,
+          subheading: "You're Invited to the Wedding of",
+          tagline: data.tagline,
+        },
+      },
+      {
+        id: "countdown",
+        type: "countdown",
+        title: "Countdown",
+        visible: true,
+        data: { label: "Days Until We Say 'I Do'", date: "" },
+      },
+      {
+        id: "story",
+        type: "story",
+        title: "Our Story",
+        visible: true,
+        data: { heading: "Our Story", body: data.howWeMet },
+      },
+      {
+        id: "events",
+        type: "events",
+        title: "Wedding Events",
+        visible: true,
+        data: {
+          heading: "Wedding Events",
+          events: data.functions.map((f) => ({
+            name: f,
+            date: "",
+            time: "",
+            venue: "",
+            location: "",
+          })),
+        },
+      },
+      {
+        id: "gallery",
+        type: "gallery",
+        title: "Photo Gallery",
+        visible: true,
+        data: { heading: "Our Moments" },
+      },
+      {
+        id: "travel",
+        type: "travel",
+        title: "Travel & Stay",
+        visible: true,
+        data: {
+          heading: "Travel & Stay",
+          description: "We've arranged some lovely options for your stay.",
+          hotels: [{ name: "Hotel Placeholder", description: "Update with your hotel details", distance: "Near venue" }],
+          directions: "Directions and travel tips — update this with your venue details.",
+        },
+      },
+      {
+        id: "guestbook",
+        type: "guestbook",
+        title: "Wishes & Blessings",
+        visible: true,
+        data: { heading: "Wishes & Blessings", description: "Leave your heartfelt wishes for the couple!" },
+      },
+      {
+        id: "rsvp",
+        type: "rsvp",
+        title: "RSVP",
+        visible: true,
+        data: { heading: "Join Us", body: "We'd love to have you celebrate with us!" },
+      },
+    ];
 
     createSite({
       partner1: data.partner1,
