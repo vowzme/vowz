@@ -1869,7 +1869,7 @@ function EventEditor({
   onChange,
   onDelete,
 }: {
-  event: { name: string; date: string; time: string; venue: string; location?: string };
+  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string };
   index: number;
   onChange: (e: typeof event) => void;
   onDelete: () => void;
