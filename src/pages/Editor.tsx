@@ -2505,9 +2505,23 @@ function SectionRenderer({
             <div key={i} className="border border-border/50 rounded-lg p-4 bg-card">
               <p className="text-sm font-semibold text-foreground" style={{ fontFamily: dFont }}>{hotel.name}</p>
               <p className="text-xs text-muted-foreground mt-1" style={{ fontFamily: bFont }}>{hotel.description}</p>
+              {hotel.address && (
+                <p className="text-xs text-muted-foreground/70 mt-0.5" style={{ fontFamily: bFont }}>{hotel.address}</p>
+              )}
               <p className="text-xs mt-1 flex items-center gap-1" style={{ color: accent, fontFamily: bFont }}>
                 <MapPin className="w-3 h-3" /> {hotel.distance}
               </p>
+              {hotel.locationLink && (
+                <a
+                  href={hotel.locationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs mt-1 inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
+                  style={{ color: accent, fontFamily: bFont }}
+                >
+                  <MapPin className="w-3 h-3" /> View on Map
+                </a>
+              )}
             </div>
           ))}
         </div>
