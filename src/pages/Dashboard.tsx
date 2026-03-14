@@ -259,17 +259,10 @@ const Dashboard = () => {
                 Create Your Wedding Site
               </h2>
               <p className="text-muted-foreground font-body mb-6 max-w-md mx-auto">
-                {isVerified 
-                  ? "Our step-by-step wizard will help you build a beautiful wedding website in minutes."
-                  : "Verify your email first, then start building your beautiful wedding website."}
+                Our step-by-step wizard will help you build a beautiful wedding website in minutes.
               </p>
-              <Button variant="gold" size="lg" asChild disabled={!isVerified}>
-                <Link to={isVerified ? "/wizard" : "#"} onClick={(e) => {
-                  if (!isVerified) {
-                    e.preventDefault();
-                    toast({ title: "Verify your email first", description: "Please verify your email to start the wizard.", variant: "destructive" });
-                  }
-                }}>
+              <Button variant="gold" size="lg" asChild>
+                <Link to="/wizard">
                   <Sparkles className="w-4 h-4 mr-2" /> Start Wedding Wizard
                 </Link>
               </Button>
@@ -326,16 +319,16 @@ const Dashboard = () => {
                   </div>
 
                   <div className="p-4 sm:p-6 flex flex-wrap gap-2 sm:gap-3">
-                    <Button variant="gold" size="sm" asChild disabled={!isVerified}>
-                      <Link to={isVerified ? "/editor" : "#"} onClick={(e) => !isVerified && e.preventDefault()}>
+                    <Button variant="gold" size="sm" asChild>
+                      <Link to="/editor">
                         <Edit3 className="w-4 h-4 mr-1" /> Edit Site
                       </Link>
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={isVerified ? handleTogglePublish : () => toast({ title: "Verify your email first", description: "Please verify your email to publish your site.", variant: "destructive" })}
-                      disabled={saving || !isVerified}
+                      onClick={handleTogglePublish}
+                      disabled={saving}
                     >
                       {site.is_published ? (
                         <><GlobeLock className="w-4 h-4 mr-1" /> Unpublish</>
