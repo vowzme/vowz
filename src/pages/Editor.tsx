@@ -1593,17 +1593,37 @@ function SectionEditor({
                   }}
                   className="font-body text-sm h-8"
                 />
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Distance from venue"
-                    value={hotel.distance}
-                    onChange={(e) => {
-                      const hotels = [...(data.hotels || [])];
-                      hotels[i] = { ...hotel, distance: e.target.value };
-                      onUpdateData({ hotels });
-                    }}
-                    className="font-body text-sm h-8 flex-1"
-                  />
+                <Input
+                  placeholder="Distance from venue"
+                  value={hotel.distance}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, distance: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <Input
+                  placeholder="Hotel address"
+                  value={hotel.address || ""}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, address: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <Input
+                  placeholder="Google Maps link (paste URL)"
+                  value={hotel.locationLink || ""}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, locationLink: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <div className="flex justify-end">
                   <button
                     onClick={() => {
                       const hotels = (data.hotels || []).filter((_: any, j: number) => j !== i);
@@ -1849,7 +1869,7 @@ function EventEditor({
   onChange,
   onDelete,
 }: {
-  event: { name: string; date: string; time: string; venue: string; location?: string };
+  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string };
   index: number;
   onChange: (e: typeof event) => void;
   onDelete: () => void;
@@ -1893,9 +1913,15 @@ function EventEditor({
             className="font-body text-sm h-8"
           />
           <Input
-            placeholder="Address / Location (e.g., 123 Main St, City)"
-            value={event.location || ""}
-            onChange={(e) => onChange({ ...event, location: e.target.value })}
+            placeholder="Venue address (e.g., 123 Main St, City)"
+            value={event.address || ""}
+            onChange={(e) => onChange({ ...event, address: e.target.value })}
+            className="font-body text-sm h-8"
+          />
+          <Input
+            placeholder="Google Maps link (paste URL)"
+            value={event.locationLink || ""}
+            onChange={(e) => onChange({ ...event, locationLink: e.target.value })}
             className="font-body text-sm h-8"
           />
         </div>
@@ -2376,8 +2402,19 @@ function SectionRenderer({
                   <MapPin className="w-3 h-3" /> {event.venue}
                 </p>
               )}
-              {event.location && (
-                <p className="text-xs text-muted-foreground/70 mt-0.5 truncate" style={{ fontFamily: bFont }}>{event.location}</p>
+              {event.address && (
+                <p className="text-xs text-muted-foreground/70 mt-0.5 truncate" style={{ fontFamily: bFont }}>{event.address}</p>
+              )}
+              {event.locationLink && (
+                <a
+                  href={event.locationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs mt-1 inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
+                  style={{ color: accent, fontFamily: bFont }}
+                >
+                  <MapPin className="w-3 h-3" /> View on Map
+                </a>
               )}
               {!event.date && !event.time && <p className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: bFont }}>Date & time TBD</p>}
             </div>
@@ -2468,9 +2505,23 @@ function SectionRenderer({
             <div key={i} className="border border-border/50 rounded-lg p-4 bg-card">
               <p className="text-sm font-semibold text-foreground" style={{ fontFamily: dFont }}>{hotel.name}</p>
               <p className="text-xs text-muted-foreground mt-1" style={{ fontFamily: bFont }}>{hotel.description}</p>
+              {hotel.address && (
+                <p className="text-xs text-muted-foreground/70 mt-0.5" style={{ fontFamily: bFont }}>{hotel.address}</p>
+              )}
               <p className="text-xs mt-1 flex items-center gap-1" style={{ color: accent, fontFamily: bFont }}>
                 <MapPin className="w-3 h-3" /> {hotel.distance}
               </p>
+              {hotel.locationLink && (
+                <a
+                  href={hotel.locationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs mt-1 inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
+                  style={{ color: accent, fontFamily: bFont }}
+                >
+                  <MapPin className="w-3 h-3" /> View on Map
+                </a>
+              )}
             </div>
           ))}
         </div>
