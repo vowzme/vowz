@@ -11,6 +11,7 @@ import {
   IndianRupee, BookOpen, Receipt, Download
 } from "lucide-react";
 import { format } from "date-fns";
+import jsPDF from "jspdf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
