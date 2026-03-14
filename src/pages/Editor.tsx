@@ -2382,8 +2382,19 @@ function SectionRenderer({
                   <MapPin className="w-3 h-3" /> {event.venue}
                 </p>
               )}
-              {event.location && (
-                <p className="text-xs text-muted-foreground/70 mt-0.5 truncate" style={{ fontFamily: bFont }}>{event.location}</p>
+              {event.address && (
+                <p className="text-xs text-muted-foreground/70 mt-0.5 truncate" style={{ fontFamily: bFont }}>{event.address}</p>
+              )}
+              {event.locationLink && (
+                <a
+                  href={event.locationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs mt-1 inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
+                  style={{ color: accent, fontFamily: bFont }}
+                >
+                  <MapPin className="w-3 h-3" /> View on Map
+                </a>
               )}
               {!event.date && !event.time && <p className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: bFont }}>Date & time TBD</p>}
             </div>
