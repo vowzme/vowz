@@ -43,7 +43,109 @@ interface RsvpRow {
   created_at: string;
 }
 
-const Dashboard = () => {
+// ─── PDF Invoice Generator ───────────────────────────────────────────
+function generateInvoicePDF(payment: any, profile: any) {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Brand header
+  doc.setFillColor(107, 29, 42); // brand maroon
+  doc.rect(0, 0, pageWidth, 40, "F");
+  doc.setTextColor(255, 245, 230);
+  doc.setFontSize(24);
+  doc.setFont("helvetica", "bold");
+  doc.text("Vowz", 20, 25);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text("Premium Wedding Websites", 20, 33);
+
+  // Invoice title
+  doc.setTextColor(107, 29, 42);
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("INVOICE", pageWidth - 20, 25, { align: "right" });
+
+  // Invoice details
+  doc.setTextColor(80, 80, 80);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  const invoiceDate = payment.started_at || payment.created_at;
+  const invoiceNo = payment.payment_order_id || payment.id?.slice(0, 12) || "N/A";
+  doc.text(`Invoice No: ${invoiceNo}`, pageWidth - 20, 55, { align: "right" });
+  doc.text(`Date: ${invoiceDate ? format(new Date(invoiceDate), "dd MMM yyyy") : "N/A"}`, pageWidth - 20, 62, { align: "right" });
+  doc.text(`Payment ID: ${payment.payment_id || "N/A"}`, pageWidth - 20, 69, { align: "right" });
+
+  // Bill To
+  doc.setTextColor(40, 40, 40);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.text("Bill To:", 20, 55);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(profile?.full_name || "Customer", 20, 63);
+  doc.text(profile?.email || "", 20, 70);
+
+  // Divider
+  doc.setDrawColor(212, 168, 83); // gold
+  doc.setLineWidth(0.5);
+  doc.line(20, 80, pageWidth - 20, 80);
+
+  // Table header
+  const tableY = 90;
+  doc.setFillColor(245, 240, 230);
+  doc.rect(20, tableY - 5, pageWidth - 40, 12, "F");
+  doc.setTextColor(80, 80, 80);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("Description", 25, tableY + 2);
+  doc.text("Period", 100, tableY + 2);
+  doc.text("Amount", pageWidth - 25, tableY + 2, { align: "right" });
+
+  // Table row
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(40, 40, 40);
+  const rowY = tableY + 16;
+  const planName = (payment.plan || "premium_yearly").replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+  doc.text(`Vowz ${planName}`, 25, rowY);
+  const startDate = payment.started_at ? format(new Date(payment.started_at), "dd MMM yyyy") : "—";
+  const endDate = payment.expires_at ? format(new Date(payment.expires_at), "dd MMM yyyy") : "—";
+  doc.text(`${startDate} – ${endDate}`, 100, rowY);
+  const amount = payment.amount_paid > 0 ? `₹${Number(payment.amount_paid).toLocaleString("en-IN")}` : "—";
+  doc.setFont("helvetica", "bold");
+  doc.text(amount, pageWidth - 25, rowY, { align: "right" });
+
+  // Divider
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.3);
+  doc.line(20, rowY + 8, pageWidth - 20, rowY + 8);
+
+  // Total
+  const totalY = rowY + 20;
+  doc.setFontSize(11);
+  doc.setTextColor(107, 29, 42);
+  doc.text("Total:", pageWidth - 65, totalY);
+  doc.text(amount, pageWidth - 25, totalY, { align: "right" });
+
+  // Status badge
+  doc.setFontSize(9);
+  doc.setTextColor(45, 80, 22);
+  doc.text(`Status: ${(payment.status || "").toUpperCase()}`, 20, totalY);
+
+  // Footer
+  const footerY = 260;
+  doc.setDrawColor(212, 168, 83);
+  doc.setLineWidth(0.3);
+  doc.line(20, footerY, pageWidth - 20, footerY);
+  doc.setTextColor(140, 140, 140);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text("Thank you for choosing Vowz Premium!", pageWidth / 2, footerY + 8, { align: "center" });
+  doc.text("vowz.me | support@vowz.me", pageWidth / 2, footerY + 14, { align: "center" });
+  doc.text("This is a computer-generated invoice and does not require a signature.", pageWidth / 2, footerY + 20, { align: "center" });
+
+  doc.save(`Vowz-Invoice-${invoiceNo}.pdf`);
+}
+
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { loadUserSite, updateSite, saving } = useWeddingSite();
