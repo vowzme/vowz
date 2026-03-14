@@ -1593,17 +1593,37 @@ function SectionEditor({
                   }}
                   className="font-body text-sm h-8"
                 />
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Distance from venue"
-                    value={hotel.distance}
-                    onChange={(e) => {
-                      const hotels = [...(data.hotels || [])];
-                      hotels[i] = { ...hotel, distance: e.target.value };
-                      onUpdateData({ hotels });
-                    }}
-                    className="font-body text-sm h-8 flex-1"
-                  />
+                <Input
+                  placeholder="Distance from venue"
+                  value={hotel.distance}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, distance: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <Input
+                  placeholder="Hotel address"
+                  value={hotel.address || ""}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, address: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <Input
+                  placeholder="Google Maps link (paste URL)"
+                  value={hotel.locationLink || ""}
+                  onChange={(e) => {
+                    const hotels = [...(data.hotels || [])];
+                    hotels[i] = { ...hotel, locationLink: e.target.value };
+                    onUpdateData({ hotels });
+                  }}
+                  className="font-body text-sm h-8"
+                />
+                <div className="flex justify-end">
                   <button
                     onClick={() => {
                       const hotels = (data.hotels || []).filter((_: any, j: number) => j !== i);
