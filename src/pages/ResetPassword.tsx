@@ -59,15 +59,15 @@ const ResetPassword = () => {
           robots="noindex, nofollow"
         />
         <div className="min-h-screen bg-background flex items-center justify-center px-6">
-          <div className="text-center">
-            <Heart className="w-8 h-8 text-gold mx-auto mb-4" fill="currentColor" />
-            <p className="font-body text-muted-foreground">Verifying reset link…</p>
-            <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mt-4" />
-          </div>
+        <div className="text-center">
+          <VowzLogo iconSize="h-8" textSize="text-xl" className="justify-center mb-4" />
+          <p className="font-body text-muted-foreground">Verifying reset link…</p>
+          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mt-4" />
         </div>
-      </>
-    );
-  }
+      </div>
+    </>
+  );
+}
 
   return (
     <>
