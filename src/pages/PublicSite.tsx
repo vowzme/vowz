@@ -33,6 +33,7 @@ interface WeddingSite {
   is_published: boolean;
   site_password?: string | null;
   site_language?: string;
+  translations?: Record<string, Record<string, string>> | null;
 }
 
 // ─── RSVP Validation ──────────────────────────────────────────────────
