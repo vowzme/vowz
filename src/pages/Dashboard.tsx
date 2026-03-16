@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Edit3, Eye, ExternalLink, Globe, GlobeLock,
+  Heart, Edit3, Eye, ExternalLink, Globe, GlobeLock,
   Users, Calendar, Mail, ChevronDown, ChevronUp,
   Settings, LogOut, Sparkles, Plus, Check, X, Copy,
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
