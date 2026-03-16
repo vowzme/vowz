@@ -2026,4 +2026,95 @@ function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVer
   );
 }
 
+// ─── Blessing Moderation Card ─────────────────────────────────────────
+function BlessingModerationCard({
+  blessing,
+  onApprove,
+  onReject,
+  onReply,
+  onDelete,
+}: {
+  blessing: any;
+  onApprove: () => void;
+  onReject: () => void;
+  onReply: (reply: string) => void;
+  onDelete: () => void;
+}) {
+  const [replyText, setReplyText] = useState(blessing.owner_reply || "");
+  const [showReply, setShowReply] = useState(false);
+
+  const statusColors: Record<string, string> = {
+    pending: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
+    approved: "bg-green-500/10 text-green-600 border-green-500/30",
+    rejected: "bg-red-500/10 text-red-600 border-red-500/30",
+  };
+
+  return (
+    <div className="border border-border/50 rounded-xl p-4 bg-background">
+      <div className="flex items-start gap-3">
+        {blessing.photo_url && (
+          <img src={blessing.photo_url} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-body text-sm font-semibold text-foreground">{blessing.guest_name}</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-body font-medium ${statusColors[blessing.status] || ""}`}>
+              {blessing.status}
+            </span>
+            <span className="text-[10px] text-muted-foreground font-body ml-auto">
+              {new Date(blessing.created_at).toLocaleDateString()}
+            </span>
+          </div>
+          <p className="font-body text-sm text-muted-foreground mt-1">{blessing.message}</p>
+
+          {blessing.owner_reply && !showReply && (
+            <div className="mt-2 pl-3 border-l-2 border-gold/30">
+              <p className="font-body text-xs text-muted-foreground italic">💕 {blessing.owner_reply}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 mt-3 flex-wrap">
+        {blessing.status === "pending" && (
+          <>
+            <Button variant="outline" size="sm" className="font-body text-xs h-7" onClick={onApprove}>
+              <Check className="w-3 h-3 mr-1" /> Approve
+            </Button>
+            <Button variant="outline" size="sm" className="font-body text-xs h-7 text-destructive hover:text-destructive" onClick={onReject}>
+              <X className="w-3 h-3 mr-1" /> Reject
+            </Button>
+          </>
+        )}
+        <Button variant="ghost" size="sm" className="font-body text-xs h-7" onClick={() => setShowReply(!showReply)}>
+          <MessageSquare className="w-3 h-3 mr-1" /> {showReply ? "Cancel" : "Reply"}
+        </Button>
+        <Button variant="ghost" size="sm" className="font-body text-xs h-7 text-destructive hover:text-destructive ml-auto" onClick={onDelete}>
+          <Trash2 className="w-3 h-3" />
+        </Button>
+      </div>
+
+      {showReply && (
+        <div className="mt-3 flex gap-2">
+          <Input
+            placeholder="Write a reply to this blessing..."
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            className="font-body text-sm h-8 flex-1"
+          />
+          <Button
+            variant="gold"
+            size="sm"
+            className="font-body text-xs h-8"
+            onClick={() => { onReply(replyText); setShowReply(false); }}
+            disabled={!replyText.trim()}
+          >
+            Save
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default Dashboard;
