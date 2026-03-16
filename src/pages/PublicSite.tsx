@@ -1383,4 +1383,48 @@ function PasswordGate({ onUnlock, accent }: { onUnlock: () => void; accent: stri
   );
 }
 
+// ─── Registry Section ─────────────────────────────────────────────────
+function RegistrySection({ data, accent }: { data: any; accent: string }) {
+  const links = (data.links || []).filter((l: any) => l.name || l.url);
+  if (links.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6 }}
+      className="py-16 md:py-20 px-6"
+    >
+      <div className="max-w-2xl mx-auto text-center">
+        <Gift className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} />
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+          {data.heading || "Gift Registry"}
+        </h2>
+        <div className="w-14 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        {data.description && (
+          <p className="text-muted-foreground font-body text-center mb-8 max-w-lg mx-auto">{data.description}</p>
+        )}
+        <div className="space-y-3 max-w-md mx-auto">
+          {links.map((link: any, i: number) => (
+            <a
+              key={i}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-card hover:shadow-elegant transition-all group"
+            >
+              <div className="text-left">
+                <p className="font-body text-sm font-medium text-foreground group-hover:underline">{link.name}</p>
+                {link.valueUSD > 0 && <CurrencyDisplay amountUSD={link.valueUSD} />}
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default PublicSite;
