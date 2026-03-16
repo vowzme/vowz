@@ -666,6 +666,9 @@ function SectionsPanel({
               { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting" },
               { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability" },
               { id: "video", label: "🎬 Video Embed", desc: "YouTube/Vimeo" },
+              { id: "livestream", label: "📡 Live Stream", desc: "Virtual attendance" },
+              { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
+              { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
             ].map((item) => (
               <button
                 key={item.id}
