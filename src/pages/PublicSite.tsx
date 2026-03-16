@@ -47,6 +47,31 @@ const rsvpSchema = z.object({
   message: z.string().trim().max(500).nullable(),
 });
 
+// ─── Translation helper ───────────────────────────────────────────────
+type TranslateFn = (key: string, fallback: string) => string;
+
+function makeTranslate(translations: Record<string, Record<string, string>> | null | undefined, lang: string): TranslateFn {
+  return (key: string, fallback: string) => {
+    if (lang === "en" || !translations) return fallback;
+    return translations[lang]?.[key] || fallback;
+  };
+}
+
+// Map section type to translation key prefixes
+const SECTION_KEY_MAP: Record<string, { heading?: string; body?: string; description?: string }> = {
+  hero: { heading: undefined, body: "hero_subheading" },
+  story: { heading: "story_heading", body: "story_body" },
+  events: { heading: "events_heading" },
+  gallery: { heading: "gallery_heading" },
+  rsvp: { heading: "rsvp_heading", description: "rsvp_description" },
+  guestbook: { heading: "guestbook_heading" },
+  travel: { heading: "travel_heading" },
+  countdown: { heading: "countdown_label" },
+  blessings: { heading: "blessings_heading" },
+  registry: { heading: "registry_heading" },
+  livestream: { heading: "livestream_heading" },
+};
+
 // ─── Page Component ───────────────────────────────────────────────────
 const PublicSite = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -56,7 +81,20 @@ const PublicSite = () => {
   const [passwordUnlocked, setPasswordUnlocked] = useState(false);
   const [pwInput, setPwInput] = useState("");
   const [pwError, setPwError] = useState(false);
+  const [currentLang, setCurrentLang] = useState("en");
   const { trackEvent, trackPageView } = useAnalyticsTracker(site?.id);
+
+  // Derive available languages from translations
+  const availableLanguages = useMemo(() => {
+    if (!site?.translations) return ["en"];
+    const langs = Object.keys(site.translations).filter(
+      (l) => l !== "en" && Object.values(site.translations![l] || {}).some(Boolean)
+    );
+    return ["en", ...langs];
+  }, [site]);
+
+  // Translation function
+  const t = useMemo(() => makeTranslate(site?.translations, currentLang), [site?.translations, currentLang]);
 
   useEffect(() => {
     if (!slug) return;
