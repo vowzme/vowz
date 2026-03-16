@@ -225,6 +225,12 @@ const Editor = () => {
             theme: site.theme,
             suggestedColors: (site.suggested_colors as any) || ["#6B1D2A", "#D4A853", "#FFF5E6"],
             tagline: site.tagline,
+            siteLanguage: (site as any).site_language || "en",
+            sitePassword: (site as any).site_password || "",
+            availableLanguages: Object.keys((site as any).translations || {}).length > 0
+              ? ["en", ...Object.keys((site as any).translations || {})]
+              : ["en"],
+            translations: (site as any).translations || {},
           };
           const rawSections = (site.sections as any[]) || [];
           // Normalize old-format sections ({type:"event"}) to proper format
