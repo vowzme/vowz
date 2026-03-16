@@ -343,6 +343,7 @@ const Editor = () => {
       sections: sections as any,
       site_password: siteData.sitePassword || null,
       site_language: siteData.siteLanguage || "en",
+      translations: siteData.translations || {},
     });
     if (success) {
       toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
