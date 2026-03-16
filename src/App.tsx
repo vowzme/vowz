@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { HelmetProvider } from "react-helmet-async";
+import { PricingRegionProvider } from "@/hooks/use-pricing-region";
 import Layout from "@/components/Layout";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
