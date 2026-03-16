@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { useAuth } from "@/hooks/use-auth";
 import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
+import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import SEOHead from "@/components/SEOHead";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -573,6 +574,7 @@ const Editor = () => {
                   </div>
                   <SectionEditor
                     section={selectedSection}
+                    siteData={siteData}
                     onUpdateData={(data) => updateSectionData(selectedSection.id, data)}
                     onUpdateTitle={(title) => updateSection(selectedSection.id, { title })}
                   />
@@ -1534,14 +1536,25 @@ function SettingsPanel({
 // ─── Section Editor (right panel) ─────────────────────────────────────
 function SectionEditor({
   section,
+  siteData,
   onUpdateData,
   onUpdateTitle,
 }: {
   section: WeddingSection;
+  siteData: WeddingSiteData;
   onUpdateData: (data: Record<string, any>) => void;
   onUpdateTitle: (title: string) => void;
 }) {
   const { type, data } = section;
+  const { generate, loading: aiLoading } = useAIContentGen();
+
+  const aiContext = {
+    partner1: siteData.partner1,
+    partner2: siteData.partner2,
+    culturalBackground: siteData.culturalBackground,
+    howWeMet: siteData.howWeMet,
+    theme: siteData.theme,
+  };
 
   return (
     <div className="space-y-4">
@@ -1569,7 +1582,21 @@ function SectionEditor({
             />
           </div>
           <div>
-            <label className="font-body text-sm font-medium text-foreground mb-1 block">Tagline</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="font-body text-sm font-medium text-foreground">Tagline</label>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs text-accent hover:text-accent px-2"
+                disabled={aiLoading === "tagline"}
+                onClick={async () => {
+                  const result = await generate({ type: "tagline", context: aiContext });
+                  if (result) onUpdateData({ tagline: result });
+                }}
+              >
+                {aiLoading === "tagline" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-3 h-3 mr-1" /> AI</>}
+              </Button>
+            </div>
             <Input
               value={data.tagline || ""}
               onChange={(e) => onUpdateData({ tagline: e.target.value })}
@@ -1598,7 +1625,23 @@ function SectionEditor({
             />
           </div>
           <div>
-            <label className="font-body text-sm font-medium text-foreground mb-1 block">Content</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="font-body text-sm font-medium text-foreground">Content</label>
+              {type === "story" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-xs text-accent hover:text-accent px-2"
+                  disabled={aiLoading === "story"}
+                  onClick={async () => {
+                    const result = await generate({ type: "story", context: aiContext });
+                    if (result) onUpdateData({ body: result });
+                  }}
+                >
+                  {aiLoading === "story" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-3 h-3 mr-1" /> AI Rewrite</>}
+                </Button>
+              )}
+            </div>
             <Textarea
               value={data.body || ""}
               onChange={(e) => onUpdateData({ body: e.target.value })}
@@ -1635,6 +1678,18 @@ function SectionEditor({
                   const events = data.events.filter((_: any, j: number) => j !== i);
                   onUpdateData({ events });
                 }}
+                onGenerateDescription={async (eventName: string) => {
+                  const result = await generate({
+                    type: "event_description",
+                    context: { ...aiContext, eventName },
+                  });
+                  if (result) {
+                    const events = [...data.events];
+                    events[i] = { ...events[i], description: result };
+                    onUpdateData({ events });
+                  }
+                }}
+                aiLoading={aiLoading}
               />
             ))}
             <Button
@@ -2123,11 +2178,15 @@ function EventEditor({
   index,
   onChange,
   onDelete,
+  onGenerateDescription,
+  aiLoading,
 }: {
-  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string; timezone?: string };
+  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string; timezone?: string; description?: string };
   index: number;
   onChange: (e: typeof event) => void;
   onDelete: () => void;
+  onGenerateDescription?: (eventName: string) => Promise<void>;
+  aiLoading?: string | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -2195,6 +2254,30 @@ function EventEditor({
             onChange={(e) => onChange({ ...event, locationLink: e.target.value })}
             className="font-body text-sm h-8"
           />
+          {/* Event description with AI */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="font-body text-xs text-muted-foreground">Description</label>
+              {onGenerateDescription && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 text-[10px] text-accent hover:text-accent px-1.5"
+                  disabled={aiLoading === "event_description"}
+                  onClick={() => onGenerateDescription(event.name)}
+                >
+                  {aiLoading === "event_description" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-2.5 h-2.5 mr-0.5" /> AI</>}
+                </Button>
+              )}
+            </div>
+            <Textarea
+              placeholder="Brief description of this ceremony..."
+              value={event.description || ""}
+              onChange={(e) => onChange({ ...event, description: e.target.value })}
+              rows={2}
+              className="font-body text-sm"
+            />
+          </div>
         </div>
       )}
     </div>

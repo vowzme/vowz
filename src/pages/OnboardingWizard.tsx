@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useWeddingWizard, CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES } from "@/hooks/use-wedding-wizard";
 import WizardPreview from "@/components/WizardPreview";
+import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
@@ -34,9 +35,9 @@ const OnboardingWizard = () => {
     step, wizardData, updateField, applyCulturalPreset,
     nextStep, prevStep, completeWizard, isComplete,
   } = useWeddingWizard();
-
+  const { generate, loading: aiLoading } = useAIContentGen();
   const [customEvent, setCustomEvent] = useState("");
-
+  const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
   // Apply template preset if navigated from templates
   useEffect(() => {
     if (templateState?.templateColors) {
@@ -195,8 +196,80 @@ const OnboardingWizard = () => {
                 <div className="space-y-6">
                   <div className="text-center mb-8">
                     <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Your Love Story ✨</h2>
-                    <p className="text-muted-foreground font-body mt-2">How did you two meet? Share a few lines.</p>
+                    <p className="text-muted-foreground font-body mt-2">Answer a few questions and let AI craft your story, or write your own!</p>
                   </div>
+
+                  {/* AI Story Generator */}
+                  <div className="bg-accent/5 border border-accent/20 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Wand2 className="w-4 h-4 text-accent" />
+                      <span className="font-body text-sm font-semibold text-accent">AI Story Generator</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-xs font-body font-medium text-muted-foreground mb-1 block">Where did you meet?</label>
+                        <Input
+                          placeholder="e.g. at a café in Mumbai"
+                          value={storyPrompts.where}
+                          onChange={(e) => setStoryPrompts({ ...storyPrompts, where: e.target.value })}
+                          className="h-10 font-body text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-body font-medium text-muted-foreground mb-1 block">When was it?</label>
+                        <Input
+                          placeholder="e.g. college days, 2019"
+                          value={storyPrompts.when}
+                          onChange={(e) => setStoryPrompts({ ...storyPrompts, when: e.target.value })}
+                          className="h-10 font-body text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-body font-medium text-muted-foreground mb-1 block">First impression?</label>
+                        <Input
+                          placeholder="e.g. love at first sight"
+                          value={storyPrompts.firstImpression}
+                          onChange={(e) => setStoryPrompts({ ...storyPrompts, firstImpression: e.target.value })}
+                          className="h-10 font-body text-sm"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      variant="gold"
+                      size="sm"
+                      className="w-full sm:w-auto"
+                      disabled={aiLoading === "story" || (!storyPrompts.where && !storyPrompts.when && !storyPrompts.firstImpression)}
+                      onClick={async () => {
+                        const briefDetails = [
+                          storyPrompts.where && `Met ${storyPrompts.where}`,
+                          storyPrompts.when && `around ${storyPrompts.when}`,
+                          storyPrompts.firstImpression && `First impression: ${storyPrompts.firstImpression}`,
+                        ].filter(Boolean).join(". ");
+                        const result = await generate({
+                          type: "story",
+                          context: {
+                            partner1: wizardData.partner1,
+                            partner2: wizardData.partner2,
+                            culturalBackground: wizardData.culturalBackground,
+                            howWeMet: briefDetails,
+                          },
+                        });
+                        if (result) updateField("howWeMet", result);
+                      }}
+                    >
+                      {aiLoading === "story" ? (
+                        <><Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> Generating...</>
+                      ) : (
+                        <><Wand2 className="w-4 h-4 mr-1.5" /> Generate Story with AI</>
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border/50" /></div>
+                    <div className="relative flex justify-center"><span className="bg-background px-3 text-xs text-muted-foreground font-body">or write your own</span></div>
+                  </div>
+
                   <Textarea
                     placeholder="We met at a coffee shop in Mumbai when we accidentally grabbed each other's orders. One wrong cup led to a thousand right moments together..."
                     value={wizardData.howWeMet}
@@ -204,7 +277,34 @@ const OnboardingWizard = () => {
                     className="min-h-[160px] font-body text-base leading-relaxed"
                   />
                   <div>
-                    <label className="text-sm font-body font-medium text-foreground mb-1 block">Custom Tagline (optional)</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-sm font-body font-medium text-foreground">Custom Tagline (optional)</label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs text-accent hover:text-accent"
+                        disabled={aiLoading === "tagline"}
+                        onClick={async () => {
+                          const result = await generate({
+                            type: "tagline",
+                            context: {
+                              partner1: wizardData.partner1,
+                              partner2: wizardData.partner2,
+                              culturalBackground: wizardData.culturalBackground,
+                              howWeMet: wizardData.howWeMet,
+                              theme: wizardData.theme,
+                            },
+                          });
+                          if (result) updateField("tagline", result);
+                        }}
+                      >
+                        {aiLoading === "tagline" ? (
+                          <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Generating</>
+                        ) : (
+                          <><Wand2 className="w-3 h-3 mr-1" /> AI Generate</>
+                        )}
+                      </Button>
+                    </div>
                     <Input
                       placeholder="e.g. Two hearts, one beautiful journey"
                       value={wizardData.tagline}
