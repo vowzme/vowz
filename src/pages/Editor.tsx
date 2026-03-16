@@ -2775,6 +2775,58 @@ function SectionRenderer({
     );
   }
 
+  if (type === "livestream") {
+    return (
+      <div className="bg-background rounded-xl px-8 py-10 border border-border/30 text-center">
+        <InlineEditable tag="h2" value={data.heading || ""} onChange={(v) => update({ heading: v })} className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: dFont }} />
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <InlineEditable tag="p" value={data.description || ""} onChange={(v) => update({ description: v })} className="text-muted-foreground mb-4 max-w-md mx-auto" style={{ fontFamily: bFont }} />
+        {data.embedUrl ? (
+          <div className="aspect-video rounded-lg bg-muted flex items-center justify-center border border-border/50">
+            <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>📡 Live stream preview — visible when published</p>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>Add a stream URL in the editor panel</p>
+        )}
+      </div>
+    );
+  }
+
+  if (type === "blessings") {
+    return (
+      <div className="bg-card rounded-xl px-8 py-10 text-center">
+        <InlineEditable tag="h2" value={data.heading || ""} onChange={(v) => update({ heading: v })} className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: dFont }} />
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <InlineEditable tag="p" value={data.description || ""} onChange={(v) => update({ description: v })} className="text-muted-foreground mb-6 max-w-md mx-auto" style={{ fontFamily: bFont }} />
+        <div className="max-w-sm mx-auto space-y-3">
+          <Input placeholder="Your Name" disabled style={{ fontFamily: bFont }} />
+          <Textarea placeholder="Your blessing for the couple..." disabled rows={3} style={{ fontFamily: bFont }} />
+          <Button variant="gold" className="w-full" disabled style={{ fontFamily: bFont }}>Send Blessing</Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3" style={{ fontFamily: bFont }}>Blessings wall preview — functional when published</p>
+      </div>
+    );
+  }
+
+  if (type === "registry") {
+    return (
+      <div className="bg-background rounded-xl px-8 py-10 border border-border/30 text-center">
+        <InlineEditable tag="h2" value={data.heading || ""} onChange={(v) => update({ heading: v })} className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: dFont }} />
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <InlineEditable tag="p" value={data.description || ""} onChange={(v) => update({ description: v })} className="text-muted-foreground mb-6 max-w-md mx-auto" style={{ fontFamily: bFont }} />
+        <div className="max-w-md mx-auto space-y-3">
+          {(data.links || []).filter((l: any) => l.name || l.url).map((link: any, i: number) => (
+            <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card">
+              <span className="text-sm font-medium text-foreground" style={{ fontFamily: bFont }}>{link.name || "Registry"}</span>
+              {link.valueUSD > 0 && <span className="text-xs text-muted-foreground" style={{ fontFamily: bFont }}>~${link.valueUSD}</span>}
+            </div>
+          ))}
+          {(!data.links || data.links.length === 0) && <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>Add registry links in the editor panel</p>}
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
 
