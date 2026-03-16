@@ -655,16 +655,31 @@ function TravelSection({ data, accent }: { data: any; accent: string }) {
                 <p className="text-sm font-body mt-2 flex items-center gap-1" style={{ color: accent }}>
                   <MapPin className="w-3.5 h-3.5" /> {hotel.distance}
                 </p>
-                {hotel.locationLink && (
-                  <a
-                    href={hotel.locationLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-body mt-1 inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
-                    style={{ color: accent }}
-                  >
-                    <MapPin className="w-3 h-3" /> View on Map
-                  </a>
+                {(hotel.locationLink || hotel.address || hotel.name) && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {hotel.locationLink && (
+                      <a
+                        href={hotel.locationLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-body inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
+                        style={{ color: accent }}
+                      >
+                        <MapPin className="w-3 h-3" /> View on Map
+                      </a>
+                    )}
+                    {(hotel.address || hotel.name) && (
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(hotel.address || hotel.name || "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-body inline-flex items-center gap-1 underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity"
+                        style={{ color: accent }}
+                      >
+                        <Navigation className="w-3 h-3" /> Get Directions
+                      </a>
+                    )}
+                  </div>
                 )}
               </motion.div>
             ))}
