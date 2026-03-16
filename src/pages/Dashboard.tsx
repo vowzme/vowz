@@ -159,6 +159,8 @@ const Dashboard = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [blessings, setBlessings] = useState<any[]>([]);
+  const [blessingsLoading, setBlessingsLoading] = useState(false);
 
   // Load site, profile and subscription status
   useEffect(() => {
