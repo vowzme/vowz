@@ -24,6 +24,7 @@ import BudgetTracker from "@/components/BudgetTracker";
 import SEOHead from "@/components/SEOHead";
 import GettingStartedGuide from "@/components/GettingStartedGuide";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
+import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import {
   Tabs,
   TabsContent,
