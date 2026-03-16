@@ -8,7 +8,7 @@ import {
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
-  IndianRupee, BookOpen, Receipt, Download
+  IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon
 } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
@@ -159,6 +159,8 @@ const Dashboard = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [blessings, setBlessings] = useState<any[]>([]);
+  const [blessingsLoading, setBlessingsLoading] = useState(false);
 
   // Load site, profile and subscription status
   useEffect(() => {
@@ -197,9 +199,53 @@ const Dashboard = () => {
       setSubscription(subResult.activeSub);
       setPaymentHistory(subResult.allSubs);
       setLoading(false);
-      if (siteData) loadRsvps(siteData.id);
+      if (siteData) {
+        loadRsvps(siteData.id);
+        loadBlessings(siteData.id);
+      }
     });
   }, [user]);
+
+  const loadBlessings = async (siteId: string) => {
+    setBlessingsLoading(true);
+    const { data } = await supabase
+      .from("guest_blessings" as any)
+      .select("*")
+      .eq("wedding_site_id", siteId)
+      .order("created_at", { ascending: false });
+    if (data) setBlessings(data as any);
+    setBlessingsLoading(false);
+  };
+
+  const handleBlessingAction = async (id: string, action: "approved" | "rejected") => {
+    const { error } = await supabase
+      .from("guest_blessings" as any)
+      .update({ status: action } as any)
+      .eq("id", id);
+    if (!error) {
+      setBlessings((prev) => prev.map((b) => b.id === id ? { ...b, status: action } : b));
+      toast({ title: action === "approved" ? "Blessing approved ✅" : "Blessing rejected" });
+    }
+  };
+
+  const handleBlessingReply = async (id: string, reply: string) => {
+    const { error } = await supabase
+      .from("guest_blessings" as any)
+      .update({ owner_reply: reply } as any)
+      .eq("id", id);
+    if (!error) {
+      setBlessings((prev) => prev.map((b) => b.id === id ? { ...b, owner_reply: reply } : b));
+      toast({ title: "Reply saved 💕" });
+    }
+  };
+
+  const handleDeleteBlessing = async (id: string) => {
+    const { error } = await supabase.from("guest_blessings" as any).delete().eq("id", id);
+    if (!error) {
+      setBlessings((prev) => prev.filter((b) => b.id !== id));
+      toast({ title: "Blessing removed" });
+    }
+  };
 
   const loadRsvps = async (siteId: string) => {
     setRsvpLoading(true);
@@ -396,6 +442,9 @@ const Dashboard = () => {
               </TabsTrigger>
               <TabsTrigger value="rsvps" className="font-body text-xs sm:text-sm">
                 RSVPs {rsvps.length > 0 && <span className="ml-1 sm:ml-1.5 bg-gold/20 text-gold text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full">{rsvps.length}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="blessings" className="font-body text-xs sm:text-sm">
+                Blessings {blessings.length > 0 && <span className="ml-1 sm:ml-1.5 bg-gold/20 text-gold text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full">{blessings.filter(b => b.status === "pending").length || blessings.length}</span>}
               </TabsTrigger>
               <TabsTrigger value="billing" className="font-body text-xs sm:text-sm">
                 Billing <Receipt className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
@@ -644,6 +693,45 @@ const Dashboard = () => {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* ─── Blessings Tab ─── */}
+            <TabsContent value="blessings">
+              <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+                    <HeartIcon className="w-5 h-5 text-gold" fill="currentColor" /> Guest Blessings
+                  </h3>
+                  <span className="text-xs font-body text-muted-foreground">
+                    {blessings.filter(b => b.status === "pending").length} pending · {blessings.filter(b => b.status === "approved").length} approved
+                  </span>
+                </div>
+
+                {blessingsLoading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : blessings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <HeartIcon className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="font-body text-muted-foreground text-sm">No guest blessings yet.</p>
+                    <p className="font-body text-xs text-muted-foreground mt-1">Add a "Blessings Wall" section in the editor to start receiving messages.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {blessings.map((blessing) => (
+                      <BlessingModerationCard
+                        key={blessing.id}
+                        blessing={blessing}
+                        onApprove={() => handleBlessingAction(blessing.id, "approved")}
+                        onReject={() => handleBlessingAction(blessing.id, "rejected")}
+                        onReply={(reply) => handleBlessingReply(blessing.id, reply)}
+                        onDelete={() => handleDeleteBlessing(blessing.id)}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
@@ -1935,6 +2023,97 @@ function EmailVerifyBanner({ userEmail, onVerified }: { userEmail: string; onVer
         </Button>
       )}
     </motion.div>
+  );
+}
+
+// ─── Blessing Moderation Card ─────────────────────────────────────────
+function BlessingModerationCard({
+  blessing,
+  onApprove,
+  onReject,
+  onReply,
+  onDelete,
+}: {
+  blessing: any;
+  onApprove: () => void;
+  onReject: () => void;
+  onReply: (reply: string) => void;
+  onDelete: () => void;
+}) {
+  const [replyText, setReplyText] = useState(blessing.owner_reply || "");
+  const [showReply, setShowReply] = useState(false);
+
+  const statusColors: Record<string, string> = {
+    pending: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
+    approved: "bg-green-500/10 text-green-600 border-green-500/30",
+    rejected: "bg-red-500/10 text-red-600 border-red-500/30",
+  };
+
+  return (
+    <div className="border border-border/50 rounded-xl p-4 bg-background">
+      <div className="flex items-start gap-3">
+        {blessing.photo_url && (
+          <img src={blessing.photo_url} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-body text-sm font-semibold text-foreground">{blessing.guest_name}</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-body font-medium ${statusColors[blessing.status] || ""}`}>
+              {blessing.status}
+            </span>
+            <span className="text-[10px] text-muted-foreground font-body ml-auto">
+              {new Date(blessing.created_at).toLocaleDateString()}
+            </span>
+          </div>
+          <p className="font-body text-sm text-muted-foreground mt-1">{blessing.message}</p>
+
+          {blessing.owner_reply && !showReply && (
+            <div className="mt-2 pl-3 border-l-2 border-gold/30">
+              <p className="font-body text-xs text-muted-foreground italic">💕 {blessing.owner_reply}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 mt-3 flex-wrap">
+        {blessing.status === "pending" && (
+          <>
+            <Button variant="outline" size="sm" className="font-body text-xs h-7" onClick={onApprove}>
+              <Check className="w-3 h-3 mr-1" /> Approve
+            </Button>
+            <Button variant="outline" size="sm" className="font-body text-xs h-7 text-destructive hover:text-destructive" onClick={onReject}>
+              <X className="w-3 h-3 mr-1" /> Reject
+            </Button>
+          </>
+        )}
+        <Button variant="ghost" size="sm" className="font-body text-xs h-7" onClick={() => setShowReply(!showReply)}>
+          <MessageSquare className="w-3 h-3 mr-1" /> {showReply ? "Cancel" : "Reply"}
+        </Button>
+        <Button variant="ghost" size="sm" className="font-body text-xs h-7 text-destructive hover:text-destructive ml-auto" onClick={onDelete}>
+          <Trash2 className="w-3 h-3" />
+        </Button>
+      </div>
+
+      {showReply && (
+        <div className="mt-3 flex gap-2">
+          <Input
+            placeholder="Write a reply to this blessing..."
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            className="font-body text-sm h-8 flex-1"
+          />
+          <Button
+            variant="gold"
+            size="sm"
+            className="font-body text-xs h-8"
+            onClick={() => { onReply(replyText); setShowReply(false); }}
+            disabled={!replyText.trim()}
+          >
+            Save
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 
