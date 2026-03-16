@@ -2,6 +2,24 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import VowzLogo from "@/components/VowzLogo";
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleAnchorClick = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    const hash = href.replace("/", "");
+    if (location.pathname === "/") {
+      const el = document.querySelector(hash);
+      el?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        el?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  };
+
   return (
     <footer className="border-t border-border/50 py-8 sm:py-12 px-4 bg-card">
       <div className="max-w-6xl mx-auto">
