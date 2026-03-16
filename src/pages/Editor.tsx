@@ -50,6 +50,8 @@ export interface WeddingSiteData {
   memoryMode?: boolean;
   sitePassword?: string;
   siteLanguage?: string;
+  availableLanguages?: string[];
+  translations?: Record<string, Record<string, string>>;
 }
 
 interface EditorState {
