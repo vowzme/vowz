@@ -372,7 +372,7 @@ const OnboardingWizard = () => {
                 <div className="space-y-6">
                   <div className="text-center mb-8">
                     <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Your Wedding Events 🎊</h2>
-                    <p className="text-muted-foreground font-body mt-2">Select the events for your celebration. You can add more later.</p>
+                    <p className="text-muted-foreground font-body mt-2">Select events, then drag to arrange ceremony order</p>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {(() => {
@@ -404,6 +404,32 @@ const OnboardingWizard = () => {
                       });
                     })()}
                   </div>
+
+                  {/* Reorderable selected events */}
+                  {wizardData.functions.length > 0 && (
+                    <div>
+                      <label className="text-sm font-body font-medium text-foreground mb-2 block">
+                        Ceremony Order <span className="text-muted-foreground font-normal">(drag to reorder)</span>
+                      </label>
+                      <Reorder.Group
+                        axis="y"
+                        values={wizardData.functions}
+                        onReorder={(newOrder) => updateField("functions", newOrder)}
+                        className="space-y-1.5"
+                      >
+                        {wizardData.functions.map((event, i) => (
+                          <Reorder.Item key={event} value={event}>
+                            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-card border border-border/50 cursor-grab active:cursor-grabbing hover:border-gold/30 transition-colors">
+                              <GripVertical className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                              <span className="text-xs font-body text-muted-foreground w-5">{i + 1}.</span>
+                              <span className="font-body text-sm text-foreground flex-1">{event}</span>
+                            </div>
+                          </Reorder.Item>
+                        ))}
+                      </Reorder.Group>
+                    </div>
+                  )}
+
                   {/* Custom event input */}
                   <div>
                     <label className="text-sm font-body font-medium text-foreground mb-1 block">Add a custom event</label>
