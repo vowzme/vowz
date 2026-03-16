@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
 import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 import SEOHead from "@/components/SEOHead";
+import VowzLogo from "@/components/VowzLogo";
 
 const Auth = () => {
   useCaptureAffiliate();
