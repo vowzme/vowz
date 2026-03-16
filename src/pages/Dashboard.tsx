@@ -505,6 +505,16 @@ const Dashboard = () => {
                       </>
                     )}
                   </div>
+                  {site.is_published && site.slug && (
+                    <div className="mt-4 border-t border-border/30 pt-4">
+                      <QRCodeGenerator
+                        url={`${window.location.origin}/site/${site.slug}`}
+                        coupleNames={`${site.partner1}-${site.partner2}`}
+                        isPremium={isPremium}
+                        accent={(site.suggested_colors as any)?.[1] || "#D4A853"}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Stats cards */}
