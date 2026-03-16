@@ -1887,12 +1887,15 @@ function EventEditor({
   onChange,
   onDelete,
 }: {
-  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string };
+  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string; timezone?: string };
   index: number;
   onChange: (e: typeof event) => void;
   onDelete: () => void;
 }) {
   const [open, setOpen] = useState(false);
+
+  // Detect user's timezone for default
+  const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
     <div className="border border-border/50 rounded-lg overflow-hidden">
@@ -1924,6 +1927,19 @@ function EventEditor({
             onChange={(e) => onChange({ ...event, time: e.target.value })}
             className="font-body text-sm h-8"
           />
+          <select
+            value={event.timezone || userTz}
+            onChange={(e) => onChange({ ...event, timezone: e.target.value })}
+            className="w-full rounded-md border border-border bg-background px-3 py-1.5 font-body text-xs text-foreground"
+          >
+            {["America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "America/Toronto",
+              "Europe/London", "Europe/Paris", "Europe/Berlin",
+              "Asia/Kolkata", "Asia/Dubai", "Asia/Singapore", "Asia/Tokyo", "Asia/Shanghai",
+              "Australia/Sydney", "Pacific/Auckland", "UTC"
+            ].map((tz) => (
+              <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>
+            ))}
+          </select>
           <Input
             placeholder="Venue name"
             value={event.venue}
