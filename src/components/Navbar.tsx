@@ -123,8 +123,8 @@ const Navbar = () => {
                   <a
                     key={l.label}
                     href={l.href}
-                    className="font-body text-sm text-muted-foreground py-2"
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => { handleAnchorClick(e, l.href); setOpen(false); }}
+                    className="font-body text-sm text-muted-foreground py-2 cursor-pointer"
                   >
                     {l.label}
                   </a>
