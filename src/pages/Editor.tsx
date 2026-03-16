@@ -2178,11 +2178,15 @@ function EventEditor({
   index,
   onChange,
   onDelete,
+  onGenerateDescription,
+  aiLoading,
 }: {
-  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string; timezone?: string };
+  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string; timezone?: string; description?: string };
   index: number;
   onChange: (e: typeof event) => void;
   onDelete: () => void;
+  onGenerateDescription?: (eventName: string) => Promise<void>;
+  aiLoading?: string | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -2250,6 +2254,30 @@ function EventEditor({
             onChange={(e) => onChange({ ...event, locationLink: e.target.value })}
             className="font-body text-sm h-8"
           />
+          {/* Event description with AI */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="font-body text-xs text-muted-foreground">Description</label>
+              {onGenerateDescription && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 text-[10px] text-accent hover:text-accent px-1.5"
+                  disabled={aiLoading === "event_description"}
+                  onClick={() => onGenerateDescription(event.name)}
+                >
+                  {aiLoading === "event_description" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-2.5 h-2.5 mr-0.5" /> AI</>}
+                </Button>
+              )}
+            </div>
+            <Textarea
+              placeholder="Brief description of this ceremony..."
+              value={event.description || ""}
+              onChange={(e) => onChange({ ...event, description: e.target.value })}
+              rows={2}
+              className="font-body text-sm"
+            />
+          </div>
         </div>
       )}
     </div>
