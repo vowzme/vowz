@@ -24,6 +24,7 @@ import BudgetTracker from "@/components/BudgetTracker";
 import SEOHead from "@/components/SEOHead";
 import GettingStartedGuide from "@/components/GettingStartedGuide";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
+import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import {
   Tabs,
   TabsContent,
@@ -150,6 +151,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { loadUserSite, updateSite, saving } = useWeddingSite();
+  const { pricing } = usePricingRegion();
   const [site, setSite] = useState<any>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -344,7 +346,7 @@ const Dashboard = () => {
               variant="gold"
               size="sm"
               className="shrink-0 w-full sm:w-auto"
-              label="₹599/yr"
+              label={`${formatPrice(pricing, "premium")}/yr`}
               onUpgraded={() => setSubscription({ status: "active", expires_at: null })}
             />
           </motion.div>
