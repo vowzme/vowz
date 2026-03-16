@@ -50,6 +50,8 @@ export interface WeddingSiteData {
   memoryMode?: boolean;
   sitePassword?: string;
   siteLanguage?: string;
+  availableLanguages?: string[];
+  translations?: Record<string, Record<string, string>>;
 }
 
 interface EditorState {
@@ -223,6 +225,12 @@ const Editor = () => {
             theme: site.theme,
             suggestedColors: (site.suggested_colors as any) || ["#6B1D2A", "#D4A853", "#FFF5E6"],
             tagline: site.tagline,
+            siteLanguage: (site as any).site_language || "en",
+            sitePassword: (site as any).site_password || "",
+            availableLanguages: Object.keys((site as any).translations || {}).length > 0
+              ? ["en", ...Object.keys((site as any).translations || {})]
+              : ["en"],
+            translations: (site as any).translations || {},
           };
           const rawSections = (site.sections as any[]) || [];
           // Normalize old-format sections ({type:"event"}) to proper format
@@ -341,6 +349,7 @@ const Editor = () => {
       sections: sections as any,
       site_password: siteData.sitePassword || null,
       site_language: siteData.siteLanguage || "en",
+      translations: siteData.translations || {},
     });
     if (success) {
       toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
@@ -1236,6 +1245,101 @@ function StylePanel({
   );
 }
 
+const LANG_OPTIONS = [
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "hi", label: "Hindi (हिन्दी)", flag: "🇮🇳" },
+  { code: "es", label: "Español", flag: "🇪🇸" },
+  { code: "ar", label: "العربية", flag: "🇸🇦" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "zh", label: "中文", flag: "🇨🇳" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "ta", label: "Tamil (தமிழ்)", flag: "🇮🇳" },
+  { code: "te", label: "Telugu (తెలుగు)", flag: "🇮🇳" },
+  { code: "ml", label: "Malayalam (മലയാളം)", flag: "🇮🇳" },
+  { code: "bn", label: "Bengali (বাংলা)", flag: "🇮🇳" },
+  { code: "mr", label: "Marathi (मराठी)", flag: "🇮🇳" },
+  { code: "gu", label: "Gujarati (ગુજરાતી)", flag: "🇮🇳" },
+  { code: "kn", label: "Kannada (ಕನ್ನಡ)", flag: "🇮🇳" },
+  { code: "pa", label: "Punjabi (ਪੰਜਾਬੀ)", flag: "🇮🇳" },
+  { code: "ur", label: "Urdu (اردو)", flag: "🇵🇰" },
+];
+
+const TRANSLATABLE_KEYS = [
+  { key: "tagline", label: "Tagline" },
+  { key: "hero_subheading", label: "Hero Subtitle" },
+  { key: "story_heading", label: "Our Story Heading" },
+  { key: "story_body", label: "Our Story Text" },
+  { key: "events_heading", label: "Events Heading" },
+  { key: "gallery_heading", label: "Gallery Heading" },
+  { key: "rsvp_heading", label: "RSVP Heading" },
+  { key: "rsvp_description", label: "RSVP Description" },
+  { key: "guestbook_heading", label: "Guestbook Heading" },
+  { key: "travel_heading", label: "Travel Info Heading" },
+  { key: "countdown_label", label: "Countdown Label" },
+  { key: "blessings_heading", label: "Blessings Heading" },
+  { key: "registry_heading", label: "Registry Heading" },
+  { key: "livestream_heading", label: "Livestream Heading" },
+];
+
+function TranslationLanguageBlock({
+  langCode,
+  langLabel,
+  langFlag,
+  translations,
+  sections,
+  onUpdateTranslations,
+  onRemoveLanguage,
+}: {
+  langCode: string;
+  langLabel: string;
+  langFlag: string;
+  translations: Record<string, string>;
+  sections: any;
+  onUpdateTranslations: (updated: Record<string, string>) => void;
+  onRemoveLanguage: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="border border-border/50 rounded-lg mb-3 overflow-hidden">
+      <div className="flex items-center gap-2 p-2.5 bg-muted/30 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <span className="text-sm">{langFlag}</span>
+        <span className="font-body text-sm font-medium text-foreground flex-1">{langLabel}</span>
+        <span className="text-[10px] font-body text-muted-foreground">
+          {Object.values(translations).filter(Boolean).length}/{TRANSLATABLE_KEYS.length} translated
+        </span>
+        {expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+      </div>
+      {expanded && (
+        <div className="p-3 space-y-3 border-t border-border/30">
+          {TRANSLATABLE_KEYS.map(({ key, label }) => (
+            <div key={key}>
+              <label className="font-body text-xs text-muted-foreground mb-1 block">{label}</label>
+              <Input
+                placeholder={`${label} in ${langLabel}…`}
+                value={translations[key] || ""}
+                onChange={(e) => onUpdateTranslations({ ...translations, [key]: e.target.value })}
+                className="font-body text-sm h-8"
+              />
+            </div>
+          ))}
+          <div className="pt-2 border-t border-border/30">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="font-body text-xs text-destructive hover:text-destructive w-full"
+              onClick={onRemoveLanguage}
+            >
+              <Trash2 className="w-3 h-3 mr-1" /> Remove {langLabel}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Settings Panel ───────────────────────────────────────────────────
 function SettingsPanel({
   siteData,
@@ -1339,23 +1443,88 @@ function SettingsPanel({
             onChange={(e) => onUpdate({ ...siteData, siteLanguage: e.target.value })}
             className="w-full rounded-md border border-border bg-background px-3 py-2 font-body text-sm text-foreground"
           >
-            <option value="en">English</option>
-            <option value="hi">Hindi (हिन्दी)</option>
-            <option value="ta">Tamil (தமிழ்)</option>
-            <option value="te">Telugu (తెలుగు)</option>
-            <option value="bn">Bengali (বাংলা)</option>
-            <option value="mr">Marathi (मराठी)</option>
-            <option value="gu">Gujarati (ગુજરાતી)</option>
-            <option value="kn">Kannada (ಕನ್ನಡ)</option>
-            <option value="ml">Malayalam (മലയാളം)</option>
-            <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
-            <option value="or">Odia (ଓଡ଼ିଆ)</option>
-            <option value="as">Assamese (অসমীয়া)</option>
-            <option value="ur">Urdu (اردو)</option>
+            {LANG_OPTIONS.map((l) => (
+              <option key={l.code} value={l.code}>{l.label}</option>
+            ))}
           </select>
           <p className="font-body text-xs text-muted-foreground mt-1.5">
-            Select a language to auto-translate your site content for guests.
+            Primary language for your site content.
           </p>
+        </div>
+
+        {/* Translation Editor */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Translations ✨</label>
+          <p className="font-body text-xs text-muted-foreground mb-3">
+            Add translated versions of your content so guests can view your site in their language.
+          </p>
+
+          {/* Add language */}
+          <div className="flex gap-2 mb-3">
+            <select
+              id="add-lang-select"
+              className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 font-body text-xs text-foreground"
+              defaultValue=""
+            >
+              <option value="" disabled>Add a language…</option>
+              {LANG_OPTIONS.filter((l) => l.code !== "en" && !(siteData.availableLanguages || []).includes(l.code)).map((l) => (
+                <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
+              ))}
+            </select>
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-body text-xs shrink-0"
+              onClick={() => {
+                const sel = document.getElementById("add-lang-select") as HTMLSelectElement;
+                if (sel.value) {
+                  const langs = [...(siteData.availableLanguages || ["en"]), sel.value];
+                  const translations = { ...(siteData.translations || {}), [sel.value]: {} };
+                  onUpdate({ ...siteData, availableLanguages: langs, translations });
+                  sel.value = "";
+                }
+              }}
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add
+            </Button>
+          </div>
+
+          {/* Translation sections per language */}
+          {(siteData.availableLanguages || ["en"]).filter((l) => l !== "en").map((langCode) => {
+            const langLabel = LANG_OPTIONS.find((l) => l.code === langCode)?.label || langCode;
+            const langFlag = LANG_OPTIONS.find((l) => l.code === langCode)?.flag || "🌐";
+            const langTranslations = siteData.translations?.[langCode] || {};
+
+            return (
+              <TranslationLanguageBlock
+                key={langCode}
+                langCode={langCode}
+                langLabel={langLabel}
+                langFlag={langFlag}
+                translations={langTranslations}
+                sections={siteData}
+                onUpdateTranslations={(updated) => {
+                  onUpdate({
+                    ...siteData,
+                    translations: { ...(siteData.translations || {}), [langCode]: updated },
+                  });
+                }}
+                onRemoveLanguage={() => {
+                  const langs = (siteData.availableLanguages || []).filter((l) => l !== langCode);
+                  const translations = { ...(siteData.translations || {}) };
+                  delete translations[langCode];
+                  onUpdate({ ...siteData, availableLanguages: langs, translations });
+                }}
+              />
+            );
+          })}
+
+          {(siteData.availableLanguages || ["en"]).length <= 1 && (
+            <div className="text-center py-4 border border-dashed border-border/50 rounded-lg">
+              <p className="font-body text-xs text-muted-foreground">No additional languages added yet.</p>
+              <p className="font-body text-[10px] text-muted-foreground mt-1">Add a language above to start translating your content.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
