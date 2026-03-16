@@ -35,9 +35,9 @@ const OnboardingWizard = () => {
     step, wizardData, updateField, applyCulturalPreset,
     nextStep, prevStep, completeWizard, isComplete,
   } = useWeddingWizard();
-
+  const { generate, loading: aiLoading } = useAIContentGen();
   const [customEvent, setCustomEvent] = useState("");
-
+  const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
   // Apply template preset if navigated from templates
   useEffect(() => {
     if (templateState?.templateColors) {
