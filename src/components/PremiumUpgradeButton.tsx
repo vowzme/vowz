@@ -60,7 +60,7 @@ const PremiumUpgradeButton = ({
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("razorpay-payment", {
-        body: { action: "create_order" },
+        body: { action: "create_order", currency: region === "IN" ? "INR" : "USD" },
       });
 
       if (error) throw new Error(error.message || "Could not start payment.");
