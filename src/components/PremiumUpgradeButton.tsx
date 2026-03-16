@@ -5,6 +5,7 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
+import { usePricingRegion } from "@/hooks/use-pricing-region";
 
 interface PremiumUpgradeButtonProps {
   variant?: ButtonProps["variant"];
@@ -46,6 +47,7 @@ const PremiumUpgradeButton = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
+  const { region } = usePricingRegion();
 
   const handleUpgrade = async () => {
     if (!user) {
@@ -58,7 +60,7 @@ const PremiumUpgradeButton = ({
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("razorpay-payment", {
-        body: { action: "create_order" },
+        body: { action: "create_order", currency: region === "IN" ? "INR" : "USD" },
       });
 
       if (error) throw new Error(error.message || "Could not start payment.");

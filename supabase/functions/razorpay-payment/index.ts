@@ -9,7 +9,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PREMIUM_AMOUNT_PAISE = 59900;
+// Pricing by currency (amount in smallest unit)
+const PRICING: Record<string, { amount: number; currency: string; symbol: string; displayAmount: number }> = {
+  INR: { amount: 59900, currency: "INR", symbol: "₹", displayAmount: 599 },
+  USD: { amount: 1500, currency: "USD", symbol: "$", displayAmount: 15 },
+};
+
 const PREMIUM_PLAN = "premium_yearly";
 
 const json = (body: Record<string, unknown>, status = 200) =>
@@ -73,6 +78,10 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const action = body?.action as string;
 
+    // Determine currency from request, default to INR
+    const requestedCurrency = ((body?.currency as string) || "INR").toUpperCase();
+    const pricingTier = PRICING[requestedCurrency] || PRICING.INR;
+
     const { data: providerConfig, error: providerError } = await adminClient
       .from("payment_config")
       .select("is_enabled, config")
@@ -123,12 +132,13 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: PREMIUM_AMOUNT_PAISE,
-          currency: "INR",
+          amount: pricingTier.amount,
+          currency: pricingTier.currency,
           receipt,
           notes: {
             user_id: user.id,
             plan: PREMIUM_PLAN,
+            currency: pricingTier.currency,
           },
         }),
       });
@@ -148,12 +158,13 @@ Deno.serve(async (req) => {
           provider: "razorpay",
           status: "pending",
           amount_paid: 0,
-          currency: "INR",
+          currency: pricingTier.currency,
           payment_order_id: order.id,
           expires_at: plusOneYearISO(),
           metadata: {
             receipt,
             created_via: "razorpay_checkout",
+            requested_currency: pricingTier.currency,
           },
         },
         { onConflict: "payment_order_id" }
@@ -210,7 +221,10 @@ Deno.serve(async (req) => {
         return json({ error: "Payment is not completed." }, 400);
       }
 
-      const amountPaid = Number(payment.amount || PREMIUM_AMOUNT_PAISE) / 100;
+      const paymentCurrency = payment.currency || "INR";
+      const divisor = paymentCurrency === "INR" ? 100 : 100;
+      const amountPaid = Number(payment.amount || pricingTier.amount) / divisor;
+      const currencySymbol = PRICING[paymentCurrency]?.symbol || paymentCurrency;
       const nowISO = new Date().toISOString();
       const expiresAt = plusOneYearISO();
 
@@ -221,7 +235,7 @@ Deno.serve(async (req) => {
           provider: "razorpay",
           status: "active",
           amount_paid: amountPaid,
-          currency: payment.currency || "INR",
+          currency: paymentCurrency,
           payment_order_id: orderId,
           payment_id: paymentId,
           payment_signature: signature,
@@ -242,41 +256,33 @@ Deno.serve(async (req) => {
 
       // Send payment success email
       try {
-        const paymentDate = new Date().toLocaleDateString("en-IN", {
+        const dateLocale = paymentCurrency === "INR" ? "en-IN" : "en-US";
+        const paymentDate = new Date().toLocaleDateString(dateLocale, {
           day: "numeric", month: "long", year: "numeric",
         });
-        const expiryDate = new Date(expiresAt).toLocaleDateString("en-IN", {
+        const expiryDate = new Date(expiresAt).toLocaleDateString(dateLocale, {
           day: "numeric", month: "long", year: "numeric",
         });
 
+        const emailProps = {
+          recipientName: user.user_metadata?.full_name || "there",
+          recipientEmail: user.email || "",
+          orderId,
+          paymentId,
+          plan: "Premium (1 Year)",
+          amount: `${currencySymbol}${amountPaid}`,
+          currency: paymentCurrency,
+          paymentDate,
+          expiresAt: expiryDate,
+          paymentMethod: payment.method || "",
+        };
+
         const emailHtml = await renderAsync(
-          React.createElement(PaymentSuccessEmail, {
-            recipientName: user.user_metadata?.full_name || "there",
-            recipientEmail: user.email || "",
-            orderId,
-            paymentId,
-            plan: "Premium (1 Year)",
-            amount: `₹${amountPaid}`,
-            currency: payment.currency || "INR",
-            paymentDate,
-            expiresAt: expiryDate,
-            paymentMethod: payment.method || "",
-          })
+          React.createElement(PaymentSuccessEmail, emailProps)
         );
 
         const emailText = await renderAsync(
-          React.createElement(PaymentSuccessEmail, {
-            recipientName: user.user_metadata?.full_name || "there",
-            recipientEmail: user.email || "",
-            orderId,
-            paymentId,
-            plan: "Premium (1 Year)",
-            amount: `₹${amountPaid}`,
-            currency: payment.currency || "INR",
-            paymentDate,
-            expiresAt: expiryDate,
-            paymentMethod: payment.method || "",
-          }),
+          React.createElement(PaymentSuccessEmail, emailProps),
           { plainText: true }
         );
 
