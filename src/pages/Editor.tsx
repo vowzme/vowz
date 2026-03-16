@@ -9,6 +9,7 @@ import {
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
   MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
