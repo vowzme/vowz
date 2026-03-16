@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Heart, Users, IndianRupee, TrendingUp, Copy, Check, Gift,
+  Users, IndianRupee, TrendingUp, Copy, Check, Gift,
   Link as LinkIcon, Tag, ArrowRight, Shield, Clock, Zap,
   LogOut, Eye, EyeOff, Star, Sparkles, BadgePercent, ChevronRight
 } from "lucide-react";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { generateReferralCode } from "@/hooks/use-affiliate";
 import SEOHead from "@/components/SEOHead";
+import VowzLogo from "@/components/VowzLogo";
 
 const COMMISSION_AMOUNT = 200;
 
@@ -228,8 +229,7 @@ const Affiliate = () => {
       <header className="border-b border-border/40 bg-card/80 backdrop-blur-md sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <Heart className="w-5 h-5 text-accent transition-transform group-hover:scale-110" fill="currentColor" />
-            <span className="font-display text-xl font-semibold text-foreground">Vowz</span>
+            <VowzLogo iconSize="h-6" textSize="text-lg" />
           </Link>
           <span className="text-border mx-2">|</span>
           <span className="font-body text-sm text-muted-foreground">Affiliate Program</span>
