@@ -5,6 +5,7 @@ import {
   CreditCard,
   Settings,
   ArrowLeft,
+  FileText,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -25,6 +26,7 @@ const items = [
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Sites", url: "/admin/sites", icon: Globe },
   { title: "Payments", url: "/admin/payments", icon: CreditCard },
+  { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
