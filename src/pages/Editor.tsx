@@ -714,7 +714,19 @@ const TEMPLATE_THEMES: { name: string; style: string; category: TemplateCategory
   { name: "Teak & Brass", style: "Heritage Minimal", category: "Minimal", colors: ["#5D4037", "#CD853F", "#FAF3E8"], displayFont: "Playfair Display", bodyFont: "DM Sans" },
   { name: "Ivory & Sage", style: "Garden Minimal", category: "Minimal", colors: ["#556B2F", "#9DC183", "#FAFAF0"], displayFont: "Playfair Display", bodyFont: "Quicksand" },
 
-  // 10 new templates
+  // 10 new international templates
+  { name: "Minimalist White & Gold", style: "Scandinavian Clean", category: "Minimal", colors: ["#FAFAFA", "#D4AF37", "#2C2C2C"], displayFont: "Montserrat", bodyFont: "DM Sans" },
+  { name: "Boho Desert Romance", style: "Bohemian Desert", category: "Destination", colors: ["#C4A882", "#E8D5C0", "#5C4033"], displayFont: "Great Vibes", bodyFont: "Raleway" },
+  { name: "Modern Geometric", style: "Geometric Bold", category: "Modern", colors: ["#1A1A1A", "#FFFFFF", "#FF6B35"], displayFont: "Montserrat", bodyFont: "Source Sans 3" },
+  { name: "Vintage Romance", style: "Victorian Soft", category: "Minimal", colors: ["#D4B896", "#F5E6D3", "#6B4C3B"], displayFont: "Playfair Display", bodyFont: "Lato" },
+  { name: "Tropical Paradise", style: "Island Tropical", category: "Destination", colors: ["#1B8A5A", "#F4D35E", "#FAFDF6"], displayFont: "Dancing Script", bodyFont: "Quicksand" },
+  { name: "Classic Black Tie", style: "Formal Elegance", category: "Modern", colors: ["#0A1628", "#D4AF37", "#FAF8F0"], displayFont: "Cinzel", bodyFont: "Raleway" },
+  { name: "Rustic Barn Wedding", style: "Country Rustic", category: "Destination", colors: ["#8B6914", "#E8D5B7", "#3E2723"], displayFont: "Cormorant Garamond", bodyFont: "Nunito" },
+  { name: "Urban Loft", style: "Industrial Modern", category: "Modern", colors: ["#2D2D2D", "#C0C0C0", "#F0EDEB"], displayFont: "Montserrat", bodyFont: "DM Sans" },
+  { name: "Garden Ceremony", style: "Botanical Romance", category: "Minimal", colors: ["#4A7C59", "#F5E1DA", "#2F4538"], displayFont: "Playfair Display", bodyFont: "Quicksand" },
+  { name: "Destination Sunset", style: "Mediterranean Glow", category: "Destination", colors: ["#FF6B3D", "#FFD93D", "#1A1A2E"], displayFont: "Great Vibes", bodyFont: "Lato" },
+
+  // Previous Indian templates
   { name: "Marigold Fields", style: "Festive Traditional", category: "Traditional", colors: ["#B7410E", "#FFB300", "#FFFDE7"], displayFont: "Cormorant Garamond", bodyFont: "Nunito" },
   { name: "Mughal Romance", style: "Indo-Persian", category: "Traditional", colors: ["#1F3A5F", "#C19A6B", "#FAF0E6"], displayFont: "Cinzel", bodyFont: "Nunito" },
   { name: "Mysore Silk", style: "South Indian Royal", category: "Regional", colors: ["#4B0082", "#DAA520", "#FFF8DC"], displayFont: "Cinzel", bodyFont: "DM Sans" },
