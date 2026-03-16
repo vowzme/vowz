@@ -443,6 +443,9 @@ const Dashboard = () => {
               <TabsTrigger value="rsvps" className="font-body text-xs sm:text-sm">
                 RSVPs {rsvps.length > 0 && <span className="ml-1 sm:ml-1.5 bg-gold/20 text-gold text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full">{rsvps.length}</span>}
               </TabsTrigger>
+              <TabsTrigger value="blessings" className="font-body text-xs sm:text-sm">
+                Blessings {blessings.length > 0 && <span className="ml-1 sm:ml-1.5 bg-gold/20 text-gold text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full">{blessings.filter(b => b.status === "pending").length || blessings.length}</span>}
+              </TabsTrigger>
               <TabsTrigger value="billing" className="font-body text-xs sm:text-sm">
                 Billing <Receipt className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
               </TabsTrigger>
