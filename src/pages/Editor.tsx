@@ -654,7 +654,6 @@ function SectionsPanel({
                 onClick={(e) => e.stopPropagation()}
                 className="scale-75"
               />
-              </button>
               {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
