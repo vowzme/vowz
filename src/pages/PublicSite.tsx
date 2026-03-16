@@ -453,7 +453,7 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-3">
           {data.heading}
         </h2>
-        <div className="w-14 h-0.5 mx-auto mb-10" style={{ backgroundColor: accent }} aria-hidden="true" />
+        <TimezoneNotice accent={accent} />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {events.map((event: any, i: number) => (
             <article
