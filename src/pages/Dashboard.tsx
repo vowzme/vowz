@@ -698,6 +698,45 @@ const Dashboard = () => {
               </div>
             </TabsContent>
 
+            {/* ─── Blessings Tab ─── */}
+            <TabsContent value="blessings">
+              <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+                    <HeartIcon className="w-5 h-5 text-gold" fill="currentColor" /> Guest Blessings
+                  </h3>
+                  <span className="text-xs font-body text-muted-foreground">
+                    {blessings.filter(b => b.status === "pending").length} pending · {blessings.filter(b => b.status === "approved").length} approved
+                  </span>
+                </div>
+
+                {blessingsLoading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : blessings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <HeartIcon className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="font-body text-muted-foreground text-sm">No guest blessings yet.</p>
+                    <p className="font-body text-xs text-muted-foreground mt-1">Add a "Blessings Wall" section in the editor to start receiving messages.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {blessings.map((blessing) => (
+                      <BlessingModerationCard
+                        key={blessing.id}
+                        blessing={blessing}
+                        onApprove={() => handleBlessingAction(blessing.id, "approved")}
+                        onReject={() => handleBlessingAction(blessing.id, "rejected")}
+                        onReply={(reply) => handleBlessingReply(blessing.id, reply)}
+                        onDelete={() => handleDeleteBlessing(blessing.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
             {/* ─── Settings Tab ─── */}
             <TabsContent value="settings">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
