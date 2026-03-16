@@ -60,7 +60,7 @@ const Footer = () => {
                         {link.label}
                       </Link>
                     ) : (
-                      <a href={link.href} className="text-muted-foreground hover:text-foreground font-body text-sm transition-colors">
+                      <a href={link.href} onClick={(e) => handleAnchorClick(e, link.href)} className="text-muted-foreground hover:text-foreground font-body text-sm transition-colors cursor-pointer">
                         {link.label}
                       </a>
                     )}
