@@ -1876,6 +1876,74 @@ function SectionEditor({
           </div>
         </>
       )}
+
+      {type === "livestream" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} rows={2} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Stream URL</label>
+            <Input
+              placeholder="YouTube Live, Vimeo, Zoom, or Google Meet URL"
+              value={data.embedUrl || ""}
+              onChange={(e) => onUpdateData({ embedUrl: e.target.value })}
+              className="font-body text-sm"
+            />
+            <p className="text-[10px] text-muted-foreground font-body mt-1">Supports YouTube Live, Vimeo, Zoom, Google Meet, Instagram Live</p>
+          </div>
+        </>
+      )}
+
+      {type === "blessings" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} rows={2} className="font-body" />
+          </div>
+          <p className="text-xs text-muted-foreground font-body p-2 bg-muted rounded-lg">
+            💡 Guest blessings require moderation. Approve or reject messages from your Dashboard → Blessings tab.
+          </p>
+        </>
+      )}
+
+      {type === "registry" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} rows={2} className="font-body" />
+          </div>
+          <div className="space-y-3">
+            <label className="font-body text-sm font-medium text-foreground block">Registry Links</label>
+            {(data.links || []).map((link: any, i: number) => (
+              <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                <Input placeholder="Registry name (e.g., Amazon, Zola)" value={link.name || ""} onChange={(e) => { const links = [...(data.links || [])]; links[i] = { ...link, name: e.target.value }; onUpdateData({ links }); }} className="font-body text-sm h-8" />
+                <Input placeholder="Registry URL" value={link.url || ""} onChange={(e) => { const links = [...(data.links || [])]; links[i] = { ...link, url: e.target.value }; onUpdateData({ links }); }} className="font-body text-sm h-8" />
+                <div className="flex gap-2 items-center">
+                  <Input placeholder="Approx value (USD)" type="number" min={0} value={link.valueUSD || ""} onChange={(e) => { const links = [...(data.links || [])]; links[i] = { ...link, valueUSD: parseInt(e.target.value) || 0 }; onUpdateData({ links }); }} className="font-body text-sm h-8 w-32" />
+                  <button onClick={() => onUpdateData({ links: (data.links || []).filter((_: any, j: number) => j !== i) })} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" size="sm" className="w-full font-body" onClick={() => onUpdateData({ links: [...(data.links || []), { name: "", url: "", valueUSD: 0 }] })}>
+              <Plus className="w-3 h-3 mr-1" /> Add Registry Link
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
