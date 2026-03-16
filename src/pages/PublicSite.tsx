@@ -33,6 +33,7 @@ interface WeddingSite {
   is_published: boolean;
   site_password?: string | null;
   site_language?: string;
+  translations?: Record<string, Record<string, string>> | null;
 }
 
 // ─── RSVP Validation ──────────────────────────────────────────────────
@@ -46,6 +47,31 @@ const rsvpSchema = z.object({
   message: z.string().trim().max(500).nullable(),
 });
 
+// ─── Translation helper ───────────────────────────────────────────────
+type TranslateFn = (key: string, fallback: string) => string;
+
+function makeTranslate(translations: Record<string, Record<string, string>> | null | undefined, lang: string): TranslateFn {
+  return (key: string, fallback: string) => {
+    if (lang === "en" || !translations) return fallback;
+    return translations[lang]?.[key] || fallback;
+  };
+}
+
+// Map section type to translation key prefixes
+const SECTION_KEY_MAP: Record<string, { heading?: string; body?: string; description?: string }> = {
+  hero: { heading: undefined, body: "hero_subheading" },
+  story: { heading: "story_heading", body: "story_body" },
+  events: { heading: "events_heading" },
+  gallery: { heading: "gallery_heading" },
+  rsvp: { heading: "rsvp_heading", description: "rsvp_description" },
+  guestbook: { heading: "guestbook_heading" },
+  travel: { heading: "travel_heading" },
+  countdown: { heading: "countdown_label" },
+  blessings: { heading: "blessings_heading" },
+  registry: { heading: "registry_heading" },
+  livestream: { heading: "livestream_heading" },
+};
+
 // ─── Page Component ───────────────────────────────────────────────────
 const PublicSite = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -55,7 +81,20 @@ const PublicSite = () => {
   const [passwordUnlocked, setPasswordUnlocked] = useState(false);
   const [pwInput, setPwInput] = useState("");
   const [pwError, setPwError] = useState(false);
+  const [currentLang, setCurrentLang] = useState("en");
   const { trackEvent, trackPageView } = useAnalyticsTracker(site?.id);
+
+  // Derive available languages from translations
+  const availableLanguages = useMemo(() => {
+    if (!site?.translations) return ["en"];
+    const langs = Object.keys(site.translations).filter(
+      (l) => l !== "en" && Object.values(site.translations![l] || {}).some(Boolean)
+    );
+    return ["en", ...langs];
+  }, [site]);
+
+  // Translation function
+  const t = useMemo(() => makeTranslate(site?.translations, currentLang), [site?.translations, currentLang]);
 
   useEffect(() => {
     if (!slug) return;
@@ -246,10 +285,21 @@ const PublicSite = () => {
           )}
         </SEOHead>
       )}
-      {sections.filter((s) => s.visible !== false).map((section) => (
-        <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} trackEvent={trackEvent} />
-      ))}
+      {/* Language selector */}
+      {availableLanguages.length > 1 && (
+        <div className="fixed top-4 right-4 z-50">
+          <LanguageSelector
+            currentLang={currentLang as any}
+            availableLanguages={availableLanguages as any}
+            onLanguageChange={(lang) => setCurrentLang(lang)}
+            accent={accent}
+          />
+        </div>
+      )}
 
+      {sections.filter((s) => s.visible !== false).map((section) => (
+        <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} trackEvent={trackEvent} t={t} />
+      ))}
       {/* Floating share bar */}
       <motion.div
         initial={{ y: 80, opacity: 0 }}
@@ -321,6 +371,7 @@ function PublicSection({
   accent,
   light,
   trackEvent,
+  t,
 }: {
   section: any;
   site: WeddingSite;
@@ -328,25 +379,39 @@ function PublicSection({
   accent: string;
   light: string;
   trackEvent: (type: string, meta?: Record<string, any>) => void;
+  t: TranslateFn;
 }) {
   const { type, data } = section;
   const coupleNames = `${site.partner1} & ${site.partner2}`;
 
-  if (type === "hero") return <HeroSection data={data} bg={bg} accent={accent} light={light} coupleNames={coupleNames} />;
-  if (type === "countdown") return <CountdownSection data={data} accent={accent} bg={bg} />;
-  if (type === "story") return <StorySection data={data} accent={accent} />;
-  if (type === "events") return <EventsSection data={data} accent={accent} />;
-  if (type === "gallery") return <GallerySection data={data} accent={accent} coupleNames={coupleNames} />;
-  if (type === "travel") return <TravelSection data={data} accent={accent} />;
-  if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} trackEvent={trackEvent} />;
-  if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
-  if (type === "custom") return <StorySection data={data} accent={accent} />;
-  if (type === "polls") return <PollsSection data={data} site={site} accent={accent} />;
-  if (type === "ecotips") return <EcoTipsSection data={data} accent={accent} />;
-  if (type === "video") return <VideoSection data={data} accent={accent} coupleNames={coupleNames} />;
-  if (type === "livestream") return <LivestreamPublicSection data={data} accent={accent} />;
-  if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={data.heading} description={data.description} trackEvent={trackEvent} />;
-  if (type === "registry") return <RegistrySection data={data} accent={accent} />;
+  // Build translated data by overlaying translation values onto original data
+  const td = { ...data };
+  const keyMap = SECTION_KEY_MAP[type];
+  if (keyMap) {
+    if (keyMap.heading && td.heading) td.heading = t(keyMap.heading, td.heading);
+    if (keyMap.body && td.body) td.body = t(keyMap.body, td.body);
+    if (keyMap.description && td.description) td.description = t(keyMap.description, td.description);
+  }
+
+  // Special: tagline lives on hero
+  if (type === "hero" && td.tagline) td.tagline = t("tagline", td.tagline);
+  if (type === "hero" && td.subheading) td.subheading = t("hero_subheading", td.subheading);
+
+  if (type === "hero") return <HeroSection data={td} bg={bg} accent={accent} light={light} coupleNames={coupleNames} />;
+  if (type === "countdown") return <CountdownSection data={td} accent={accent} bg={bg} />;
+  if (type === "story") return <StorySection data={td} accent={accent} />;
+  if (type === "events") return <EventsSection data={td} accent={accent} />;
+  if (type === "gallery") return <GallerySection data={td} accent={accent} coupleNames={coupleNames} />;
+  if (type === "travel") return <TravelSection data={td} accent={accent} />;
+  if (type === "guestbook") return <GuestbookSection data={td} site={site} accent={accent} trackEvent={trackEvent} />;
+  if (type === "rsvp") return <RsvpSection data={td} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
+  if (type === "custom") return <StorySection data={td} accent={accent} />;
+  if (type === "polls") return <PollsSection data={td} site={site} accent={accent} />;
+  if (type === "ecotips") return <EcoTipsSection data={td} accent={accent} />;
+  if (type === "video") return <VideoSection data={td} accent={accent} coupleNames={coupleNames} />;
+  if (type === "livestream") return <LivestreamPublicSection data={td} accent={accent} />;
+  if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
+  if (type === "registry") return <RegistrySection data={td} accent={accent} />;
 
   return null;
 }
