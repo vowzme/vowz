@@ -5,66 +5,74 @@ import { Button } from "@/components/ui/button";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
+import RegionSelector from "@/components/RegionSelector";
+import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 
-const plans = [
-  {
-    name: "Free",
-    price: "₹0",
-    period: "/7 days",
-    description: "Perfect for getting started",
-    features: [
-      { text: "Easy Wedding Wizard", coming: false },
-      { text: "25 beautiful templates", coming: false },
-      { text: "50 photo uploads (100MB)", coming: false },
-      { text: "RSVP form with notifications", coming: false },
-      { text: "QR code invites", coming: false },
-      { text: "Countdown timer & guestbook", coming: false },
-      { text: "Budget & expense tracker", coming: false },
-      { text: "Wedding checklist", coming: false },
-      { text: "Guest polls", coming: false },
-      { text: "Mobile-responsive site", coming: false },
-      { text: "Basic analytics", coming: false },
-      { text: "Subdomain (you.vowz.me)", coming: false },
-    ],
-    cta: "Get Started Free",
-    featured: false,
-  },
-  {
-    name: "Premium",
-    price: "₹599",
-    originalPrice: "₹999",
-    period: "/year",
-    description: "Everything for your perfect day",
-    features: [
-      { text: "Everything in Free, plus:", coming: false },
-      { text: "Custom domain (yournames.com)", coming: false },
-      { text: "AI editor assistant (themes, content & advice)", coming: false },
-      { text: "5GB storage for photos & videos", coming: false },
-      { text: "Video embeds", coming: false },
-      { text: "Password-protected sites", coming: false },
-      { text: "Multilingual auto-translation", coming: false },
-      { text: "No watermarks, ad-free", coming: false },
-      { text: "Priority support", coming: false },
-    ],
-    cta: "Upgrade to Premium",
-    featured: true,
-  },
+const freeFeatures = [
+  { text: "Easy Wedding Wizard", coming: false },
+  { text: "25 beautiful templates", coming: false },
+  { text: "50 photo uploads (100MB)", coming: false },
+  { text: "RSVP form with notifications", coming: false },
+  { text: "QR code invites", coming: false },
+  { text: "Countdown timer & guestbook", coming: false },
+  { text: "Budget & expense tracker", coming: false },
+  { text: "Wedding checklist", coming: false },
+  { text: "Guest polls", coming: false },
+  { text: "Mobile-responsive site", coming: false },
+  { text: "Basic analytics", coming: false },
+  { text: "Subdomain (you.vowz.me)", coming: false },
+];
+
+const premiumFeatures = [
+  { text: "Everything in Free, plus:", coming: false },
+  { text: "Custom domain (yournames.com)", coming: false },
+  { text: "AI editor assistant (themes, content & advice)", coming: false },
+  { text: "5GB storage for photos & videos", coming: false },
+  { text: "Video embeds", coming: false },
+  { text: "Password-protected sites", coming: false },
+  { text: "Multilingual auto-translation", coming: false },
+  { text: "No watermarks, ad-free", coming: false },
+  { text: "Priority support", coming: false },
 ];
 
 const Pricing = () => {
+  const { pricing } = usePricingRegion();
+
+  const plans = [
+    {
+      name: "Free",
+      price: pricing.freePrice,
+      period: "/7 days",
+      description: "Perfect for getting started",
+      features: freeFeatures,
+      cta: "Get Started Free",
+      featured: false,
+    },
+    {
+      name: "Premium",
+      price: formatPrice(pricing, "premium"),
+      originalPrice: formatPrice(pricing, "original"),
+      period: "/year",
+      description: "Everything for your perfect day",
+      features: premiumFeatures,
+      cta: "Upgrade to Premium",
+      featured: true,
+    },
+  ];
+
   return (
     <>
       <SEOHead
         title="Pricing – Vowz Wedding Invitation Maker | Free & Paid Plans"
-        description="Choose from Free and Premium (₹599/year, was ₹999) plans. Create digital invites, wedding websites, custom domains and more."
+        description={`Choose from Free and Premium (${formatPrice(pricing, "premium")}/year) plans. Create digital invites, wedding websites, custom domains and more.`}
         ogTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        ogDescription="Free plan available. Premium ₹599/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains."
+        ogDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains.`}
         ogImage="https://vowz.me/og-pricing.jpg"
         ogUrl="https://vowz.me/pricing"
         ogType="website"
         twitterCard="summary_large_image"
         twitterTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        twitterDescription="Free plan available. Premium ₹599/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains."
+        twitterDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains.`}
         twitterImage="https://vowz.me/og-pricing.jpg"
         canonical="https://vowz.me/pricing"
         robots="index, follow"
@@ -85,9 +93,10 @@ const Pricing = () => {
               <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
                 Start Free, <span className="text-gradient-gold italic">Upgrade Anytime</span>
               </h1>
-              <p className="text-muted-foreground max-w-xl mx-auto font-body">
+              <p className="text-muted-foreground max-w-xl mx-auto font-body mb-6">
                 No hidden fees. Your wedding site is free forever — premium unlocks the magic.
               </p>
+              <RegionSelector showNote />
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

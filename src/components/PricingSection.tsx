@@ -3,53 +3,61 @@ import { Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { Link } from "react-router-dom";
+import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
+import RegionSelector from "@/components/RegionSelector";
 
-const plans = [
-  {
-    name: "Free",
-    price: "₹0",
-    period: "/7 days",
-    description: "Perfect for getting started",
-    features: [
-      { text: "Easy Wedding Wizard", coming: false },
-      { text: "25 beautiful templates", coming: false },
-      { text: "50 photo uploads (100MB)", coming: false },
-      { text: "RSVP form with notifications", coming: false },
-      { text: "QR code invites", coming: false },
-      { text: "Countdown timer & guestbook", coming: false },
-      { text: "Budget & expense tracker", coming: false },
-      { text: "Wedding checklist", coming: false },
-      { text: "Guest polls", coming: false },
-      { text: "Mobile-responsive site", coming: false },
-      { text: "Basic analytics", coming: false },
-      { text: "Subdomain (you.vowz.me)", coming: false },
-    ],
-    cta: "Get Started Free",
-    featured: false,
-  },
-  {
-    name: "Premium",
-    price: "₹599",
-    originalPrice: "₹999",
-    period: "/year",
-    description: "Everything for your perfect day",
-    features: [
-      { text: "Everything in Free, plus:", coming: false },
-      { text: "Custom domain (yournames.com)", coming: false },
-      { text: "AI editor assistant (themes, content & advice)", coming: false },
-      { text: "5GB storage for photos & videos", coming: false },
-      { text: "Video embeds", coming: false },
-      { text: "Password-protected sites", coming: false },
-      { text: "Multilingual auto-translation", coming: false },
-      { text: "No watermarks, ad-free", coming: false },
-      { text: "Priority support", coming: false },
-    ],
-    cta: "Upgrade to Premium",
-    featured: true,
-  },
+const freeFeatures = [
+  { text: "Easy Wedding Wizard", coming: false },
+  { text: "25 beautiful templates", coming: false },
+  { text: "50 photo uploads (100MB)", coming: false },
+  { text: "RSVP form with notifications", coming: false },
+  { text: "QR code invites", coming: false },
+  { text: "Countdown timer & guestbook", coming: false },
+  { text: "Budget & expense tracker", coming: false },
+  { text: "Wedding checklist", coming: false },
+  { text: "Guest polls", coming: false },
+  { text: "Mobile-responsive site", coming: false },
+  { text: "Basic analytics", coming: false },
+  { text: "Subdomain (you.vowz.me)", coming: false },
+];
+
+const premiumFeatures = [
+  { text: "Everything in Free, plus:", coming: false },
+  { text: "Custom domain (yournames.com)", coming: false },
+  { text: "AI editor assistant (themes, content & advice)", coming: false },
+  { text: "5GB storage for photos & videos", coming: false },
+  { text: "Video embeds", coming: false },
+  { text: "Password-protected sites", coming: false },
+  { text: "Multilingual auto-translation", coming: false },
+  { text: "No watermarks, ad-free", coming: false },
+  { text: "Priority support", coming: false },
 ];
 
 const PricingSection = () => {
+  const { pricing } = usePricingRegion();
+
+  const plans = [
+    {
+      name: "Free",
+      price: pricing.freePrice,
+      period: "/7 days",
+      description: "Perfect for getting started",
+      features: freeFeatures,
+      cta: "Get Started Free",
+      featured: false,
+    },
+    {
+      name: "Premium",
+      price: formatPrice(pricing, "premium"),
+      originalPrice: formatPrice(pricing, "original"),
+      period: "/year",
+      description: "Everything for your perfect day",
+      features: premiumFeatures,
+      cta: "Upgrade to Premium",
+      featured: true,
+    },
+  ];
+
   return (
     <section className="py-16 sm:py-24 px-4 bg-gradient-warm" id="pricing">
       <div className="max-w-4xl mx-auto">
@@ -65,9 +73,10 @@ const PricingSection = () => {
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
             Start Free, <span className="text-gradient-gold italic">Upgrade Anytime</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto font-body">
+          <p className="text-muted-foreground max-w-xl mx-auto font-body mb-6">
             No hidden fees. Your wedding site is free forever — premium unlocks the magic.
           </p>
+          <RegionSelector showNote />
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
