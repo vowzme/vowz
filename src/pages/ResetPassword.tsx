@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, Lock, Eye, EyeOff } from "lucide-react";
+import { Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
+import VowzLogo from "@/components/VowzLogo";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -58,15 +59,15 @@ const ResetPassword = () => {
           robots="noindex, nofollow"
         />
         <div className="min-h-screen bg-background flex items-center justify-center px-6">
-          <div className="text-center">
-            <Heart className="w-8 h-8 text-gold mx-auto mb-4" fill="currentColor" />
-            <p className="font-body text-muted-foreground">Verifying reset link…</p>
-            <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mt-4" />
-          </div>
+        <div className="text-center">
+          <VowzLogo iconSize="h-8" textSize="text-xl" className="justify-center mb-4" />
+          <p className="font-body text-muted-foreground">Verifying reset link…</p>
+          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mt-4" />
         </div>
-      </>
-    );
-  }
+      </div>
+    </>
+  );
+}
 
   return (
     <>
@@ -82,9 +83,8 @@ const ResetPassword = () => {
       />
       <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="flex items-center gap-2 mb-8">
-            <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-            <span className="font-display text-xl font-bold text-foreground">Vowz</span>
+          <div className="mb-8">
+            <VowzLogo iconSize="h-6" textSize="text-xl" />
           </div>
 
           <h1 className="font-display text-3xl font-bold text-foreground mb-1">Set new password</h1>

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, Mail, ArrowLeft } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
+import VowzLogo from "@/components/VowzLogo";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -42,9 +43,8 @@ const ForgotPassword = () => {
       />
       <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <div className="flex items-center gap-2 mb-8">
-          <Heart className="w-5 h-5 text-gold" fill="currentColor" />
-          <span className="font-display text-xl font-bold text-foreground">Vowz</span>
+        <div className="mb-8">
+          <VowzLogo iconSize="h-6" textSize="text-xl" />
         </div>
 
         <h1 className="font-display text-3xl font-bold text-foreground mb-1">Reset password</h1>
