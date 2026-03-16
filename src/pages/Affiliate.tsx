@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Heart, Users, IndianRupee, TrendingUp, Copy, Check, Gift,
+  Users, IndianRupee, TrendingUp, Copy, Check, Gift,
   Link as LinkIcon, Tag, ArrowRight, Shield, Clock, Zap,
   LogOut, Eye, EyeOff, Star, Sparkles, BadgePercent, ChevronRight
 } from "lucide-react";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { generateReferralCode } from "@/hooks/use-affiliate";
 import SEOHead from "@/components/SEOHead";
+import VowzLogo from "@/components/VowzLogo";
 
 const COMMISSION_AMOUNT = 200;
 
