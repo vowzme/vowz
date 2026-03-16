@@ -1348,23 +1348,88 @@ function SettingsPanel({
             onChange={(e) => onUpdate({ ...siteData, siteLanguage: e.target.value })}
             className="w-full rounded-md border border-border bg-background px-3 py-2 font-body text-sm text-foreground"
           >
-            <option value="en">English</option>
-            <option value="hi">Hindi (हिन्दी)</option>
-            <option value="ta">Tamil (தமிழ்)</option>
-            <option value="te">Telugu (తెలుగు)</option>
-            <option value="bn">Bengali (বাংলা)</option>
-            <option value="mr">Marathi (मराठी)</option>
-            <option value="gu">Gujarati (ગુજરાતી)</option>
-            <option value="kn">Kannada (ಕನ್ನಡ)</option>
-            <option value="ml">Malayalam (മലയാളം)</option>
-            <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
-            <option value="or">Odia (ଓଡ଼ିଆ)</option>
-            <option value="as">Assamese (অসমীয়া)</option>
-            <option value="ur">Urdu (اردو)</option>
+            {LANG_OPTIONS.map((l) => (
+              <option key={l.code} value={l.code}>{l.label}</option>
+            ))}
           </select>
           <p className="font-body text-xs text-muted-foreground mt-1.5">
-            Select a language to auto-translate your site content for guests.
+            Primary language for your site content.
           </p>
+        </div>
+
+        {/* Translation Editor */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">Translations ✨</label>
+          <p className="font-body text-xs text-muted-foreground mb-3">
+            Add translated versions of your content so guests can view your site in their language.
+          </p>
+
+          {/* Add language */}
+          <div className="flex gap-2 mb-3">
+            <select
+              id="add-lang-select"
+              className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 font-body text-xs text-foreground"
+              defaultValue=""
+            >
+              <option value="" disabled>Add a language…</option>
+              {LANG_OPTIONS.filter((l) => l.code !== "en" && !(siteData.availableLanguages || []).includes(l.code)).map((l) => (
+                <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
+              ))}
+            </select>
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-body text-xs shrink-0"
+              onClick={() => {
+                const sel = document.getElementById("add-lang-select") as HTMLSelectElement;
+                if (sel.value) {
+                  const langs = [...(siteData.availableLanguages || ["en"]), sel.value];
+                  const translations = { ...(siteData.translations || {}), [sel.value]: {} };
+                  onUpdate({ ...siteData, availableLanguages: langs, translations });
+                  sel.value = "";
+                }
+              }}
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add
+            </Button>
+          </div>
+
+          {/* Translation sections per language */}
+          {(siteData.availableLanguages || ["en"]).filter((l) => l !== "en").map((langCode) => {
+            const langLabel = LANG_OPTIONS.find((l) => l.code === langCode)?.label || langCode;
+            const langFlag = LANG_OPTIONS.find((l) => l.code === langCode)?.flag || "🌐";
+            const langTranslations = siteData.translations?.[langCode] || {};
+
+            return (
+              <TranslationLanguageBlock
+                key={langCode}
+                langCode={langCode}
+                langLabel={langLabel}
+                langFlag={langFlag}
+                translations={langTranslations}
+                sections={siteData}
+                onUpdateTranslations={(updated) => {
+                  onUpdate({
+                    ...siteData,
+                    translations: { ...(siteData.translations || {}), [langCode]: updated },
+                  });
+                }}
+                onRemoveLanguage={() => {
+                  const langs = (siteData.availableLanguages || []).filter((l) => l !== langCode);
+                  const translations = { ...(siteData.translations || {}) };
+                  delete translations[langCode];
+                  onUpdate({ ...siteData, availableLanguages: langs, translations });
+                }}
+              />
+            );
+          })}
+
+          {(siteData.availableLanguages || ["en"]).length <= 1 && (
+            <div className="text-center py-4 border border-dashed border-border/50 rounded-lg">
+              <p className="font-body text-xs text-muted-foreground">No additional languages added yet.</p>
+              <p className="font-body text-[10px] text-muted-foreground mt-1">Add a language above to start translating your content.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
