@@ -26,6 +26,7 @@ const items = [
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Sites", url: "/admin/sites", icon: Globe },
   { title: "Payments", url: "/admin/payments", icon: CreditCard },
+  { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
