@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Heart, Edit3, Eye, ExternalLink, Globe, GlobeLock,
+  Edit3, Eye, ExternalLink, Globe, GlobeLock,
   Users, Calendar, Mail, ChevronDown, ChevronUp,
   Settings, LogOut, Sparkles, Plus, Check, X, Copy,
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import VowzLogo from "@/components/VowzLogo";
 import { useSiteAnalytics } from "@/hooks/use-analytics";
 import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
 import BudgetTracker from "@/components/BudgetTracker";

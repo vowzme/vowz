@@ -3,12 +3,13 @@ import SEOHead from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Heart, Globe, Search, Crown, ShieldCheck, Settings, Check, X, Copy,
+  Globe, Search, Crown, ShieldCheck, Settings, Check, X, Copy,
   ExternalLink, ExternalLink as ExternalLinkIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import VowzLogo from "@/components/VowzLogo";
 
 // ─── Constants (same as Dashboard) ────────────────────────────────────
 const DOMAIN_REGISTRARS = [
