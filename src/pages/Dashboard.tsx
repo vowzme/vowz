@@ -23,6 +23,7 @@ import { useWeddingChecklist } from "@/hooks/use-wedding-checklist";
 import BudgetTracker from "@/components/BudgetTracker";
 import SEOHead from "@/components/SEOHead";
 import GettingStartedGuide from "@/components/GettingStartedGuide";
+import QRCodeGenerator from "@/components/QRCodeGenerator";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import {
