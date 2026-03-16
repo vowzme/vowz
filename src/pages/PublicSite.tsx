@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf } from "lucide-react";
+import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -479,6 +479,17 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
                   style={{ color: accent }}
                 >
                   <MapPin className="w-3 h-3" /> View on Map
+                </a>
+              )}
+              {(event.address || event.venue || event.location) && (
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address || event.venue || event.location || "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-body mt-2 px-2.5 py-1 rounded-full border transition-colors hover:bg-card"
+                  style={{ borderColor: `${accent}40`, color: accent }}
+                >
+                  <Navigation className="w-3 h-3" /> Get Directions
                 </a>
               )}
               {event.date && (
