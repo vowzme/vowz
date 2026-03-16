@@ -371,6 +371,7 @@ function PublicSection({
   accent,
   light,
   trackEvent,
+  t,
 }: {
   section: any;
   site: WeddingSite;
@@ -378,25 +379,39 @@ function PublicSection({
   accent: string;
   light: string;
   trackEvent: (type: string, meta?: Record<string, any>) => void;
+  t: TranslateFn;
 }) {
   const { type, data } = section;
   const coupleNames = `${site.partner1} & ${site.partner2}`;
 
-  if (type === "hero") return <HeroSection data={data} bg={bg} accent={accent} light={light} coupleNames={coupleNames} />;
-  if (type === "countdown") return <CountdownSection data={data} accent={accent} bg={bg} />;
-  if (type === "story") return <StorySection data={data} accent={accent} />;
-  if (type === "events") return <EventsSection data={data} accent={accent} />;
-  if (type === "gallery") return <GallerySection data={data} accent={accent} coupleNames={coupleNames} />;
-  if (type === "travel") return <TravelSection data={data} accent={accent} />;
-  if (type === "guestbook") return <GuestbookSection data={data} site={site} accent={accent} trackEvent={trackEvent} />;
-  if (type === "rsvp") return <RsvpSection data={data} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
-  if (type === "custom") return <StorySection data={data} accent={accent} />;
-  if (type === "polls") return <PollsSection data={data} site={site} accent={accent} />;
-  if (type === "ecotips") return <EcoTipsSection data={data} accent={accent} />;
-  if (type === "video") return <VideoSection data={data} accent={accent} coupleNames={coupleNames} />;
-  if (type === "livestream") return <LivestreamPublicSection data={data} accent={accent} />;
-  if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={data.heading} description={data.description} trackEvent={trackEvent} />;
-  if (type === "registry") return <RegistrySection data={data} accent={accent} />;
+  // Build translated data by overlaying translation values onto original data
+  const td = { ...data };
+  const keyMap = SECTION_KEY_MAP[type];
+  if (keyMap) {
+    if (keyMap.heading && td.heading) td.heading = t(keyMap.heading, td.heading);
+    if (keyMap.body && td.body) td.body = t(keyMap.body, td.body);
+    if (keyMap.description && td.description) td.description = t(keyMap.description, td.description);
+  }
+
+  // Special: tagline lives on hero
+  if (type === "hero" && td.tagline) td.tagline = t("tagline", td.tagline);
+  if (type === "hero" && td.subheading) td.subheading = t("hero_subheading", td.subheading);
+
+  if (type === "hero") return <HeroSection data={td} bg={bg} accent={accent} light={light} coupleNames={coupleNames} />;
+  if (type === "countdown") return <CountdownSection data={td} accent={accent} bg={bg} />;
+  if (type === "story") return <StorySection data={td} accent={accent} />;
+  if (type === "events") return <EventsSection data={td} accent={accent} />;
+  if (type === "gallery") return <GallerySection data={td} accent={accent} coupleNames={coupleNames} />;
+  if (type === "travel") return <TravelSection data={td} accent={accent} />;
+  if (type === "guestbook") return <GuestbookSection data={td} site={site} accent={accent} trackEvent={trackEvent} />;
+  if (type === "rsvp") return <RsvpSection data={td} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
+  if (type === "custom") return <StorySection data={td} accent={accent} />;
+  if (type === "polls") return <PollsSection data={td} site={site} accent={accent} />;
+  if (type === "ecotips") return <EcoTipsSection data={td} accent={accent} />;
+  if (type === "video") return <VideoSection data={td} accent={accent} coupleNames={coupleNames} />;
+  if (type === "livestream") return <LivestreamPublicSection data={td} accent={accent} />;
+  if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
+  if (type === "registry") return <RegistrySection data={td} accent={accent} />;
 
   return null;
 }
