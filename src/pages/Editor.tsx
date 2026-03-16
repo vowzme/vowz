@@ -1536,14 +1536,25 @@ function SettingsPanel({
 // ─── Section Editor (right panel) ─────────────────────────────────────
 function SectionEditor({
   section,
+  siteData,
   onUpdateData,
   onUpdateTitle,
 }: {
   section: WeddingSection;
+  siteData: WeddingSiteData;
   onUpdateData: (data: Record<string, any>) => void;
   onUpdateTitle: (title: string) => void;
 }) {
   const { type, data } = section;
+  const { generate, loading: aiLoading } = useAIContentGen();
+
+  const aiContext = {
+    partner1: siteData.partner1,
+    partner2: siteData.partner2,
+    culturalBackground: siteData.culturalBackground,
+    howWeMet: siteData.howWeMet,
+    theme: siteData.theme,
+  };
 
   return (
     <div className="space-y-4">
@@ -1571,7 +1582,21 @@ function SectionEditor({
             />
           </div>
           <div>
-            <label className="font-body text-sm font-medium text-foreground mb-1 block">Tagline</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="font-body text-sm font-medium text-foreground">Tagline</label>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs text-accent hover:text-accent px-2"
+                disabled={aiLoading === "tagline"}
+                onClick={async () => {
+                  const result = await generate({ type: "tagline", context: aiContext });
+                  if (result) onUpdateData({ tagline: result });
+                }}
+              >
+                {aiLoading === "tagline" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-3 h-3 mr-1" /> AI</>}
+              </Button>
+            </div>
             <Input
               value={data.tagline || ""}
               onChange={(e) => onUpdateData({ tagline: e.target.value })}
@@ -1600,7 +1625,23 @@ function SectionEditor({
             />
           </div>
           <div>
-            <label className="font-body text-sm font-medium text-foreground mb-1 block">Content</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="font-body text-sm font-medium text-foreground">Content</label>
+              {type === "story" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-xs text-accent hover:text-accent px-2"
+                  disabled={aiLoading === "story"}
+                  onClick={async () => {
+                    const result = await generate({ type: "story", context: aiContext });
+                    if (result) onUpdateData({ body: result });
+                  }}
+                >
+                  {aiLoading === "story" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-3 h-3 mr-1" /> AI Rewrite</>}
+                </Button>
+              )}
+            </div>
             <Textarea
               value={data.body || ""}
               onChange={(e) => onUpdateData({ body: e.target.value })}
