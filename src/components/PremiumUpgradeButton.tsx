@@ -47,6 +47,7 @@ const PremiumUpgradeButton = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
+  const { region } = usePricingRegion();
 
   const handleUpgrade = async () => {
     if (!user) {
