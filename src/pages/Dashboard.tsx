@@ -345,7 +345,7 @@ const Dashboard = () => {
               variant="gold"
               size="sm"
               className="shrink-0 w-full sm:w-auto"
-              label="₹599/yr"
+              label={`${formatPrice(pricing, "premium")}/yr`}
               onUpgraded={() => setSubscription({ status: "active", expires_at: null })}
             />
           </motion.div>
