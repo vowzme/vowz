@@ -199,9 +199,53 @@ const Dashboard = () => {
       setSubscription(subResult.activeSub);
       setPaymentHistory(subResult.allSubs);
       setLoading(false);
-      if (siteData) loadRsvps(siteData.id);
+      if (siteData) {
+        loadRsvps(siteData.id);
+        loadBlessings(siteData.id);
+      }
     });
   }, [user]);
+
+  const loadBlessings = async (siteId: string) => {
+    setBlessingsLoading(true);
+    const { data } = await supabase
+      .from("guest_blessings" as any)
+      .select("*")
+      .eq("wedding_site_id", siteId)
+      .order("created_at", { ascending: false });
+    if (data) setBlessings(data as any);
+    setBlessingsLoading(false);
+  };
+
+  const handleBlessingAction = async (id: string, action: "approved" | "rejected") => {
+    const { error } = await supabase
+      .from("guest_blessings" as any)
+      .update({ status: action } as any)
+      .eq("id", id);
+    if (!error) {
+      setBlessings((prev) => prev.map((b) => b.id === id ? { ...b, status: action } : b));
+      toast({ title: action === "approved" ? "Blessing approved ✅" : "Blessing rejected" });
+    }
+  };
+
+  const handleBlessingReply = async (id: string, reply: string) => {
+    const { error } = await supabase
+      .from("guest_blessings" as any)
+      .update({ owner_reply: reply } as any)
+      .eq("id", id);
+    if (!error) {
+      setBlessings((prev) => prev.map((b) => b.id === id ? { ...b, owner_reply: reply } : b));
+      toast({ title: "Reply saved 💕" });
+    }
+  };
+
+  const handleDeleteBlessing = async (id: string) => {
+    const { error } = await supabase.from("guest_blessings" as any).delete().eq("id", id);
+    if (!error) {
+      setBlessings((prev) => prev.filter((b) => b.id !== id));
+      toast({ title: "Blessing removed" });
+    }
+  };
 
   const loadRsvps = async (siteId: string) => {
     setRsvpLoading(true);
