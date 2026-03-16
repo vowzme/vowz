@@ -5,6 +5,7 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
+import { usePricingRegion } from "@/hooks/use-pricing-region";
 
 interface PremiumUpgradeButtonProps {
   variant?: ButtonProps["variant"];
