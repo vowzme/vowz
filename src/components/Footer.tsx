@@ -35,8 +35,8 @@ const Footer = () => {
           {[
             { title: "Product", links: [
               { label: "Templates", href: "/templates" },
-              { label: "Features", href: "#features" },
-              { label: "Pricing", href: "#pricing" },
+              { label: "Features", href: "/#features" },
+              { label: "Pricing", href: "/#pricing" },
               { label: "Create Site", href: "/auth" },
             ]},
             { title: "Company", links: [
