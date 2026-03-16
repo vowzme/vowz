@@ -1678,6 +1678,18 @@ function SectionEditor({
                   const events = data.events.filter((_: any, j: number) => j !== i);
                   onUpdateData({ events });
                 }}
+                onGenerateDescription={async (eventName: string) => {
+                  const result = await generate({
+                    type: "event_description",
+                    context: { ...aiContext, eventName },
+                  });
+                  if (result) {
+                    const events = [...data.events];
+                    events[i] = { ...events[i], description: result };
+                    onUpdateData({ events });
+                  }
+                }}
+                aiLoading={aiLoading}
               />
             ))}
             <Button
