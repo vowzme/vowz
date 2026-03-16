@@ -344,6 +344,9 @@ function PublicSection({
   if (type === "polls") return <PollsSection data={data} site={site} accent={accent} />;
   if (type === "ecotips") return <EcoTipsSection data={data} accent={accent} />;
   if (type === "video") return <VideoSection data={data} accent={accent} coupleNames={coupleNames} />;
+  if (type === "livestream") return <LivestreamPublicSection data={data} accent={accent} />;
+  if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={data.heading} description={data.description} trackEvent={trackEvent} />;
+  if (type === "registry") return <RegistrySection data={data} accent={accent} />;
 
   return null;
 }
