@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,15 +9,33 @@ import { useAuth } from "@/hooks/use-auth";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const links = [
-    { label: "Features", href: "#features" },
-    { label: "Templates", href: "#templates" },
+    { label: "Features", href: "/#features" },
+    { label: "Templates", href: "/#templates" },
     { label: "Pricing", href: "/pricing", isRoute: true },
-    { label: "FAQ", href: "#faq" },
+    { label: "FAQ", href: "/#faq" },
     { label: "Domain Demo", href: "/domain-demo", isRoute: true },
     { label: "Blog", href: "/blog", isRoute: true },
     { label: "Affiliate", href: "/affiliate", isRoute: true },
   ];
+
+  const handleAnchorClick = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    const hash = href.replace("/", "");
+    if (location.pathname === "/") {
+      const el = document.querySelector(hash);
+      el?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        el?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30">
@@ -41,7 +59,8 @@ const Navbar = () => {
               <a
                 key={l.label}
                 href={l.href}
-                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+                onClick={(e) => handleAnchorClick(e, l.href)}
+                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors font-medium cursor-pointer"
               >
                 {l.label}
               </a>
@@ -104,8 +123,8 @@ const Navbar = () => {
                   <a
                     key={l.label}
                     href={l.href}
-                    className="font-body text-sm text-muted-foreground py-2"
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => { handleAnchorClick(e, l.href); setOpen(false); }}
+                    className="font-body text-sm text-muted-foreground py-2 cursor-pointer"
                   >
                     {l.label}
                   </a>
