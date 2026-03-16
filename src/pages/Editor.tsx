@@ -1245,6 +1245,101 @@ function StylePanel({
   );
 }
 
+const LANG_OPTIONS = [
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "hi", label: "Hindi (हिन्दी)", flag: "🇮🇳" },
+  { code: "es", label: "Español", flag: "🇪🇸" },
+  { code: "ar", label: "العربية", flag: "🇸🇦" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "zh", label: "中文", flag: "🇨🇳" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "ta", label: "Tamil (தமிழ்)", flag: "🇮🇳" },
+  { code: "te", label: "Telugu (తెలుగు)", flag: "🇮🇳" },
+  { code: "ml", label: "Malayalam (മലയാളം)", flag: "🇮🇳" },
+  { code: "bn", label: "Bengali (বাংলা)", flag: "🇮🇳" },
+  { code: "mr", label: "Marathi (मराठी)", flag: "🇮🇳" },
+  { code: "gu", label: "Gujarati (ગુજરાતી)", flag: "🇮🇳" },
+  { code: "kn", label: "Kannada (ಕನ್ನಡ)", flag: "🇮🇳" },
+  { code: "pa", label: "Punjabi (ਪੰਜਾਬੀ)", flag: "🇮🇳" },
+  { code: "ur", label: "Urdu (اردو)", flag: "🇵🇰" },
+];
+
+const TRANSLATABLE_KEYS = [
+  { key: "tagline", label: "Tagline" },
+  { key: "hero_subheading", label: "Hero Subtitle" },
+  { key: "story_heading", label: "Our Story Heading" },
+  { key: "story_body", label: "Our Story Text" },
+  { key: "events_heading", label: "Events Heading" },
+  { key: "gallery_heading", label: "Gallery Heading" },
+  { key: "rsvp_heading", label: "RSVP Heading" },
+  { key: "rsvp_description", label: "RSVP Description" },
+  { key: "guestbook_heading", label: "Guestbook Heading" },
+  { key: "travel_heading", label: "Travel Info Heading" },
+  { key: "countdown_label", label: "Countdown Label" },
+  { key: "blessings_heading", label: "Blessings Heading" },
+  { key: "registry_heading", label: "Registry Heading" },
+  { key: "livestream_heading", label: "Livestream Heading" },
+];
+
+function TranslationLanguageBlock({
+  langCode,
+  langLabel,
+  langFlag,
+  translations,
+  sections,
+  onUpdateTranslations,
+  onRemoveLanguage,
+}: {
+  langCode: string;
+  langLabel: string;
+  langFlag: string;
+  translations: Record<string, string>;
+  sections: any;
+  onUpdateTranslations: (updated: Record<string, string>) => void;
+  onRemoveLanguage: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="border border-border/50 rounded-lg mb-3 overflow-hidden">
+      <div className="flex items-center gap-2 p-2.5 bg-muted/30 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <span className="text-sm">{langFlag}</span>
+        <span className="font-body text-sm font-medium text-foreground flex-1">{langLabel}</span>
+        <span className="text-[10px] font-body text-muted-foreground">
+          {Object.values(translations).filter(Boolean).length}/{TRANSLATABLE_KEYS.length} translated
+        </span>
+        {expanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+      </div>
+      {expanded && (
+        <div className="p-3 space-y-3 border-t border-border/30">
+          {TRANSLATABLE_KEYS.map(({ key, label }) => (
+            <div key={key}>
+              <label className="font-body text-xs text-muted-foreground mb-1 block">{label}</label>
+              <Input
+                placeholder={`${label} in ${langLabel}…`}
+                value={translations[key] || ""}
+                onChange={(e) => onUpdateTranslations({ ...translations, [key]: e.target.value })}
+                className="font-body text-sm h-8"
+              />
+            </div>
+          ))}
+          <div className="pt-2 border-t border-border/30">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="font-body text-xs text-destructive hover:text-destructive w-full"
+              onClick={onRemoveLanguage}
+            >
+              <Trash2 className="w-3 h-3 mr-1" /> Remove {langLabel}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Settings Panel ───────────────────────────────────────────────────
 function SettingsPanel({
   siteData,
