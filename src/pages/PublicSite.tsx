@@ -470,6 +470,7 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
               <h3 className="font-display text-lg font-semibold text-foreground mb-1">{event.name}</h3>
               {event.date && <p className="text-sm text-muted-foreground font-body">{event.date}</p>}
               {event.time && <p className="text-sm text-muted-foreground font-body">{event.time}</p>}
+              <TimezoneDisplay date={event.date} time={event.time} eventTimezone={event.timezone} accent={accent} />
               {event.venue && (
                 <p className="text-sm text-muted-foreground font-body flex items-center justify-center gap-1 mt-1">
                   <MapPin className="w-3.5 h-3.5" /> {event.venue}
