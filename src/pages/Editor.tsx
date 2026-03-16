@@ -648,11 +648,12 @@ function SectionsPanel({
             >
               <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab shrink-0" />
               <span className="font-body text-sm flex-1 text-foreground truncate">{section.title}</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); onToggleVisibility(section.id); }}
-                className="text-muted-foreground hover:text-foreground p-1"
-              >
-                {section.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+              <Switch
+                checked={section.visible}
+                onCheckedChange={() => onToggleVisibility(section.id)}
+                onClick={(e) => e.stopPropagation()}
+                className="scale-75"
+              />
               </button>
               {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry") && (
                 <button
