@@ -573,6 +573,7 @@ const Editor = () => {
                   </div>
                   <SectionEditor
                     section={selectedSection}
+                    siteData={siteData}
                     onUpdateData={(data) => updateSectionData(selectedSection.id, data)}
                     onUpdateTitle={(title) => updateSection(selectedSection.id, { title })}
                   />
