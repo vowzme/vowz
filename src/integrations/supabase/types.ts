@@ -220,6 +220,47 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_blessings: {
+        Row: {
+          created_at: string
+          guest_name: string
+          id: string
+          message: string
+          owner_reply: string | null
+          photo_url: string | null
+          status: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          guest_name: string
+          id?: string
+          message: string
+          owner_reply?: string | null
+          photo_url?: string | null
+          status?: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          guest_name?: string
+          id?: string
+          message?: string
+          owner_reply?: string | null
+          photo_url?: string | null
+          status?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_blessings_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guestbook: {
         Row: {
           created_at: string
