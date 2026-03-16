@@ -22,7 +22,7 @@ import SEOHead from "@/components/SEOHead";
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -305,6 +305,9 @@ const Editor = () => {
       polls: { type: "polls", title: "Guest Polls", data: { heading: "Have Your Say! 🗳️", polls: [{ question: "Vote for your favourite Sangeet song!", options: ["Gallan Goodiyaan", "London Thumakda", "Nachde Ne Saare"] }] } },
       ecotips: { type: "ecotips", title: "Eco Wedding", data: { heading: "Our Green Wedding 🌿", description: "We're committed to celebrating responsibly.", tips: ["Digital invites — saving 200+ paper cards", "Locally sourced flowers & décor", "Carpooling encouraged — share rides with fellow guests", "Plant a sapling as your blessing to us"], showDigitalInviteTracker: true } },
       video: { type: "video", title: "Videos", data: { heading: "Our Moments 🎬", videos: [{ url: "", caption: "Pre-wedding video" }] } },
+      livestream: { type: "livestream", title: "Live Stream", data: { heading: "Watch Live 📡", description: "Join us virtually from anywhere in the world!", embedUrl: "" } },
+      blessings: { type: "blessings", title: "Guest Blessings", data: { heading: "Guest Blessings 💕", description: "Share your heartfelt blessings and wishes for the couple!" } },
+      registry: { type: "registry", title: "Gift Registry", data: { heading: "Gift Registry 🎁", description: "Your presence is our greatest gift, but if you wish to bless us further:", links: [{ name: "", url: "", valueUSD: 0 }] } },
     };
     const config = typeMap[sectionType || "custom"] || typeMap.custom;
     const newSection: WeddingSection = {
@@ -639,7 +642,7 @@ function SectionsPanel({
               >
                 {section.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               </button>
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video") && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
@@ -663,6 +666,9 @@ function SectionsPanel({
               { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting" },
               { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability" },
               { id: "video", label: "🎬 Video Embed", desc: "YouTube/Vimeo" },
+              { id: "livestream", label: "📡 Live Stream", desc: "Virtual attendance" },
+              { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
+              { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -1870,6 +1876,74 @@ function SectionEditor({
           </div>
         </>
       )}
+
+      {type === "livestream" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} rows={2} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Stream URL</label>
+            <Input
+              placeholder="YouTube Live, Vimeo, Zoom, or Google Meet URL"
+              value={data.embedUrl || ""}
+              onChange={(e) => onUpdateData({ embedUrl: e.target.value })}
+              className="font-body text-sm"
+            />
+            <p className="text-[10px] text-muted-foreground font-body mt-1">Supports YouTube Live, Vimeo, Zoom, Google Meet, Instagram Live</p>
+          </div>
+        </>
+      )}
+
+      {type === "blessings" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} rows={2} className="font-body" />
+          </div>
+          <p className="text-xs text-muted-foreground font-body p-2 bg-muted rounded-lg">
+            💡 Guest blessings require moderation. Approve or reject messages from your Dashboard → Blessings tab.
+          </p>
+        </>
+      )}
+
+      {type === "registry" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} rows={2} className="font-body" />
+          </div>
+          <div className="space-y-3">
+            <label className="font-body text-sm font-medium text-foreground block">Registry Links</label>
+            {(data.links || []).map((link: any, i: number) => (
+              <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                <Input placeholder="Registry name (e.g., Amazon, Zola)" value={link.name || ""} onChange={(e) => { const links = [...(data.links || [])]; links[i] = { ...link, name: e.target.value }; onUpdateData({ links }); }} className="font-body text-sm h-8" />
+                <Input placeholder="Registry URL" value={link.url || ""} onChange={(e) => { const links = [...(data.links || [])]; links[i] = { ...link, url: e.target.value }; onUpdateData({ links }); }} className="font-body text-sm h-8" />
+                <div className="flex gap-2 items-center">
+                  <Input placeholder="Approx value (USD)" type="number" min={0} value={link.valueUSD || ""} onChange={(e) => { const links = [...(data.links || [])]; links[i] = { ...link, valueUSD: parseInt(e.target.value) || 0 }; onUpdateData({ links }); }} className="font-body text-sm h-8 w-32" />
+                  <button onClick={() => onUpdateData({ links: (data.links || []).filter((_: any, j: number) => j !== i) })} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" size="sm" className="w-full font-body" onClick={() => onUpdateData({ links: [...(data.links || []), { name: "", url: "", valueUSD: 0 }] })}>
+              <Plus className="w-3 h-3 mr-1" /> Add Registry Link
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -1881,12 +1955,15 @@ function EventEditor({
   onChange,
   onDelete,
 }: {
-  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string };
+  event: { name: string; date: string; time: string; venue: string; location?: string; address?: string; locationLink?: string; timezone?: string };
   index: number;
   onChange: (e: typeof event) => void;
   onDelete: () => void;
 }) {
   const [open, setOpen] = useState(false);
+
+  // Detect user's timezone for default
+  const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
     <div className="border border-border/50 rounded-lg overflow-hidden">
@@ -1918,6 +1995,19 @@ function EventEditor({
             onChange={(e) => onChange({ ...event, time: e.target.value })}
             className="font-body text-sm h-8"
           />
+          <select
+            value={event.timezone || userTz}
+            onChange={(e) => onChange({ ...event, timezone: e.target.value })}
+            className="w-full rounded-md border border-border bg-background px-3 py-1.5 font-body text-xs text-foreground"
+          >
+            {["America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "America/Toronto",
+              "Europe/London", "Europe/Paris", "Europe/Berlin",
+              "Asia/Kolkata", "Asia/Dubai", "Asia/Singapore", "Asia/Tokyo", "Asia/Shanghai",
+              "Australia/Sydney", "Pacific/Auckland", "UTC"
+            ].map((tz) => (
+              <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>
+            ))}
+          </select>
           <Input
             placeholder="Venue name"
             value={event.venue}
@@ -2680,6 +2770,58 @@ function SectionRenderer({
               </div>
             );
           })}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "livestream") {
+    return (
+      <div className="bg-background rounded-xl px-8 py-10 border border-border/30 text-center">
+        <InlineEditable tag="h2" value={data.heading || ""} onChange={(v) => update({ heading: v })} className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: dFont }} />
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <InlineEditable tag="p" value={data.description || ""} onChange={(v) => update({ description: v })} className="text-muted-foreground mb-4 max-w-md mx-auto" style={{ fontFamily: bFont }} />
+        {data.embedUrl ? (
+          <div className="aspect-video rounded-lg bg-muted flex items-center justify-center border border-border/50">
+            <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>📡 Live stream preview — visible when published</p>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>Add a stream URL in the editor panel</p>
+        )}
+      </div>
+    );
+  }
+
+  if (type === "blessings") {
+    return (
+      <div className="bg-card rounded-xl px-8 py-10 text-center">
+        <InlineEditable tag="h2" value={data.heading || ""} onChange={(v) => update({ heading: v })} className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: dFont }} />
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <InlineEditable tag="p" value={data.description || ""} onChange={(v) => update({ description: v })} className="text-muted-foreground mb-6 max-w-md mx-auto" style={{ fontFamily: bFont }} />
+        <div className="max-w-sm mx-auto space-y-3">
+          <Input placeholder="Your Name" disabled style={{ fontFamily: bFont }} />
+          <Textarea placeholder="Your blessing for the couple..." disabled rows={3} style={{ fontFamily: bFont }} />
+          <Button variant="gold" className="w-full" disabled style={{ fontFamily: bFont }}>Send Blessing</Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3" style={{ fontFamily: bFont }}>Blessings wall preview — functional when published</p>
+      </div>
+    );
+  }
+
+  if (type === "registry") {
+    return (
+      <div className="bg-background rounded-xl px-8 py-10 border border-border/30 text-center">
+        <InlineEditable tag="h2" value={data.heading || ""} onChange={(v) => update({ heading: v })} className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: dFont }} />
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <InlineEditable tag="p" value={data.description || ""} onChange={(v) => update({ description: v })} className="text-muted-foreground mb-6 max-w-md mx-auto" style={{ fontFamily: bFont }} />
+        <div className="max-w-md mx-auto space-y-3">
+          {(data.links || []).filter((l: any) => l.name || l.url).map((link: any, i: number) => (
+            <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card">
+              <span className="text-sm font-medium text-foreground" style={{ fontFamily: bFont }}>{link.name || "Registry"}</span>
+              {link.valueUSD > 0 && <span className="text-xs text-muted-foreground" style={{ fontFamily: bFont }}>~${link.valueUSD}</span>}
+            </div>
+          ))}
+          {(!data.links || data.links.length === 0) && <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>Add registry links in the editor panel</p>}
         </div>
       </div>
     );
