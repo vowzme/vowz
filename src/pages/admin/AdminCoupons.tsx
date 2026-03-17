@@ -15,12 +15,26 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import {
   Plus, Search, Ticket, TrendingUp, Download, RefreshCw, Copy,
-  Pencil, Trash2, Pause, Play, Archive,
+  Pencil, Trash2, Pause, Play, Archive, History,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+
+type Redemption = {
+  id: string;
+  coupon_id: string;
+  user_id: string;
+  discount_applied: number;
+  currency: string;
+  original_amount: number;
+  final_amount: number;
+  created_at: string;
+  coupon_code?: string;
+  user_email?: string;
+};
 
 type Coupon = {
   id: string; code: string; name: string; description: string;
