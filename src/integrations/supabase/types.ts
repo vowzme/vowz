@@ -178,6 +178,110 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_redemptions: {
+        Row: {
+          coupon_id: string
+          created_at: string
+          currency: string
+          discount_applied: number
+          final_amount: number
+          id: string
+          original_amount: number
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          created_at?: string
+          currency?: string
+          discount_applied?: number
+          final_amount?: number
+          id?: string
+          original_amount?: number
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          created_at?: string
+          currency?: string
+          discount_applied?: number
+          final_amount?: number
+          id?: string
+          original_amount?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          max_discount_cap: number | null
+          max_uses: number | null
+          min_order_value: number | null
+          name: string
+          notes: string | null
+          scope: string
+          status: string
+          times_used: number
+          updated_at: string
+          usage_type: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_discount_cap?: number | null
+          max_uses?: number | null
+          min_order_value?: number | null
+          name?: string
+          notes?: string | null
+          scope?: string
+          status?: string
+          times_used?: number
+          updated_at?: string
+          usage_type?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_discount_cap?: number | null
+          max_uses?: number | null
+          min_order_value?: number | null
+          name?: string
+          notes?: string | null
+          scope?: string
+          status?: string
+          times_used?: number
+          updated_at?: string
+          usage_type?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
