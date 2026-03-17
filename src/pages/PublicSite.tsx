@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,7 @@ const SECTION_KEY_MAP: Record<string, { heading?: string; body?: string; descrip
 // ─── Page Component ───────────────────────────────────────────────────
 const PublicSite = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [site, setSite] = useState<WeddingSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -98,18 +99,48 @@ const PublicSite = () => {
 
   useEffect(() => {
     if (!slug) return;
-    supabase
-      .from("wedding_sites")
-      .select("*")
-      .eq("slug", slug)
-      .eq("is_published", true)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (error || !data) setNotFound(true);
-        else setSite(data as any);
+    const fetchSite = async () => {
+      // Try finding published site by slug
+      const { data, error } = await supabase
+        .from("wedding_sites")
+        .select("*")
+        .eq("slug", slug)
+        .eq("is_published", true)
+        .maybeSingle();
+
+      if (data && !error) {
+        setSite(data as any);
         setLoading(false);
-      });
-  }, [slug]);
+        return;
+      }
+
+      // Not found — check slug_redirects for old slug
+      const { data: redirect } = await supabase
+        .from("slug_redirects")
+        .select("wedding_site_id")
+        .eq("old_slug", slug)
+        .maybeSingle();
+
+      if (redirect?.wedding_site_id) {
+        // Look up the current slug for that site
+        const { data: redirectedSite } = await supabase
+          .from("wedding_sites")
+          .select("slug")
+          .eq("id", redirect.wedding_site_id)
+          .eq("is_published", true)
+          .maybeSingle();
+
+        if (redirectedSite?.slug) {
+          navigate(`/site/${redirectedSite.slug}`, { replace: true });
+          return;
+        }
+      }
+
+      setNotFound(true);
+      setLoading(false);
+    };
+    fetchSite();
+  }, [slug, navigate]);
 
   // Track page view once site loads
   useEffect(() => {

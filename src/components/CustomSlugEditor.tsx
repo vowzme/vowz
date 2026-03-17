@@ -123,6 +123,14 @@ export default function CustomSlugEditor({
   const handleSave = async () => {
     if (availability !== "available" || validationError) return;
     setSaving(true);
+
+    // Save old slug as redirect before updating
+    if (currentSlug && currentSlug !== slug) {
+      await supabase
+        .from("slug_redirects")
+        .upsert({ old_slug: currentSlug, wedding_site_id: siteId } as any, { onConflict: "old_slug" });
+    }
+
     const { error } = await supabase
       .from("wedding_sites")
       .update({ slug } as any)
@@ -135,6 +143,8 @@ export default function CustomSlugEditor({
         toast({ title: "Error saving", description: error.message, variant: "destructive" });
       }
     } else {
+      // Remove any redirect pointing to the new slug (in case it was previously someone's old slug)
+      await supabase.from("slug_redirects").delete().eq("old_slug", slug);
       toast({ title: "Custom URL saved! 🎉", description: `Your site is now at ${baseUrl}${slug}` });
       onSlugSaved(slug);
     }
