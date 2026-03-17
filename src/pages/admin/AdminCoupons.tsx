@@ -78,6 +78,13 @@ export default function AdminCoupons() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
   const pageSize = 15;
+  const [activeTab, setActiveTab] = useState("coupons");
+
+  // Redemptions state
+  const [redemptions, setRedemptions] = useState<Redemption[]>([]);
+  const [redemptionsLoading, setRedemptionsLoading] = useState(false);
+  const [redemptionSearch, setRedemptionSearch] = useState("");
+  const [redemptionPage, setRedemptionPage] = useState(0);
 
   const fetchCoupons = async () => {
     setLoading(true);
@@ -89,7 +96,46 @@ export default function AdminCoupons() {
     setLoading(false);
   };
 
+  const fetchRedemptions = async () => {
+    setRedemptionsLoading(true);
+    const { data, error } = await supabase
+      .from("coupon_redemptions")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      // Enrich with coupon codes and user emails
+      const couponMap = new Map(coupons.map(c => [c.id, c.code]));
+      
+      // Fetch user emails for all unique user_ids
+      const userIds = [...new Set((data as any[]).map(r => r.user_id))];
+      let emailMap = new Map<string, string>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, email")
+          .in("id", userIds);
+        if (profiles) {
+          emailMap = new Map(profiles.map((p: any) => [p.id, p.email]));
+        }
+      }
+
+      setRedemptions((data as any[]).map(r => ({
+        ...r,
+        coupon_code: couponMap.get(r.coupon_id) || r.coupon_id.slice(0, 8),
+        user_email: emailMap.get(r.user_id) || r.user_id.slice(0, 8),
+      })));
+    }
+    setRedemptionsLoading(false);
+  };
+
   useEffect(() => { fetchCoupons(); }, []);
+
+  useEffect(() => {
+    if (activeTab === "redemptions" && coupons.length > 0) {
+      fetchRedemptions();
+    }
+  }, [activeTab, coupons]);
 
   const filtered = useMemo(() => {
     let list = coupons;
