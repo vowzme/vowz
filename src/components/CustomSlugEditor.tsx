@@ -226,16 +226,17 @@ export default function CustomSlugEditor({
           </Button>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <div className="flex-1 relative">
-            <span className="absolute left-3 top-2.5 text-xs text-muted-foreground font-mono">{window.location.host}/site/</span>
-            <Input
-              className="font-mono text-sm pl-[calc(theme(spacing.3)+var(--prefix-w,0px))]"
-              style={{ paddingLeft: `${(window.location.host.length + 6) * 6.5 + 12}px` }}
-              value={slug}
-              onChange={e => handleChange(e.target.value)}
-              placeholder="your-custom-slug"
-              maxLength={MAX_LEN}
-            />
+          <div className="flex-1">
+            <div className="flex items-center rounded-md border border-input bg-background">
+              <span className="text-xs text-muted-foreground font-mono px-3 py-2.5 border-r border-input bg-muted/50 whitespace-nowrap rounded-l-md">/site/</span>
+              <input
+                className="flex-1 bg-transparent px-3 py-2 text-sm font-mono outline-none placeholder:text-muted-foreground min-w-0"
+                value={slug}
+                onChange={e => handleChange(e.target.value)}
+                placeholder="your-custom-slug"
+                maxLength={MAX_LEN}
+              />
+            </div>
           </div>
           <Button
             size="sm"
