@@ -622,6 +622,35 @@ export type Database = {
           },
         ]
       }
+      slug_redirects: {
+        Row: {
+          created_at: string
+          id: string
+          old_slug: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          old_slug: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          old_slug?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slug_redirects_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppressed_emails: {
         Row: {
           created_at: string
