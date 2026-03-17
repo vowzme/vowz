@@ -518,6 +518,21 @@ const Dashboard = () => {
                   )}
                 </div>
 
+                {/* Custom URL Editor */}
+                {site.is_published && site.slug && (
+                  <div className="lg:col-span-2">
+                    <CustomSlugEditor
+                      siteId={site.id}
+                      currentSlug={site.slug}
+                      partner1={site.partner1}
+                      partner2={site.partner2}
+                      weddingDate={profileData?.wedding_date}
+                      isPremium={isPremium}
+                      onSlugSaved={(newSlug) => setSite({ ...site, slug: newSlug })}
+                    />
+                  </div>
+                )}
+
                 {/* Stats cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
                   <StatCard
