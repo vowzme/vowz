@@ -25,6 +25,7 @@ import BudgetTracker from "@/components/BudgetTracker";
 import SEOHead from "@/components/SEOHead";
 import GettingStartedGuide from "@/components/GettingStartedGuide";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
+import CustomSlugEditor from "@/components/CustomSlugEditor";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import {
