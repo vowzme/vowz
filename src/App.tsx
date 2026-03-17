@@ -71,7 +71,8 @@ const AppRoutes = () => (
     <Route path="/admin/sites" element={<AdminLayout><AdminSites /></AdminLayout>} />
     <Route path="/admin/payments" element={<AdminLayout><AdminPayments /></AdminLayout>} />
     <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
-    <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>} />
+      <Route path="/admin/coupons" element={<AdminLayout><AdminCoupons /></AdminLayout>} />
+      <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
