@@ -238,6 +238,18 @@ export default function AdminCoupons() {
     const a = document.createElement("a"); a.href = url; a.download = "coupons.csv"; a.click();
   };
 
+  const exportRedemptionsCSV = () => {
+    const headers = ["Date", "Coupon Code", "User Email", "Original", "Discount", "Final", "Currency"];
+    const rows = filteredRedemptions.map(r => [
+      new Date(r.created_at).toLocaleString(), r.coupon_code, r.user_email,
+      r.original_amount, r.discount_applied, r.final_amount, r.currency,
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "coupon-redemptions.csv"; a.click();
+  };
+
   const toggleSelect = (id: string) => {
     const s = new Set(selected);
     s.has(id) ? s.delete(id) : s.add(id);
@@ -251,14 +263,32 @@ export default function AdminCoupons() {
 
   const setField = (key: string, val: any) => setForm(f => ({ ...f, [key]: val }));
 
+  const filteredRedemptions = useMemo(() => {
+    if (!redemptionSearch) return redemptions;
+    const q = redemptionSearch.toLowerCase();
+    return redemptions.filter(r =>
+      (r.coupon_code || "").toLowerCase().includes(q) ||
+      (r.user_email || "").toLowerCase().includes(q)
+    );
+  }, [redemptions, redemptionSearch]);
+
+  const redemptionPaged = filteredRedemptions.slice(redemptionPage * pageSize, (redemptionPage + 1) * pageSize);
+  const redemptionTotalPages = Math.ceil(filteredRedemptions.length / pageSize);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-2xl font-bold text-foreground">Coupon Management</h1>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportCSV}><Download className="w-4 h-4 mr-1" />Export</Button>
-          <Button variant="outline" size="sm" onClick={fetchCoupons}><RefreshCw className="w-4 h-4" /></Button>
-          <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4 mr-1" />New Coupon</Button>
+          <Button variant="outline" size="sm" onClick={activeTab === "redemptions" ? exportRedemptionsCSV : exportCSV}>
+            <Download className="w-4 h-4 mr-1" />Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={activeTab === "redemptions" ? fetchRedemptions : fetchCoupons}>
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+          {activeTab === "coupons" && (
+            <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4 mr-1" />New Coupon</Button>
+          )}
         </div>
       </div>
 
@@ -290,115 +320,186 @@ export default function AdminCoupons() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search code or name…" value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="paused">Paused</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
-            <SelectItem value="archived">Archived</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={filterScope} onValueChange={setFilterScope}>
-          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Scope" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Scopes</SelectItem>
-            <SelectItem value="india">India</SelectItem>
-            <SelectItem value="international">International</SelectItem>
-            <SelectItem value="global">Global</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="coupons" className="gap-1.5"><Ticket className="w-4 h-4" />Coupons</TabsTrigger>
+          <TabsTrigger value="redemptions" className="gap-1.5"><History className="w-4 h-4" />Redemptions</TabsTrigger>
+        </TabsList>
 
-      {/* Bulk actions */}
-      {selected.size > 0 && (
-        <div className="flex gap-2 items-center text-sm">
-          <span className="text-muted-foreground">{selected.size} selected</span>
-          <Button size="sm" variant="outline" onClick={() => bulkAction("active")}><Play className="w-3 h-3 mr-1" />Activate</Button>
-          <Button size="sm" variant="outline" onClick={() => bulkAction("paused")}><Pause className="w-3 h-3 mr-1" />Pause</Button>
-          <Button size="sm" variant="outline" onClick={() => bulkAction("archived")}><Archive className="w-3 h-3 mr-1" />Archive</Button>
-          <Button size="sm" variant="destructive" onClick={() => bulkAction("delete")}><Trash2 className="w-3 h-3 mr-1" />Delete</Button>
-        </div>
-      )}
+        {/* ===== COUPONS TAB ===== */}
+        <TabsContent value="coupons" className="space-y-4 mt-4">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input className="pl-9" placeholder="Search code or name…" value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="paused">Paused</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterScope} onValueChange={setFilterScope}>
+              <SelectTrigger className="w-[150px]"><SelectValue placeholder="Scope" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Scopes</SelectItem>
+                <SelectItem value="india">India</SelectItem>
+                <SelectItem value="international">International</SelectItem>
+                <SelectItem value="global">Global</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Table */}
-      <Card className="border-border/50">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-10">
-                <Checkbox checked={paged.length > 0 && selected.size === paged.length} onCheckedChange={toggleAll} />
-              </TableHead>
-              <TableHead>Code</TableHead>
-              <TableHead>Discount</TableHead>
-              <TableHead>Scope</TableHead>
-              <TableHead>Usage</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Expires</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
-            ) : paged.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No coupons found</TableCell></TableRow>
-            ) : paged.map(c => (
-              <TableRow key={c.id}>
-                <TableCell><Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggleSelect(c.id)} /></TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-semibold text-sm">{c.code}</span>
-                    <button onClick={() => { navigator.clipboard.writeText(c.code); toast({ title: "Copied!" }); }}>
-                      <Copy className="w-3 h-3 text-muted-foreground hover:text-foreground" />
-                    </button>
-                  </div>
-                  {c.name && <p className="text-xs text-muted-foreground">{c.name}</p>}
-                </TableCell>
-                <TableCell>
-                  <span className="font-semibold">
-                    {c.discount_type === "percentage" ? `${c.discount_value}%` : `${c.scope === "india" ? "₹" : c.scope === "international" ? "$" : "₹/$"}${c.discount_value}`}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="text-xs capitalize">{c.scope === "india" ? "🇮🇳 India" : c.scope === "international" ? "🌍 Intl" : "🌐 Global"}</Badge>
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm">{c.times_used}/{c.max_uses ?? "∞"}</span>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className={`text-xs capitalize ${statusColor[c.status]}`}>{c.status}</Badge>
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {c.expires_at ? new Date(c.expires_at).toLocaleDateString() : "Never"}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(c)}><Pencil className="w-4 h-4" /></Button>
-                    <Button size="icon" variant="ghost" onClick={() => deleteCoupon(c.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
+          {/* Bulk actions */}
+          {selected.size > 0 && (
+            <div className="flex gap-2 items-center text-sm">
+              <span className="text-muted-foreground">{selected.size} selected</span>
+              <Button size="sm" variant="outline" onClick={() => bulkAction("active")}><Play className="w-3 h-3 mr-1" />Activate</Button>
+              <Button size="sm" variant="outline" onClick={() => bulkAction("paused")}><Pause className="w-3 h-3 mr-1" />Pause</Button>
+              <Button size="sm" variant="outline" onClick={() => bulkAction("archived")}><Archive className="w-3 h-3 mr-1" />Archive</Button>
+              <Button size="sm" variant="destructive" onClick={() => bulkAction("delete")}><Trash2 className="w-3 h-3 mr-1" />Delete</Button>
+            </div>
+          )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
-          <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Previous</Button>
-          <span className="flex items-center text-sm text-muted-foreground">Page {page + 1} of {totalPages}</span>
-          <Button size="sm" variant="outline" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Next</Button>
-        </div>
-      )}
+          {/* Table */}
+          <Card className="border-border/50">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox checked={paged.length > 0 && selected.size === paged.length} onCheckedChange={toggleAll} />
+                  </TableHead>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Discount</TableHead>
+                  <TableHead>Scope</TableHead>
+                  <TableHead>Usage</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Expires</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
+                ) : paged.length === 0 ? (
+                  <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No coupons found</TableCell></TableRow>
+                ) : paged.map(c => (
+                  <TableRow key={c.id}>
+                    <TableCell><Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggleSelect(c.id)} /></TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-semibold text-sm">{c.code}</span>
+                        <button onClick={() => { navigator.clipboard.writeText(c.code); toast({ title: "Copied!" }); }}>
+                          <Copy className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                        </button>
+                      </div>
+                      {c.name && <p className="text-xs text-muted-foreground">{c.name}</p>}
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-semibold">
+                        {c.discount_type === "percentage" ? `${c.discount_value}%` : `${c.scope === "india" ? "₹" : c.scope === "international" ? "$" : "₹/$"}${c.discount_value}`}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs capitalize">{c.scope === "india" ? "🇮🇳 India" : c.scope === "international" ? "🌍 Intl" : "🌐 Global"}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm">{c.times_used}/{c.max_uses ?? "∞"}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`text-xs capitalize ${statusColor[c.status]}`}>{c.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {c.expires_at ? new Date(c.expires_at).toLocaleDateString() : "Never"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button size="icon" variant="ghost" onClick={() => openEdit(c)}><Pencil className="w-4 h-4" /></Button>
+                        <Button size="icon" variant="ghost" onClick={() => deleteCoupon(c.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2">
+              <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Previous</Button>
+              <span className="flex items-center text-sm text-muted-foreground">Page {page + 1} of {totalPages}</span>
+              <Button size="sm" variant="outline" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Next</Button>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* ===== REDEMPTIONS TAB ===== */}
+        <TabsContent value="redemptions" className="space-y-4 mt-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              className="pl-9"
+              placeholder="Search by coupon code or user email…"
+              value={redemptionSearch}
+              onChange={e => setRedemptionSearch(e.target.value)}
+            />
+          </div>
+
+          <Card className="border-border/50">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Coupon Code</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Original</TableHead>
+                  <TableHead>Discount</TableHead>
+                  <TableHead>Final</TableHead>
+                  <TableHead>Currency</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {redemptionsLoading ? (
+                  <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
+                ) : redemptionPaged.length === 0 ? (
+                  <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No redemptions yet</TableCell></TableRow>
+                ) : redemptionPaged.map(r => (
+                  <TableRow key={r.id}>
+                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                      {new Date(r.created_at).toLocaleDateString()}{" "}
+                      <span className="text-xs">{new Date(r.created_at).toLocaleTimeString()}</span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-mono font-semibold text-sm">{r.coupon_code}</span>
+                    </TableCell>
+                    <TableCell className="text-sm">{r.user_email}</TableCell>
+                    <TableCell className="text-sm">{r.currency === "INR" ? "₹" : "$"}{r.original_amount}</TableCell>
+                    <TableCell className="text-sm font-medium text-destructive">
+                      -{r.currency === "INR" ? "₹" : "$"}{r.discount_applied}
+                    </TableCell>
+                    <TableCell className="text-sm font-semibold">{r.currency === "INR" ? "₹" : "$"}{r.final_amount}</TableCell>
+                    <TableCell><Badge variant="outline" className="text-xs">{r.currency}</Badge></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+
+          {redemptionTotalPages > 1 && (
+            <div className="flex justify-center gap-2">
+              <Button size="sm" variant="outline" disabled={redemptionPage === 0} onClick={() => setRedemptionPage(p => p - 1)}>Previous</Button>
+              <span className="flex items-center text-sm text-muted-foreground">Page {redemptionPage + 1} of {redemptionTotalPages}</span>
+              <Button size="sm" variant="outline" disabled={redemptionPage >= redemptionTotalPages - 1} onClick={() => setRedemptionPage(p => p + 1)}>Next</Button>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
