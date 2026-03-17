@@ -1043,6 +1043,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_slug_available: {
+        Args: { _exclude_site_id?: string; _slug: string }
+        Returns: boolean
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
