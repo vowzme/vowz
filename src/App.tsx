@@ -33,6 +33,7 @@ import AdminSites from "./pages/admin/AdminSites";
 import AdminPayments from "./pages/admin/AdminPayments";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminBlog from "./pages/admin/AdminBlog";
+import AdminCoupons from "./pages/admin/AdminCoupons";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
