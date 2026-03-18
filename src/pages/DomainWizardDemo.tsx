@@ -50,6 +50,24 @@ function generateDomainSuggestions(partner1: string, partner2: string, tlds: str
   return [...new Set(domains)];
 }
 
+function sanitizeDomainBase(value: string) {
+  return value.toLowerCase().trim().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+}
+
+function buildPreferredDomainSuggestions(value: string, tlds: string[]) {
+  const normalized = sanitizeDomainBase(value);
+  if (!normalized) return [];
+
+  if (normalized.includes(".")) {
+    return [normalized];
+  }
+
+  const slug = normalized.replace(/[^a-z0-9]/g, "");
+  if (!slug) return [];
+
+  return tlds.map((tld) => `${slug}${tld}`);
+}
+
 type DomainResult = { domain: string; available: boolean | null; checking?: boolean };
 
 const getBuyUrl = (domain: string, registrar: typeof DOMAIN_REGISTRARS[0]) => {
@@ -59,13 +77,13 @@ const getBuyUrl = (domain: string, registrar: typeof DOMAIN_REGISTRARS[0]) => {
   return `https://www.namecheap.com/domains/registration/results/?domain=${domain}`;
 };
 
-// ─── Demo Page ────────────────────────────────────────────────────────
 const DomainWizardDemo = () => {
   const partner1 = "Arjun";
   const partner2 = "Meera";
 
   const [wizardStep, setWizardStep] = useState(1);
   const [customDomain, setCustomDomain] = useState("");
+  const [preferredDomainInput, setPreferredDomainInput] = useState("");
   const [domainResults, setDomainResults] = useState<DomainResult[]>([]);
   const [checking, setChecking] = useState(false);
   const [selectedTlds, setSelectedTlds] = useState<string[]>([".com", ".in", ".wedding"]);
@@ -80,14 +98,15 @@ const DomainWizardDemo = () => {
     setSelectedTlds((prev) => prev.includes(tld) ? prev.filter((t) => t !== tld) : [...prev, tld]);
   };
 
-  // Mock domain availability check
   const checkAvailability = async () => {
-    const suggestions = generateDomainSuggestions(partner1, partner2, selectedTlds);
+    const preferredSuggestions = buildPreferredDomainSuggestions(preferredDomainInput, selectedTlds);
+    const generatedSuggestions = generateDomainSuggestions(partner1, partner2, selectedTlds);
+    const suggestions = preferredSuggestions.length > 0 ? preferredSuggestions : generatedSuggestions;
+
     if (suggestions.length === 0) return;
     setChecking(true);
     setDomainResults(suggestions.map((d) => ({ domain: d, available: null, checking: true })));
 
-    // Simulate API delay, randomly mark some as available
     await new Promise((r) => setTimeout(r, 1500));
     setDomainResults(
       suggestions.map((d) => ({
@@ -99,12 +118,10 @@ const DomainWizardDemo = () => {
     setChecking(false);
   };
 
-  // Mock custom domain check
   useEffect(() => {
     if (!customDomain.includes(".") || customDomain.length < 4) return;
     const timer = setTimeout(() => {
-      // Simulate: if it has common TLD, mark as registered (user likely owns it)
-      toast({ title: "Demo mode", description: "Domain checks are simulated in demo mode." });
+      toast({ title: "Domain check", description: "This preview uses simulated domain availability results." });
     }, 1000);
     return () => clearTimeout(timer);
   }, [customDomain]);
@@ -125,17 +142,16 @@ const DomainWizardDemo = () => {
     setCurrentStatus("pending");
     setWizardStep(4);
     setSavingDomain(false);
-    toast({ title: "Domain saved! 🔗 (Demo)", description: "In production, this calls the verify-domain edge function." });
+    toast({ title: "Domain saved! 🔗", description: "In production, this calls the verify-domain edge function." });
   };
 
   const handleVerify = async () => {
     setVerifying(true);
     await new Promise((r) => setTimeout(r, 2000));
-    // Simulate verification success
     setCurrentStatus("verified");
     setWizardStep(5);
     setVerifying(false);
-    toast({ title: "Domain verified! ✅ (Demo)", description: "In production, DNS is checked via Google DNS API." });
+    toast({ title: "Domain verified! ✅", description: "In production, DNS is checked via Google DNS API." });
   };
 
   const handleDisconnect = () => {
@@ -144,7 +160,7 @@ const DomainWizardDemo = () => {
     setSavedDomain(null);
     setCurrentStatus("none");
     setWizardStep(1);
-    toast({ title: "Domain disconnected (Demo)" });
+    toast({ title: "Domain disconnected" });
   };
 
   const copyToClipboard = (text: string, field: string) => {
@@ -162,16 +178,15 @@ const DomainWizardDemo = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Custom Domain Setup – Vowz" description="Learn how to connect a custom domain to your Vowz wedding website." robots="index, follow" />
-      {/* Header */}
+      <SEOHead title="Custom Domain Check – Vowz" description="Check and connect a custom domain for your Vowz wedding website." robots="index, follow" />
       <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link to="/" className="flex items-center">
             <VowzLogo iconSize="h-5" textSize="text-base" />
           </Link>
           <div className="flex-1" />
-          <span className="bg-amber-500/20 text-amber-600 text-xs font-body font-semibold px-3 py-1 rounded-full">
-            🧪 DEMO MODE
+          <span className="bg-gold/10 text-gold text-xs font-body font-semibold px-3 py-1 rounded-full">
+            Domain Check
           </span>
         </div>
       </header>
@@ -179,11 +194,10 @@ const DomainWizardDemo = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6 text-center">
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            Custom Domain Wizard — Demo
+            Custom Domain Check
           </h1>
           <p className="text-muted-foreground font-body text-sm max-w-lg mx-auto">
-            This is a preview of the domain wizard flow using mock data for <strong>Arjun & Meera</strong>.
-            No authentication or real API calls are made.
+            Check preferred names or domains and preview the connection flow for <strong>Arjun & Meera</strong>.
           </p>
         </div>
 
@@ -196,14 +210,14 @@ const DomainWizardDemo = () => {
             </div>
             <div className="flex-1">
               <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
-                Custom Domain Wizard
+                Custom Domain Check
                 <span className="bg-gold/20 text-gold text-[10px] font-body font-semibold px-2 py-0.5 rounded-full">PREMIUM</span>
               </h2>
               <p className="text-sm text-muted-foreground font-body mt-0.5">
                 {hasSavedDomain ? (
                   <>Connected: <strong className="text-foreground">{savedDomain}</strong></>
                 ) : (
-                  <>Follow the steps to get a memorable address like <strong>arjunandmeera.com</strong></>
+                  <>Follow the steps to check and connect a memorable address like <strong>arjunandmeera.com</strong></>
                 )}
               </p>
             </div>
@@ -252,10 +266,26 @@ const DomainWizardDemo = () => {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
                 <div className="bg-muted/30 border border-border/30 rounded-xl p-4">
                   <h3 className="font-display text-base font-semibold text-foreground mb-1">🔍 Find Your Perfect Domain</h3>
-                  <p className="text-xs text-muted-foreground font-body">Search for available domains or enter one you've already purchased.</p>
+                  <p className="text-xs text-muted-foreground font-body">Enter a preferred name or a full domain, then check what’s available.</p>
                 </div>
 
                 <div className="space-y-3">
+                  <div className="space-y-2 max-w-md">
+                    <p className="font-body text-sm font-medium text-foreground">Preferred name or domain</p>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="e.g. arjunmeera or arjunmeera.com"
+                        value={preferredDomainInput}
+                        onChange={(e) => setPreferredDomainInput(e.target.value)}
+                        className="pl-10 font-body text-sm"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground font-body">
+                      If you enter a name, we’ll check it across the selected extensions.
+                    </p>
+                  </div>
+
                   <p className="font-body text-sm font-medium text-foreground">Select domain extensions:</p>
                   <div className="flex flex-wrap gap-2">
                     {WEDDING_TLDS.map((tld) => (
@@ -275,7 +305,7 @@ const DomainWizardDemo = () => {
                   </div>
 
                   <Button variant="gold" size="sm" className="font-body" onClick={checkAvailability} disabled={checking || selectedTlds.length === 0}>
-                    {checking ? <><span className="animate-spin mr-2">⏳</span> Checking...</> : <><Search className="w-4 h-4 mr-1" /> Find Available Domains</>}
+                    {checking ? <><span className="animate-spin mr-2">⏳</span> Checking...</> : <><Search className="w-4 h-4 mr-1" /> Check Domains</>}
                   </Button>
 
                   {sortedResults.length > 0 && (
@@ -488,7 +518,7 @@ const DomainWizardDemo = () => {
                   </p>
                 </div>
                 <div className="flex justify-center gap-3">
-                  <Button variant="gold" size="sm" className="font-body" onClick={() => toast({ title: "Demo mode — no real domain connected" })}>
+                  <Button variant="gold" size="sm" className="font-body" onClick={() => toast({ title: "No live domain connected yet" })}>
                     <ExternalLink className="w-4 h-4 mr-1" /> Visit {savedDomain}
                   </Button>
                   <Button variant="outline" size="sm" className="font-body text-xs text-destructive hover:text-destructive" onClick={handleDisconnect}>
@@ -501,7 +531,7 @@ const DomainWizardDemo = () => {
             {/* Footer */}
             <div className="border-t border-border/30 pt-4 mt-4">
               <p className="text-[10px] text-muted-foreground/70 font-body leading-relaxed">
-                <strong className="text-muted-foreground">Demo Mode:</strong> This is a preview with simulated data. No real API calls or domain changes are made.
+                <strong className="text-muted-foreground">Preview:</strong> This flow uses simulated data, so no real domain changes are made.
               </p>
             </div>
           </div>
