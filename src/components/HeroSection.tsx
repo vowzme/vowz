@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg-new.jpg";
 import { Button } from "@/components/ui/button";
-import VowzLogo from "@/components/VowzLogo";
 
 const HeroSection = () => {
   return (
@@ -45,11 +44,6 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="h-px w-16 bg-gold/40" />
-            <VowzLogo height="h-12" invertIcon light />
-            <div className="h-px w-16 bg-gold/40" />
-          </div>
 
           <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4 sm:mb-6 leading-tight tracking-tight">
             Where Vows{" "}
