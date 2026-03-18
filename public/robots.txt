@@ -18,4 +18,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://vowz.co/sitemap.xml
+Sitemap: https://vowz.me/sitemap.xml
