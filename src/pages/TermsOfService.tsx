@@ -31,7 +31,7 @@ const TermsOfService = () => (
         { title: "8. Termination", body: "We may suspend or terminate accounts that violate these terms. You may delete your account at any time. Upon termination, your data will be permanently removed within 30 days." },
         { title: "9. Governing Law", body: "These terms are governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in Kochi, Kerala." },
         { title: "10. Changes to Terms", body: "We may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the updated terms." },
-        { title: "11. Contact", body: "For questions about these terms, please contact AXPIR Tech India LLP at hi@vowz.me or call +91 8111852030. Address: 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020." },
+        { title: "11. Contact", body: "For questions about these terms, please contact AXPIR Tech India LLP at hi@vowz.me or WhatsApp us at +91 79944 10111. Address: 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020." },
       ].map((s) => (
         <div key={s.title} className="mb-8">
           <h2 className="font-display text-xl font-semibold text-foreground mb-2">{s.title}</h2>
