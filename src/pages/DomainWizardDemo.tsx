@@ -266,10 +266,26 @@ const DomainWizardDemo = () => {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
                 <div className="bg-muted/30 border border-border/30 rounded-xl p-4">
                   <h3 className="font-display text-base font-semibold text-foreground mb-1">🔍 Find Your Perfect Domain</h3>
-                  <p className="text-xs text-muted-foreground font-body">Search for available domains or enter one you've already purchased.</p>
+                  <p className="text-xs text-muted-foreground font-body">Enter a preferred name or a full domain, then check what’s available.</p>
                 </div>
 
                 <div className="space-y-3">
+                  <div className="space-y-2 max-w-md">
+                    <p className="font-body text-sm font-medium text-foreground">Preferred name or domain</p>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="e.g. arjunmeera or arjunmeera.com"
+                        value={preferredDomainInput}
+                        onChange={(e) => setPreferredDomainInput(e.target.value)}
+                        className="pl-10 font-body text-sm"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground font-body">
+                      If you enter a name, we’ll check it across the selected extensions.
+                    </p>
+                  </div>
+
                   <p className="font-body text-sm font-medium text-foreground">Select domain extensions:</p>
                   <div className="flex flex-wrap gap-2">
                     {WEDDING_TLDS.map((tld) => (
@@ -289,7 +305,7 @@ const DomainWizardDemo = () => {
                   </div>
 
                   <Button variant="gold" size="sm" className="font-body" onClick={checkAvailability} disabled={checking || selectedTlds.length === 0}>
-                    {checking ? <><span className="animate-spin mr-2">⏳</span> Checking...</> : <><Search className="w-4 h-4 mr-1" /> Find Available Domains</>}
+                    {checking ? <><span className="animate-spin mr-2">⏳</span> Checking...</> : <><Search className="w-4 h-4 mr-1" /> Check Domains</>}
                   </Button>
 
                   {sortedResults.length > 0 && (
@@ -334,7 +350,7 @@ const DomainWizardDemo = () => {
                   </div>
                 </div>
               </motion.div>
-            )}
+            )
 
             {/* ─── Step 2: Purchase ─── */}
             {wizardStep === 2 && (
