@@ -210,14 +210,14 @@ const DomainWizardDemo = () => {
             </div>
             <div className="flex-1">
               <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
-                Custom Domain Wizard
+                Custom Domain Check
                 <span className="bg-gold/20 text-gold text-[10px] font-body font-semibold px-2 py-0.5 rounded-full">PREMIUM</span>
               </h2>
               <p className="text-sm text-muted-foreground font-body mt-0.5">
                 {hasSavedDomain ? (
                   <>Connected: <strong className="text-foreground">{savedDomain}</strong></>
                 ) : (
-                  <>Follow the steps to get a memorable address like <strong>arjunandmeera.com</strong></>
+                  <>Follow the steps to check and connect a memorable address like <strong>arjunandmeera.com</strong></>
                 )}
               </p>
             </div>
