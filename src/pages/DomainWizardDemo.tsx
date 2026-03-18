@@ -350,7 +350,7 @@ const DomainWizardDemo = () => {
                   </div>
                 </div>
               </motion.div>
-            )
+            )}
 
             {/* ─── Step 2: Purchase ─── */}
             {wizardStep === 2 && (
