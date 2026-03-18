@@ -518,7 +518,7 @@ const DomainWizardDemo = () => {
                   </p>
                 </div>
                 <div className="flex justify-center gap-3">
-                  <Button variant="gold" size="sm" className="font-body" onClick={() => toast({ title: "Demo mode — no real domain connected" })}>
+                  <Button variant="gold" size="sm" className="font-body" onClick={() => toast({ title: "No live domain connected yet" })}>
                     <ExternalLink className="w-4 h-4 mr-1" /> Visit {savedDomain}
                   </Button>
                   <Button variant="outline" size="sm" className="font-body text-xs text-destructive hover:text-destructive" onClick={handleDisconnect}>
@@ -531,7 +531,7 @@ const DomainWizardDemo = () => {
             {/* Footer */}
             <div className="border-t border-border/30 pt-4 mt-4">
               <p className="text-[10px] text-muted-foreground/70 font-body leading-relaxed">
-                <strong className="text-muted-foreground">Demo Mode:</strong> This is a preview with simulated data. No real API calls or domain changes are made.
+                <strong className="text-muted-foreground">Preview:</strong> This flow uses simulated data, so no real domain changes are made.
               </p>
             </div>
           </div>
