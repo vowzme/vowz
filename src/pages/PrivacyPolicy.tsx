@@ -28,7 +28,7 @@ const PrivacyPolicy = () => (
         { title: "5. Cookies", body: "We use essential cookies for authentication and session management. Analytics cookies help us understand how our service is used. You can disable non-essential cookies in your browser settings." },
         { title: "6. Third-Party Services", body: "We may use third-party services for payment processing, email delivery, and analytics. These services have their own privacy policies and handle your data according to their terms." },
         { title: "7. Your Rights", body: "You have the right to access, update, or delete your personal information at any time. You can export your wedding site data or request complete account deletion by contacting us." },
-        { title: "8. Contact", body: "For privacy-related questions, please reach out to us at hi@vowz.me or call +91 8111852030. AXPIR Tech India LLP, 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020." },
+        { title: "8. Contact", body: "For privacy-related questions, please reach out to us at hi@vowz.me or WhatsApp us at +91 79944 10111. AXPIR Tech India LLP, 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020." },
       ].map((s) => (
         <div key={s.title} className="mb-8">
           <h2 className="font-display text-xl font-semibold text-foreground mb-2">{s.title}</h2>

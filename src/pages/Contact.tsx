@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,8 +55,9 @@ const Contact = () => {
         <div className="grid md:grid-cols-5 gap-10">
           <div className="md:col-span-2 space-y-6">
             {[
+              { icon: Building2, label: "Company", value: "AXPIR Tech India LLP" },
               { icon: Mail, label: "Email", value: "hi@vowz.me" },
-              { icon: Phone, label: "Support", value: "+91 8111852030" },
+              { icon: Phone, label: "WhatsApp", value: "+91 79944 10111" },
               { icon: MapPin, label: "Office", value: "1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020" },
             ].map((item) => (
               <div key={item.label} className="flex items-start gap-4 p-5 rounded-xl bg-card border border-border/50 shadow-card">

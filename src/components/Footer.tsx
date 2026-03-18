@@ -1,9 +1,17 @@
+import { Facebook, Instagram, MessageCircle, Twitter } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import VowzLogo from "@/components/VowzLogo";
 
 const Footer = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const socialLinks = [
+    { label: "Facebook", href: "https://www.facebook.com/VowZonline", icon: Facebook },
+    { label: "Instagram", href: "https://www.instagram.com/vowzonline/", icon: Instagram },
+    { label: "X", href: "https://x.com/VowZonline", icon: Twitter },
+    { label: "WhatsApp", href: "https://wa.me/917994410111", icon: MessageCircle },
+  ];
 
   const handleAnchorClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
@@ -31,6 +39,20 @@ const Footer = () => {
             <p className="text-muted-foreground font-body text-sm">
               A product of <strong className="text-foreground">AXPIR Tech India LLP</strong>. Where Vows Come Alive.
             </p>
+            <div className="mt-4 flex flex-wrap gap-3" aria-label="Social media links">
+              {socialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={item.label}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-secondary text-muted-foreground transition-colors hover:text-accent"
+                >
+                  <item.icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
           {[
             { title: "Product", links: [

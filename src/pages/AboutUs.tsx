@@ -59,8 +59,8 @@ const AboutUs = () => (
           },
           {
             icon: Phone,
-            label: "Support",
-            value: "+91 8111852030",
+            label: "WhatsApp",
+            value: "+91 79944 10111",
           },
         ].map((item, i) => (
           <motion.div

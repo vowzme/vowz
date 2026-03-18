@@ -39,7 +39,7 @@ const RefundPolicy = () => (
         },
         {
           title: "5. How to Request a Refund",
-          body: "To request a refund, please contact us at hi@vowz.me or call +91 8111852030 with your registered email address, order details, and a description of the issue. We will review your request and respond within 7 business days.",
+          body: "To request a refund, please contact us at hi@vowz.me or WhatsApp us at +91 79944 10111 with your registered email address, order details, and a description of the issue. We will review your request and respond within 7 business days.",
         },
         {
           title: "6. Refund Processing",
@@ -47,7 +47,7 @@ const RefundPolicy = () => (
         },
         {
           title: "7. Contact",
-          body: "For any questions regarding this policy, please contact AXPIR Tech India LLP at hi@vowz.me or call +91 8111852030. Address: 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020.",
+          body: "For any questions regarding this policy, please contact AXPIR Tech India LLP at hi@vowz.me or WhatsApp us at +91 79944 10111. Address: 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020.",
         },
       ].map((s) => (
         <div key={s.title} className="mb-8">
