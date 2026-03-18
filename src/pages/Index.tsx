@@ -13,8 +13,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Vowz – Create Free Indian Wedding Invitations & Websites Online"
-        description="Design beautiful digital wedding invitations and personalized wedding websites for Indian weddings. Free to start. Easy WhatsApp sharing. Made for couples in India & abroad."
+        title="Vowz — Where Vows Come Alive | Create Beautiful Wedding Websites"
+        description="Create stunning, personalized wedding websites in minutes. RSVP management, photo gallery, event schedules — celebrate every moment beautifully.."
         ogTitle="Vowz – Digital Wedding Invitations & Websites"
         ogDescription="Create stunning Indian wedding invites and websites in minutes. WhatsApp sharing, RSVP, custom domains – free & Premium at ₹599/year."
         ogImage="https://vowz.me/og-home.jpg"
