@@ -88,6 +88,8 @@ export type Database = {
           id: string
           is_active: boolean
           paid_earnings: number
+          payout_paypal: string | null
+          payout_upi: string | null
           pending_earnings: number
           phone: string | null
           referral_code: string
@@ -105,6 +107,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           paid_earnings?: number
+          payout_paypal?: string | null
+          payout_upi?: string | null
           pending_earnings?: number
           phone?: string | null
           referral_code: string
@@ -122,6 +126,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           paid_earnings?: number
+          payout_paypal?: string | null
+          payout_upi?: string | null
           pending_earnings?: number
           phone?: string | null
           referral_code?: string

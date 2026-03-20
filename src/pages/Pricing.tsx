@@ -66,13 +66,13 @@ const Pricing = () => {
         title="Pricing – Vowz Wedding Invitation Maker | Free & Paid Plans"
         description={`Choose from Free and Premium (${formatPrice(pricing, "premium")}/year) plans. Create digital invites, wedding websites, custom domains and more.`}
         ogTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        ogDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains.`}
+        ogDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/year. Unlimited invites, premium themes, no watermarks, custom domains.`}
         ogImage="https://vowz.me/og-pricing.jpg"
         ogUrl="https://vowz.me/pricing"
         ogType="website"
         twitterCard="summary_large_image"
         twitterTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        twitterDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/year (40% off). Unlimited invites, premium themes, no watermarks, custom domains.`}
+        twitterDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/year. Unlimited invites, premium themes, no watermarks, custom domains.`}
         twitterImage="https://vowz.me/og-pricing.jpg"
         canonical="https://vowz.me/pricing"
         robots="index, follow"
@@ -127,7 +127,7 @@ const Pricing = () => {
                     <span className="text-muted-foreground font-body text-sm">{plan.period}</span>
                   </div>
                   {plan.featured && (
-                    <p className="text-xs text-gold font-body mb-6 font-semibold">Limited offer — 40% off!</p>
+                    <p className="text-xs text-gold font-body mb-6 font-semibold">Launch offer — save {pricing.symbol}{pricing.premiumOriginal - pricing.premiumPrice}!</p>
                   )}
                   {!plan.featured && <div className="mb-6" />}
 

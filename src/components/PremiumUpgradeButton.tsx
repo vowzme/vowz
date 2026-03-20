@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Crown, Loader2 } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
 import { usePricingRegion } from "@/hooks/use-pricing-region";
+import { getStoredAffiliateRef } from "@/hooks/use-affiliate";
 import CouponCodeInput from "@/components/CouponCodeInput";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -25,6 +26,8 @@ declare global {
     Razorpay?: any;
   }
 }
+
+const AFFILIATE_DISCOUNT = { IN: 250, INTL: 5 };
 
 const loadRazorpayCheckout = async () => {
   if (window.Razorpay) return true;
@@ -53,11 +56,23 @@ const PremiumUpgradeButton = ({
   const { region, pricing } = usePricingRegion();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [couponResult, setCouponResult] = useState<any>(null);
+  const [affiliateRef, setAffiliateRef] = useState<string | null>(null);
 
   const originalPrice = pricing.premiumPrice;
   const currency = region === "IN" ? "INR" : "USD";
   const symbol = region === "IN" ? "₹" : "$";
-  const finalPrice = couponResult?.valid ? couponResult.final_price : originalPrice;
+  const affiliateDiscount = AFFILIATE_DISCOUNT[region];
+
+  // Check for stored affiliate ref
+  useEffect(() => {
+    const ref = getStoredAffiliateRef();
+    if (ref) setAffiliateRef(ref);
+  }, []);
+
+  // Calculate final price: affiliate discount first, then coupon on top
+  const hasAffiliate = !!affiliateRef;
+  const afterAffiliatePrice = hasAffiliate ? originalPrice - affiliateDiscount : originalPrice;
+  const finalPrice = couponResult?.valid ? couponResult.final_price : afterAffiliatePrice;
 
   const handleClick = () => {
     if (!user) {
@@ -77,7 +92,8 @@ const PremiumUpgradeButton = ({
           action: "create_order",
           currency,
           coupon_code: couponResult?.valid ? couponResult.code : undefined,
-          final_amount: couponResult?.valid ? Math.round(finalPrice * 100) : undefined,
+          affiliate_ref: affiliateRef || undefined,
+          final_amount: Math.round(finalPrice * 100),
         },
       });
 
@@ -101,8 +117,6 @@ const PremiumUpgradeButton = ({
           original_amount: originalPrice,
           final_amount: finalPrice,
         });
-        // Increment times_used
-        await supabase.rpc("is_admin", { _user_id: user!.id }); // dummy call; increment via direct update
         const { data: couponData } = await supabase.from("coupons").select("times_used").eq("id", couponResult.coupon_id).single();
         if (couponData) {
           await supabase.from("coupons").update({ times_used: (couponData as any).times_used + 1 }).eq("id", couponResult.coupon_id);
@@ -122,7 +136,7 @@ const PremiumUpgradeButton = ({
         description: data.description || "Premium Plan (1 Year)",
         order_id: data.order_id,
         prefill: data.prefill || { email: user!.email || "" },
-        notes: { plan: "premium_yearly", coupon: couponResult?.code || "" },
+        notes: { plan: "premium_yearly", coupon: couponResult?.code || "", affiliate: affiliateRef || "" },
         handler: async (response: {
           razorpay_payment_id: string;
           razorpay_order_id: string;
@@ -196,21 +210,35 @@ const PremiumUpgradeButton = ({
           <div className="space-y-4">
             <div className="text-center py-3">
               <p className="text-sm text-muted-foreground">Premium Plan (1 Year)</p>
+
+              {hasAffiliate && (
+                <div className="mt-2 mb-1 inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full text-xs font-medium">
+                  🎉 Referral discount: {symbol}{affiliateDiscount} off!
+                </div>
+              )}
+
               {couponResult?.valid ? (
-                <div className="space-y-1">
+                <div className="space-y-1 mt-2">
                   <p className="text-2xl font-display font-bold text-foreground">
                     {symbol}{finalPrice}
                   </p>
                   <p className="text-sm text-muted-foreground line-through">{symbol}{originalPrice}</p>
-                  <p className="text-xs text-emerald-600">You save {symbol}{couponResult.discount_amount}!</p>
+                  <p className="text-xs text-emerald-600">
+                    You save {symbol}{originalPrice - finalPrice}!
+                  </p>
                 </div>
               ) : (
-                <p className="text-2xl font-display font-bold text-foreground">{symbol}{originalPrice}</p>
+                <div className="mt-2">
+                  <p className="text-2xl font-display font-bold text-foreground">{symbol}{afterAffiliatePrice}</p>
+                  {hasAffiliate && (
+                    <p className="text-sm text-muted-foreground line-through">{symbol}{originalPrice}</p>
+                  )}
+                </div>
               )}
             </div>
 
             <CouponCodeInput
-              originalPrice={originalPrice}
+              originalPrice={afterAffiliatePrice}
               currency={currency}
               onApply={setCouponResult}
             />
