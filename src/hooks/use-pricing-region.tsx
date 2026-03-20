@@ -18,8 +18,8 @@ interface PricingRegionContextType {
 }
 
 const PRICING: Record<PricingRegion, PricingConfig> = {
-  IN: { symbol: "₹", premiumPrice: 599, premiumOriginal: 999, freePrice: "₹0", label: "India 🇮🇳" },
-  INTL: { symbol: "$", premiumPrice: 15, premiumOriginal: 25, freePrice: "$0", label: "International 🌍" },
+  IN: { symbol: "₹", premiumPrice: 999, premiumOriginal: 1499, freePrice: "₹0", label: "India 🇮🇳" },
+  INTL: { symbol: "$", premiumPrice: 20, premiumOriginal: 25, freePrice: "$0", label: "International 🌍" },
 };
 
 const STORAGE_KEY = "vowz_pricing_region";
