@@ -127,7 +127,7 @@ const Pricing = () => {
                     <span className="text-muted-foreground font-body text-sm">{plan.period}</span>
                   </div>
                   {plan.featured && (
-                    <p className="text-xs text-gold font-body mb-6 font-semibold">Limited offer — 40% off!</p>
+                    <p className="text-xs text-gold font-body mb-6 font-semibold">Launch offer — save {pricing.symbol}{pricing.premiumOriginal - pricing.premiumPrice}!</p>
                   )}
                   {!plan.featured && <div className="mb-6" />}
 
