@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Users, IndianRupee, TrendingUp, Copy, Check, Gift,
   Link as LinkIcon, Tag, ArrowRight, Shield, Clock, Zap,
-  LogOut, Eye, EyeOff, Star, Sparkles, BadgePercent, ChevronRight
+  LogOut, Eye, EyeOff, Star, Sparkles, BadgePercent, ChevronRight,
+  QrCode, Download, DollarSign, Wallet, Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,8 +14,11 @@ import { toast } from "@/hooks/use-toast";
 import { generateReferralCode } from "@/hooks/use-affiliate";
 import SEOHead from "@/components/SEOHead";
 import VowzLogo from "@/components/VowzLogo";
+import { QRCodeCanvas } from "qrcode.react";
+import { usePricingRegion, type PricingRegion } from "@/hooks/use-pricing-region";
 
-const COMMISSION_AMOUNT = 200;
+const COMMISSION = { IN: { amount: 250, symbol: "₹", label: "₹250" }, INTL: { amount: 5, symbol: "$", label: "$5" } };
+const CUSTOMER_DISCOUNT = { IN: { amount: 250, final: 749, symbol: "₹" }, INTL: { amount: 5, final: 15, symbol: "$" } };
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -42,6 +46,17 @@ const Affiliate = () => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [customCoupon, setCustomCoupon] = useState("");
   const [savingCoupon, setSavingCoupon] = useState(false);
+
+  // Dashboard country selector
+  const [dashRegion, setDashRegion] = useState<PricingRegion>("IN");
+  const commission = COMMISSION[dashRegion];
+
+  // Payout info
+  const [payoutUpi, setPayoutUpi] = useState("");
+  const [payoutPaypal, setPayoutPaypal] = useState("");
+  const [savingPayout, setSavingPayout] = useState(false);
+
+  const qrRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -78,6 +93,8 @@ const Affiliate = () => {
     if (aff) {
       setAffiliate(aff);
       setCustomCoupon(aff.custom_coupon || "");
+      setPayoutUpi((aff as any).payout_upi || "");
+      setPayoutPaypal((aff as any).payout_paypal || "");
       const { data: refs } = await supabase
         .from("affiliate_referrals")
         .select("*")
@@ -198,29 +215,55 @@ const Affiliate = () => {
     setSavingCoupon(false);
   };
 
+  const handleSavePayout = async () => {
+    if (!affiliate) return;
+    setSavingPayout(true);
+    const { error } = await supabase
+      .from("affiliates")
+      .update({ payout_upi: payoutUpi || null, payout_paypal: payoutPaypal || null } as any)
+      .eq("id", affiliate.id);
+    if (error) {
+      toast({ title: "Failed to save payout info", description: error.message, variant: "destructive" });
+    } else {
+      setAffiliate({ ...affiliate, payout_upi: payoutUpi, payout_paypal: payoutPaypal });
+      toast({ title: "Payout info saved! ✅" });
+    }
+    setSavingPayout(false);
+  };
+
+  const downloadQR = () => {
+    const canvas = qrRef.current?.querySelector("canvas");
+    if (!canvas) return;
+    const url = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = `vowz-affiliate-qr-${affiliate.referral_code}.png`;
+    link.href = url;
+    link.click();
+    toast({ title: "QR code downloaded! 📱" });
+  };
+
   const referralLink = affiliate
-    ? `${window.location.origin}/?ref=${affiliate.referral_code}`
+    ? `https://vowz.me/?ref=${affiliate.referral_code}`
     : "";
   const couponLink = affiliate?.custom_coupon
-    ? `${window.location.origin}/?coupon=${affiliate.custom_coupon}`
+    ? `https://vowz.me/?coupon=${affiliate.custom_coupon}`
     : "";
 
   const successfulRefs = referrals.filter((r) => r.status === "converted");
-  const pendingRefs = referrals.filter((r) => r.status === "pending");
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Vowz Affiliate Program – Earn ₹200 Per Referral"
-        description="Join the Vowz affiliate program and earn ₹200 for every successful wedding website referral. Free to join, lifetime attribution, real-time dashboard."
-        ogTitle="Vowz Affiliate Program – Earn ₹200 Per Referral"
-        ogDescription="Earn ₹200 per successful referral. Join our wedding invitation affiliate program — free to join with lifetime attribution and real-time tracking."
+        title="Vowz Affiliate Program – Earn ₹250 / $5 Per Referral"
+        description="Join the Vowz affiliate program and earn ₹250 (India) or $5 (International) for every successful wedding website referral. Free to join, lifetime attribution, real-time dashboard."
+        ogTitle="Vowz Affiliate Program – Earn Per Referral"
+        ogDescription="Earn ₹250 or $5 per successful referral. Join our wedding invitation affiliate program — free to join with lifetime attribution and real-time tracking."
         ogImage="https://vowz.me/og-affiliate.jpg"
         ogUrl="https://vowz.me/affiliate"
         ogType="website"
         twitterCard="summary_large_image"
-        twitterTitle="Vowz Affiliate – Earn ₹200 Per Referral"
-        twitterDescription="Join our affiliate program and earn ₹200 per wedding website referral. Free to join."
+        twitterTitle="Vowz Affiliate – Earn Per Referral"
+        twitterDescription="Join our affiliate program and earn per wedding website referral. Free to join."
         twitterImage="https://vowz.me/og-affiliate.jpg"
         canonical="https://vowz.me/affiliate"
         robots="index, follow"
@@ -247,7 +290,6 @@ const Affiliate = () => {
         <>
           {/* Hero */}
           <section className="relative overflow-hidden">
-            {/* Background decorations */}
             <div className="absolute inset-0 bg-gradient-hero opacity-[0.03]" />
             <div className="absolute top-20 right-[10%] w-72 h-72 rounded-full bg-accent/5 blur-3xl" />
             <div className="absolute bottom-10 left-[5%] w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
@@ -266,7 +308,7 @@ const Affiliate = () => {
                 <motion.h1 variants={fadeUp} custom={1} className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] mb-6">
                   Earn{" "}
                   <span className="relative inline-block">
-                    <span className="text-gradient-gold">₹{COMMISSION_AMOUNT}</span>
+                    <span className="text-gradient-gold">₹250 / $5</span>
                     <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
                       <path d="M2 6C50 2 150 2 198 6" stroke="hsl(var(--accent))" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
                     </svg>
@@ -275,7 +317,7 @@ const Affiliate = () => {
                 </motion.h1>
 
                 <motion.p variants={fadeUp} custom={2} className="text-muted-foreground font-body text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-                  Share the joy of beautiful Indian wedding websites and earn commission for every successful premium subscription through your unique referral link.
+                  Share the joy of beautiful wedding websites and earn commission for every successful premium subscription. Your referred users also get a discount!
                 </motion.p>
 
                 <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -316,13 +358,12 @@ const Affiliate = () => {
               </motion.div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-0 relative">
-                {/* Connector line */}
                 <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-px bg-gradient-to-r from-accent/0 via-accent/30 to-accent/0" />
 
                 {[
-                  { icon: LinkIcon, step: "01", title: "Share Your Link", desc: "Get a unique referral link or create a custom coupon code to share with your audience, social media, or wedding community." },
-                  { icon: Users, step: "02", title: "Friends Sign Up", desc: "When someone signs up using your link — even on the free plan — they're permanently tracked as your referral." },
-                  { icon: IndianRupee, step: "03", title: `Earn ₹${COMMISSION_AMOUNT}`, desc: "When your referral upgrades to Premium, you earn ₹200 commission. Even if they upgrade months later!" },
+                  { icon: LinkIcon, step: "01", title: "Share Your Link or QR", desc: "Get a unique referral link, QR code, or create a custom coupon code to share with your audience." },
+                  { icon: Users, step: "02", title: "Friends Sign Up & Save", desc: "When someone signs up using your link, they get ₹250 / $5 off Premium. They're permanently tracked as your referral." },
+                  { icon: IndianRupee, step: "03", title: "Earn Commission", desc: "When your referral upgrades, you earn ₹250 (India) or $5 (International). Even if they upgrade months later!" },
                 ].map((step, i) => (
                   <motion.div
                     key={step.title}
@@ -359,7 +400,7 @@ const Affiliate = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {[
-                  { icon: IndianRupee, title: "Generous Commission", desc: `Earn ₹${COMMISSION_AMOUNT} for every successful premium referral — one of the highest in the industry.` },
+                  { icon: IndianRupee, title: "Generous Commission", desc: "Earn ₹250 (India) or $5 (International) for every successful premium referral." },
                   { icon: Clock, title: "Lifetime Attribution", desc: "If a user signs up through your link and upgrades later — even months later — you still earn the commission." },
                   { icon: Tag, title: "Custom Coupon Codes", desc: "Create memorable, branded coupon codes that are easy to share with your audience." },
                   { icon: TrendingUp, title: "Real-Time Dashboard", desc: "Track your referrals, conversions, and earnings with a beautiful, live dashboard." },
@@ -523,87 +564,201 @@ const Affiliate = () => {
                 Welcome, {affiliate.full_name || "Partner"}!
               </h1>
               <p className="text-muted-foreground font-body text-sm mt-2">Track your referrals, earnings, and performance</p>
+
+              {/* Country Selector */}
+              <div className="flex justify-center mt-4">
+                <div className="inline-flex rounded-full border border-border/60 bg-card p-0.5 shadow-sm">
+                  {([
+                    { value: "IN" as PricingRegion, label: "India", flag: "🇮🇳" },
+                    { value: "INTL" as PricingRegion, label: "International", flag: "🌍" },
+                  ]).map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setDashRegion(opt.value)}
+                      className={`px-4 py-1.5 text-xs font-body font-medium rounded-full transition-all duration-200 flex items-center gap-1.5 ${
+                        dashRegion === opt.value
+                          ? "bg-foreground text-background shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <span className="text-sm">{opt.flag}</span>
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground/60 font-body mt-1.5">
+                Commission: {commission.label} per upgrade • Customer discount: {CUSTOMER_DISCOUNT[dashRegion].symbol}{CUSTOMER_DISCOUNT[dashRegion].amount} off
+              </p>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <StatCard icon={Users} label="Total Referrals" value={affiliate.total_referrals} accent="accent" />
               <StatCard icon={Check} label="Successful" value={affiliate.successful_referrals} accent="emerald" />
-              <StatCard icon={IndianRupee} label="Total Earned" value={`₹${Number(affiliate.total_earnings).toLocaleString()}`} accent="accent" />
-              <StatCard icon={Clock} label="Pending" value={`₹${Number(affiliate.pending_earnings).toLocaleString()}`} accent="amber" />
+              <StatCard icon={dashRegion === "IN" ? IndianRupee : DollarSign} label="Total Earned" value={`${commission.symbol}${Number(affiliate.total_earnings).toLocaleString()}`} accent="accent" />
+              <StatCard icon={Clock} label="Pending" value={`${commission.symbol}${Number(affiliate.pending_earnings).toLocaleString()}`} accent="amber" />
             </div>
 
-            {/* Referral Link & Coupon */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
-                <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <LinkIcon className="w-4 h-4 text-accent" />
+            {/* Commission Breakdown */}
+            <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
+              <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-accent" />
+                </div>
+                Commission Rates
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className={`p-4 rounded-xl border ${dashRegion === "IN" ? "border-accent/30 bg-accent/5" : "border-border/40 bg-muted/20"}`}>
+                  <p className="font-body text-xs text-muted-foreground mb-1">🇮🇳 India</p>
+                  <p className="font-display text-2xl font-bold text-foreground">₹250 <span className="text-sm font-normal text-muted-foreground">per upgrade</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Customer pays ₹749 (₹250 off ₹999)</p>
+                </div>
+                <div className={`p-4 rounded-xl border ${dashRegion === "INTL" ? "border-accent/30 bg-accent/5" : "border-border/40 bg-muted/20"}`}>
+                  <p className="font-body text-xs text-muted-foreground mb-1">🌍 International</p>
+                  <p className="font-display text-2xl font-bold text-foreground">$5 <span className="text-sm font-normal text-muted-foreground">per upgrade</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Customer pays $15 ($5 off $20)</p>
+                </div>
+              </div>
+            </div>
+
+            {/* My Affiliate QR & Links */}
+            <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
+              <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-5">
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <QrCode className="w-4 h-4 text-accent" />
+                </div>
+                My Affiliate QR & Links
+              </h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* QR Code */}
+                <div className="flex flex-col items-center">
+                  <div ref={qrRef} className="bg-white p-4 rounded-2xl border border-border/30 shadow-sm mb-4">
+                    <QRCodeCanvas
+                      value={referralLink}
+                      size={180}
+                      level="H"
+                      includeMargin
+                      imageSettings={{
+                        src: "/placeholder.svg",
+                        x: undefined,
+                        y: undefined,
+                        height: 30,
+                        width: 30,
+                        excavate: true,
+                      }}
+                    />
                   </div>
-                  Your Referral Link
-                </h3>
-                <div className="bg-muted/40 border border-border/40 rounded-xl p-3.5 flex items-center gap-3">
-                  <code className="font-mono text-xs text-foreground flex-1 truncate select-all">{referralLink}</code>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0 h-8 w-8"
-                    onClick={() => copyToClipboard(referralLink, "link")}
-                  >
-                    {copiedField === "link" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                  <p className="text-xs text-muted-foreground font-body mb-3 text-center">
+                    Scan to sign up with your affiliate discount
+                  </p>
+                  <Button variant="outline" size="sm" onClick={downloadQR} className="gap-2">
+                    <Download className="w-4 h-4" /> Download QR as PNG
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground font-body mt-3">
-                  Referral code: <code className="font-mono text-foreground font-semibold bg-muted/50 px-1.5 py-0.5 rounded">{affiliate.referral_code}</code>
-                </p>
-              </div>
 
-              <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
-                <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <Tag className="w-4 h-4 text-accent" />
-                  </div>
-                  Custom Coupon Code
-                </h3>
-                {affiliate.custom_coupon ? (
-                  <>
-                    <div className="bg-accent/5 border border-accent/20 rounded-xl p-3.5 flex items-center gap-3 mb-3">
-                      <Tag className="w-4 h-4 text-accent shrink-0" />
-                      <code className="font-mono text-sm text-foreground font-bold flex-1 uppercase tracking-wider">{affiliate.custom_coupon}</code>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="shrink-0 h-8 w-8"
-                        onClick={() => copyToClipboard(couponLink, "coupon")}
-                      >
-                        {copiedField === "coupon" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                {/* Links */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="font-body text-xs font-medium text-muted-foreground mb-1.5 block">Referral Link</label>
+                    <div className="bg-muted/40 border border-border/40 rounded-xl p-3 flex items-center gap-3">
+                      <code className="font-mono text-xs text-foreground flex-1 truncate select-all">{referralLink}</code>
+                      <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={() => copyToClipboard(referralLink, "link")}>
+                        {copiedField === "link" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground font-body">
-                      Coupon link: <code className="text-foreground font-mono text-[11px]">{couponLink}</code>
-                    </p>
-                  </>
-                ) : (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground font-body">Create a memorable coupon code for your audience.</p>
-                    <div className="flex gap-2">
-                      <Input
-                        value={customCoupon}
-                        onChange={(e) => setCustomCoupon(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))}
-                        placeholder="e.g. meera-wedding"
-                        className="font-mono text-sm h-10"
-                        maxLength={30}
-                      />
-                      <Button variant="gold" size="sm" onClick={handleSaveCoupon} disabled={savingCoupon || customCoupon.length < 3}>
-                        {savingCoupon ? "..." : "Save"}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground font-body">
-                      Lowercase letters, numbers, hyphens and underscores only. Min 3 chars.
+                    <p className="text-[10px] text-muted-foreground font-body mt-1">
+                      Code: <code className="font-mono text-foreground font-semibold bg-muted/50 px-1 py-0.5 rounded">{affiliate.referral_code}</code>
                     </p>
                   </div>
-                )}
+
+                  {couponLink && (
+                    <div>
+                      <label className="font-body text-xs font-medium text-muted-foreground mb-1.5 block">Coupon Link</label>
+                      <div className="bg-accent/5 border border-accent/20 rounded-xl p-3 flex items-center gap-3">
+                        <Tag className="w-4 h-4 text-accent shrink-0" />
+                        <code className="font-mono text-xs text-foreground flex-1 truncate select-all">{couponLink}</code>
+                        <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={() => copyToClipboard(couponLink, "coupon")}>
+                          {copiedField === "coupon" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+            </div>
+
+            {/* Custom Coupon */}
+            <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
+              <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <Tag className="w-4 h-4 text-accent" />
+                </div>
+                Custom Coupon Code
+              </h3>
+              {affiliate.custom_coupon ? (
+                <div className="bg-accent/5 border border-accent/20 rounded-xl p-3.5 flex items-center gap-3">
+                  <Tag className="w-4 h-4 text-accent shrink-0" />
+                  <code className="font-mono text-sm text-foreground font-bold flex-1 uppercase tracking-wider">{affiliate.custom_coupon}</code>
+                  <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={() => copyToClipboard(affiliate.custom_coupon, "couponcode")}>
+                    {copiedField === "couponcode" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground font-body">Create a memorable coupon code for your audience.</p>
+                  <div className="flex gap-2">
+                    <Input
+                      value={customCoupon}
+                      onChange={(e) => setCustomCoupon(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))}
+                      placeholder="e.g. meera-wedding"
+                      className="font-mono text-sm h-10"
+                      maxLength={30}
+                    />
+                    <Button variant="gold" size="sm" onClick={handleSaveCoupon} disabled={savingCoupon || customCoupon.length < 3}>
+                      {savingCoupon ? "..." : "Save"}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-body">
+                    Lowercase letters, numbers, hyphens and underscores only. Min 3 chars.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Payout Information */}
+            <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
+              <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <Wallet className="w-4 h-4 text-accent" />
+                </div>
+                Payout Information
+              </h3>
+              <p className="text-sm text-muted-foreground font-body mb-4">Add your payout details for commission transfers.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="font-body text-xs font-medium text-foreground mb-1.5 block">🇮🇳 UPI ID / Google Pay Number</label>
+                  <Input
+                    value={payoutUpi}
+                    onChange={(e) => setPayoutUpi(e.target.value)}
+                    placeholder="yourname@upi or 9876543210"
+                    className="h-10 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="font-body text-xs font-medium text-foreground mb-1.5 block">🌍 PayPal Email</label>
+                  <Input
+                    type="email"
+                    value={payoutPaypal}
+                    onChange={(e) => setPayoutPaypal(e.target.value)}
+                    placeholder="you@paypal.com"
+                    className="h-10 text-sm"
+                  />
+                </div>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleSavePayout} disabled={savingPayout}>
+                {savingPayout ? "Saving..." : "Save Payout Details"}
+              </Button>
             </div>
 
             {/* Referral History */}
@@ -636,7 +791,7 @@ const Affiliate = () => {
                         </p>
                         <p className="font-body text-xs text-muted-foreground mt-0.5">
                           {ref.status === "converted"
-                            ? `Upgraded to ${ref.plan} • ₹${Number(ref.commission_amount).toLocaleString()} earned`
+                            ? `Upgraded to ${ref.plan} • ${commission.symbol}${Number(ref.commission_amount).toLocaleString()} earned`
                             : `Signed up on ${ref.plan} plan • Pending conversion`}
                         </p>
                       </div>
@@ -663,11 +818,12 @@ const Affiliate = () => {
                 <Shield className="w-4 h-4 text-muted-foreground" />
                 Affiliate Program Terms
               </p>
-              <p className="text-xs text-muted-foreground">• You earn ₹{COMMISSION_AMOUNT} for every referred user who subscribes to Premium (₹599/year).</p>
+              <p className="text-xs text-muted-foreground">• You earn ₹250 (India) or $5 (International) for every referred user who subscribes to Premium.</p>
+              <p className="text-xs text-muted-foreground">• Your referred users get ₹250 / $5 discount on Premium (₹749 or $15 final price).</p>
               <p className="text-xs text-muted-foreground">• If a referred user signs up on the free plan and later upgrades, you still earn the commission.</p>
               <p className="text-xs text-muted-foreground">• Commissions are tracked in real-time and paid out monthly to your registered payment method.</p>
               <p className="text-xs text-muted-foreground">• Self-referrals, fraudulent signups, or abuse of the program will result in account termination.</p>
-              <p className="text-xs text-muted-foreground">• Bhalf reserves the right to modify commission rates with 30 days notice.</p>
+              <p className="text-xs text-muted-foreground">• Vowz reserves the right to modify commission rates with 30 days notice.</p>
             </div>
           </motion.div>
         )}
