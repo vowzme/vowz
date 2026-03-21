@@ -428,6 +428,13 @@ const Dashboard = () => {
           </>
         ) : (
           /* Has site */
+          <>
+            {!isPremium && site.created_at && (
+              <FreePlanCountdown
+                siteCreatedAt={site.created_at}
+                onUpgraded={() => setSubscription({ status: "active", expires_at: null })}
+              />
+            )}
           <Tabs defaultValue="overview" className="space-y-6">
             {/* Mobile: 2-row grid tabs */}
             <TabsList className="bg-card border border-border/50 w-full h-auto flex-wrap gap-1 p-1.5 sm:p-1 sm:flex-nowrap sm:gap-0 sm:h-10 justify-center">
