@@ -428,30 +428,31 @@ const Dashboard = () => {
         ) : (
           /* Has site */
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="bg-card border border-border/50 w-full overflow-x-auto flex-nowrap justify-start sm:justify-center">
-              <TabsTrigger value="overview" className="font-body text-xs sm:text-sm">Overview</TabsTrigger>
-              <TabsTrigger value="guide" className="font-body text-xs sm:text-sm">
-                Guide <BookOpen className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+            {/* Mobile: 2-row grid tabs */}
+            <TabsList className="bg-card border border-border/50 w-full h-auto flex-wrap gap-1 p-1.5 sm:p-1 sm:flex-nowrap sm:gap-0 sm:h-10 justify-center">
+              <TabsTrigger value="overview" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Overview</TabsTrigger>
+              <TabsTrigger value="guide" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                Guide <BookOpen className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="budget" className="font-body text-xs sm:text-sm">
-                Budget <IndianRupee className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+              <TabsTrigger value="budget" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                Budget <IndianRupee className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="checklist" className="font-body text-xs sm:text-sm">
-                Checklist <ClipboardList className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+              <TabsTrigger value="checklist" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                Checklist <ClipboardList className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="font-body text-xs sm:text-sm">
-                Analytics <BarChart3 className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+              <TabsTrigger value="analytics" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                Analytics <BarChart3 className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="rsvps" className="font-body text-xs sm:text-sm">
-                RSVPs {rsvps.length > 0 && <span className="ml-1 sm:ml-1.5 bg-gold/20 text-gold text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full">{rsvps.length}</span>}
+              <TabsTrigger value="rsvps" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                RSVPs {rsvps.length > 0 && <span className="ml-0.5 sm:ml-1.5 bg-gold/20 text-gold text-[9px] sm:text-xs px-1 py-0.5 rounded-full">{rsvps.length}</span>}
               </TabsTrigger>
-              <TabsTrigger value="blessings" className="font-body text-xs sm:text-sm">
-                Blessings {blessings.length > 0 && <span className="ml-1 sm:ml-1.5 bg-gold/20 text-gold text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full">{blessings.filter(b => b.status === "pending").length || blessings.length}</span>}
+              <TabsTrigger value="blessings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                Blessings {blessings.length > 0 && <span className="ml-0.5 sm:ml-1.5 bg-gold/20 text-gold text-[9px] sm:text-xs px-1 py-0.5 rounded-full">{blessings.filter(b => b.status === "pending").length || blessings.length}</span>}
               </TabsTrigger>
-              <TabsTrigger value="billing" className="font-body text-xs sm:text-sm">
-                Billing <Receipt className="w-3.5 h-3.5 ml-1 hidden sm:inline" />
+              <TabsTrigger value="billing" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                Billing <Receipt className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="settings" className="font-body text-xs sm:text-sm">Settings</TabsTrigger>
+              <TabsTrigger value="settings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Settings</TabsTrigger>
             </TabsList>
 
             {/* ─── Overview Tab ─── */}
