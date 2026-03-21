@@ -389,6 +389,14 @@ const PublicSite = () => {
         <p className="text-xs text-muted-foreground font-body">
           Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Vowz
         </p>
+        <a
+          href="https://vowz.me"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 mt-3 px-4 py-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors text-[10px] font-body text-muted-foreground hover:text-foreground"
+        >
+          Powered by <span className="font-semibold" style={{ color: accent }}>vowz.me</span>
+        </a>
       </footer>
     </div>
   );
