@@ -206,6 +206,13 @@ const Dashboard = () => {
       if (siteData) {
         loadRsvps(siteData.id);
         loadBlessings(siteData.id);
+      } else {
+        // First-time user: auto-redirect to wizard
+        const isNewUser = profile?.created_at &&
+          (Date.now() - new Date(profile.created_at).getTime()) < 5 * 60 * 1000; // within 5 minutes of account creation
+        if (isNewUser) {
+          navigate("/wizard", { replace: true });
+        }
       }
     });
   }, [user]);
