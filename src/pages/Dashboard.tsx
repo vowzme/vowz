@@ -512,6 +512,48 @@ const Dashboard = () => {
                         <><Globe className="w-4 h-4 mr-1" /> Publish</>
                       )}
                     </Button>
+                    {/* Pause / Reactivate */}
+                    {site.is_published && (site as any).status !== "paused" ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          await supabase.from("wedding_sites").update({ status: "paused", is_published: false } as any).eq("id", site.id);
+                          setSite({ ...site, status: "paused", is_published: false });
+                          toast({ title: "Site paused ⏸️", description: "Visitors will see a 'temporarily paused' message." });
+                        }}
+                      >
+                        <Pause className="w-4 h-4 mr-1" /> Pause Site
+                      </Button>
+                    ) : (site as any).status === "paused" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          await supabase.from("wedding_sites").update({ status: "active", is_published: true } as any).eq("id", site.id);
+                          setSite({ ...site, status: "active", is_published: true });
+                          toast({ title: "Site reactivated! 🎉" });
+                        }}
+                      >
+                        <Play className="w-4 h-4 mr-1" /> Reactivate
+                      </Button>
+                    )}
+                    {/* Delete site */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:bg-destructive/10"
+                      onClick={async () => {
+                        if (!confirm("Permanently delete your wedding site? This cannot be undone.")) return;
+                        const { error } = await supabase.from("wedding_sites").delete().eq("id", site.id);
+                        if (!error) {
+                          setSite(null);
+                          toast({ title: "Site deleted", description: "Your slug is now available for others." });
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" /> Delete Site
+                    </Button>
                     {site.is_published && site.slug && (
                       <>
                         <Button variant="outline" size="sm" asChild>
