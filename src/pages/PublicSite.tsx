@@ -228,6 +228,23 @@ const PublicSite = () => {
     );
   }
 
+  if (pausedSite) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <Clock className="w-12 h-12 text-[hsl(var(--gold))] mx-auto mb-4" />
+          <h1 className="font-display text-2xl font-bold text-foreground mb-2">Temporarily Paused</h1>
+          <p className="text-muted-foreground font-body mb-6">
+            This wedding website is temporarily paused by its owners. Please check back later!
+          </p>
+          <Button variant="outline" asChild>
+            <Link to="/">Visit Vowz</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (notFound || !site) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
