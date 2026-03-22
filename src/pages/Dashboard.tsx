@@ -29,6 +29,7 @@ import QRCodeGenerator from "@/components/QRCodeGenerator";
 import CustomSlugEditor from "@/components/CustomSlugEditor";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import FreePlanCountdown from "@/components/FreePlanCountdown";
+import FeatureSuggestionDialog from "@/components/FeatureSuggestionDialog";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import {
   Tabs,
