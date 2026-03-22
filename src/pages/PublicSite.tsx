@@ -79,6 +79,7 @@ const PublicSite = () => {
   const [site, setSite] = useState<WeddingSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [pausedSite, setPausedSite] = useState(false);
   const [passwordUnlocked, setPasswordUnlocked] = useState(false);
   const [pwInput, setPwInput] = useState("");
   const [pwError, setPwError] = useState(false);
@@ -100,15 +101,27 @@ const PublicSite = () => {
   useEffect(() => {
     if (!slug) return;
     const fetchSite = async () => {
-      // Try finding published site by slug
+      // Try finding site by slug (published or paused)
       const { data, error } = await supabase
         .from("wedding_sites")
         .select("*")
         .eq("slug", slug)
-        .eq("is_published", true)
         .maybeSingle();
 
       if (data && !error) {
+        // Handle paused sites
+        if ((data as any).status === "paused") {
+          setSite(null);
+          setLoading(false);
+          setPausedSite(true);
+          return;
+        }
+        // Handle unpublished (draft) sites
+        if (!data.is_published) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
         setSite(data as any);
         setLoading(false);
         return;
@@ -122,7 +135,6 @@ const PublicSite = () => {
         .maybeSingle();
 
       if (redirect?.wedding_site_id) {
-        // Look up the current slug for that site
         const { data: redirectedSite } = await supabase
           .from("wedding_sites")
           .select("slug")
@@ -212,6 +224,23 @@ const PublicSite = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-gold animate-spin" />
+      </div>
+    );
+  }
+
+  if (pausedSite) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <Clock className="w-12 h-12 text-[hsl(var(--gold))] mx-auto mb-4" />
+          <h1 className="font-display text-2xl font-bold text-foreground mb-2">Temporarily Paused</h1>
+          <p className="text-muted-foreground font-body mb-6">
+            This wedding website is temporarily paused by its owners. Please check back later!
+          </p>
+          <Button variant="outline" asChild>
+            <Link to="/">Visit Vowz</Link>
+          </Button>
+        </div>
       </div>
     );
   }

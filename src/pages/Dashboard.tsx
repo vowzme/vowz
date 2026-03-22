@@ -8,7 +8,8 @@ import {
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
-  IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon
+  IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon,
+  Pause, Play
 } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
@@ -28,6 +29,7 @@ import QRCodeGenerator from "@/components/QRCodeGenerator";
 import CustomSlugEditor from "@/components/CustomSlugEditor";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import FreePlanCountdown from "@/components/FreePlanCountdown";
+import FeatureSuggestionDialog from "@/components/FeatureSuggestionDialog";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import {
   Tabs,
@@ -339,6 +341,7 @@ const Dashboard = () => {
             <VowzLogo iconSize="h-6" textSize="text-lg" />
           </Link>
           <div className="flex-1" />
+          <FeatureSuggestionDialog />
           <Button variant="outline" size="sm" onClick={handleSignOut}>
             <LogOut className="w-4 h-4 mr-1" /> Sign Out
           </Button>
@@ -508,6 +511,48 @@ const Dashboard = () => {
                       ) : (
                         <><Globe className="w-4 h-4 mr-1" /> Publish</>
                       )}
+                    </Button>
+                    {/* Pause / Reactivate */}
+                    {site.is_published && (site as any).status !== "paused" ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          await supabase.from("wedding_sites").update({ status: "paused", is_published: false } as any).eq("id", site.id);
+                          setSite({ ...site, status: "paused", is_published: false });
+                          toast({ title: "Site paused ⏸️", description: "Visitors will see a 'temporarily paused' message." });
+                        }}
+                      >
+                        <Pause className="w-4 h-4 mr-1" /> Pause Site
+                      </Button>
+                    ) : (site as any).status === "paused" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          await supabase.from("wedding_sites").update({ status: "active", is_published: true } as any).eq("id", site.id);
+                          setSite({ ...site, status: "active", is_published: true });
+                          toast({ title: "Site reactivated! 🎉" });
+                        }}
+                      >
+                        <Play className="w-4 h-4 mr-1" /> Reactivate
+                      </Button>
+                    )}
+                    {/* Delete site */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:bg-destructive/10"
+                      onClick={async () => {
+                        if (!confirm("Permanently delete your wedding site? This cannot be undone.")) return;
+                        const { error } = await supabase.from("wedding_sites").delete().eq("id", site.id);
+                        if (!error) {
+                          setSite(null);
+                          toast({ title: "Site deleted", description: "Your slug is now available for others." });
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" /> Delete Site
                     </Button>
                     {site.is_published && site.slug && (
                       <>

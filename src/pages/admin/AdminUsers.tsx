@@ -3,7 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
+import { Search, Trash2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface Profile {
   id: string;
@@ -17,6 +21,7 @@ interface Profile {
 export default function AdminUsers() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetch = async () => {
@@ -30,14 +35,28 @@ export default function AdminUsers() {
     fetch();
   }, []);
 
+  const filtered = users.filter((u) => {
+    const q = search.toLowerCase();
+    return !q || u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.partner_name?.toLowerCase().includes(q);
+  });
+
   return (
     <div>
       <h1 className="font-display text-2xl font-bold text-foreground mb-6">User Management</h1>
       <Card className="border-border/50">
-        <CardHeader>
-          <CardTitle className="font-body text-base">
-            All Users ({users.length})
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <CardTitle className="font-body text-base flex-1">
+            All Users ({filtered.length})
           </CardTitle>
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search users..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 font-body text-sm"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -57,7 +76,7 @@ export default function AdminUsers() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((u) => (
+                  {filtered.map((u) => (
                     <TableRow key={u.id}>
                       <TableCell className="font-body font-medium">{u.full_name || "—"}</TableCell>
                       <TableCell className="font-body text-muted-foreground">{u.email}</TableCell>
@@ -74,6 +93,13 @@ export default function AdminUsers() {
                       </TableCell>
                     </TableRow>
                   ))}
+                  {filtered.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground font-body py-8">
+                        No users found matching "{search}"
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>

@@ -375,6 +375,42 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_requests: {
+        Row: {
+          admin_reply: string | null
+          created_at: string
+          description: string
+          id: string
+          screenshot_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_reply?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          screenshot_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_reply?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          screenshot_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       guest_blessings: {
         Row: {
           created_at: string
@@ -1020,6 +1056,7 @@ export type Database = {
           site_language: string | null
           site_password: string | null
           slug: string | null
+          status: string
           suggested_colors: Json
           tagline: string
           theme: string
@@ -1042,6 +1079,7 @@ export type Database = {
           site_language?: string | null
           site_password?: string | null
           slug?: string | null
+          status?: string
           suggested_colors?: Json
           tagline?: string
           theme?: string
@@ -1064,6 +1102,7 @@ export type Database = {
           site_language?: string | null
           site_password?: string | null
           slug?: string | null
+          status?: string
           suggested_colors?: Json
           tagline?: string
           theme?: string

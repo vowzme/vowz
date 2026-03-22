@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   FileText,
   Ticket,
+  Lightbulb,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -28,6 +29,7 @@ const items = [
   { title: "Sites", url: "/admin/sites", icon: Globe },
   { title: "Payments", url: "/admin/payments", icon: CreditCard },
   { title: "Coupons", url: "/admin/coupons", icon: Ticket },
+  { title: "Feature Requests", url: "/admin/feature-requests", icon: Lightbulb },
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
