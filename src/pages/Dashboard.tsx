@@ -8,7 +8,8 @@ import {
   User, MapPin, Utensils, PartyPopper, Clock, Trash2,
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
-  IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon
+  IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon,
+  Pause, Play
 } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
