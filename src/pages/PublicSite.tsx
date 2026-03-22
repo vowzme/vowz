@@ -100,15 +100,27 @@ const PublicSite = () => {
   useEffect(() => {
     if (!slug) return;
     const fetchSite = async () => {
-      // Try finding published site by slug
+      // Try finding site by slug (published or paused)
       const { data, error } = await supabase
         .from("wedding_sites")
         .select("*")
         .eq("slug", slug)
-        .eq("is_published", true)
         .maybeSingle();
 
       if (data && !error) {
+        // Handle paused sites
+        if ((data as any).status === "paused") {
+          setSite(null);
+          setLoading(false);
+          setPausedSite(true);
+          return;
+        }
+        // Handle unpublished (draft) sites
+        if (!data.is_published) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
         setSite(data as any);
         setLoading(false);
         return;
@@ -122,7 +134,6 @@ const PublicSite = () => {
         .maybeSingle();
 
       if (redirect?.wedding_site_id) {
-        // Look up the current slug for that site
         const { data: redirectedSite } = await supabase
           .from("wedding_sites")
           .select("slug")
