@@ -318,6 +318,7 @@ const Editor = () => {
       livestream: { type: "livestream", title: "Live Stream", data: { heading: "Watch Live 📡", description: "Join us virtually from anywhere in the world!", embedUrl: "" } },
       blessings: { type: "blessings", title: "Guest Blessings", data: { heading: "Guest Blessings 💕", description: "Share your heartfelt blessings and wishes for the couple!" } },
       registry: { type: "registry", title: "Gift Registry", data: { heading: "Gift Registry 🎁", description: "Your presence is our greatest gift, but if you wish to bless us further:", links: [{ name: "", url: "", valueUSD: 0 }] } },
+      couple_profiles: { type: "couple_profiles", title: "Couple Profiles", data: { heading: "Meet the Couple 💑", partner1Name: "", partner1Bio: "", partner1Photo: "", partner2Name: "", partner2Bio: "", partner2Photo: "" } },
     };
     const config = typeMap[sectionType || "custom"] || typeMap.custom;
     const newSection: WeddingSection = {
