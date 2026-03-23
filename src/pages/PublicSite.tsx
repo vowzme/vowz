@@ -481,6 +481,7 @@ function PublicSection({
   if (type === "livestream") return <LivestreamPublicSection data={td} accent={accent} />;
   if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
   if (type === "registry") return <RegistrySection data={td} accent={accent} />;
+  if (type === "couple_profiles") return <CoupleProfilesPublic data={td} accent={accent} bg={bg} light={light} />;
 
   return null;
 }
