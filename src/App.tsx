@@ -35,6 +35,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminFeatureRequests from "./pages/admin/AdminFeatureRequests";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
