@@ -49,6 +49,9 @@ serve(async (req) => {
 Cultural background: ${context.culturalBackground || "Indian"}
 How they met (brief): ${context.howWeMet || "They met through friends"}
 ${context.additionalDetails ? `Additional details: ${context.additionalDetails}` : ""}`;
+    } else if (type === "story_short") {
+      userPrompt = `Original story to shorten:\n${context.currentStory || context.howWeMet || "A beautiful love story"}
+Couple: ${context.partner1 || "Partner 1"} & ${context.partner2 || "Partner 2"}`;
     } else if (type === "tagline") {
       userPrompt = `Couple: ${context.partner1 || "Partner 1"} & ${context.partner2 || "Partner 2"}
 Cultural background: ${context.culturalBackground || "Indian"}
