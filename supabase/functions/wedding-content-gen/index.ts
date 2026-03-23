@@ -7,8 +7,11 @@ const corsHeaders = {
 };
 
 const PROMPTS: Record<string, string> = {
-  story: `You are a romantic wedding story writer for Indian couples. Given brief answers to simple questions, craft a beautiful, heartfelt "How We Met" story in 3-4 paragraphs. 
-Write in third person. Be warm, vivid, and culturally sensitive. Use sensory details. Keep it under 200 words. Do NOT use markdown formatting — just plain text with paragraph breaks.`,
+  story: `You are a romantic wedding story writer. Given brief answers, craft a heartfelt "How We Met" story in 4-6 sentences (100-150 words max). 
+Focus on: how they met, what made them click, one special moment, and end on a warm note. Be concise, emotional, and vivid. No filler. Third person. Plain text only, no markdown.`,
+
+  story_short: `You are a romantic wedding story writer. Rewrite the given story into a shorter, crisper version: exactly 3-4 sentences (80-100 words). 
+Keep the emotional core, remove fluff. Be vivid and warm. Third person. Plain text only, no markdown.`,
 
   tagline: `You are a creative wedding tagline writer. Generate a short, elegant wedding tagline (max 8 words) for the couple. 
 It should be romantic, memorable, and culturally appropriate. Return ONLY the tagline text, nothing else. No quotes around it.`,
