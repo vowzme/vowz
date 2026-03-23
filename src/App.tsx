@@ -70,6 +70,7 @@ const AppRoutes = () => (
     <Route path="/refund-policy" element={<Layout><RefundPolicy /></Layout>} />
     <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
     <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
+      <Route path="/admin/analytics" element={<AdminLayout><AdminAnalytics /></AdminLayout>} />
     <Route path="/admin/sites" element={<AdminLayout><AdminSites /></AdminLayout>} />
     <Route path="/admin/payments" element={<AdminLayout><AdminPayments /></AdminLayout>} />
     <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
