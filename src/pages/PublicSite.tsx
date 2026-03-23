@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { CoupleProfilesPublic } from "@/components/CoupleProfilesSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
