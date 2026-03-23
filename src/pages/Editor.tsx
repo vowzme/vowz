@@ -2837,6 +2837,41 @@ function SectionRenderer({
     );
   }
 
+  if (type === "couple_profiles") {
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <InlineEditable
+          tag="h2"
+          value={data.heading || "Meet the Couple"}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        <div className="grid grid-cols-2 gap-6 max-w-md mx-auto">
+          {[
+            { name: data.partner1Name || "Partner 1", photo: data.partner1Photo, bio: data.partner1Bio },
+            { name: data.partner2Name || "Partner 2", photo: data.partner2Photo, bio: data.partner2Bio },
+          ].map((p, i) => (
+            <div key={i} className="text-center">
+              <div className="w-24 h-24 rounded-full mx-auto mb-3 overflow-hidden border-2" style={{ borderColor: accent }}>
+                {p.photo ? (
+                  <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <Heart className="w-8 h-8" style={{ color: `${accent}40` }} />
+                  </div>
+                )}
+              </div>
+              <p className="text-sm font-semibold text-foreground" style={{ fontFamily: dFont }}>{p.name}</p>
+              {p.bio && <p className="text-xs text-muted-foreground mt-1" style={{ fontFamily: bFont }}>{p.bio}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (type === "gallery") {
     return <GalleryRendererComponent data={data} accent={accent} />;
   }
