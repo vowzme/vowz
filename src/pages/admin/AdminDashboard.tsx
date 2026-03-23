@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Globe, Heart, Lightbulb, Ticket, FileText } from "lucide-react";
+import { Users, Globe, Heart, Lightbulb, Ticket, FileText, BarChart3, Crown } from "lucide-react";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
