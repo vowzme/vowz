@@ -37,10 +37,11 @@ export default function AdminDashboard() {
   const cards = [
     { label: "Total Users", value: stats.users, icon: Users, color: "text-[hsl(var(--navy))]", route: "/admin/users" },
     { label: "Wedding Sites", value: stats.sites, icon: Globe, color: "text-[hsl(var(--gold))]", route: "/admin/sites" },
-    { label: "Published Sites", value: stats.publishedSites, icon: Globe, color: "text-emerald", route: "/admin/sites" },
-    { label: "Total RSVPs", value: stats.rsvps, icon: Heart, color: "text-[hsl(var(--gold-dark))]", route: "/admin/sites" },
+    { label: "Published Sites", value: stats.publishedSites, icon: Globe, color: "text-emerald-500", route: "/admin/sites" },
+    { label: "Total RSVPs", value: stats.rsvps, icon: Heart, color: "text-rose-500", route: "/admin/sites" },
     { label: "Feature Requests", value: stats.featureRequests, icon: Lightbulb, color: "text-amber-500", route: "/admin/feature-requests" },
     { label: "Coupons", value: stats.coupons, icon: Ticket, color: "text-purple-500", route: "/admin/coupons" },
+    { label: "Analytics", value: "→", icon: BarChart3, color: "text-sky-500", route: "/admin/analytics" },
   ];
 
   return (
