@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-export type ContentType = "story" | "tagline" | "event_description" | "welcome_message";
+export type ContentType = "story" | "story_short" | "tagline" | "event_description" | "welcome_message";
 
 interface GenerateOptions {
   type: ContentType;
