@@ -24,7 +24,7 @@ import SEOHead from "@/components/SEOHead";
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -318,6 +318,7 @@ const Editor = () => {
       livestream: { type: "livestream", title: "Live Stream", data: { heading: "Watch Live 📡", description: "Join us virtually from anywhere in the world!", embedUrl: "" } },
       blessings: { type: "blessings", title: "Guest Blessings", data: { heading: "Guest Blessings 💕", description: "Share your heartfelt blessings and wishes for the couple!" } },
       registry: { type: "registry", title: "Gift Registry", data: { heading: "Gift Registry 🎁", description: "Your presence is our greatest gift, but if you wish to bless us further:", links: [{ name: "", url: "", valueUSD: 0 }] } },
+      couple_profiles: { type: "couple_profiles", title: "Couple Profiles", data: { heading: "Meet the Couple 💑", partner1Name: "", partner1Bio: "", partner1Photo: "", partner2Name: "", partner2Bio: "", partner2Photo: "" } },
     };
     const config = typeMap[sectionType || "custom"] || typeMap.custom;
     const newSection: WeddingSection = {
@@ -654,7 +655,7 @@ function SectionsPanel({
                 onClick={(e) => e.stopPropagation()}
                 className="scale-75"
               />
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry") && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry" || section.type === "couple_profiles") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
@@ -681,6 +682,7 @@ function SectionsPanel({
               { id: "livestream", label: "📡 Live Stream", desc: "Virtual attendance" },
               { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
               { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
+              { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & Groom" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -1629,18 +1631,37 @@ function SectionEditor({
             <div className="flex items-center justify-between mb-1">
               <label className="font-body text-sm font-medium text-foreground">Content</label>
               {type === "story" && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 text-xs text-accent hover:text-accent px-2"
-                  disabled={aiLoading === "story"}
-                  onClick={async () => {
-                    const result = await generate({ type: "story", context: aiContext });
-                    if (result) onUpdateData({ body: result });
-                  }}
-                >
-                  {aiLoading === "story" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-3 h-3 mr-1" /> AI Rewrite</>}
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs text-accent hover:text-accent px-2"
+                    disabled={aiLoading === "story"}
+                    onClick={async () => {
+                      const result = await generate({ type: "story", context: aiContext });
+                      if (result) onUpdateData({ body: result });
+                    }}
+                  >
+                    {aiLoading === "story" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-3 h-3 mr-1" /> AI Rewrite</>}
+                  </Button>
+                  {data.body && data.body.length > 80 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs text-amber-600 hover:text-amber-700 px-2"
+                      disabled={aiLoading === "story_short"}
+                      onClick={async () => {
+                        const result = await generate({
+                          type: "story_short" as any,
+                          context: { ...aiContext, currentStory: data.body },
+                        });
+                        if (result) onUpdateData({ body: result });
+                      }}
+                    >
+                      {aiLoading === "story_short" ? <Loader2 className="w-3 h-3 animate-spin" /> : "✂️ Shorter"}
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
             <Textarea
@@ -1649,7 +1670,44 @@ function SectionEditor({
               rows={5}
               className="font-body"
             />
+            {type === "story" && (
+              <p className="text-[10px] text-muted-foreground font-body mt-1">
+                💡 Our AI creates a short, heartfelt story — feel free to tweak it!
+              </p>
+            )}
           </div>
+        </>
+      )}
+
+      {type === "couple_profiles" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div className="space-y-4 mt-2">
+            <div className="border border-border/50 rounded-lg p-3 space-y-2">
+              <p className="font-body text-sm font-medium text-foreground">Partner 1</p>
+              <Input placeholder="Name" value={data.partner1Name || ""} onChange={(e) => onUpdateData({ partner1Name: e.target.value })} className="font-body text-sm" />
+              <Textarea placeholder="Short bio (2-3 sentences)" value={data.partner1Bio || ""} onChange={(e) => onUpdateData({ partner1Bio: e.target.value })} rows={2} className="font-body text-sm" />
+              <div>
+                <label className="font-body text-xs text-muted-foreground">Photo URL</label>
+                <Input placeholder="https://..." value={data.partner1Photo || ""} onChange={(e) => onUpdateData({ partner1Photo: e.target.value })} className="font-body text-sm" />
+              </div>
+            </div>
+            <div className="border border-border/50 rounded-lg p-3 space-y-2">
+              <p className="font-body text-sm font-medium text-foreground">Partner 2</p>
+              <Input placeholder="Name" value={data.partner2Name || ""} onChange={(e) => onUpdateData({ partner2Name: e.target.value })} className="font-body text-sm" />
+              <Textarea placeholder="Short bio (2-3 sentences)" value={data.partner2Bio || ""} onChange={(e) => onUpdateData({ partner2Bio: e.target.value })} rows={2} className="font-body text-sm" />
+              <div>
+                <label className="font-body text-xs text-muted-foreground">Photo URL</label>
+                <Input placeholder="https://..." value={data.partner2Photo || ""} onChange={(e) => onUpdateData({ partner2Photo: e.target.value })} className="font-body text-sm" />
+              </div>
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground font-body mt-1">
+            💡 Add personal profiles for your guests to learn more about you both — optional and easy to skip.
+          </p>
         </>
       )}
 
@@ -2772,6 +2830,41 @@ function SectionRenderer({
                 </a>
               )}
               {!event.date && !event.time && <p className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: bFont }}>Date & time TBD</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "couple_profiles") {
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <InlineEditable
+          tag="h2"
+          value={data.heading || "Meet the Couple"}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        <div className="grid grid-cols-2 gap-6 max-w-md mx-auto">
+          {[
+            { name: data.partner1Name || "Partner 1", photo: data.partner1Photo, bio: data.partner1Bio },
+            { name: data.partner2Name || "Partner 2", photo: data.partner2Photo, bio: data.partner2Bio },
+          ].map((p, i) => (
+            <div key={i} className="text-center">
+              <div className="w-24 h-24 rounded-full mx-auto mb-3 overflow-hidden border-2" style={{ borderColor: accent }}>
+                {p.photo ? (
+                  <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <Heart className="w-8 h-8" style={{ color: `${accent}40` }} />
+                  </div>
+                )}
+              </div>
+              <p className="text-sm font-semibold text-foreground" style={{ fontFamily: dFont }}>{p.name}</p>
+              {p.bio && <p className="text-xs text-muted-foreground mt-1" style={{ fontFamily: bFont }}>{p.bio}</p>}
             </div>
           ))}
         </div>

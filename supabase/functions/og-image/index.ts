@@ -6,8 +6,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-function generateSVG(partner1: string, partner2: string, tagline: string, colors: string[]): string {
+function generateSVG(partner1: string, partner2: string, tagline: string, colors: string[], weddingDate?: string): string {
   const [bg, accent, light] = colors.length >= 3 ? colors : ["#6B1D2A", "#D4A853", "#FFF5E6"];
+  const dateText = weddingDate ? escapeXml(weddingDate) : "";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
     <defs>
@@ -20,22 +21,23 @@ function generateSVG(partner1: string, partner2: string, tagline: string, colors
     <!-- Decorative circles -->
     ${[...Array(6)].map((_, i) => `<circle cx="600" cy="315" r="${80 + i * 50}" fill="none" stroke="${light}" stroke-opacity="0.08" stroke-width="1"/>`).join("")}
     <!-- Decorative corners -->
-    <path d="M40,40 L120,40 M40,40 L40,120" stroke="${accent}" stroke-width="2" fill="none" stroke-opacity="0.6"/>
-    <path d="M1160,40 L1080,40 M1160,40 L1160,120" stroke="${accent}" stroke-width="2" fill="none" stroke-opacity="0.6"/>
-    <path d="M40,590 L120,590 M40,590 L40,510" stroke="${accent}" stroke-width="2" fill="none" stroke-opacity="0.6"/>
-    <path d="M1160,590 L1080,590 M1160,590 L1160,510" stroke="${accent}" stroke-width="2" fill="none" stroke-opacity="0.6"/>
+    <path d="M40,40 L120,40 M40,40 L40,120" stroke="${accent}" stroke-width="2.5" fill="none" stroke-opacity="0.7"/>
+    <path d="M1160,40 L1080,40 M1160,40 L1160,120" stroke="${accent}" stroke-width="2.5" fill="none" stroke-opacity="0.7"/>
+    <path d="M40,590 L120,590 M40,590 L40,510" stroke="${accent}" stroke-width="2.5" fill="none" stroke-opacity="0.7"/>
+    <path d="M1160,590 L1080,590 M1160,590 L1160,510" stroke="${accent}" stroke-width="2.5" fill="none" stroke-opacity="0.7"/>
     <!-- Heart -->
-    <text x="600" y="200" text-anchor="middle" fill="${accent}" font-size="40">♥</text>
+    <text x="600" y="185" text-anchor="middle" fill="${accent}" font-size="48">♥</text>
     <!-- Subtitle -->
-    <text x="600" y="250" text-anchor="middle" fill="${light}" font-family="serif" font-size="16" letter-spacing="6" opacity="0.7">YOU'RE INVITED TO THE WEDDING OF</text>
+    <text x="600" y="235" text-anchor="middle" fill="${light}" font-family="Georgia, serif" font-size="16" letter-spacing="6" opacity="0.7">YOU'RE INVITED TO THE WEDDING OF</text>
     <!-- Names -->
-    <text x="600" y="340" text-anchor="middle" fill="${light}" font-family="Georgia, serif" font-size="64" font-weight="bold">${escapeXml(partner1)} &amp; ${escapeXml(partner2)}</text>
+    <text x="600" y="330" text-anchor="middle" fill="${light}" font-family="Georgia, serif" font-size="64" font-weight="bold">${escapeXml(partner1)} &amp; ${escapeXml(partner2)}</text>
     <!-- Tagline -->
-    <text x="600" y="400" text-anchor="middle" fill="${accent}" font-family="Georgia, serif" font-size="22" font-style="italic">${escapeXml(tagline)}</text>
+    <text x="600" y="390" text-anchor="middle" fill="${accent}" font-family="Georgia, serif" font-size="22" font-style="italic">${escapeXml(tagline)}</text>
     <!-- Divider -->
-    <line x1="480" y1="440" x2="720" y2="440" stroke="${accent}" stroke-width="1" stroke-opacity="0.5"/>
-    <!-- Powered by -->
-    <text x="600" y="560" text-anchor="middle" fill="${light}" font-family="sans-serif" font-size="12" opacity="0.4">vowz.lovable.app</text>
+    <line x1="450" y1="420" x2="750" y2="420" stroke="${accent}" stroke-width="1" stroke-opacity="0.5"/>
+    ${dateText ? `<!-- Date --><text x="600" y="460" text-anchor="middle" fill="${light}" font-family="Georgia, serif" font-size="18" opacity="0.8">${dateText}</text>` : ""}
+    <!-- Branding -->
+    <text x="600" y="570" text-anchor="middle" fill="${light}" font-family="sans-serif" font-size="13" opacity="0.5">vowz.me</text>
   </svg>`;
 }
 
@@ -76,7 +78,7 @@ Deno.serve(async (req) => {
   // Fetch site data
   const { data: site, error } = await supabase
     .from("wedding_sites")
-    .select("partner1, partner2, tagline, suggested_colors, theme")
+    .select("partner1, partner2, tagline, suggested_colors, theme, sections")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
@@ -89,11 +91,18 @@ Deno.serve(async (req) => {
     ? site.suggested_colors as string[]
     : ["#6B1D2A", "#D4A853", "#FFF5E6"];
 
+  // Extract wedding date from events section
+  const sections = Array.isArray(site.sections) ? site.sections as any[] : [];
+  const eventsSection = sections.find((s: any) => s.type === "events");
+  const firstEvent = eventsSection?.data?.events?.[0];
+  const weddingDate = firstEvent?.date || "";
+
   const svg = generateSVG(
     site.partner1,
     site.partner2,
     site.tagline || "We're getting married!",
-    colors
+    colors,
+    weddingDate
   );
 
   // Return SVG directly (no AI, no cost)

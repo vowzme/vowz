@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { CoupleProfilesPublic } from "@/components/CoupleProfilesSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -480,6 +481,7 @@ function PublicSection({
   if (type === "livestream") return <LivestreamPublicSection data={td} accent={accent} />;
   if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
   if (type === "registry") return <RegistrySection data={td} accent={accent} />;
+  if (type === "couple_profiles") return <CoupleProfilesPublic data={td} accent={accent} bg={bg} light={light} />;
 
   return null;
 }
