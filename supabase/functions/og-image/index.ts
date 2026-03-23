@@ -91,11 +91,18 @@ Deno.serve(async (req) => {
     ? site.suggested_colors as string[]
     : ["#6B1D2A", "#D4A853", "#FFF5E6"];
 
+  // Extract wedding date from events section
+  const sections = Array.isArray(site.sections) ? site.sections as any[] : [];
+  const eventsSection = sections.find((s: any) => s.type === "events");
+  const firstEvent = eventsSection?.data?.events?.[0];
+  const weddingDate = firstEvent?.date || "";
+
   const svg = generateSVG(
     site.partner1,
     site.partner2,
     site.tagline || "We're getting married!",
-    colors
+    colors,
+    weddingDate
   );
 
   // Return SVG directly (no AI, no cost)
