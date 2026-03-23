@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
   // Fetch site data
   const { data: site, error } = await supabase
     .from("wedding_sites")
-    .select("partner1, partner2, tagline, suggested_colors, theme")
+    .select("partner1, partner2, tagline, suggested_colors, theme, sections")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
