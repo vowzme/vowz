@@ -682,6 +682,7 @@ function SectionsPanel({
               { id: "livestream", label: "📡 Live Stream", desc: "Virtual attendance" },
               { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
               { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
+              { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & Groom" },
             ].map((item) => (
               <button
                 key={item.id}
