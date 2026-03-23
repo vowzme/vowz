@@ -1629,18 +1629,37 @@ function SectionEditor({
             <div className="flex items-center justify-between mb-1">
               <label className="font-body text-sm font-medium text-foreground">Content</label>
               {type === "story" && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 text-xs text-accent hover:text-accent px-2"
-                  disabled={aiLoading === "story"}
-                  onClick={async () => {
-                    const result = await generate({ type: "story", context: aiContext });
-                    if (result) onUpdateData({ body: result });
-                  }}
-                >
-                  {aiLoading === "story" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-3 h-3 mr-1" /> AI Rewrite</>}
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs text-accent hover:text-accent px-2"
+                    disabled={aiLoading === "story"}
+                    onClick={async () => {
+                      const result = await generate({ type: "story", context: aiContext });
+                      if (result) onUpdateData({ body: result });
+                    }}
+                  >
+                    {aiLoading === "story" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Wand2 className="w-3 h-3 mr-1" /> AI Rewrite</>}
+                  </Button>
+                  {data.body && data.body.length > 80 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs text-amber-600 hover:text-amber-700 px-2"
+                      disabled={aiLoading === "story_short"}
+                      onClick={async () => {
+                        const result = await generate({
+                          type: "story_short" as any,
+                          context: { ...aiContext, currentStory: data.body },
+                        });
+                        if (result) onUpdateData({ body: result });
+                      }}
+                    >
+                      {aiLoading === "story_short" ? <Loader2 className="w-3 h-3 animate-spin" /> : "✂️ Shorter"}
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
             <Textarea
@@ -1649,7 +1668,44 @@ function SectionEditor({
               rows={5}
               className="font-body"
             />
+            {type === "story" && (
+              <p className="text-[10px] text-muted-foreground font-body mt-1">
+                💡 Our AI creates a short, heartfelt story — feel free to tweak it!
+              </p>
+            )}
           </div>
+        </>
+      )}
+
+      {type === "couple_profiles" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div className="space-y-4 mt-2">
+            <div className="border border-border/50 rounded-lg p-3 space-y-2">
+              <p className="font-body text-sm font-medium text-foreground">Partner 1</p>
+              <Input placeholder="Name" value={data.partner1Name || ""} onChange={(e) => onUpdateData({ partner1Name: e.target.value })} className="font-body text-sm" />
+              <Textarea placeholder="Short bio (2-3 sentences)" value={data.partner1Bio || ""} onChange={(e) => onUpdateData({ partner1Bio: e.target.value })} rows={2} className="font-body text-sm" />
+              <div>
+                <label className="font-body text-xs text-muted-foreground">Photo URL</label>
+                <Input placeholder="https://..." value={data.partner1Photo || ""} onChange={(e) => onUpdateData({ partner1Photo: e.target.value })} className="font-body text-sm" />
+              </div>
+            </div>
+            <div className="border border-border/50 rounded-lg p-3 space-y-2">
+              <p className="font-body text-sm font-medium text-foreground">Partner 2</p>
+              <Input placeholder="Name" value={data.partner2Name || ""} onChange={(e) => onUpdateData({ partner2Name: e.target.value })} className="font-body text-sm" />
+              <Textarea placeholder="Short bio (2-3 sentences)" value={data.partner2Bio || ""} onChange={(e) => onUpdateData({ partner2Bio: e.target.value })} rows={2} className="font-body text-sm" />
+              <div>
+                <label className="font-body text-xs text-muted-foreground">Photo URL</label>
+                <Input placeholder="https://..." value={data.partner2Photo || ""} onChange={(e) => onUpdateData({ partner2Photo: e.target.value })} className="font-body text-sm" />
+              </div>
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground font-body mt-1">
+            💡 Add personal profiles for your guests to learn more about you both — optional and easy to skip.
+          </p>
         </>
       )}
 
