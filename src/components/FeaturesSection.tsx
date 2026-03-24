@@ -20,27 +20,25 @@ import {
   Palette,
 } from "lucide-react";
 
-const freeFeatures = [
+const allFeatures = [
   { icon: Sparkles, title: "Easy Wedding Wizard", desc: "Answer a few simple questions and get a complete wedding site draft instantly" },
-  { icon: Image, title: "50 Photo Gallery", desc: "Showcase your best moments with a beautiful, responsive photo gallery" },
+  { icon: Image, title: "Photo Gallery", desc: "Showcase your best moments with a beautiful, responsive photo gallery" },
   { icon: Calendar, title: "Event Schedule", desc: "Mehendi, Sangeet, Pheras — list all functions with maps & times" },
-  { icon: Heart, title: "Our Story Page", desc: "Share your love story timeline with photos and milestones" },
-  { icon: QrCode, title: "QR Code Invites", desc: "Generate shareable QR codes to replace traditional paper invites" },
+  { icon: Heart, title: "Our Story & Couple Profiles", desc: "Share your love story and add individual bride & groom profiles with photos" },
+  { icon: QrCode, title: "QR Code Invites", desc: "Generate branded QR codes to replace traditional paper invites" },
   { icon: BarChart3, title: "RSVP & Analytics", desc: "Track responses, guest counts, meal preferences & visitor stats" },
   { icon: Timer, title: "Countdown Timer", desc: "Build excitement with a live countdown to your wedding day" },
-  { icon: MessageSquareHeart, title: "Guestbook & Wishes", desc: "Let guests leave heartfelt messages and blessings for the couple" },
+  { icon: MessageSquareHeart, title: "Guestbook & Blessings", desc: "Let guests leave heartfelt messages, photos, and blessings" },
   { icon: IndianRupee, title: "Budget & Expense Tracker", desc: "Set a budget, log expenses across categories, and track spending" },
   { icon: ClipboardList, title: "Wedding Checklist", desc: "Pre-seeded task list to keep your wedding planning on track" },
   { icon: Vote, title: "Guest Polls", desc: "Gather guest feedback on music, food & more with interactive polls" },
+  { icon: Globe, title: "Custom Domain", desc: "Connect your own domain like arjunandmeera.com with guided DNS setup" },
+  { icon: Bot, title: "AI Editor Assistant", desc: "AI-powered theme suggestions, content writing & cultural advice" },
+  { icon: Video, title: "Video Embeds", desc: "Add pre-wedding shoots and ceremony videos from YouTube or Vimeo" },
+  { icon: Lock, title: "Password Protection", desc: "Keep your site private with guest-only access" },
+  { icon: Languages, title: "Multilingual Support", desc: "Auto-translate your site into Hindi, Tamil, Spanish and more" },
+  { icon: Palette, title: "35+ Beautiful Templates", desc: "Choose from elegant Indian, modern minimalist, and global wedding themes" },
   { icon: Leaf, title: "Eco Wedding Tips", desc: "Showcase your green wedding commitments with a dedicated section" },
-];
-
-const premiumFeatures = [
-  { icon: Globe, title: "Custom Domain", desc: "Connect your own domain like arjunandmeera.com with guided DNS setup", available: true },
-  { icon: Bot, title: "AI Editor Assistant", desc: "Get AI-powered theme suggestions, content writing & cultural advice", available: true },
-  { icon: Video, title: "Video Embeds", desc: "Add pre-wedding shoots and ceremony videos", available: true },
-  { icon: Lock, title: "Password Protection", desc: "Keep your site private with guest-only access", available: true },
-  { icon: Languages, title: "Multilingual", desc: "Auto-translate your site into Hindi, Tamil, and more", available: true },
 ];
 
 const containerVariants = {
