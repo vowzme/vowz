@@ -9,10 +9,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Pricing by currency (amount in smallest unit)
+// Default pricing by currency (amount in smallest unit) — used as fallback only
 const PRICING: Record<string, { amount: number; currency: string; symbol: string; displayAmount: number }> = {
-  INR: { amount: 59900, currency: "INR", symbol: "₹", displayAmount: 599 },
-  USD: { amount: 1500, currency: "USD", symbol: "$", displayAmount: 15 },
+  INR: { amount: 99900, currency: "INR", symbol: "₹", displayAmount: 999 },
+  USD: { amount: 2000, currency: "USD", symbol: "$", displayAmount: 20 },
 };
 
 const PREMIUM_PLAN = "premium_yearly";
@@ -125,6 +125,10 @@ Deno.serve(async (req) => {
 
       const receipt = `vowz_${user.id.slice(0, 8)}_${Date.now()}`;
 
+      // Use final_amount from client (in paise/cents) if provided, otherwise default pricing
+      const clientFinalAmount = body?.final_amount ? Number(body.final_amount) : null;
+      const orderAmount = clientFinalAmount && clientFinalAmount > 0 ? clientFinalAmount : pricingTier.amount;
+
       const orderRes = await fetch("https://api.razorpay.com/v1/orders", {
         method: "POST",
         headers: {
@@ -132,13 +136,15 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: pricingTier.amount,
+          amount: orderAmount,
           currency: pricingTier.currency,
           receipt,
           notes: {
             user_id: user.id,
             plan: PREMIUM_PLAN,
             currency: pricingTier.currency,
+            coupon_code: body?.coupon_code || "",
+            affiliate_ref: body?.affiliate_ref || "",
           },
         }),
       });
