@@ -65,6 +65,20 @@ export default function AdminSites() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Permanently delete this site? This cannot be undone. All associated RSVPs, blessings, and analytics will also be removed.")) return;
+    // Delete related data first (blessings, rsvps, analytics, etc.)
+    await Promise.all([
+      supabase.from("guest_blessings").delete().eq("wedding_site_id", id),
+      supabase.from("rsvps").delete().eq("wedding_site_id", id),
+      supabase.from("site_analytics").delete().eq("wedding_site_id", id),
+      supabase.from("guestbook").delete().eq("wedding_site_id", id),
+      supabase.from("slug_redirects").delete().eq("wedding_site_id", id),
+      supabase.from("wedding_polls").delete().eq("wedding_site_id", id),
+      supabase.from("wedding_checklist").delete().eq("wedding_site_id", id),
+      supabase.from("wedding_expenses").delete().eq("wedding_site_id", id),
+      supabase.from("wedding_budget").delete().eq("wedding_site_id", id),
+      supabase.from("wedding_reminders").delete().eq("wedding_site_id", id),
+      supabase.from("wedding_family_members").delete().eq("wedding_site_id", id),
+    ]);
     const { error } = await supabase.from("wedding_sites").delete().eq("id", id);
     if (error) {
       toast({ title: "Delete failed", description: error.message, variant: "destructive" });

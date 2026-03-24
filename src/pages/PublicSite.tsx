@@ -283,6 +283,9 @@ const PublicSite = () => {
   const shareText = `You're invited to ${site.partner1} & ${site.partner2}'s wedding! 💍✨`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`;
   const emailUrl = `mailto:?subject=${encodeURIComponent(`${site.partner1} & ${site.partner2}'s Wedding Invitation`)}&body=${encodeURIComponent(`${shareText}\n\nView our wedding site: ${shareUrl}`)}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
 
   // Password gate
   if (site.site_password && !passwordUnlocked) {
