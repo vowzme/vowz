@@ -488,19 +488,25 @@ function PublicSection({
 
 // ─── Hero ─────────────────────────────────────────────────────────────
 function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: string; accent: string; light: string; coupleNames: string }) {
+  const heroStyle: React.CSSProperties = data.heroImageUrl
+    ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${data.heroImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+    : { background: `linear-gradient(135deg, ${bg}, ${bg}dd)` };
+
   return (
     <section
       aria-label={`${coupleNames} wedding hero`}
       className="relative py-28 md:py-40 px-6 text-center overflow-hidden"
-      style={{ background: `linear-gradient(135deg, ${bg}, ${bg}dd)` }}
+      style={heroStyle}
     >
-      <div className="absolute inset-0 opacity-10" aria-hidden="true">
-        <svg viewBox="0 0 400 400" className="w-full h-full" role="img" aria-label="Decorative circles">
-          {[...Array(8)].map((_, i) => (
-            <circle key={i} cx="200" cy="200" r={50 + i * 30} fill="none" stroke={light} strokeWidth="0.5" />
-          ))}
-        </svg>
-      </div>
+      {!data.heroImageUrl && (
+        <div className="absolute inset-0 opacity-10" aria-hidden="true">
+          <svg viewBox="0 0 400 400" className="w-full h-full" role="img" aria-label="Decorative circles">
+            {[...Array(8)].map((_, i) => (
+              <circle key={i} cx="200" cy="200" r={50 + i * 30} fill="none" stroke={light} strokeWidth="0.5" />
+            ))}
+          </svg>
+        </div>
+      )}
       <div className="relative z-10 max-w-3xl mx-auto">
         {data.logoUrl && (
           <motion.img
