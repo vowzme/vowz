@@ -369,8 +369,8 @@ const Affiliate = () => {
 
                 {[
                   { icon: LinkIcon, step: "01", title: "Share Your Link or QR", desc: "Get a unique referral link, QR code, or create a custom coupon code to share with your audience." },
-                  { icon: Users, step: "02", title: "Friends Sign Up & Save", desc: "When someone signs up using your link, they get ₹250 / $5 off Premium. They're permanently tracked as your referral." },
-                  { icon: IndianRupee, step: "03", title: "Earn Commission", desc: "When your referral upgrades, you earn ₹250 (India) or $5 (International). Even if they upgrade months later!" },
+                  { icon: Users, step: "02", title: "Friends Sign Up & Save", desc: `When someone signs up using your link, they get 15% off Premium (₹${CUSTOMER_DISCOUNT.IN.amount} / $${CUSTOMER_DISCOUNT.INTL.amount}). They're permanently tracked as your referral.` },
+                  { icon: IndianRupee, step: "03", title: "Earn 25% Commission", desc: `When your referral upgrades, you earn 25% commission — ₹${COMMISSION.IN.amount} (India) or $${COMMISSION.INTL.amount} (International). Even if they upgrade months later!` },
                 ].map((step, i) => (
                   <motion.div
                     key={step.title}

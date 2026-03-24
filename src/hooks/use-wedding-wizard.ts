@@ -171,6 +171,7 @@ export function useWeddingWizard() {
       welcomeMessage: `Welcome to ${prev.partner1} & ${prev.partner2}'s wedding celebration! We're so glad you're here.`,
     }));
     setIsComplete(true);
+    sessionStorage.removeItem(WIZARD_STORAGE_KEY);
   }, [wizardData, generateTagline]);
 
   return {
