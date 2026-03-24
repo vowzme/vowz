@@ -164,6 +164,7 @@ const PublicSite = () => {
   const seoData = useMemo(() => {
     if (!site) return null;
     const sections = (site.sections as any[]) || [];
+    const heroSection = sections.find((s) => s.type === "hero");
     const eventsSection = sections.find((s) => s.type === "events");
     const firstEvent = eventsSection?.data?.events?.[0];
     const coupleNames = `${site.partner1} & ${site.partner2}`;
@@ -171,8 +172,11 @@ const PublicSite = () => {
     const venue = firstEvent?.venue || "";
     const venueAddress = firstEvent?.address || "";
     const city = firstEvent?.city || "";
-    const publicURL = `https://vowz.me/site/${site.slug}`;
-    const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?slug=${site.slug}`;
+    const publicURL = `https://vowz.lovable.app/site/${site.slug}`;
+    // Use hero image as OG image if available, otherwise fall back to generated SVG
+    const heroImage = heroSection?.data?.heroImageUrl || heroSection?.data?.featuredImageUrl || "";
+    const generatedOgImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?slug=${site.slug}`;
+    const ogImageUrl = heroImage || generatedOgImage;
     const description = site.tagline
       ? site.tagline
       : venue && weddingDate
@@ -278,14 +282,16 @@ const PublicSite = () => {
     : rawSections;
 
   const siteUrl = `${window.location.origin}/site/${site.slug}`;
-  // Share the actual wedding site URL directly
-  const shareUrl = siteUrl;
+  // Use og-meta proxy URL for social platforms so crawlers see OG tags, then get redirected
+  const ogMetaUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-meta?slug=${site.slug}`;
   const shareText = `You're invited to ${site.partner1} & ${site.partner2}'s wedding! 💍✨`;
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`;
-  const emailUrl = `mailto:?subject=${encodeURIComponent(`${site.partner1} & ${site.partner2}'s Wedding Invitation`)}&body=${encodeURIComponent(`${shareText}\n\nView our wedding site: ${shareUrl}`)}`;
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+  // WhatsApp & email: show the pretty URL in the message text, but use og-meta URL as the clickable link
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${ogMetaUrl}`)}`;
+  const emailUrl = `mailto:?subject=${encodeURIComponent(`${site.partner1} & ${site.partner2}'s Wedding Invitation`)}&body=${encodeURIComponent(`${shareText}\n\nView our wedding site: ${ogMetaUrl}`)}`;
+  // Facebook, Twitter, LinkedIn use the og-meta URL so their crawlers get proper OG tags
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(ogMetaUrl)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(ogMetaUrl)}`;
+  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(ogMetaUrl)}`;
 
   // Password gate
   if (site.site_password && !passwordUnlocked) {
@@ -415,7 +421,7 @@ const PublicSite = () => {
           rel="noopener noreferrer"
           onClick={(e) => {
             e.preventDefault();
-            navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+            navigator.clipboard.writeText(`${shareText}\n${ogMetaUrl}`);
             trackEvent("share_click", { platform: "instagram" });
             toast({ title: "Link copied! 📋", description: "Paste it in your Instagram story or DM." });
           }}
@@ -480,7 +486,7 @@ const PublicSite = () => {
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+              navigator.clipboard.writeText(`${shareText}\n${ogMetaUrl}`);
               trackEvent("share_click", { platform: "instagram" });
               toast({ title: "Link copied! 📋", description: "Paste it in your Instagram story or DM." });
             }}
