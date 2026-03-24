@@ -73,15 +73,14 @@ const FeaturesSection = () => {
           </p>
         </motion.div>
 
-        {/* Free features */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {freeFeatures.map((f) => (
+          {allFeatures.map((f) => (
             <motion.div
               key={f.title}
               variants={itemVariants}
@@ -93,52 +92,6 @@ const FeaturesSection = () => {
               </div>
               <h3 className="font-display text-xl font-semibold text-foreground mb-2">{f.title}</h3>
               <p className="text-muted-foreground font-body text-sm leading-relaxed">{f.desc}</p>
-              <span className="inline-block mt-3 text-xs font-body font-semibold text-emerald bg-emerald/10 px-2 py-1 rounded-full">
-                Free
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Premium features */}
-        <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm">
-            ✨ Premium Upgrades
-          </p>
-        </motion.div>
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          {premiumFeatures.map((f) => (
-            <motion.div
-              key={f.title}
-              variants={itemVariants}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-gradient-card rounded-xl p-5 border border-gold/20 hover:border-gold/40 transition-colors duration-300 group"
-            >
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--navy))] to-[hsl(var(--maroon-light))] flex items-center justify-center mb-3 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
-                <f.icon className="w-5 h-5 text-[hsl(var(--gold))]" />
-              </div>
-              <h3 className="font-display text-lg font-semibold text-foreground mb-1">{f.title}</h3>
-              <p className="text-muted-foreground font-body text-sm">{f.desc}</p>
-              {'available' in f && f.available ? (
-                <span className="inline-block mt-2 text-[10px] font-body font-semibold text-emerald bg-emerald/10 px-2 py-0.5 rounded-full">
-                  Available
-                </span>
-              ) : (
-                <span className="inline-block mt-2 text-[10px] font-body font-semibold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
-                  Coming Soon
-                </span>
-              )}
             </motion.div>
           ))}
         </motion.div>
