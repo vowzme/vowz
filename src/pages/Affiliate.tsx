@@ -315,7 +315,7 @@ const Affiliate = () => {
                 <motion.h1 variants={fadeUp} custom={1} className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] mb-6">
                   Earn{" "}
                   <span className="relative inline-block">
-                    <span className="text-gradient-gold">₹250 / $5</span>
+                    <span className="text-gradient-gold">25%</span>
                     <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
                       <path d="M2 6C50 2 150 2 198 6" stroke="hsl(var(--accent))" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
                     </svg>
