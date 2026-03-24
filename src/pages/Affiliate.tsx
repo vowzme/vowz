@@ -623,8 +623,8 @@ const Affiliate = () => {
                 </div>
                 <div className={`p-4 rounded-xl border ${dashRegion === "INTL" ? "border-accent/30 bg-accent/5" : "border-border/40 bg-muted/20"}`}>
                   <p className="font-body text-xs text-muted-foreground mb-1">🌍 International</p>
-                  <p className="font-display text-2xl font-bold text-foreground">$5 <span className="text-sm font-normal text-muted-foreground">per upgrade</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">Customer pays $15 ($5 off $20)</p>
+                  <p className="font-display text-2xl font-bold text-foreground">${COMMISSION.INTL.amount} <span className="text-sm font-normal text-muted-foreground">per upgrade (25%)</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Customer pays ${CUSTOMER_DISCOUNT.INTL.final} (${CUSTOMER_DISCOUNT.INTL.amount} off $20 — 15% discount)</p>
                 </div>
               </div>
             </div>
