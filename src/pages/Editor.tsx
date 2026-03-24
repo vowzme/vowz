@@ -1392,7 +1392,21 @@ function SettingsPanel({
           />
         </div>
 
-        {/* Memory Mode */}
+        {/* Featured Image for Social Sharing */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">
+            Featured Image for Sharing 📱 <span className="text-muted-foreground font-normal">(optional)</span>
+          </label>
+          <p className="font-body text-xs text-muted-foreground mb-2">
+            This image appears as a preview card when your wedding site is shared on WhatsApp, Facebook, X, or any social media. Upload a beautiful couple photo or wedding card design (1200×630px recommended).
+          </p>
+          <FeaturedImageUploader
+            imageUrl={(siteData as any).featuredImageUrl || ""}
+            onImageChange={(url) => onUpdate({ ...siteData, featuredImageUrl: url } as any)}
+          />
+        </div>
+
+
         <div className="border-t border-border/30 pt-4 mt-4">
           <label className="font-body text-sm font-medium text-foreground mb-2 block">Post-Wedding Mode</label>
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border/30 bg-background">
@@ -2515,7 +2529,80 @@ function HeroImageUploader({ imageUrl, onImageChange }: { imageUrl: string; onIm
   );
 }
 
-// ─── Couple Photo Uploader ────────────────────────────────────────────
+// ─── Featured Image Uploader (for OG/social sharing) ──────────────────
+function FeaturedImageUploader({ imageUrl, onImageChange }: { imageUrl: string; onImageChange: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please select an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "Image must be under 10MB", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/featured-${Date.now()}.${ext}`;
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { error: uploadError } = await supabase.storage.from("wedding-photos").upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("wedding-photos").getPublicUrl(path);
+      onImageChange(urlData.publicUrl);
+      toast({ title: "Featured image uploaded! 🎉" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  return (
+    <div>
+      {imageUrl ? (
+        <div className="space-y-2">
+          <div className="w-full h-28 rounded-lg border border-border/50 overflow-hidden bg-muted">
+            <img src={imageUrl} alt="Featured image for social sharing" className="w-full h-full object-cover" />
+          </div>
+          <div className="flex gap-2">
+            <label className="text-xs font-body text-gold hover:text-gold/80 cursor-pointer transition-colors">
+              {uploading ? "Uploading..." : "Change"}
+              <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+            </label>
+            <button
+              onClick={() => onImageChange("")}
+              className="text-xs font-body text-destructive hover:text-destructive/80 transition-colors"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="border-2 border-dashed border-border hover:border-gold/50 rounded-xl p-4 text-center transition-colors cursor-pointer"
+          onClick={() => document.getElementById("featured-img-upload")?.click()}
+        >
+          {uploading ? (
+            <Loader2 className="w-5 h-5 text-gold mx-auto animate-spin mb-1" />
+          ) : (
+            <Image className="w-5 h-5 text-muted-foreground mx-auto mb-1" />
+          )}
+          <p className="text-xs text-muted-foreground font-body">{uploading ? "Uploading..." : "Upload a featured image"}</p>
+          <p className="text-[10px] text-muted-foreground/60 font-body mt-0.5">1200×630px recommended • Max 10MB</p>
+          <input id="featured-img-upload" type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function CouplePhotoUploader({ label, currentUrl, onPhotoChange }: { label: string; currentUrl: string; onPhotoChange: (url: string) => void }) {
   const [uploading, setUploading] = useState(false);
   const { user } = useAuth();

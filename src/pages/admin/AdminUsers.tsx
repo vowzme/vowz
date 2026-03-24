@@ -94,16 +94,18 @@ export default function AdminUsers() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Permanently delete user "${name}"? Their data will be retained for privacy compliance, but their account will be removed.`)) return;
-    const { error } = await supabase.from("profiles").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
-      return;
+    if (!confirm(`Permanently delete user "${name}"? This will remove their account, wedding sites, and all associated data. This cannot be undone.`)) return;
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
+        body: { userId: id },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setUsers((prev) => prev.filter((u) => u.id !== id));
+      toast({ title: "User permanently deleted" });
+    } catch (err: any) {
+      toast({ title: "Delete failed", description: err.message, variant: "destructive" });
     }
-    // Also delete their wedding sites
-    await supabase.from("wedding_sites").delete().eq("user_id", id);
-    setUsers((prev) => prev.filter((u) => u.id !== id));
-    toast({ title: "User profile removed" });
   };
 
   const getSubBadge = (status?: string) => {

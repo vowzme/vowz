@@ -91,11 +91,20 @@ Deno.serve(async (req) => {
     ? site.suggested_colors as string[]
     : ["#6B1D2A", "#D4A853", "#FFF5E6"];
 
-  // Extract wedding date from events section
+  // Extract wedding date and featured image from sections
   const sections = Array.isArray(site.sections) ? site.sections as any[] : [];
+  const heroSection = sections.find((s: any) => s.type === "hero");
   const eventsSection = sections.find((s: any) => s.type === "events");
   const firstEvent = eventsSection?.data?.events?.[0];
   const weddingDate = firstEvent?.date || "";
+
+  // Check for user-uploaded featured image (in hero section data)
+  const featuredImageUrl = heroSection?.data?.featuredImageUrl || heroSection?.data?.heroImageUrl || "";
+
+  if (featuredImageUrl) {
+    // Redirect to the user's uploaded featured image
+    return Response.redirect(featuredImageUrl, 302);
+  }
 
   const svg = generateSVG(
     site.partner1,
