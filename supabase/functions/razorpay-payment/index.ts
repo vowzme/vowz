@@ -9,10 +9,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Pricing by currency (amount in smallest unit)
+// Default pricing by currency (amount in smallest unit) — used as fallback only
 const PRICING: Record<string, { amount: number; currency: string; symbol: string; displayAmount: number }> = {
-  INR: { amount: 59900, currency: "INR", symbol: "₹", displayAmount: 599 },
-  USD: { amount: 1500, currency: "USD", symbol: "$", displayAmount: 15 },
+  INR: { amount: 99900, currency: "INR", symbol: "₹", displayAmount: 999 },
+  USD: { amount: 2000, currency: "USD", symbol: "$", displayAmount: 20 },
 };
 
 const PREMIUM_PLAN = "premium_yearly";
