@@ -164,6 +164,7 @@ const PublicSite = () => {
   const seoData = useMemo(() => {
     if (!site) return null;
     const sections = (site.sections as any[]) || [];
+    const heroSection = sections.find((s) => s.type === "hero");
     const eventsSection = sections.find((s) => s.type === "events");
     const firstEvent = eventsSection?.data?.events?.[0];
     const coupleNames = `${site.partner1} & ${site.partner2}`;
@@ -171,8 +172,11 @@ const PublicSite = () => {
     const venue = firstEvent?.venue || "";
     const venueAddress = firstEvent?.address || "";
     const city = firstEvent?.city || "";
-    const publicURL = `https://vowz.me/site/${site.slug}`;
-    const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?slug=${site.slug}`;
+    const publicURL = `https://vowz.lovable.app/site/${site.slug}`;
+    // Use hero image as OG image if available, otherwise fall back to generated SVG
+    const heroImage = heroSection?.data?.heroImageUrl || heroSection?.data?.featuredImageUrl || "";
+    const generatedOgImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?slug=${site.slug}`;
+    const ogImageUrl = heroImage || generatedOgImage;
     const description = site.tagline
       ? site.tagline
       : venue && weddingDate
