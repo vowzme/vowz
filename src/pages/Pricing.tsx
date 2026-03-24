@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, Clock } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import SEOHead from "@/components/SEOHead";
@@ -8,57 +8,32 @@ import Navbar from "@/components/Navbar";
 import RegionSelector from "@/components/RegionSelector";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 
-const freeFeatures = [
-  { text: "Easy Wedding Wizard", coming: false },
-  { text: "25 beautiful templates", coming: false },
-  { text: "50 photo uploads (100MB)", coming: false },
-  { text: "RSVP form with notifications", coming: false },
-  { text: "QR code invites", coming: false },
-  { text: "Countdown timer & guestbook", coming: false },
-  { text: "Budget & expense tracker", coming: false },
-  { text: "Wedding checklist", coming: false },
-  { text: "Guest polls", coming: false },
-  { text: "Mobile-responsive site", coming: false },
-  { text: "Basic analytics", coming: false },
-  { text: "Subdomain (you.vowz.me)", coming: false },
-];
-
-const premiumFeatures = [
-  { text: "Everything in Free, plus:", coming: false },
-  { text: "Custom domain (yournames.com)", coming: false },
-  { text: "AI editor assistant (themes, content & advice)", coming: false },
-  { text: "5GB storage for photos & videos", coming: false },
-  { text: "Video embeds", coming: false },
-  { text: "Password-protected sites", coming: false },
-  { text: "Multilingual auto-translation", coming: false },
-  { text: "No watermarks, ad-free", coming: false },
-  { text: "Priority support", coming: false },
+const allFeatures = [
+  "Easy Wedding Wizard",
+  "35+ beautiful templates",
+  "RSVP form with notifications",
+  "QR code invites",
+  "Countdown timer & guestbook",
+  "Budget & expense tracker",
+  "Wedding checklist & reminders",
+  "Guest polls",
+  "Couple profiles (Bride & Groom bios)",
+  "Our Story with AI generator",
+  "Photo gallery with uploads",
+  "Video embeds",
+  "AI editor assistant",
+  "Multilingual auto-translation",
+  "Custom domain support",
+  "Password-protected sites",
+  "No watermarks, ad-free",
+  "Mobile-responsive site",
+  "Analytics & insights",
+  "Social media sharing",
+  "Priority support",
 ];
 
 const Pricing = () => {
   const { pricing } = usePricingRegion();
-
-  const plans = [
-    {
-      name: "Free",
-      price: pricing.freePrice,
-      period: "/7 days",
-      description: "Perfect for getting started",
-      features: freeFeatures,
-      cta: "Get Started Free",
-      featured: false,
-    },
-    {
-      name: "Premium",
-      price: formatPrice(pricing, "premium"),
-      originalPrice: formatPrice(pricing, "original"),
-      period: "/year",
-      description: "Everything for your perfect day",
-      features: premiumFeatures,
-      cta: "Upgrade to Premium",
-      featured: true,
-    },
-  ];
 
   return (
     <>
@@ -94,73 +69,72 @@ const Pricing = () => {
                 Start Free, <span className="text-gradient-gold italic">Upgrade Anytime</span>
               </h1>
               <p className="text-muted-foreground max-w-xl mx-auto font-body mb-6">
-                No hidden fees. Your wedding site is free forever — premium unlocks the magic.
+                All features included in every plan. Free trial gives you 7 days of full access — upgrade to keep your site live forever.
               </p>
               <RegionSelector showNote />
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {plans.map((plan, i) => (
-                <motion.div
-                  key={plan.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.15, duration: 0.6 }}
-                  className={`rounded-2xl p-8 border ${
-                    plan.featured
-                      ? "border-gold/40 shadow-gold bg-card relative overflow-hidden"
-                      : "border-border/50 shadow-card bg-card"
-                  }`}
-                >
-                  {plan.featured && (
-                    <div className="absolute top-4 right-4 bg-gold text-accent-foreground text-xs font-body font-bold px-3 py-1 rounded-full">
-                      Most Popular
-                    </div>
-                  )}
-                  <h2 className="font-display text-2xl font-bold text-foreground">{plan.name}</h2>
-                  <p className="text-muted-foreground font-body text-sm mt-1">{plan.description}</p>
-                  <div className="mt-6 mb-2 flex items-baseline gap-2">
-                    <span className="font-display text-5xl font-bold text-foreground">{plan.price}</span>
-                    {plan.originalPrice && (
-                      <span className="font-display text-xl text-muted-foreground line-through">{plan.originalPrice}</span>
-                    )}
-                    <span className="text-muted-foreground font-body text-sm">{plan.period}</span>
-                  </div>
-                  {plan.featured && (
-                    <p className="text-xs text-gold font-body mb-6 font-semibold">Launch offer — save {pricing.symbol}{pricing.premiumOriginal - pricing.premiumPrice}!</p>
-                  )}
-                  {!plan.featured && <div className="mb-6" />}
+              {/* Free Trial */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="rounded-2xl p-8 border border-border/50 shadow-card bg-card"
+              >
+                <h2 className="font-display text-2xl font-bold text-foreground">Free Trial</h2>
+                <p className="text-muted-foreground font-body text-sm mt-1">Full access for 7 days</p>
+                <div className="mt-6 mb-2 flex items-baseline gap-2">
+                  <span className="font-display text-5xl font-bold text-foreground">{pricing.freePrice}</span>
+                  <span className="text-muted-foreground font-body text-sm">/7 days</span>
+                </div>
+                <p className="text-xs text-muted-foreground font-body mb-6">All features included — no credit card needed</p>
+                <Button variant="outline" size="lg" className="w-full mb-8" asChild>
+                  <Link to="/auth">Start Free Trial</Link>
+                </Button>
+                <ul className="space-y-3">
+                  {allFeatures.map((f) => (
+                    <li key={f} className="flex items-start gap-3 text-sm font-body">
+                      <Check className="w-4 h-4 text-emerald mt-0.5 shrink-0" />
+                      <span className="text-foreground">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
 
-                  {plan.featured ? (
-                    <PremiumUpgradeButton
-                      variant="gold"
-                      size="lg"
-                      className="w-full mb-8"
-                      label={plan.cta}
-                    />
-                  ) : (
-                    <Button variant="outline" size="lg" className="w-full mb-8" asChild>
-                      <Link to="/auth">{plan.cta}</Link>
-                    </Button>
-                  )}
-
-                  <ul className="space-y-3">
-                    {plan.features.map((f) => (
-                      <li key={f.text} className="flex items-start gap-3 text-sm font-body">
-                        {f.coming ? (
-                          <Clock className="w-4 h-4 text-gold mt-0.5 shrink-0" />
-                        ) : (
-                          <Check className="w-4 h-4 text-emerald mt-0.5 shrink-0" />
-                        )}
-                        <span className={f.coming ? "text-muted-foreground" : "text-foreground"}>
-                          {f.text}
-                          {f.coming && <span className="ml-1.5 text-[10px] bg-gold/15 text-gold px-1.5 py-0.5 rounded-full font-semibold">Coming Soon</span>}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              ))}
+              {/* Premium */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.6 }}
+                className="rounded-2xl p-8 border border-gold/40 shadow-gold bg-card relative overflow-hidden"
+              >
+                <div className="absolute top-4 right-4 bg-gold text-accent-foreground text-xs font-body font-bold px-3 py-1 rounded-full">
+                  Best Value
+                </div>
+                <h2 className="font-display text-2xl font-bold text-foreground">Premium</h2>
+                <p className="text-muted-foreground font-body text-sm mt-1">Keep your site live forever</p>
+                <div className="mt-6 mb-2 flex items-baseline gap-2">
+                  <span className="font-display text-5xl font-bold text-foreground">{formatPrice(pricing, "premium")}</span>
+                  <span className="font-display text-xl text-muted-foreground line-through">{formatPrice(pricing, "original")}</span>
+                  <span className="text-muted-foreground font-body text-sm">/year</span>
+                </div>
+                <p className="text-xs text-gold font-body mb-6 font-semibold">Launch offer — save {pricing.symbol}{pricing.premiumOriginal - pricing.premiumPrice}!</p>
+                <PremiumUpgradeButton
+                  variant="gold"
+                  size="lg"
+                  className="w-full mb-8"
+                  label="Upgrade to Premium"
+                />
+                <ul className="space-y-3">
+                  {allFeatures.map((f) => (
+                    <li key={f} className="flex items-start gap-3 text-sm font-body">
+                      <Check className="w-4 h-4 text-emerald mt-0.5 shrink-0" />
+                      <span className="text-foreground">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
             </div>
 
             <motion.div
