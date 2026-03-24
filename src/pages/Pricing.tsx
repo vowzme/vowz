@@ -8,57 +8,32 @@ import Navbar from "@/components/Navbar";
 import RegionSelector from "@/components/RegionSelector";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 
-const freeFeatures = [
-  { text: "Easy Wedding Wizard", coming: false },
-  { text: "25 beautiful templates", coming: false },
-  { text: "50 photo uploads (100MB)", coming: false },
-  { text: "RSVP form with notifications", coming: false },
-  { text: "QR code invites", coming: false },
-  { text: "Countdown timer & guestbook", coming: false },
-  { text: "Budget & expense tracker", coming: false },
-  { text: "Wedding checklist", coming: false },
-  { text: "Guest polls", coming: false },
-  { text: "Mobile-responsive site", coming: false },
-  { text: "Basic analytics", coming: false },
-  { text: "Subdomain (you.vowz.me)", coming: false },
-];
-
-const premiumFeatures = [
-  { text: "Everything in Free, plus:", coming: false },
-  { text: "Custom domain (yournames.com)", coming: false },
-  { text: "AI editor assistant (themes, content & advice)", coming: false },
-  { text: "5GB storage for photos & videos", coming: false },
-  { text: "Video embeds", coming: false },
-  { text: "Password-protected sites", coming: false },
-  { text: "Multilingual auto-translation", coming: false },
-  { text: "No watermarks, ad-free", coming: false },
-  { text: "Priority support", coming: false },
+const allFeatures = [
+  "Easy Wedding Wizard",
+  "35+ beautiful templates",
+  "RSVP form with notifications",
+  "QR code invites",
+  "Countdown timer & guestbook",
+  "Budget & expense tracker",
+  "Wedding checklist & reminders",
+  "Guest polls",
+  "Couple profiles (Bride & Groom bios)",
+  "Our Story with AI generator",
+  "Photo gallery with uploads",
+  "Video embeds",
+  "AI editor assistant",
+  "Multilingual auto-translation",
+  "Custom domain support",
+  "Password-protected sites",
+  "No watermarks, ad-free",
+  "Mobile-responsive site",
+  "Analytics & insights",
+  "Social media sharing",
+  "Priority support",
 ];
 
 const Pricing = () => {
   const { pricing } = usePricingRegion();
-
-  const plans = [
-    {
-      name: "Free",
-      price: pricing.freePrice,
-      period: "/7 days",
-      description: "Perfect for getting started",
-      features: freeFeatures,
-      cta: "Get Started Free",
-      featured: false,
-    },
-    {
-      name: "Premium",
-      price: formatPrice(pricing, "premium"),
-      originalPrice: formatPrice(pricing, "original"),
-      period: "/year",
-      description: "Everything for your perfect day",
-      features: premiumFeatures,
-      cta: "Upgrade to Premium",
-      featured: true,
-    },
-  ];
 
   return (
     <>
