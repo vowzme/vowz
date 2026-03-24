@@ -66,10 +66,12 @@ export default function AdminSites() {
   const handleDelete = async (id: string) => {
     if (!confirm("Permanently delete this site? This cannot be undone. All associated RSVPs, blessings, and analytics will also be removed.")) return;
     const { error } = await supabase.from("wedding_sites").delete().eq("id", id);
-    if (!error) {
-      setSites((prev) => prev.filter((s) => s.id !== id));
-      toast({ title: "Site deleted permanently" });
+    if (error) {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+      return;
     }
+    setSites((prev) => prev.filter((s) => s.id !== id));
+    toast({ title: "Site deleted permanently" });
   };
 
   const handleEditOpen = (s: Site) => {
