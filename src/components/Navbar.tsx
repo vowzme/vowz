@@ -38,11 +38,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30" role="navigation" aria-label="Main navigation">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center">
+        <Link to="/" className="flex items-center" aria-label="Vowz — Home">
           <VowzLogo iconSize="h-7" textSize="text-lg" />
-        </a>
+        </Link>
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
@@ -108,13 +108,13 @@ const Navbar = () => {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-background border-b border-border/30 overflow-hidden"
           >
-            <div className="px-4 py-4 flex flex-col gap-3">
+            <div className="px-4 py-4 flex flex-col gap-1">
               {links.map((l) =>
                 l.isRoute ? (
                   <Link
                     key={l.label}
                     to={l.href}
-                    className="font-body text-sm text-muted-foreground py-2"
+                    className="font-body text-sm text-muted-foreground py-3 min-h-[44px] flex items-center"
                     onClick={() => setOpen(false)}
                   >
                     {l.label}
@@ -124,7 +124,7 @@ const Navbar = () => {
                     key={l.label}
                     href={l.href}
                     onClick={(e) => { handleAnchorClick(e, l.href); setOpen(false); }}
-                    className="font-body text-sm text-muted-foreground py-2 cursor-pointer"
+                    className="font-body text-sm text-muted-foreground py-3 min-h-[44px] flex items-center cursor-pointer"
                   >
                     {l.label}
                   </a>
@@ -141,7 +141,7 @@ const Navbar = () => {
                   <>
                     <Link
                       to="/auth"
-                      className="font-body text-sm text-muted-foreground py-2"
+                    className="font-body text-sm text-muted-foreground py-3 min-h-[44px] flex items-center"
                       onClick={() => setOpen(false)}
                     >
                       Log In

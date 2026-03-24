@@ -74,7 +74,7 @@ const FeaturesSection = () => {
         </motion.div>
 
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -85,7 +85,7 @@ const FeaturesSection = () => {
               key={f.title}
               variants={itemVariants}
               whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-card rounded-xl p-6 shadow-card hover:shadow-elegant transition-shadow duration-300 border border-border/50 group"
+              className="bg-card rounded-xl p-5 sm:p-6 shadow-card hover:shadow-elegant transition-shadow duration-300 border border-border/50 group"
             >
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(var(--gold-dark))] flex items-center justify-center mb-4 shadow-gold group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
                 <f.icon className="w-6 h-6 text-primary-foreground" />

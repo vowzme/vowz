@@ -9,7 +9,7 @@ import {
 const faqs = [
   {
     q: "Is Vowz really free?",
-    a: "Yes! Our free plan includes the wedding wizard, 25 templates, 50 photo uploads, RSVP management, QR invites, countdown timer, guestbook, budget tracker, wedding checklist, guest polls, and a vowz.me subdomain — forever, no credit card required.",
+    a: "Yes! Start with a 7-day free trial that includes every feature — all templates, RSVP, gallery, budget tracker, AI assistant, custom domain, and more. No credit card required. After 7 days, upgrade to Premium to keep your site live forever.",
   },
   {
     q: "How does the Wedding Wizard work?",
