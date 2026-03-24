@@ -17,8 +17,15 @@ import VowzLogo from "@/components/VowzLogo";
 import { QRCodeCanvas } from "qrcode.react";
 import { usePricingRegion, type PricingRegion } from "@/hooks/use-pricing-region";
 
-const COMMISSION = { IN: { amount: 250, symbol: "₹", label: "₹250" }, INTL: { amount: 5, symbol: "$", label: "$5" } };
-const CUSTOMER_DISCOUNT = { IN: { amount: 250, final: 749, symbol: "₹" }, INTL: { amount: 5, final: 15, symbol: "$" } };
+// 25% commission on subscription fee, 15% customer discount
+const COMMISSION = {
+  IN: { amount: Math.round(999 * 0.25), symbol: "₹", label: `₹${Math.round(999 * 0.25)}` },
+  INTL: { amount: Math.round(20 * 0.25 * 100) / 100, symbol: "$", label: `$${Math.round(20 * 0.25 * 100) / 100}` },
+};
+const CUSTOMER_DISCOUNT = {
+  IN: { amount: Math.round(999 * 0.15), final: 999 - Math.round(999 * 0.15), symbol: "₹" },
+  INTL: { amount: Math.round(20 * 0.15 * 100) / 100, final: 20 - Math.round(20 * 0.15 * 100) / 100, symbol: "$" },
+};
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -254,8 +261,8 @@ const Affiliate = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Vowz Affiliate Program – Earn ₹250 / $5 Per Referral"
-        description="Join the Vowz affiliate program and earn ₹250 (India) or $5 (International) for every successful wedding website referral. Free to join, lifetime attribution, real-time dashboard."
+        title="Vowz Affiliate Program – Earn 25% Commission Per Referral"
+        description="Join the Vowz affiliate program and earn 25% commission on every successful wedding website referral. Free to join, lifetime attribution, real-time dashboard."
         ogTitle="Vowz Affiliate Program – Earn Per Referral"
         ogDescription="Earn ₹250 or $5 per successful referral. Join our wedding invitation affiliate program — free to join with lifetime attribution and real-time tracking."
         ogImage="https://vowz.me/og-affiliate.jpg"
@@ -308,7 +315,7 @@ const Affiliate = () => {
                 <motion.h1 variants={fadeUp} custom={1} className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] mb-6">
                   Earn{" "}
                   <span className="relative inline-block">
-                    <span className="text-gradient-gold">₹250 / $5</span>
+                    <span className="text-gradient-gold">25%</span>
                     <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
                       <path d="M2 6C50 2 150 2 198 6" stroke="hsl(var(--accent))" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
                     </svg>
@@ -362,8 +369,8 @@ const Affiliate = () => {
 
                 {[
                   { icon: LinkIcon, step: "01", title: "Share Your Link or QR", desc: "Get a unique referral link, QR code, or create a custom coupon code to share with your audience." },
-                  { icon: Users, step: "02", title: "Friends Sign Up & Save", desc: "When someone signs up using your link, they get ₹250 / $5 off Premium. They're permanently tracked as your referral." },
-                  { icon: IndianRupee, step: "03", title: "Earn Commission", desc: "When your referral upgrades, you earn ₹250 (India) or $5 (International). Even if they upgrade months later!" },
+                  { icon: Users, step: "02", title: "Friends Sign Up & Save", desc: `When someone signs up using your link, they get 15% off Premium (₹${CUSTOMER_DISCOUNT.IN.amount} / $${CUSTOMER_DISCOUNT.INTL.amount}). They're permanently tracked as your referral.` },
+                  { icon: IndianRupee, step: "03", title: "Earn 25% Commission", desc: `When your referral upgrades, you earn 25% commission — ₹${COMMISSION.IN.amount} (India) or $${COMMISSION.INTL.amount} (International). Even if they upgrade months later!` },
                 ].map((step, i) => (
                   <motion.div
                     key={step.title}
@@ -400,7 +407,7 @@ const Affiliate = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {[
-                  { icon: IndianRupee, title: "Generous Commission", desc: "Earn ₹250 (India) or $5 (International) for every successful premium referral." },
+                  { icon: IndianRupee, title: "25% Commission", desc: `Earn ₹${COMMISSION.IN.amount} (India) or $${COMMISSION.INTL.amount} (International) — 25% of every premium subscription.` },
                   { icon: Clock, title: "Lifetime Attribution", desc: "If a user signs up through your link and upgrades later — even months later — you still earn the commission." },
                   { icon: Tag, title: "Custom Coupon Codes", desc: "Create memorable, branded coupon codes that are easy to share with your audience." },
                   { icon: TrendingUp, title: "Real-Time Dashboard", desc: "Track your referrals, conversions, and earnings with a beautiful, live dashboard." },
@@ -611,13 +618,13 @@ const Affiliate = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className={`p-4 rounded-xl border ${dashRegion === "IN" ? "border-accent/30 bg-accent/5" : "border-border/40 bg-muted/20"}`}>
                   <p className="font-body text-xs text-muted-foreground mb-1">🇮🇳 India</p>
-                  <p className="font-display text-2xl font-bold text-foreground">₹250 <span className="text-sm font-normal text-muted-foreground">per upgrade</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">Customer pays ₹749 (₹250 off ₹999)</p>
+                  <p className="font-display text-2xl font-bold text-foreground">₹{COMMISSION.IN.amount} <span className="text-sm font-normal text-muted-foreground">per upgrade (25%)</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Customer pays ₹{CUSTOMER_DISCOUNT.IN.final} (₹{CUSTOMER_DISCOUNT.IN.amount} off ₹999 — 15% discount)</p>
                 </div>
                 <div className={`p-4 rounded-xl border ${dashRegion === "INTL" ? "border-accent/30 bg-accent/5" : "border-border/40 bg-muted/20"}`}>
                   <p className="font-body text-xs text-muted-foreground mb-1">🌍 International</p>
-                  <p className="font-display text-2xl font-bold text-foreground">$5 <span className="text-sm font-normal text-muted-foreground">per upgrade</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">Customer pays $15 ($5 off $20)</p>
+                  <p className="font-display text-2xl font-bold text-foreground">${COMMISSION.INTL.amount} <span className="text-sm font-normal text-muted-foreground">per upgrade (25%)</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Customer pays ${CUSTOMER_DISCOUNT.INTL.final} (${CUSTOMER_DISCOUNT.INTL.amount} off $20 — 15% discount)</p>
                 </div>
               </div>
             </div>

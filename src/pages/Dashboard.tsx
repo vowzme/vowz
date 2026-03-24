@@ -439,9 +439,9 @@ const Dashboard = () => {
         ) : (
           /* Has site */
           <>
-            {!isPremium && site.created_at && (
+            {!isPremium && profileData?.created_at && (
               <FreePlanCountdown
-                siteCreatedAt={site.created_at}
+                siteCreatedAt={profileData.created_at}
                 onUpgraded={() => setSubscription({ status: "active", expires_at: null })}
               />
             )}

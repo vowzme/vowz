@@ -1687,22 +1687,24 @@ function SectionEditor({
           </div>
           <div className="space-y-4 mt-2">
             <div className="border border-border/50 rounded-lg p-3 space-y-2">
-              <p className="font-body text-sm font-medium text-foreground">Partner 1</p>
+              <p className="font-body text-sm font-medium text-foreground">Partner 1 (Bride)</p>
               <Input placeholder="Name" value={data.partner1Name || ""} onChange={(e) => onUpdateData({ partner1Name: e.target.value })} className="font-body text-sm" />
               <Textarea placeholder="Short bio (2-3 sentences)" value={data.partner1Bio || ""} onChange={(e) => onUpdateData({ partner1Bio: e.target.value })} rows={2} className="font-body text-sm" />
-              <div>
-                <label className="font-body text-xs text-muted-foreground">Photo URL</label>
-                <Input placeholder="https://..." value={data.partner1Photo || ""} onChange={(e) => onUpdateData({ partner1Photo: e.target.value })} className="font-body text-sm" />
-              </div>
+              <CouplePhotoUploader
+                label="Partner 1 Photo"
+                currentUrl={data.partner1Photo || ""}
+                onPhotoChange={(url) => onUpdateData({ partner1Photo: url })}
+              />
             </div>
             <div className="border border-border/50 rounded-lg p-3 space-y-2">
-              <p className="font-body text-sm font-medium text-foreground">Partner 2</p>
+              <p className="font-body text-sm font-medium text-foreground">Partner 2 (Groom)</p>
               <Input placeholder="Name" value={data.partner2Name || ""} onChange={(e) => onUpdateData({ partner2Name: e.target.value })} className="font-body text-sm" />
               <Textarea placeholder="Short bio (2-3 sentences)" value={data.partner2Bio || ""} onChange={(e) => onUpdateData({ partner2Bio: e.target.value })} rows={2} className="font-body text-sm" />
-              <div>
-                <label className="font-body text-xs text-muted-foreground">Photo URL</label>
-                <Input placeholder="https://..." value={data.partner2Photo || ""} onChange={(e) => onUpdateData({ partner2Photo: e.target.value })} className="font-body text-sm" />
-              </div>
+              <CouplePhotoUploader
+                label="Partner 2 Photo"
+                currentUrl={data.partner2Photo || ""}
+                onPhotoChange={(url) => onUpdateData({ partner2Photo: url })}
+              />
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground font-body mt-1">
@@ -2513,7 +2515,78 @@ function HeroImageUploader({ imageUrl, onImageChange }: { imageUrl: string; onIm
   );
 }
 
-// ─── Gallery Editor ───────────────────────────────────────────────────
+// ─── Couple Photo Uploader ────────────────────────────────────────────
+function CouplePhotoUploader({ label, currentUrl, onPhotoChange }: { label: string; currentUrl: string; onPhotoChange: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
+  const inputId = `couple-photo-${label.replace(/\s/g, "-").toLowerCase()}`;
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please select an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "Photo must be under 10MB", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/couple-${Date.now()}.${ext}`;
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { error: uploadError } = await supabase.storage.from("wedding-photos").upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("wedding-photos").getPublicUrl(path);
+      onPhotoChange(urlData.publicUrl);
+      toast({ title: "Photo uploaded! 📸" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  return (
+    <div>
+      <label className="font-body text-xs text-muted-foreground mb-1 block">{label}</label>
+      {currentUrl ? (
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 rounded-full border border-border/50 overflow-hidden bg-muted">
+            <img src={currentUrl} alt={label} className="w-full h-full object-cover" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-body text-accent hover:text-accent/80 cursor-pointer transition-colors">
+              {uploading ? "Uploading..." : "Change"}
+              <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+            </label>
+            <button onClick={() => onPhotoChange("")} className="text-xs font-body text-destructive hover:text-destructive/80 text-left transition-colors">
+              Remove
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="border-2 border-dashed border-border hover:border-accent/50 rounded-xl p-3 text-center transition-colors cursor-pointer"
+          onClick={() => document.getElementById(inputId)?.click()}
+        >
+          {uploading ? (
+            <Loader2 className="w-4 h-4 text-accent mx-auto animate-spin mb-1" />
+          ) : (
+            <Upload className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+          )}
+          <p className="text-[10px] text-muted-foreground font-body">{uploading ? "Uploading..." : "Upload photo"}</p>
+          <input id={inputId} type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function GalleryEditor({
   photos,
   heading,
