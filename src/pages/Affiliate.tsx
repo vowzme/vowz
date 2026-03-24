@@ -618,8 +618,8 @@ const Affiliate = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className={`p-4 rounded-xl border ${dashRegion === "IN" ? "border-accent/30 bg-accent/5" : "border-border/40 bg-muted/20"}`}>
                   <p className="font-body text-xs text-muted-foreground mb-1">🇮🇳 India</p>
-                  <p className="font-display text-2xl font-bold text-foreground">₹250 <span className="text-sm font-normal text-muted-foreground">per upgrade</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">Customer pays ₹749 (₹250 off ₹999)</p>
+                  <p className="font-display text-2xl font-bold text-foreground">₹{COMMISSION.IN.amount} <span className="text-sm font-normal text-muted-foreground">per upgrade (25%)</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Customer pays ₹{CUSTOMER_DISCOUNT.IN.final} (₹{CUSTOMER_DISCOUNT.IN.amount} off ₹999 — 15% discount)</p>
                 </div>
                 <div className={`p-4 rounded-xl border ${dashRegion === "INTL" ? "border-accent/30 bg-accent/5" : "border-border/40 bg-muted/20"}`}>
                   <p className="font-body text-xs text-muted-foreground mb-1">🌍 International</p>
