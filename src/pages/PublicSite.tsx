@@ -282,14 +282,16 @@ const PublicSite = () => {
     : rawSections;
 
   const siteUrl = `${window.location.origin}/site/${site.slug}`;
-  // Share the actual wedding site URL directly
-  const shareUrl = siteUrl;
+  // Use og-meta proxy URL for social platforms so crawlers see OG tags, then get redirected
+  const ogMetaUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-meta?slug=${site.slug}`;
   const shareText = `You're invited to ${site.partner1} & ${site.partner2}'s wedding! 💍✨`;
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`;
-  const emailUrl = `mailto:?subject=${encodeURIComponent(`${site.partner1} & ${site.partner2}'s Wedding Invitation`)}&body=${encodeURIComponent(`${shareText}\n\nView our wedding site: ${shareUrl}`)}`;
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+  // WhatsApp & email: show the pretty URL in the message text, but use og-meta URL as the clickable link
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${ogMetaUrl}`)}`;
+  const emailUrl = `mailto:?subject=${encodeURIComponent(`${site.partner1} & ${site.partner2}'s Wedding Invitation`)}&body=${encodeURIComponent(`${shareText}\n\nView our wedding site: ${ogMetaUrl}`)}`;
+  // Facebook, Twitter, LinkedIn use the og-meta URL so their crawlers get proper OG tags
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(ogMetaUrl)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(ogMetaUrl)}`;
+  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(ogMetaUrl)}`;
 
   // Password gate
   if (site.site_password && !passwordUnlocked) {
