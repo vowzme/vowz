@@ -1392,7 +1392,21 @@ function SettingsPanel({
           />
         </div>
 
-        {/* Memory Mode */}
+        {/* Featured Image for Social Sharing */}
+        <div className="border-t border-border/30 pt-4 mt-4">
+          <label className="font-body text-sm font-medium text-foreground mb-2 block">
+            Featured Image for Sharing 📱 <span className="text-muted-foreground font-normal">(optional)</span>
+          </label>
+          <p className="font-body text-xs text-muted-foreground mb-2">
+            This image appears as a preview card when your wedding site is shared on WhatsApp, Facebook, X, or any social media. Upload a beautiful couple photo or wedding card design (1200×630px recommended).
+          </p>
+          <FeaturedImageUploader
+            imageUrl={(siteData as any).featuredImageUrl || ""}
+            onImageChange={(url) => onUpdate({ ...siteData, featuredImageUrl: url } as any)}
+          />
+        </div>
+
+
         <div className="border-t border-border/30 pt-4 mt-4">
           <label className="font-body text-sm font-medium text-foreground mb-2 block">Post-Wedding Mode</label>
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border/30 bg-background">
