@@ -483,7 +483,7 @@ const PublicSite = () => {
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              navigator.clipboard.writeText(`${shareText}\n${ogMetaUrl}`);
+              navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
               trackEvent("share_click", { platform: "instagram" });
               toast({ title: "Link copied! 📋", description: "Paste it in your Instagram story or DM." });
             }}
