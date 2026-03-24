@@ -1687,22 +1687,24 @@ function SectionEditor({
           </div>
           <div className="space-y-4 mt-2">
             <div className="border border-border/50 rounded-lg p-3 space-y-2">
-              <p className="font-body text-sm font-medium text-foreground">Partner 1</p>
+              <p className="font-body text-sm font-medium text-foreground">Partner 1 (Bride)</p>
               <Input placeholder="Name" value={data.partner1Name || ""} onChange={(e) => onUpdateData({ partner1Name: e.target.value })} className="font-body text-sm" />
               <Textarea placeholder="Short bio (2-3 sentences)" value={data.partner1Bio || ""} onChange={(e) => onUpdateData({ partner1Bio: e.target.value })} rows={2} className="font-body text-sm" />
-              <div>
-                <label className="font-body text-xs text-muted-foreground">Photo URL</label>
-                <Input placeholder="https://..." value={data.partner1Photo || ""} onChange={(e) => onUpdateData({ partner1Photo: e.target.value })} className="font-body text-sm" />
-              </div>
+              <CouplePhotoUploader
+                label="Partner 1 Photo"
+                currentUrl={data.partner1Photo || ""}
+                onPhotoChange={(url) => onUpdateData({ partner1Photo: url })}
+              />
             </div>
             <div className="border border-border/50 rounded-lg p-3 space-y-2">
-              <p className="font-body text-sm font-medium text-foreground">Partner 2</p>
+              <p className="font-body text-sm font-medium text-foreground">Partner 2 (Groom)</p>
               <Input placeholder="Name" value={data.partner2Name || ""} onChange={(e) => onUpdateData({ partner2Name: e.target.value })} className="font-body text-sm" />
               <Textarea placeholder="Short bio (2-3 sentences)" value={data.partner2Bio || ""} onChange={(e) => onUpdateData({ partner2Bio: e.target.value })} rows={2} className="font-body text-sm" />
-              <div>
-                <label className="font-body text-xs text-muted-foreground">Photo URL</label>
-                <Input placeholder="https://..." value={data.partner2Photo || ""} onChange={(e) => onUpdateData({ partner2Photo: e.target.value })} className="font-body text-sm" />
-              </div>
+              <CouplePhotoUploader
+                label="Partner 2 Photo"
+                currentUrl={data.partner2Photo || ""}
+                onPhotoChange={(url) => onUpdateData({ partner2Photo: url })}
+              />
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground font-body mt-1">
