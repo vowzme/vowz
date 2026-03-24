@@ -407,7 +407,7 @@ const Affiliate = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {[
-                  { icon: IndianRupee, title: "Generous Commission", desc: "Earn ₹250 (India) or $5 (International) for every successful premium referral." },
+                  { icon: IndianRupee, title: "25% Commission", desc: `Earn ₹${COMMISSION.IN.amount} (India) or $${COMMISSION.INTL.amount} (International) — 25% of every premium subscription.` },
                   { icon: Clock, title: "Lifetime Attribution", desc: "If a user signs up through your link and upgrades later — even months later — you still earn the commission." },
                   { icon: Tag, title: "Custom Coupon Codes", desc: "Create memorable, branded coupon codes that are easy to share with your audience." },
                   { icon: TrendingUp, title: "Real-Time Dashboard", desc: "Track your referrals, conversions, and earnings with a beautiful, live dashboard." },
