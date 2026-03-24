@@ -141,7 +141,7 @@ const Navbar = () => {
                   <>
                     <Link
                       to="/auth"
-                      className="font-body text-sm text-muted-foreground py-2"
+                    className="font-body text-sm text-muted-foreground py-3 min-h-[44px] flex items-center"
                       onClick={() => setOpen(false)}
                     >
                       Log In
