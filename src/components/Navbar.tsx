@@ -108,7 +108,7 @@ const Navbar = () => {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-background border-b border-border/30 overflow-hidden"
           >
-            <div className="px-4 py-4 flex flex-col gap-3">
+            <div className="px-4 py-4 flex flex-col gap-1">
               {links.map((l) =>
                 l.isRoute ? (
                   <Link
