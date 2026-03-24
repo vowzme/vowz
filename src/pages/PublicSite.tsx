@@ -421,7 +421,7 @@ const PublicSite = () => {
           rel="noopener noreferrer"
           onClick={(e) => {
             e.preventDefault();
-            navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+            navigator.clipboard.writeText(`${shareText}\n${ogMetaUrl}`);
             trackEvent("share_click", { platform: "instagram" });
             toast({ title: "Link copied! 📋", description: "Paste it in your Instagram story or DM." });
           }}
