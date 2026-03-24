@@ -125,6 +125,10 @@ Deno.serve(async (req) => {
 
       const receipt = `vowz_${user.id.slice(0, 8)}_${Date.now()}`;
 
+      // Use final_amount from client (in paise/cents) if provided, otherwise default pricing
+      const clientFinalAmount = body?.final_amount ? Number(body.final_amount) : null;
+      const orderAmount = clientFinalAmount && clientFinalAmount > 0 ? clientFinalAmount : pricingTier.amount;
+
       const orderRes = await fetch("https://api.razorpay.com/v1/orders", {
         method: "POST",
         headers: {
@@ -132,13 +136,15 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: pricingTier.amount,
+          amount: orderAmount,
           currency: pricingTier.currency,
           receipt,
           notes: {
             user_id: user.id,
             plan: PREMIUM_PLAN,
             currency: pricingTier.currency,
+            coupon_code: body?.coupon_code || "",
+            affiliate_ref: body?.affiliate_ref || "",
           },
         }),
       });
