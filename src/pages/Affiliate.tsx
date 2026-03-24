@@ -261,8 +261,8 @@ const Affiliate = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Vowz Affiliate Program – Earn ₹250 / $5 Per Referral"
-        description="Join the Vowz affiliate program and earn ₹250 (India) or $5 (International) for every successful wedding website referral. Free to join, lifetime attribution, real-time dashboard."
+        title="Vowz Affiliate Program – Earn 25% Commission Per Referral"
+        description="Join the Vowz affiliate program and earn 25% commission on every successful wedding website referral. Free to join, lifetime attribution, real-time dashboard."
         ogTitle="Vowz Affiliate Program – Earn Per Referral"
         ogDescription="Earn ₹250 or $5 per successful referral. Join our wedding invitation affiliate program — free to join with lifetime attribution and real-time tracking."
         ogImage="https://vowz.me/og-affiliate.jpg"
