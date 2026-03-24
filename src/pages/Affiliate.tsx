@@ -17,8 +17,15 @@ import VowzLogo from "@/components/VowzLogo";
 import { QRCodeCanvas } from "qrcode.react";
 import { usePricingRegion, type PricingRegion } from "@/hooks/use-pricing-region";
 
-const COMMISSION = { IN: { amount: 250, symbol: "₹", label: "₹250" }, INTL: { amount: 5, symbol: "$", label: "$5" } };
-const CUSTOMER_DISCOUNT = { IN: { amount: 250, final: 749, symbol: "₹" }, INTL: { amount: 5, final: 15, symbol: "$" } };
+// 25% commission on subscription fee, 15% customer discount
+const COMMISSION = {
+  IN: { amount: Math.round(999 * 0.25), symbol: "₹", label: `₹${Math.round(999 * 0.25)}` },
+  INTL: { amount: Math.round(20 * 0.25 * 100) / 100, symbol: "$", label: `$${Math.round(20 * 0.25 * 100) / 100}` },
+};
+const CUSTOMER_DISCOUNT = {
+  IN: { amount: Math.round(999 * 0.15), final: 999 - Math.round(999 * 0.15), symbol: "₹" },
+  INTL: { amount: Math.round(20 * 0.15 * 100) / 100, final: 20 - Math.round(20 * 0.15 * 100) / 100, symbol: "$" },
+};
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
