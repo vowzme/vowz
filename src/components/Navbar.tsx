@@ -38,11 +38,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/30" role="navigation" aria-label="Main navigation">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center">
+        <Link to="/" className="flex items-center" aria-label="Vowz — Home">
           <VowzLogo iconSize="h-7" textSize="text-lg" />
-        </a>
+        </Link>
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
