@@ -650,38 +650,9 @@ const Dashboard = () => {
               <AnalyticsPanel siteId={site?.id} accent={(site.suggested_colors as any)?.[1] || "#D4A853"} />
             </TabsContent>
 
-            {/* ─── RSVPs Tab ─── */}
+            {/* ─── RSVPs / Guest List Tab ─── */}
             <TabsContent value="rsvps">
-              <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
-                <div className="p-6 border-b border-border/30">
-                  <h2 className="font-display text-xl font-bold text-foreground">Guest RSVPs</h2>
-                  <p className="text-sm text-muted-foreground font-body mt-1">
-                    {rsvps.length === 0
-                      ? "No RSVPs yet. Share your site to start collecting responses!"
-                      : `${rsvps.length} response${rsvps.length > 1 ? "s" : ""} received`}
-                  </p>
-                </div>
-
-                {rsvps.length > 0 ? (
-                  <div className="divide-y divide-border/30">
-                    {rsvps.map((rsvp) => (
-                      <RsvpRow key={rsvp.id} rsvp={rsvp} onDelete={handleDeleteRsvp} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-12 text-center">
-                    <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                    <p className="font-body text-sm text-muted-foreground">
-                      RSVPs will appear here once guests respond to your invitation.
-                    </p>
-                    {site.is_published && site.slug && (
-                      <Button variant="outline" size="sm" className="mt-4" onClick={copyLink}>
-                        <Copy className="w-4 h-4 mr-1" /> Copy site link to share
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </div>
+              <GuestListPanel rsvps={rsvps} rsvpLoading={rsvpLoading} onDelete={handleDeleteRsvp} site={site} copyLink={copyLink} />
             </TabsContent>
 
             {/* ─── Billing Tab ─── */}
