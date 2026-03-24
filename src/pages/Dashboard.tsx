@@ -914,7 +914,160 @@ function StatCard({
   );
 }
 
-// ─── RSVP Row ─────────────────────────────────────────────────────────
+// ─── Guest List Panel ─────────────────────────────────────────────────
+function GuestListPanel({ rsvps, rsvpLoading, onDelete, site, copyLink }: {
+  rsvps: RsvpRow[]; rsvpLoading: boolean; onDelete: (id: string) => void; site: any; copyLink: () => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "attending" | "not_attending">("all");
+
+  const filtered = rsvps.filter((r) => {
+    const matchesSearch = r.guest_name.toLowerCase().includes(search.toLowerCase()) ||
+      r.guest_email.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === "all" ||
+      (statusFilter === "attending" && r.attending) ||
+      (statusFilter === "not_attending" && !r.attending);
+    return matchesSearch && matchesStatus;
+  });
+
+  const attendingCount = rsvps.filter((r) => r.attending).length;
+  const notAttendingCount = rsvps.filter((r) => !r.attending).length;
+  const totalHeadcount = rsvps.filter((r) => r.attending).reduce((s, r) => s + r.guest_count, 0);
+
+  const mealSummary = rsvps.filter((r) => r.attending && r.meal_preference).reduce((acc, r) => {
+    const meal = (r.meal_preference || "not specified").toLowerCase();
+    acc[meal] = (acc[meal] || 0) + r.guest_count;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const exportCSV = () => {
+    const headers = ["Name", "Email", "RSVP Status", "Guests", "Meal Preference", "Message", "Date"];
+    const rows = rsvps.map((r) => [
+      r.guest_name, r.guest_email, r.attending ? "Attending" : "Not Attending",
+      String(r.guest_count), r.meal_preference || "", r.message || "",
+      new Date(r.created_at).toLocaleDateString(),
+    ]);
+    const csv = [headers, ...rows].map((row) => row.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "guest-list.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-border/30">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h2 className="font-display text-xl font-bold text-foreground">Guest List</h2>
+            <p className="text-xs text-muted-foreground font-body mt-0.5">
+              Responses update automatically as guests RSVP.
+            </p>
+          </div>
+          {rsvps.length > 0 && (
+            <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5">
+              <Download className="w-3.5 h-3.5" /> Export CSV
+            </Button>
+          )}
+        </div>
+
+        {/* Summary stats */}
+        {rsvps.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div className="bg-muted/50 rounded-xl p-3 text-center">
+              <p className="font-display text-2xl font-bold text-foreground">{rsvps.length}</p>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Total Responses</p>
+            </div>
+            <div className="bg-emerald/5 rounded-xl p-3 text-center">
+              <p className="font-display text-2xl font-bold text-emerald">{attendingCount}</p>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Attending</p>
+            </div>
+            <div className="bg-destructive/5 rounded-xl p-3 text-center">
+              <p className="font-display text-2xl font-bold text-destructive">{notAttendingCount}</p>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Declined</p>
+            </div>
+            <div className="bg-gold/5 rounded-xl p-3 text-center">
+              <p className="font-display text-2xl font-bold text-gold">{totalHeadcount}</p>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Total Headcount</p>
+            </div>
+          </div>
+        )}
+
+        {/* Meal summary */}
+        {Object.keys(mealSummary).length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="font-body text-xs text-muted-foreground font-medium">Meals:</span>
+            {Object.entries(mealSummary).map(([meal, count]) => (
+              <span key={meal} className="font-body text-xs bg-muted px-2 py-0.5 rounded-full capitalize">
+                {meal}: {count}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Search & filter */}
+        {rsvps.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 h-9 font-body text-sm"
+              />
+            </div>
+            <div className="flex gap-1.5">
+              {(["all", "attending", "not_attending"] as const).map((f) => (
+                <Button
+                  key={f}
+                  variant={statusFilter === f ? "default" : "outline"}
+                  size="sm"
+                  className="font-body text-xs h-9"
+                  onClick={() => setStatusFilter(f)}
+                >
+                  {f === "all" ? "All" : f === "attending" ? "Attending" : "Declined"}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {rsvpLoading ? (
+        <div className="flex justify-center py-12">
+          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : filtered.length > 0 ? (
+        <div className="divide-y divide-border/30">
+          {filtered.map((rsvp) => (
+            <RsvpRow key={rsvp.id} rsvp={rsvp} onDelete={onDelete} />
+          ))}
+        </div>
+      ) : rsvps.length > 0 ? (
+        <div className="p-12 text-center">
+          <Search className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+          <p className="font-body text-sm text-muted-foreground">No results match your filter.</p>
+        </div>
+      ) : (
+        <div className="p-12 text-center">
+          <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+          <p className="font-body text-sm text-muted-foreground">
+            RSVPs will appear here once guests respond to your invitation.
+          </p>
+          {site?.is_published && site?.slug && (
+            <Button variant="outline" size="sm" className="mt-4" onClick={copyLink}>
+              <Copy className="w-4 h-4 mr-1" /> Copy site link to share
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
 
