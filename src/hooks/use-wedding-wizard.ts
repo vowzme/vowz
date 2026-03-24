@@ -1,4 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+
+const WIZARD_STORAGE_KEY = "vowz_wizard_draft";
 
 export interface WeddingData {
   partner1: string;
