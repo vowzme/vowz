@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
