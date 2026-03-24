@@ -462,7 +462,7 @@ const Dashboard = () => {
                 Analytics <BarChart3 className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
               <TabsTrigger value="rsvps" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
-                RSVPs {rsvps.length > 0 && <span className="ml-0.5 sm:ml-1.5 bg-gold/20 text-gold text-[9px] sm:text-xs px-1 py-0.5 rounded-full">{rsvps.length}</span>}
+                Guest List {rsvps.length > 0 && <span className="ml-0.5 sm:ml-1.5 bg-gold/20 text-gold text-[9px] sm:text-xs px-1 py-0.5 rounded-full">{rsvps.length}</span>}
               </TabsTrigger>
               <TabsTrigger value="blessings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Blessings {blessings.length > 0 && <span className="ml-0.5 sm:ml-1.5 bg-gold/20 text-gold text-[9px] sm:text-xs px-1 py-0.5 rounded-full">{blessings.filter(b => b.status === "pending").length || blessings.length}</span>}
