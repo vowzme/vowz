@@ -79,18 +79,40 @@ const COLOR_PALETTES = [
 export { CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES };
 
 export function useWeddingWizard() {
-  const [step, setStep] = useState<WizardStep>("names");
-  const [wizardData, setWizardData] = useState<WeddingData>({
-    partner1: "",
-    partner2: "",
-    culturalBackground: "Hindu",
-    howWeMet: "",
-    functions: [],
-    theme: "traditional",
-    suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"],
-    tagline: "",
+  const [step, setStep] = useState<WizardStep>(() => {
+    try {
+      const saved = sessionStorage.getItem(WIZARD_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.step || "names";
+      }
+    } catch {}
+    return "names";
+  });
+  const [wizardData, setWizardData] = useState<WeddingData>(() => {
+    try {
+      const saved = sessionStorage.getItem(WIZARD_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.data || {
+          partner1: "", partner2: "", culturalBackground: "Hindu", howWeMet: "",
+          functions: [], theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"], tagline: "",
+        };
+      }
+    } catch {}
+    return {
+      partner1: "", partner2: "", culturalBackground: "Hindu", howWeMet: "",
+      functions: [], theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"], tagline: "",
+    };
   });
   const [isComplete, setIsComplete] = useState(false);
+
+  // Persist wizard state to sessionStorage
+  useEffect(() => {
+    if (!isComplete) {
+      sessionStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify({ step, data: wizardData }));
+    }
+  }, [step, wizardData, isComplete]);
 
   const updateField = useCallback(<K extends keyof WeddingData>(key: K, value: WeddingData[K]) => {
     setWizardData((prev) => ({ ...prev, [key]: value }));
