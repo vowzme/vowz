@@ -500,6 +500,8 @@ const PublicSite = () => {
             <Mail className="w-4 h-4" />
             Email
           </a>
+        </div>
+        <p className="text-xs text-muted-foreground font-body">
           Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Vowz
         </p>
         <a
