@@ -124,7 +124,7 @@ const Navbar = () => {
                     key={l.label}
                     href={l.href}
                     onClick={(e) => { handleAnchorClick(e, l.href); setOpen(false); }}
-                    className="font-body text-sm text-muted-foreground py-2 cursor-pointer"
+                    className="font-body text-sm text-muted-foreground py-3 min-h-[44px] flex items-center cursor-pointer"
                   >
                     {l.label}
                   </a>
