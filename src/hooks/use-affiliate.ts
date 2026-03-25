@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 
 const AFFILIATE_STORAGE_KEY = "shaadi_affiliate_ref";
+const FRANCHISE_STORAGE_KEY = "vowz_franchise_ref";
 
 /**
  * Captures affiliate referral code from URL params (?ref=CODE or ?coupon=CODE)
- * and stores in localStorage for later attribution on signup/upgrade.
+ * and franchise referral (?franchise=CODE) and stores in localStorage.
  */
 export function useCaptureAffiliate() {
   useEffect(() => {
@@ -12,6 +13,10 @@ export function useCaptureAffiliate() {
     const ref = params.get("ref") || params.get("coupon");
     if (ref) {
       localStorage.setItem(AFFILIATE_STORAGE_KEY, ref.trim().toLowerCase());
+    }
+    const franchise = params.get("franchise");
+    if (franchise) {
+      localStorage.setItem(FRANCHISE_STORAGE_KEY, franchise.trim().toLowerCase());
     }
   }, []);
 }
@@ -22,6 +27,14 @@ export function getStoredAffiliateRef(): string | null {
 
 export function clearStoredAffiliateRef() {
   localStorage.removeItem(AFFILIATE_STORAGE_KEY);
+}
+
+export function getStoredFranchiseRef(): string | null {
+  return localStorage.getItem(FRANCHISE_STORAGE_KEY);
+}
+
+export function clearStoredFranchiseRef() {
+  localStorage.removeItem(FRANCHISE_STORAGE_KEY);
 }
 
 export function generateReferralCode(name: string): string {
