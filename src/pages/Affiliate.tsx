@@ -168,17 +168,44 @@ const Affiliate = () => {
     if (!user) return;
     setAuthLoading(true);
     const code = generateReferralCode(fullName || user.email || "");
-    const { error } = await supabase.from("affiliates").insert({
+
+    // Check if there's a franchise referral stored
+    const franchiseRef = getStoredFranchiseRef() || new URLSearchParams(window.location.search).get("franchise");
+    let franchiseId: string | null = null;
+
+    if (franchiseRef) {
+      const { data: franchiseAff } = await (supabase as any)
+        .from("affiliates")
+        .select("id")
+        .eq("referral_code", franchiseRef.trim().toLowerCase())
+        .eq("is_franchise", true)
+        .eq("franchise_approved", true)
+        .maybeSingle();
+      if (franchiseAff) {
+        franchiseId = franchiseAff.id;
+      }
+    }
+
+    const insertData: any = {
       user_id: user.id,
       full_name: fullName || user.user_metadata?.full_name || "",
       email: user.email || email,
       phone: phone || null,
       referral_code: code,
-    } as any);
+    };
+    if (franchiseId) {
+      insertData.franchise_id = franchiseId;
+    }
+
+    const { error } = await supabase.from("affiliates").insert(insertData as any);
     if (error) {
       toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Welcome aboard! 🎉", description: "You're now a Vowz affiliate partner." });
+      clearStoredFranchiseRef();
+      const msg = franchiseId
+        ? "You're now a Vowz affiliate partner, linked to a franchise network!"
+        : "You're now a Vowz affiliate partner.";
+      toast({ title: "Welcome aboard! 🎉", description: msg });
       await loadAffiliateData(user.id);
     }
     setAuthLoading(false);
