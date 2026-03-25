@@ -42,6 +42,7 @@ export default function AdminDashboard() {
     { label: "Feature Requests", value: stats.featureRequests, icon: Lightbulb, color: "text-amber-500", route: "/admin/feature-requests" },
     { label: "Coupons", value: stats.coupons, icon: Ticket, color: "text-purple-500", route: "/admin/coupons" },
     { label: "Analytics", value: "→", icon: BarChart3, color: "text-sky-500", route: "/admin/analytics" },
+    { label: "Franchise Partners", value: "→", icon: Network, color: "text-indigo-500", route: "/admin/franchise" },
   ];
 
   return (
