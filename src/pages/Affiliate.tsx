@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { generateReferralCode } from "@/hooks/use-affiliate";
+import { generateReferralCode, getStoredFranchiseRef, clearStoredFranchiseRef } from "@/hooks/use-affiliate";
 import SEOHead from "@/components/SEOHead";
 import VowzLogo from "@/components/VowzLogo";
 import { QRCodeCanvas } from "qrcode.react";
