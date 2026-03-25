@@ -25,7 +25,7 @@ export default function AdminFranchise() {
     setLoading(true);
     const [affRes, commRes] = await Promise.all([
       supabase.from("affiliates").select("*").order("created_at", { ascending: false }),
-      supabase.from("franchise_commissions" as any).select("*").order("created_at", { ascending: false }),
+      supabase.from("franchise_commissions").select("*").order("created_at", { ascending: false }),
     ]);
     const allAffs = affRes.data || [];
     setAllAffiliates(allAffs);
