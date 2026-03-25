@@ -25,7 +25,7 @@ export default function AdminFranchise() {
     setLoading(true);
     const [affRes, commRes] = await Promise.all([
       supabase.from("affiliates").select("*").order("created_at", { ascending: false }),
-      supabase.from("franchise_commissions" as any).select("*").order("created_at", { ascending: false }),
+      supabase.from("franchise_commissions").select("*").order("created_at", { ascending: false }),
     ]);
     const allAffs = affRes.data || [];
     setAllAffiliates(allAffs);
@@ -63,8 +63,8 @@ export default function AdminFranchise() {
 
   const handleMarkPaid = async (commissionId: string) => {
     const { error } = await supabase
-      .from("franchise_commissions" as any)
-      .update({ payout_status: "paid", paid_at: new Date().toISOString() } as any)
+      .from("franchise_commissions")
+      .update({ payout_status: "paid", paid_at: new Date().toISOString() })
       .eq("id", commissionId);
     if (error) {
       toast({ title: "Failed", description: error.message, variant: "destructive" });

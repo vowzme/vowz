@@ -322,6 +322,75 @@ Deno.serve(async (req) => {
         console.error("Failed to send payment success email (non-blocking)", emailErr);
       }
 
+      // ── Affiliate & Franchise commission tracking ──
+      try {
+        // Find if this user was referred by an affiliate
+        const { data: referral } = await adminClient
+          .from("affiliate_referrals")
+          .select("id, affiliate_id, status")
+          .eq("referred_user_id", user.id)
+          .eq("status", "pending")
+          .maybeSingle();
+
+        if (referral) {
+          // Mark referral as converted
+          await adminClient
+            .from("affiliate_referrals")
+            .update({
+              status: "converted",
+              converted_at: nowISO,
+              plan: PREMIUM_PLAN,
+              commission_amount: paymentCurrency === "INR" ? 999 * 0.25 : 20 * 0.25,
+            })
+            .eq("id", referral.id);
+
+          // Update affiliate stats
+          await adminClient.rpc("execute_sql" as any, {} as any).catch(() => {});
+          const { data: aff } = await adminClient
+            .from("affiliates")
+            .select("id, successful_referrals, total_earnings, pending_earnings, franchise_id")
+            .eq("id", referral.affiliate_id)
+            .maybeSingle();
+
+          if (aff) {
+            const affCommission = paymentCurrency === "INR" ? 999 * 0.25 : 20 * 0.25;
+            await adminClient
+              .from("affiliates")
+              .update({
+                successful_referrals: (aff.successful_referrals || 0) + 1,
+                total_earnings: (aff.total_earnings || 0) + affCommission,
+                pending_earnings: (aff.pending_earnings || 0) + affCommission,
+              })
+              .eq("id", aff.id);
+
+            // If this affiliate is under a franchise, create franchise override commission
+            if (aff.franchise_id) {
+              const franchiseOverride = paymentCurrency === "INR"
+                ? Math.round(999 * 0.05 * 100) / 100   // ₹49.95
+                : Math.round(20 * 0.05 * 100) / 100;    // $1.00
+
+              await adminClient.from("franchise_commissions").insert({
+                franchise_id: aff.franchise_id,
+                sub_affiliate_id: aff.id,
+                referral_id: referral.id,
+                commission_amount: franchiseOverride,
+                currency: paymentCurrency,
+                payout_status: "pending",
+              });
+
+              console.log("Franchise override commission created", {
+                franchise_id: aff.franchise_id,
+                sub_affiliate_id: aff.id,
+                amount: franchiseOverride,
+                currency: paymentCurrency,
+              });
+            }
+          }
+        }
+      } catch (commErr) {
+        console.error("Commission tracking error (non-blocking):", commErr);
+      }
+
       return json({ success: true, expires_at: expiresAt });
     }
 
