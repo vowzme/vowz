@@ -599,6 +599,13 @@ const Affiliate = () => {
               </h1>
               <p className="text-muted-foreground font-body text-sm mt-2">Track your referrals, earnings, and performance</p>
 
+              {/* Franchise Dashboard Link */}
+              {(affiliate as any).is_franchise && (affiliate as any).franchise_approved && (
+                <Link to="/franchise" className="inline-flex items-center gap-2 mt-4 bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-full hover:bg-primary/15 transition-colors">
+                  <span className="font-body text-xs font-semibold">🏢 Open Franchise Dashboard →</span>
+                </Link>
+              )}
+
               {/* Country Selector */}
               <div className="flex justify-center mt-4">
                 <div className="inline-flex rounded-full border border-border/60 bg-card p-0.5 shadow-sm">
