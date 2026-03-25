@@ -38,6 +38,7 @@ import AdminFeatureRequests from "./pages/admin/AdminFeatureRequests";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminFranchise from "./pages/admin/AdminFranchise";
 import FranchiseDashboard from "./pages/FranchiseDashboard";
+import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
@@ -65,7 +66,8 @@ const AppRoutes = () => (
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
     <Route path="/domain-demo" element={<Layout><DomainWizardDemo /></Layout>} />
     <Route path="/affiliate" element={<Layout><Affiliate /></Layout>} />
-    <Route path="/franchise" element={<FranchiseDashboard />} />
+    <Route path="/franchise" element={<Layout><FranchiseLanding /></Layout>} />
+    <Route path="/franchise/dashboard" element={<FranchiseDashboard />} />
     <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
     <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
     <Route path="/contact" element={<Layout><Contact /></Layout>} />

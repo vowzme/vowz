@@ -155,7 +155,7 @@ export default function FranchiseDashboard() {
   }
 
   if (!user || !affiliate) {
-    return <Navigate to="/affiliate" replace />;
+    return <Navigate to="/franchise" replace />;
   }
 
   const franchiseLink = `https://vowz.me/affiliate?franchise=${affiliate.referral_code}`;
