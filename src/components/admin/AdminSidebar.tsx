@@ -9,6 +9,7 @@ import {
   Ticket,
   Lightbulb,
   BarChart3,
+  Network,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -32,6 +33,7 @@ const items = [
   { title: "Payments", url: "/admin/payments", icon: CreditCard },
   { title: "Coupons", url: "/admin/coupons", icon: Ticket },
   { title: "Feature Requests", url: "/admin/feature-requests", icon: Lightbulb },
+  { title: "Franchise", url: "/admin/franchise", icon: Network },
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];

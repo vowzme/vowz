@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { generateReferralCode } from "@/hooks/use-affiliate";
+import { generateReferralCode, getStoredFranchiseRef, clearStoredFranchiseRef } from "@/hooks/use-affiliate";
 import SEOHead from "@/components/SEOHead";
 import VowzLogo from "@/components/VowzLogo";
 import { QRCodeCanvas } from "qrcode.react";
@@ -168,17 +168,44 @@ const Affiliate = () => {
     if (!user) return;
     setAuthLoading(true);
     const code = generateReferralCode(fullName || user.email || "");
-    const { error } = await supabase.from("affiliates").insert({
+
+    // Check if there's a franchise referral stored
+    const franchiseRef = getStoredFranchiseRef() || new URLSearchParams(window.location.search).get("franchise");
+    let franchiseId: string | null = null;
+
+    if (franchiseRef) {
+      const { data: franchiseAff } = await (supabase as any)
+        .from("affiliates")
+        .select("id")
+        .eq("referral_code", franchiseRef.trim().toLowerCase())
+        .eq("is_franchise", true)
+        .eq("franchise_approved", true)
+        .maybeSingle();
+      if (franchiseAff) {
+        franchiseId = franchiseAff.id;
+      }
+    }
+
+    const insertData: any = {
       user_id: user.id,
       full_name: fullName || user.user_metadata?.full_name || "",
       email: user.email || email,
       phone: phone || null,
       referral_code: code,
-    } as any);
+    };
+    if (franchiseId) {
+      insertData.franchise_id = franchiseId;
+    }
+
+    const { error } = await supabase.from("affiliates").insert(insertData as any);
     if (error) {
       toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Welcome aboard! 🎉", description: "You're now a Vowz affiliate partner." });
+      clearStoredFranchiseRef();
+      const msg = franchiseId
+        ? "You're now a Vowz affiliate partner, linked to a franchise network!"
+        : "You're now a Vowz affiliate partner.";
+      toast({ title: "Welcome aboard! 🎉", description: msg });
       await loadAffiliateData(user.id);
     }
     setAuthLoading(false);
@@ -571,6 +598,13 @@ const Affiliate = () => {
                 Welcome, {affiliate.full_name || "Partner"}!
               </h1>
               <p className="text-muted-foreground font-body text-sm mt-2">Track your referrals, earnings, and performance</p>
+
+              {/* Franchise Dashboard Link */}
+              {(affiliate as any).is_franchise && (affiliate as any).franchise_approved && (
+                <Link to="/franchise" className="inline-flex items-center gap-2 mt-4 bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-full hover:bg-primary/15 transition-colors">
+                  <span className="font-body text-xs font-semibold">🏢 Open Franchise Dashboard →</span>
+                </Link>
+              )}
 
               {/* Country Selector */}
               <div className="flex justify-center mt-4">

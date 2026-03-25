@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Globe, Heart, Lightbulb, Ticket, FileText, BarChart3, Crown } from "lucide-react";
+import { Users, Globe, Heart, Lightbulb, Ticket, FileText, BarChart3, Crown, Network } from "lucide-react";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -42,6 +42,7 @@ export default function AdminDashboard() {
     { label: "Feature Requests", value: stats.featureRequests, icon: Lightbulb, color: "text-amber-500", route: "/admin/feature-requests" },
     { label: "Coupons", value: stats.coupons, icon: Ticket, color: "text-purple-500", route: "/admin/coupons" },
     { label: "Analytics", value: "→", icon: BarChart3, color: "text-sky-500", route: "/admin/analytics" },
+    { label: "Franchise Partners", value: "→", icon: Network, color: "text-indigo-500", route: "/admin/franchise" },
   ];
 
   return (
