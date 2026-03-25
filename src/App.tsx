@@ -38,6 +38,7 @@ import AdminFeatureRequests from "./pages/admin/AdminFeatureRequests";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminFranchise from "./pages/admin/AdminFranchise";
 import FranchiseDashboard from "./pages/FranchiseDashboard";
+import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
