@@ -40,6 +40,8 @@ export type Database = {
           converted_at: string | null
           created_at: string
           id: string
+          paid_at: string | null
+          payout_status: string
           plan: string
           referred_email: string | null
           referred_user_id: string | null
@@ -52,6 +54,8 @@ export type Database = {
           converted_at?: string | null
           created_at?: string
           id?: string
+          paid_at?: string | null
+          payout_status?: string
           plan?: string
           referred_email?: string | null
           referred_user_id?: string | null
@@ -64,6 +68,8 @@ export type Database = {
           converted_at?: string | null
           created_at?: string
           id?: string
+          paid_at?: string | null
+          payout_status?: string
           plan?: string
           referred_email?: string | null
           referred_user_id?: string | null
@@ -84,9 +90,12 @@ export type Database = {
           created_at: string
           custom_coupon: string | null
           email: string
+          franchise_approved: boolean
+          franchise_id: string | null
           full_name: string
           id: string
           is_active: boolean
+          is_franchise: boolean
           paid_earnings: number
           payout_paypal: string | null
           payout_upi: string | null
@@ -103,9 +112,12 @@ export type Database = {
           created_at?: string
           custom_coupon?: string | null
           email?: string
+          franchise_approved?: boolean
+          franchise_id?: string | null
           full_name?: string
           id?: string
           is_active?: boolean
+          is_franchise?: boolean
           paid_earnings?: number
           payout_paypal?: string | null
           payout_upi?: string | null
@@ -122,9 +134,12 @@ export type Database = {
           created_at?: string
           custom_coupon?: string | null
           email?: string
+          franchise_approved?: boolean
+          franchise_id?: string | null
           full_name?: string
           id?: string
           is_active?: boolean
+          is_franchise?: boolean
           paid_earnings?: number
           payout_paypal?: string | null
           payout_upi?: string | null
@@ -137,7 +152,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       blog_posts: {
         Row: {
@@ -410,6 +433,64 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      franchise_commissions: {
+        Row: {
+          commission_amount: number
+          created_at: string
+          currency: string
+          franchise_id: string
+          id: string
+          paid_at: string | null
+          payout_status: string
+          referral_id: string
+          sub_affiliate_id: string
+        }
+        Insert: {
+          commission_amount?: number
+          created_at?: string
+          currency?: string
+          franchise_id: string
+          id?: string
+          paid_at?: string | null
+          payout_status?: string
+          referral_id: string
+          sub_affiliate_id: string
+        }
+        Update: {
+          commission_amount?: number
+          created_at?: string
+          currency?: string
+          franchise_id?: string
+          id?: string
+          paid_at?: string | null
+          payout_status?: string
+          referral_id?: string
+          sub_affiliate_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_commissions_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_commissions_sub_affiliate_id_fkey"
+            columns: ["sub_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       guest_blessings: {
         Row: {
