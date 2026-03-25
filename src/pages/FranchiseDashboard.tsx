@@ -89,8 +89,8 @@ export default function FranchiseDashboard() {
     setSubAffiliates(subs || []);
 
     // Load franchise commissions
-    const { data: fc } = await supabase
-      .from("franchise_commissions" as any)
+    const { data: fc } = await (supabase as any)
+      .from("franchise_commissions")
       .select("*")
       .eq("franchise_id", aff.id)
       .order("created_at", { ascending: false });
