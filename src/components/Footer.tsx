@@ -66,6 +66,7 @@ const Footer = () => {
               { label: "About Us", href: "/about" },
               { label: "Contact Us", href: "/contact" },
               { label: "Join as Affiliate", href: "/affiliate" },
+              { label: "Franchise Partner", href: "/franchise" },
             ]},
             { title: "Legal", links: [
               { label: "Privacy Policy", href: "/privacy" },
