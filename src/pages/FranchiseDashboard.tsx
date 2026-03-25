@@ -82,10 +82,10 @@ export default function FranchiseDashboard() {
     setPayoutPaypal((aff as any).payout_paypal || "");
 
     // Load sub-affiliates
-    const { data: subs } = await supabase
+    const { data: subs } = await (supabase as any)
       .from("affiliates")
       .select("id, full_name, email, created_at, successful_referrals, total_referrals")
-      .eq("franchise_id" as any, aff.id);
+      .eq("franchise_id", aff.id);
     setSubAffiliates(subs || []);
 
     // Load franchise commissions
