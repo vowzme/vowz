@@ -36,7 +36,7 @@ import AdminBlog from "./pages/admin/AdminBlog";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminFeatureRequests from "./pages/admin/AdminFeatureRequests";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminFranchise from "./pages/admin/AdminFranchise";
+import AdminPartners from "./pages/admin/AdminPartners";
 import FranchiseDashboard from "./pages/FranchiseDashboard";
 import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
@@ -82,7 +82,7 @@ const AppRoutes = () => (
       <Route path="/admin/coupons" element={<AdminLayout><AdminCoupons /></AdminLayout>} />
       <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>} />
       <Route path="/admin/feature-requests" element={<AdminLayout><AdminFeatureRequests /></AdminLayout>} />
-      <Route path="/admin/franchise" element={<AdminLayout><AdminFranchise /></AdminLayout>} />
+      <Route path="/admin/partners" element={<AdminLayout><AdminPartners /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
