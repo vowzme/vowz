@@ -36,7 +36,7 @@ import AdminBlog from "./pages/admin/AdminBlog";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminFeatureRequests from "./pages/admin/AdminFeatureRequests";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminFranchise from "./pages/admin/AdminFranchise";
+import AdminPartners from "./pages/admin/AdminPartners";
 import FranchiseDashboard from "./pages/FranchiseDashboard";
 import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
