@@ -2,16 +2,19 @@ import { useEffect, useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useWeddingWizard, CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES } from "@/hooks/use-wedding-wizard";
 import WizardPreview from "@/components/WizardPreview";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
+import GoogleDriveLinkCard from "@/components/GoogleDriveLinkCard";
+import { useGoogleDrive } from "@/hooks/use-google-drive";
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
+  { key: "storage", icon: HardDrive, label: "Storage" },
   { key: "story", icon: BookOpen, label: "Story" },
   { key: "theme", icon: Palette, label: "Theme" },
   { key: "events", icon: Calendar, label: "Events" },
@@ -36,6 +39,7 @@ const OnboardingWizard = () => {
     nextStep, prevStep, completeWizard, isComplete,
   } = useWeddingWizard();
   const { generate, loading: aiLoading } = useAIContentGen();
+  const { linked: driveLinked, loading: driveLoading } = useGoogleDrive();
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
   // Apply template preset if navigated from templates
@@ -57,6 +61,7 @@ const OnboardingWizard = () => {
   const canProceed = () => {
     switch (step) {
       case "names": return wizardData.partner1.trim() && wizardData.partner2.trim();
+      case "storage": return driveLinked;
       case "story": return wizardData.howWeMet.trim().length >= 10;
       case "theme": return wizardData.suggestedColors.length >= 3;
       case "events": return wizardData.functions.length > 0;
@@ -189,6 +194,25 @@ const OnboardingWizard = () => {
                       ))}
                     </div>
                   </div>
+                </div>
+              )}
+
+              {step === "storage" && (
+                <div className="space-y-6">
+                  <div className="text-center mb-8">
+                    <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Link Your Storage ☁️</h2>
+                    <p className="text-muted-foreground font-body mt-2 max-w-md mx-auto">
+                      Connect your Google Drive to store all wedding photos & videos safely in your own cloud — we never store your media on our servers.
+                    </p>
+                  </div>
+                  <div className="max-w-md mx-auto">
+                    <GoogleDriveLinkCard onLinked={() => {}} />
+                  </div>
+                  {!driveLinked && !driveLoading && (
+                    <p className="text-center text-xs text-muted-foreground font-body mt-4">
+                      ⚠️ Google Drive must be linked to continue. Your photos & videos will be stored safely in your own Drive.
+                    </p>
+                  )}
                 </div>
               )}
 

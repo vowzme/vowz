@@ -21,7 +21,7 @@ export interface WeddingData {
   welcomeMessage?: string;
 }
 
-export type WizardStep = "names" | "story" | "theme" | "events" | "preview";
+export type WizardStep = "names" | "storage" | "story" | "theme" | "events" | "preview";
 
 const CULTURAL_PRESETS: Record<string, { events: string[]; colors: string[]; theme: string }> = {
   Hindu: {
@@ -142,13 +142,13 @@ export function useWeddingWizard() {
   }, [wizardData]);
 
   const nextStep = useCallback(() => {
-    const steps: WizardStep[] = ["names", "story", "theme", "events", "preview"];
+    const steps: WizardStep[] = ["names", "storage", "story", "theme", "events", "preview"];
     const idx = steps.indexOf(step);
     if (idx < steps.length - 1) setStep(steps[idx + 1]);
   }, [step]);
 
   const prevStep = useCallback(() => {
-    const steps: WizardStep[] = ["names", "story", "theme", "events", "preview"];
+    const steps: WizardStep[] = ["names", "storage", "story", "theme", "events", "preview"];
     const idx = steps.indexOf(step);
     if (idx > 0) setStep(steps[idx - 1]);
   }, [step]);
