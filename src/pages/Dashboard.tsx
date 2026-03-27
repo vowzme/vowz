@@ -463,6 +463,7 @@ const Dashboard = () => {
           <GoogleDriveLinkCard compact />
         </div>
 
+        {!site ? (
           /* No site yet */
           <>
             <motion.div
