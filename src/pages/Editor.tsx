@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import SEOHead from "@/components/SEOHead";
+import { useMediaUpload } from "@/hooks/use-media-upload";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
