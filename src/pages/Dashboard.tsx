@@ -458,7 +458,11 @@ const Dashboard = () => {
           </motion.div>
         )}
 
-        {!site ? (
+        {/* Google Drive Storage */}
+        <div className="mb-6">
+          <GoogleDriveLinkCard compact />
+        </div>
+
           /* No site yet */
           <>
             <motion.div
