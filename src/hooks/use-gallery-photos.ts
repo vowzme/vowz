@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useMediaUpload } from "@/hooks/use-media-upload";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 export interface GalleryPhoto {
@@ -11,12 +12,8 @@ export interface GalleryPhoto {
 
 export function useGalleryPhotos() {
   const { user } = useAuth();
+  const { upload } = useMediaUpload();
   const [uploading, setUploading] = useState(false);
-
-  const getPublicUrl = (path: string) => {
-    const { data } = supabase.storage.from("wedding-photos").getPublicUrl(path);
-    return data.publicUrl;
-  };
 
   const uploadPhotos = useCallback(
     async (files: File[]): Promise<GalleryPhoto[]> => {
@@ -32,24 +29,19 @@ export function useGalleryPhotos() {
             continue;
           }
 
-          const ext = file.name.split(".").pop() || "jpg";
-          const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-          const { error } = await supabase.storage
-            .from("wedding-photos")
-            .upload(fileName, file, { upsert: false });
-
-          if (error) {
-            console.error("Upload error:", error);
+          try {
+            const url = await upload(file, "gallery");
+            if (url) {
+              uploaded.push({
+                id: `gallery-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                url,
+                name: file.name,
+              });
+            }
+          } catch (err: any) {
+            console.error("Upload error:", err);
             toast({ title: `Failed to upload ${file.name}`, variant: "destructive" });
-            continue;
           }
-
-          uploaded.push({
-            id: fileName,
-            url: getPublicUrl(fileName),
-            name: file.name,
-          });
         }
 
         if (uploaded.length > 0) {
@@ -64,15 +56,18 @@ export function useGalleryPhotos() {
 
       return uploaded;
     },
-    [user]
+    [user, upload]
   );
 
   const deletePhoto = useCallback(
     async (path: string) => {
-      const { error } = await supabase.storage.from("wedding-photos").remove([path]);
-      if (error) {
-        toast({ title: "Failed to delete photo", variant: "destructive" });
-        return false;
+      // Only delete from Supabase if it's a Supabase URL; Drive files managed by user
+      if (path.includes("supabase")) {
+        const { error } = await supabase.storage.from("wedding-photos").remove([path]);
+        if (error) {
+          toast({ title: "Failed to delete photo", variant: "destructive" });
+          return false;
+        }
       }
       return true;
     },
