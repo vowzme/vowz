@@ -61,6 +61,7 @@ const OnboardingWizard = () => {
   const canProceed = () => {
     switch (step) {
       case "names": return wizardData.partner1.trim() && wizardData.partner2.trim();
+      case "storage": return driveLinked;
       case "story": return wizardData.howWeMet.trim().length >= 10;
       case "theme": return wizardData.suggestedColors.length >= 3;
       case "events": return wizardData.functions.length > 0;
