@@ -2519,11 +2519,11 @@ function HeroImageUploader({ imageUrl, onImageChange }: { imageUrl: string; onIm
 // ─── Featured Image Uploader (for OG/social sharing) ──────────────────
 function FeaturedImageUploader({ imageUrl, onImageChange }: { imageUrl: string; onImageChange: (url: string) => void }) {
   const [uploading, setUploading] = useState(false);
-  const { user } = useAuth();
+  const { upload } = useMediaUpload();
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast({ title: "Please select an image file", variant: "destructive" });
       return;
@@ -2534,14 +2534,11 @@ function FeaturedImageUploader({ imageUrl, onImageChange }: { imageUrl: string; 
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/featured-${Date.now()}.${ext}`;
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { error: uploadError } = await supabase.storage.from("wedding-photos").upload(path, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from("wedding-photos").getPublicUrl(path);
-      onImageChange(urlData.publicUrl);
-      toast({ title: "Featured image uploaded! 🎉" });
+      const url = await upload(file, "featured");
+      if (url) {
+        onImageChange(url);
+        toast({ title: "Featured image uploaded! 🎉" });
+      }
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally {
