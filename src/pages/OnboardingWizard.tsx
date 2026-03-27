@@ -39,6 +39,7 @@ const OnboardingWizard = () => {
     nextStep, prevStep, completeWizard, isComplete,
   } = useWeddingWizard();
   const { generate, loading: aiLoading } = useAIContentGen();
+  const { linked: driveLinked, loading: driveLoading } = useGoogleDrive();
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
   // Apply template preset if navigated from templates
