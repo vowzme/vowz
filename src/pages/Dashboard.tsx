@@ -157,9 +157,11 @@ function generateInvoicePDF(payment: any, profile: any) {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, signOut } = useAuth();
   const { loadUserSite, updateSite, saving } = useWeddingSite();
   const { pricing } = usePricingRegion();
+  const googleDrive = useGoogleDrive();
   const [site, setSite] = useState<any>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -169,6 +171,26 @@ const Dashboard = () => {
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
   const [blessings, setBlessings] = useState<any[]>([]);
   const [blessingsLoading, setBlessingsLoading] = useState(false);
+
+  // Handle Google Drive OAuth callback
+  useEffect(() => {
+    const gdrive = searchParams.get("gdrive");
+    const code = searchParams.get("code");
+    if (gdrive === "callback" && code) {
+      googleDrive.handleCallback(code).then((result) => {
+        if (result.success) {
+          toast({ title: "Google Drive linked! ☁️", description: `Connected to ${result.email}` });
+        } else {
+          toast({ title: "Failed to link Google Drive", description: result.error, variant: "destructive" });
+        }
+        // Clean up URL params
+        searchParams.delete("gdrive");
+        searchParams.delete("code");
+        searchParams.delete("scope");
+        setSearchParams(searchParams, { replace: true });
+      });
+    }
+  }, []);
 
   // Load site, profile and subscription status
   useEffect(() => {
