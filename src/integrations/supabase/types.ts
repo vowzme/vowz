@@ -798,6 +798,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_google_drive: {
+        Row: {
+          access_token: string
+          created_at: string
+          drive_email: string | null
+          drive_folder_id: string | null
+          id: string
+          is_linked: boolean
+          refresh_token: string
+          token_expires_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          drive_email?: string | null
+          drive_folder_id?: string | null
+          id?: string
+          is_linked?: boolean
+          refresh_token: string
+          token_expires_at: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          drive_email?: string | null
+          drive_folder_id?: string | null
+          id?: string
+          is_linked?: boolean
+          refresh_token?: string
+          token_expires_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           amount_paid: number
