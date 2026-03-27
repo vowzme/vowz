@@ -2,16 +2,19 @@ import { useEffect, useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useWeddingWizard, CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES } from "@/hooks/use-wedding-wizard";
 import WizardPreview from "@/components/WizardPreview";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
+import GoogleDriveLinkCard from "@/components/GoogleDriveLinkCard";
+import { useGoogleDrive } from "@/hooks/use-google-drive";
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
+  { key: "storage", icon: HardDrive, label: "Storage" },
   { key: "story", icon: BookOpen, label: "Story" },
   { key: "theme", icon: Palette, label: "Theme" },
   { key: "events", icon: Calendar, label: "Events" },
