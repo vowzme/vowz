@@ -21,7 +21,7 @@ export interface WeddingData {
   welcomeMessage?: string;
 }
 
-export type WizardStep = "names" | "story" | "theme" | "events" | "preview";
+export type WizardStep = "names" | "storage" | "story" | "theme" | "events" | "preview";
 
 const CULTURAL_PRESETS: Record<string, { events: string[]; colors: string[]; theme: string }> = {
   Hindu: {
