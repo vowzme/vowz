@@ -197,7 +197,26 @@ const OnboardingWizard = () => {
                 </div>
               )}
 
-              {step === "story" && (
+              {step === "storage" && (
+                <div className="space-y-6">
+                  <div className="text-center mb-8">
+                    <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Link Your Storage ☁️</h2>
+                    <p className="text-muted-foreground font-body mt-2 max-w-md mx-auto">
+                      Connect your Google Drive to store all wedding photos & videos safely in your own cloud — we never store your media on our servers.
+                    </p>
+                  </div>
+                  <div className="max-w-md mx-auto">
+                    <GoogleDriveLinkCard onLinked={() => {}} />
+                  </div>
+                  {!driveLinked && !driveLoading && (
+                    <p className="text-center text-xs text-muted-foreground font-body mt-4">
+                      ⚠️ Google Drive must be linked to continue. Your photos & videos will be stored safely in your own Drive.
+                    </p>
+                  )}
+                </div>
+              )}
+
+
                 <div className="space-y-6">
                   <div className="text-center mb-8">
                     <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Your Love Story ✨</h2>
