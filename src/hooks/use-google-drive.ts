@@ -94,5 +94,26 @@ export function useGoogleDrive() {
     setState({ linked: false, email: null, loading: false });
   }, [getHeaders]);
 
-  return { ...state, startLinking, handleCallback, uploadFile, unlinkDrive, checkStatus };
+  // List files
+  const listFiles = useCallback(async () => {
+    const res = await fetch(`${FUNCTION_URL}?action=list`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    return data.files || [];
+  }, [getHeaders]);
+
+  // Delete file
+  const deleteFile = useCallback(async (fileId: string) => {
+    const res = await fetch(`${FUNCTION_URL}?action=delete`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ fileId }),
+    });
+    return res.json();
+  }, [getHeaders]);
+
+  return { ...state, startLinking, handleCallback, uploadFile, unlinkDrive, checkStatus, listFiles, deleteFile };
 }
