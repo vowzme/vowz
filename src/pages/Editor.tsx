@@ -497,13 +497,15 @@ const Editor = () => {
                       }}
                     />
                   )}
+                  {activePanel === "media" && (
+                    <DriveFileBrowserLazy />
+                  )}
                   {activePanel === "ai" && (
                     <AIAssistantPanel
                       siteData={siteData}
                       onApplyChanges={(changes) => {
                         const newData = { ...siteData, ...changes };
                         updateState({ siteData: newData });
-                        // If colors changed, also rebuild sections won't be needed since they reference siteData
                         toast({ title: "AI changes applied! ✨" });
                       }}
                     />
