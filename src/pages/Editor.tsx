@@ -22,6 +22,7 @@ import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import SEOHead from "@/components/SEOHead";
 import { useMediaUpload } from "@/hooks/use-media-upload";
 import DriveFileBrowserLazy from "@/components/DriveFileBrowser";
+import { StorageBadge } from "@/components/StorageBadge";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
@@ -2398,9 +2399,12 @@ function LogoUploader({ logoUrl, onLogoChange }: { logoUrl: string; onLogoChange
 
   return (
     <div>
-      <label className="font-body text-sm font-medium text-foreground mb-1 block">
-        Couple Logo <span className="text-muted-foreground font-normal">(optional)</span>
-      </label>
+      <div className="flex items-center justify-between mb-1">
+        <label className="font-body text-sm font-medium text-foreground">
+          Couple Logo <span className="text-muted-foreground font-normal">(optional)</span>
+        </label>
+        <StorageBadge />
+      </div>
       {logoUrl ? (
         <div className="flex items-center gap-3">
           <div className="w-16 h-16 rounded-lg border border-border/50 overflow-hidden bg-muted flex items-center justify-center">
@@ -2480,9 +2484,12 @@ function HeroImageUploader({ imageUrl, onImageChange }: { imageUrl: string; onIm
 
   return (
     <div>
-      <label className="font-body text-sm font-medium text-foreground mb-1 block">
-        Background Image <span className="text-muted-foreground font-normal">(optional)</span>
-      </label>
+      <div className="flex items-center justify-between mb-1">
+        <label className="font-body text-sm font-medium text-foreground">
+          Background Image <span className="text-muted-foreground font-normal">(optional)</span>
+        </label>
+        <StorageBadge />
+      </div>
       {imageUrl ? (
         <div className="space-y-2">
           <div className="w-full h-24 rounded-lg border border-border/50 overflow-hidden bg-muted">
@@ -2553,6 +2560,10 @@ function FeaturedImageUploader({ imageUrl, onImageChange }: { imageUrl: string; 
 
   return (
     <div>
+      <div className="flex items-center justify-between mb-1">
+        <span className="font-body text-sm font-medium text-foreground">Featured Image</span>
+        <StorageBadge />
+      </div>
       {imageUrl ? (
         <div className="space-y-2">
           <div className="w-full h-28 rounded-lg border border-border/50 overflow-hidden bg-muted">
@@ -2624,7 +2635,10 @@ function CouplePhotoUploader({ label, currentUrl, onPhotoChange }: { label: stri
 
   return (
     <div>
-      <label className="font-body text-xs text-muted-foreground mb-1 block">{label}</label>
+      <div className="flex items-center justify-between mb-1">
+        <label className="font-body text-xs text-muted-foreground">{label}</label>
+        <StorageBadge />
+      </div>
       {currentUrl ? (
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 rounded-full border border-border/50 overflow-hidden bg-muted">
