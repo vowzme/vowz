@@ -7,7 +7,7 @@ import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
-  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search
+  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import ReactMarkdown from "react-markdown";
@@ -21,6 +21,7 @@ import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import SEOHead from "@/components/SEOHead";
 import { useMediaUpload } from "@/hooks/use-media-upload";
+import DriveFileBrowserLazy from "@/components/DriveFileBrowser";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
@@ -60,7 +61,7 @@ export interface WeddingSiteData {
 interface EditorState {
   siteData: WeddingSiteData;
   sections: WeddingSection[];
-  activePanel: "sections" | "style" | "settings" | "ai" | "templates" | null;
+  activePanel: "sections" | "style" | "settings" | "ai" | "templates" | "media" | null;
   selectedSectionId: string | null;
   previewMode: boolean;
 }
@@ -411,6 +412,7 @@ const Editor = () => {
             { id: "sections" as const, icon: Type, label: "Sections" },
             { id: "templates" as const, icon: LayoutTemplate, label: "Templates" },
             { id: "style" as const, icon: Palette, label: "Style" },
+            { id: "media" as const, icon: HardDrive, label: "Media" },
             { id: "settings" as const, icon: Settings, label: "Settings" },
             { id: "ai" as const, icon: Wand2, label: "AI Assistant" },
           ]).map(({ id, icon: Icon, label }) => (
@@ -496,13 +498,15 @@ const Editor = () => {
                       }}
                     />
                   )}
+                  {activePanel === "media" && (
+                    <DriveFileBrowserLazy />
+                  )}
                   {activePanel === "ai" && (
                     <AIAssistantPanel
                       siteData={siteData}
                       onApplyChanges={(changes) => {
                         const newData = { ...siteData, ...changes };
                         updateState({ siteData: newData });
-                        // If colors changed, also rebuild sections won't be needed since they reference siteData
                         toast({ title: "AI changes applied! ✨" });
                       }}
                     />

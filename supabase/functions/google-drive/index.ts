@@ -265,6 +265,64 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Action: list files in Vowz folder
+    if (action === "list") {
+      const tokenData = await getValidToken(userId);
+      if (!tokenData) {
+        return new Response(JSON.stringify({ error: "Google Drive not linked" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const query = `'${tokenData.folderId}' in parents and trashed = false`;
+      const fields = "files(id,name,mimeType,size,createdTime,thumbnailLink,webViewLink,webContentLink)";
+      const listRes = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=${encodeURIComponent(fields)}&orderBy=createdTime desc&pageSize=100`,
+        { headers: { Authorization: `Bearer ${tokenData.accessToken}` } }
+      );
+      const listData = await listRes.json();
+      return new Response(JSON.stringify({ success: true, files: listData.files || [] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Action: delete file from Drive
+    if (action === "delete") {
+      const { fileId } = await req.json();
+      if (!fileId) {
+        return new Response(JSON.stringify({ error: "fileId required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const tokenData = await getValidToken(userId);
+      if (!tokenData) {
+        return new Response(JSON.stringify({ error: "Google Drive not linked" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const delRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${tokenData.accessToken}` },
+      });
+
+      if (delRes.status === 204 || delRes.ok) {
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const errData = await delRes.json().catch(() => ({}));
+      return new Response(JSON.stringify({ error: "Delete failed", details: errData }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Action: unlink
     if (action === "unlink") {
       await admin.from("user_google_drive").update({ is_linked: false }).eq("user_id", userId);
