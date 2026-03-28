@@ -2560,6 +2560,10 @@ function FeaturedImageUploader({ imageUrl, onImageChange }: { imageUrl: string; 
 
   return (
     <div>
+      <div className="flex items-center justify-between mb-1">
+        <span className="font-body text-sm font-medium text-foreground">Featured Image</span>
+        <StorageBadge />
+      </div>
       {imageUrl ? (
         <div className="space-y-2">
           <div className="w-full h-28 rounded-lg border border-border/50 overflow-hidden bg-muted">
