@@ -2635,7 +2635,10 @@ function CouplePhotoUploader({ label, currentUrl, onPhotoChange }: { label: stri
 
   return (
     <div>
-      <label className="font-body text-xs text-muted-foreground mb-1 block">{label}</label>
+      <div className="flex items-center justify-between mb-1">
+        <label className="font-body text-xs text-muted-foreground">{label}</label>
+        <StorageBadge />
+      </div>
       {currentUrl ? (
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 rounded-full border border-border/50 overflow-hidden bg-muted">
