@@ -2484,9 +2484,12 @@ function HeroImageUploader({ imageUrl, onImageChange }: { imageUrl: string; onIm
 
   return (
     <div>
-      <label className="font-body text-sm font-medium text-foreground mb-1 block">
-        Background Image <span className="text-muted-foreground font-normal">(optional)</span>
-      </label>
+      <div className="flex items-center justify-between mb-1">
+        <label className="font-body text-sm font-medium text-foreground">
+          Background Image <span className="text-muted-foreground font-normal">(optional)</span>
+        </label>
+        <StorageBadge />
+      </div>
       {imageUrl ? (
         <div className="space-y-2">
           <div className="w-full h-24 rounded-lg border border-border/50 overflow-hidden bg-muted">
