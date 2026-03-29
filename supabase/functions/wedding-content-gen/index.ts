@@ -24,6 +24,17 @@ Write a brief, elegant description (2-3 sentences, max 50 words) for the given w
 It should feel personal and inviting. Return ONLY the message text.`,
 };
 
+// Helper to log AI usage (fire-and-forget)
+function logUsage(functionName: string, model: string, userId?: string, status = "success") {
+  try {
+    const sb = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    sb.from("ai_usage_log").insert({ function_name: functionName, model, user_id: userId || null, status }).then();
+  } catch { /* non-blocking */ }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
