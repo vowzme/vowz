@@ -70,6 +70,9 @@ export default function AdminDashboard() {
           </Card>
         ))}
       </div>
+
+      {/* Usage & Credits Monitor */}
+      <AdminUsageWidget />
     </div>
   );
 }
