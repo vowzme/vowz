@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -46,6 +47,17 @@ Rules:
 - When suggesting themes, always explain WHY it fits the couple
 - Only include the action block when the user wants to APPLY changes, not when just discussing
 - For questions/advice, just respond naturally without action blocks`;
+
+// Helper to log AI usage (fire-and-forget)
+function logUsage(functionName: string, model: string, status = "success") {
+  try {
+    const sb = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    sb.from("ai_usage_log").insert({ function_name: functionName, model, status }).then();
+  } catch { /* non-blocking */ }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -101,6 +113,8 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    logUsage("editor-ai", "google/gemini-3-flash-preview");
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },

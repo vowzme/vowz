@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,6 +23,17 @@ Write a brief, elegant description (2-3 sentences, max 50 words) for the given w
   welcome_message: `You are a warm wedding website copywriter. Write a brief welcome message (2-3 sentences) for the couple's wedding website. 
 It should feel personal and inviting. Return ONLY the message text.`,
 };
+
+// Helper to log AI usage (fire-and-forget)
+function logUsage(functionName: string, model: string, userId?: string, status = "success") {
+  try {
+    const sb = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    sb.from("ai_usage_log").insert({ function_name: functionName, model, user_id: userId || null, status }).then();
+  } catch { /* non-blocking */ }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -105,6 +117,8 @@ Theme: ${context.theme || "traditional"}`;
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
+
+    logUsage("wedding-content-gen", "google/gemini-3-flash-preview");
 
     return new Response(
       JSON.stringify({ content: content.trim() }),
