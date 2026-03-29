@@ -65,6 +65,17 @@ Rules:
   Christian: Engagement, Wedding Ceremony, Reception
   Interfaith: Mix from both traditions`;
 
+// Helper to log AI usage (fire-and-forget)
+function logUsage(functionName: string, model: string, status = "success") {
+  try {
+    const sb = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    sb.from("ai_usage_log").insert({ function_name: functionName, model, status }).then();
+  } catch { /* non-blocking */ }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
