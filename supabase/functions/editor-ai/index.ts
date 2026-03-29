@@ -114,6 +114,8 @@ serve(async (req) => {
       );
     }
 
+    logUsage("editor-ai", "google/gemini-3-flash-preview");
+
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });

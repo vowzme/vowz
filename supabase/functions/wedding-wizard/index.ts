@@ -126,6 +126,8 @@ serve(async (req) => {
       );
     }
 
+    logUsage("wedding-wizard", "google/gemini-3-flash-preview");
+
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });

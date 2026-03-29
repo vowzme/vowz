@@ -105,6 +105,8 @@ Input: ${JSON.stringify(texts)}`;
       translations = texts; // fallback to original
     }
 
+    logUsage("translate-site", "google/gemini-2.5-flash");
+
     return new Response(JSON.stringify({ translations, language: targetLanguage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

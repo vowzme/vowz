@@ -118,6 +118,8 @@ Theme: ${context.theme || "traditional"}`;
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
 
+    logUsage("wedding-content-gen", "google/gemini-3-flash-preview");
+
     return new Response(
       JSON.stringify({ content: content.trim() }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
