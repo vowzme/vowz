@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useGoogleDrive } from "@/hooks/use-google-drive";
-import { supabase } from "@/integrations/supabase/client";
+
 import { useAuth } from "@/hooks/use-auth";
 
 const MAX_DIMENSION = 2048;
