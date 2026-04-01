@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Globe, Heart, Lightbulb, Ticket, FileText, BarChart3, Crown, Network } from "lucide-react";
 import { AdminUsageWidget } from "@/components/admin/AdminUsageWidget";
+import { AdminCloudHealthWidget } from "@/components/admin/AdminCloudHealthWidget";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
