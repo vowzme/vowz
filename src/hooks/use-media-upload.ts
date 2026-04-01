@@ -78,20 +78,14 @@ export function useMediaUpload() {
       const ext = compressed.name.split(".").pop() || "jpg";
       const fileName = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-      // Try Google Drive first
-      if (linked) {
-        const result = await uploadFile(compressed, fileName);
-        if (result?.url) return result.url;
-        console.warn("Google Drive upload failed, falling back to platform storage");
+      // Google Drive is mandatory — no platform storage fallback
+      if (!linked) {
+        throw new Error("Google Drive is not linked. Please connect your Google Drive from the dashboard to upload media.");
       }
 
-      // Fallback: Supabase storage
-      const path = `${user.id}/${fileName}`;
-      const bucket = prefix === "logo" ? "wedding-logos" : "wedding-photos";
-      const { error } = await supabase.storage.from(bucket).upload(path, compressed, { upsert: true });
-      if (error) throw error;
-      const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
-      return urlData.publicUrl;
+      const result = await uploadFile(compressed, fileName);
+      if (result?.url) return result.url;
+      throw new Error("Upload to Google Drive failed. Please check your Drive connection and try again.");
     },
     [user, linked, uploadFile]
   );

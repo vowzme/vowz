@@ -213,11 +213,13 @@ const OnboardingWizard = () => {
                   <div className="max-w-md mx-auto">
                     <GoogleDriveLinkCard onLinked={() => {}} />
                   </div>
-                  {!driveLinked && !driveLoading && (
-                    <p className="text-center text-xs text-muted-foreground font-body mt-4">
-                      ⚠️ Google Drive must be linked to continue. Your photos & videos will be stored safely in your own Drive.
-                    </p>
-                  )}
+                   {!driveLinked && !driveLoading && (
+                     <div className="text-center mt-4 p-3 rounded-xl bg-destructive/5 border border-destructive/20">
+                       <p className="text-xs text-destructive font-body font-medium">
+                         ⚠️ Google Drive connection is required to proceed. We use your personal Drive to keep your content 100% under your control.
+                       </p>
+                     </div>
+                   )}
                 </div>
               )}
 
