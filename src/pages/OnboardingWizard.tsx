@@ -201,9 +201,14 @@ const OnboardingWizard = () => {
                 <div className="space-y-6">
                   <div className="text-center mb-8">
                     <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Link Your Storage ☁️</h2>
-                    <p className="text-muted-foreground font-body mt-2 max-w-md mx-auto">
-                      Connect your Google Drive to store all wedding photos & videos safely in your own cloud — we never store your media on our servers.
-                    </p>
+                     <p className="text-muted-foreground font-body mt-2 max-w-md mx-auto">
+                       Your privacy matters. All photos & videos are stored directly in <strong>your own Google Drive</strong> — we never store your media on our servers. This is mandatory for your data security.
+                     </p>
+                     <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
+                       <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">🔒 End-to-end ownership</span>
+                       <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">☁️ Your cloud, your data</span>
+                       <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">🛡️ Zero third-party storage</span>
+                     </div>
                   </div>
                   <div className="max-w-md mx-auto">
                     <GoogleDriveLinkCard onLinked={() => {}} />
