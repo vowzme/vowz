@@ -72,6 +72,9 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {/* Cloud Health & Storage */}
+      <AdminCloudHealthWidget />
+
       {/* Usage & Credits Monitor */}
       <AdminUsageWidget />
     </div>
