@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import SEOHead from "@/components/SEOHead";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import WizardPreview from "@/components/WizardPreview";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import GoogleDriveLinkCard from "@/components/GoogleDriveLinkCard";
 import { useGoogleDrive } from "@/hooks/use-google-drive";
+import { toast } from "@/hooks/use-toast";
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
@@ -24,6 +25,7 @@ const stepMeta = [
 const OnboardingWizard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const locationState = location.state as { templateName?: string; templateStyle?: string; templateColors?: string[] } | null;
   const templateState = locationState?.templateName ? locationState : (() => {
     const stored = sessionStorage.getItem("pendingTemplate");
@@ -39,7 +41,8 @@ const OnboardingWizard = () => {
     nextStep, prevStep, completeWizard, isComplete,
   } = useWeddingWizard();
   const { generate, loading: aiLoading } = useAIContentGen();
-  const { linked: driveLinked, loading: driveLoading } = useGoogleDrive();
+  const googleDrive = useGoogleDrive();
+  const { linked: driveLinked, loading: driveLoading } = googleDrive;
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
   // Apply template preset if navigated from templates
@@ -50,6 +53,28 @@ const OnboardingWizard = () => {
     if (templateState?.templateStyle) {
       updateField("theme", templateState.templateStyle);
     }
+  }, []);
+
+  useEffect(() => {
+    const gdrive = searchParams.get("gdrive");
+    const message = searchParams.get("message");
+
+    if (gdrive === "linked") {
+      googleDrive.checkStatus();
+      toast({ title: "Google Drive linked! ☁️" });
+    } else if (gdrive === "error") {
+      toast({
+        title: "Failed to link Google Drive",
+        description: message || "Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      return;
+    }
+
+    const nextParams = new URLSearchParams(searchParams);
+    ["gdrive", "message", "code", "scope", "state"].forEach((param) => nextParams.delete(param));
+    setSearchParams(nextParams, { replace: true });
   }, []);
 
   if (isComplete) {

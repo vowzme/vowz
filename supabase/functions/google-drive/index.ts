@@ -10,6 +10,85 @@ const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID")!;
 const GOOGLE_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const GOOGLE_DRIVE_CALLBACK_URL = `${SUPABASE_URL}/functions/v1/google-drive`;
+const textEncoder = new TextEncoder();
+
+type OAuthStatePayload = {
+  userId: string;
+  origin: string;
+  returnTo: string;
+  exp: number;
+};
+
+function encodeBase64Url(bytes: Uint8Array) {
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function decodeBase64Url(value: string) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized + "=".repeat((4 - (normalized.length % 4 || 4)) % 4);
+  const decoded = atob(padded);
+  return Uint8Array.from(decoded, (char) => char.charCodeAt(0));
+}
+
+async function signValue(value: string) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    textEncoder.encode(SUPABASE_SERVICE_ROLE_KEY),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"],
+  );
+
+  const signature = await crypto.subtle.sign("HMAC", key, textEncoder.encode(value));
+  return encodeBase64Url(new Uint8Array(signature));
+}
+
+async function createOAuthState(payload: OAuthStatePayload) {
+  const encodedPayload = encodeBase64Url(textEncoder.encode(JSON.stringify(payload)));
+  const signature = await signValue(encodedPayload);
+  return `${encodedPayload}.${signature}`;
+}
+
+async function verifyOAuthState(rawState: string | null) {
+  if (!rawState) return null;
+
+  const [encodedPayload, signature] = rawState.split(".");
+  if (!encodedPayload || !signature) return null;
+
+  const expectedSignature = await signValue(encodedPayload);
+  if (expectedSignature !== signature) return null;
+
+  const payload = JSON.parse(new TextDecoder().decode(decodeBase64Url(encodedPayload))) as OAuthStatePayload;
+  if (!payload.userId || !payload.origin || !payload.returnTo || !payload.exp) return null;
+  if (payload.exp < Date.now()) return null;
+  return payload;
+}
+
+function isValidOrigin(origin: string) {
+  try {
+    const parsed = new URL(origin);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function normalizeReturnTo(returnTo?: string) {
+  return returnTo && returnTo.startsWith("/") ? returnTo : "/dashboard";
+}
+
+function buildFrontendRedirect(origin: string, returnTo: string, status: "linked" | "error", message?: string) {
+  const redirectUrl = new URL(normalizeReturnTo(returnTo), origin);
+  redirectUrl.searchParams.set("gdrive", status);
+  if (message) {
+    redirectUrl.searchParams.set("message", message);
+  }
+  return redirectUrl.toString();
+}
 
 function getSupabaseAdmin() {
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -150,6 +229,53 @@ async function makePublic(accessToken: string, fileId: string) {
   });
 }
 
+async function completeDriveLink(userId: string, code: string, redirectUri: string) {
+  const admin = getSupabaseAdmin();
+  const tokens = await exchangeCode(code, redirectUri);
+
+  if (tokens.error) {
+    throw new Error(tokens.error_description || "Token exchange failed");
+  }
+
+  const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+    headers: { Authorization: `Bearer ${tokens.access_token}` },
+  });
+  const userInfo = await userInfoRes.json();
+
+  if (!userInfoRes.ok || !userInfo.email) {
+    throw new Error("Failed to read Google Drive account details.");
+  }
+
+  const { data: existingDrive } = await admin
+    .from("user_google_drive")
+    .select("refresh_token, drive_folder_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const refreshToken = tokens.refresh_token || existingDrive?.refresh_token;
+  if (!refreshToken) {
+    throw new Error("Google did not return a refresh token. Please try again.");
+  }
+
+  const folderId = existingDrive?.drive_folder_id || await createVowzFolder(tokens.access_token);
+  const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
+
+  await admin.from("user_google_drive").upsert(
+    {
+      user_id: userId,
+      access_token: tokens.access_token,
+      refresh_token: refreshToken,
+      token_expires_at: expiresAt,
+      drive_email: userInfo.email,
+      drive_folder_id: folderId,
+      is_linked: true,
+    },
+    { onConflict: "user_id" },
+  );
+
+  return { success: true, email: userInfo.email };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -159,14 +285,26 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const action = url.searchParams.get("action");
 
-    // Action: get OAuth URL (no auth needed)
-    if (action === "auth-url") {
-      const { redirectUri } = await req.json();
-      const scopes = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&access_type=offline&prompt=consent`;
-      return new Response(JSON.stringify({ authUrl }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (req.method === "GET" && (url.searchParams.has("code") || url.searchParams.has("error"))) {
+      const state = await verifyOAuthState(url.searchParams.get("state"));
+      if (!state) {
+        return new Response("Invalid or expired Google Drive state.", { status: 400 });
+      }
+
+      if (url.searchParams.get("error")) {
+        return Response.redirect(
+          buildFrontendRedirect(state.origin, state.returnTo, "error", url.searchParams.get("error_description") || "Google Drive access was denied."),
+          302,
+        );
+      }
+
+      try {
+        await completeDriveLink(state.userId, url.searchParams.get("code")!, GOOGLE_DRIVE_CALLBACK_URL);
+        return Response.redirect(buildFrontendRedirect(state.origin, state.returnTo, "linked"), 302);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to link Google Drive.";
+        return Response.redirect(buildFrontendRedirect(state.origin, state.returnTo, "error", message), 302);
+      }
     }
 
     const userId = await getAuthenticatedUser(req);
@@ -177,48 +315,45 @@ Deno.serve(async (req) => {
       });
     }
 
-    const admin = getSupabaseAdmin();
-
-    // Action: exchange code and store tokens
-    if (action === "callback") {
-      const { code, redirectUri } = await req.json();
-      const tokens = await exchangeCode(code, redirectUri);
-
-      if (tokens.error) {
-        return new Response(JSON.stringify({ error: tokens.error_description || "Token exchange failed" }), {
+    // Action: get OAuth URL (no auth needed)
+    if (action === "auth-url") {
+      const { origin, returnTo } = await req.json();
+      if (!origin || !isValidOrigin(origin)) {
+        return new Response(JSON.stringify({ error: "Invalid origin" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      // Get user email from Google
-      const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
-        headers: { Authorization: `Bearer ${tokens.access_token}` },
+      const state = await createOAuthState({
+        userId,
+        origin,
+        returnTo: normalizeReturnTo(returnTo),
+        exp: Date.now() + 10 * 60 * 1000,
       });
-      const userInfo = await userInfoRes.json();
-
-      // Create Vowz folder
-      const folderId = await createVowzFolder(tokens.access_token);
-
-      const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
-
-      // Upsert
-      await admin.from("user_google_drive").upsert(
-        {
-          user_id: userId,
-          access_token: tokens.access_token,
-          refresh_token: tokens.refresh_token,
-          token_expires_at: expiresAt,
-          drive_email: userInfo.email,
-          drive_folder_id: folderId,
-          is_linked: true,
-        },
-        { onConflict: "user_id" }
-      );
-
-      return new Response(JSON.stringify({ success: true, email: userInfo.email }), {
+      const scopes = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(GOOGLE_DRIVE_CALLBACK_URL)}&response_type=code&scope=${encodeURIComponent(scopes)}&access_type=offline&prompt=consent&include_granted_scopes=true&state=${encodeURIComponent(state)}`;
+      return new Response(JSON.stringify({ authUrl }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    const admin = getSupabaseAdmin();
+
+    // Action: exchange code and store tokens
+    if (action === "callback") {
+      try {
+        const { code, redirectUri } = await req.json();
+        const result = await completeDriveLink(userId, code, redirectUri);
+        return new Response(JSON.stringify(result), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Token exchange failed" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // Action: check link status

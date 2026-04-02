@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
 const FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-drive`;
@@ -8,6 +7,12 @@ interface GoogleDriveState {
   linked: boolean;
   email: string | null;
   loading: boolean;
+}
+
+function getReturnToPath() {
+  const url = new URL(window.location.href);
+  ["gdrive", "code", "scope", "state", "message"].forEach((param) => url.searchParams.delete(param));
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 export function useGoogleDrive() {
@@ -40,15 +45,27 @@ export function useGoogleDrive() {
 
   // Start OAuth flow
   const startLinking = useCallback(async () => {
-    const redirectUri = `${window.location.origin}/dashboard?gdrive=callback`;
+    if (!session?.access_token) {
+      throw new Error("You must be signed in to connect Google Drive.");
+    }
+
     const res = await fetch(`${FUNCTION_URL}?action=auth-url`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-      body: JSON.stringify({ redirectUri }),
+      headers: getHeaders(),
+      body: JSON.stringify({
+        origin: window.location.origin,
+        returnTo: getReturnToPath(),
+      }),
     });
-    const { authUrl } = await res.json();
+
+    const data = await res.json();
+    if (!res.ok || !data.authUrl) {
+      throw new Error(data.error || "Failed to start Google Drive linking.");
+    }
+
+    const { authUrl } = data;
     window.location.href = authUrl;
-  }, []);
+  }, [getHeaders, session]);
 
   // Handle OAuth callback
   const handleCallback = useCallback(async (code: string) => {
