@@ -175,21 +175,24 @@ const Dashboard = () => {
   // Handle Google Drive OAuth callback
   useEffect(() => {
     const gdrive = searchParams.get("gdrive");
-    const code = searchParams.get("code");
-    if (gdrive === "callback" && code) {
-      googleDrive.handleCallback(code).then((result) => {
-        if (result.success) {
-          toast({ title: "Google Drive linked! ☁️", description: `Connected to ${result.email}` });
-        } else {
-          toast({ title: "Failed to link Google Drive", description: result.error, variant: "destructive" });
-        }
-        // Clean up URL params
-        searchParams.delete("gdrive");
-        searchParams.delete("code");
-        searchParams.delete("scope");
-        setSearchParams(searchParams, { replace: true });
+    const message = searchParams.get("message");
+
+    if (gdrive === "linked") {
+      googleDrive.checkStatus();
+      toast({ title: "Google Drive linked! ☁️" });
+    } else if (gdrive === "error") {
+      toast({
+        title: "Failed to link Google Drive",
+        description: message || "Please try again.",
+        variant: "destructive",
       });
+    } else {
+      return;
     }
+
+    const nextParams = new URLSearchParams(searchParams);
+    ["gdrive", "message", "code", "scope", "state"].forEach((param) => nextParams.delete(param));
+    setSearchParams(nextParams, { replace: true });
   }, []);
 
   // Load site, profile and subscription status
