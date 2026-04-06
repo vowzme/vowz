@@ -15,6 +15,10 @@ function getReturnToPath() {
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
+function buildRedirectUri() {
+  return `${window.location.origin}/dashboard?gdrive=callback`;
+}
+
 export function useGoogleDrive() {
   const { user, session } = useAuth();
   const [state, setState] = useState<GoogleDriveState>({ linked: false, email: null, loading: true });
@@ -68,12 +72,12 @@ export function useGoogleDrive() {
   }, [getHeaders, session]);
 
   // Handle OAuth callback
-  const handleCallback = useCallback(async (code: string) => {
-    const redirectUri = `${window.location.origin}/dashboard?gdrive=callback`;
+  const handleCallback = useCallback(async (code: string, state?: string) => {
+    const redirectUri = buildRedirectUri();
     const res = await fetch(`${FUNCTION_URL}?action=callback`, {
       method: "POST",
       headers: getHeaders(),
-      body: JSON.stringify({ code, redirectUri }),
+      body: JSON.stringify({ code, redirectUri, state }),
     });
     const data = await res.json();
     if (data.success) {
