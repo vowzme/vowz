@@ -81,6 +81,12 @@ function normalizeReturnTo(returnTo?: string) {
   return returnTo && returnTo.startsWith("/") ? returnTo : "/dashboard";
 }
 
+function buildOAuthRedirectUri(origin: string) {
+  const redirectUrl = new URL("/dashboard", origin);
+  redirectUrl.searchParams.set("gdrive", "callback");
+  return redirectUrl.toString();
+}
+
 function buildFrontendRedirect(origin: string, returnTo: string, status: "linked" | "error", message?: string) {
   const redirectUrl = new URL(normalizeReturnTo(returnTo), origin);
   redirectUrl.searchParams.set("gdrive", status);
@@ -331,8 +337,9 @@ Deno.serve(async (req) => {
         returnTo: normalizeReturnTo(returnTo),
         exp: Date.now() + 10 * 60 * 1000,
       });
+      const redirectUri = buildOAuthRedirectUri(origin);
       const scopes = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(GOOGLE_DRIVE_CALLBACK_URL)}&response_type=code&scope=${encodeURIComponent(scopes)}&access_type=offline&prompt=consent&include_granted_scopes=true&state=${encodeURIComponent(state)}`;
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&access_type=offline&prompt=consent&include_granted_scopes=true&state=${encodeURIComponent(state)}`;
       return new Response(JSON.stringify({ authUrl }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -343,9 +350,24 @@ Deno.serve(async (req) => {
     // Action: exchange code and store tokens
     if (action === "callback") {
       try {
-        const { code, redirectUri } = await req.json();
+        const { code, redirectUri, state } = await req.json();
+        if (!code || !redirectUri) {
+          return new Response(JSON.stringify({ error: "code and redirectUri are required" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const verifiedState = state ? await verifyOAuthState(state) : null;
+        if (state && (!verifiedState || verifiedState.userId !== userId)) {
+          return new Response(JSON.stringify({ error: "Invalid or expired Google Drive state." }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
         const result = await completeDriveLink(userId, code, redirectUri);
-        return new Response(JSON.stringify(result), {
+        return new Response(JSON.stringify({ ...result, returnTo: verifiedState?.returnTo || null }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (error) {
