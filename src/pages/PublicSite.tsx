@@ -18,6 +18,7 @@ import { LivestreamPublicSection } from "@/components/LivestreamSection";
 import BlessingWall from "@/components/BlessingWall";
 import { CurrencyDisplay } from "@/components/CurrencyConverter";
 import LanguageSelector from "@/components/LanguageSelector";
+import { DEFAULT_STORY } from "@/lib/default-story";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
