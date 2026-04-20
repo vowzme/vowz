@@ -29,6 +29,7 @@ import QRCodeGenerator from "@/components/QRCodeGenerator";
 import CustomSlugEditor from "@/components/CustomSlugEditor";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import FreePlanCountdown from "@/components/FreePlanCountdown";
+import StorageUsageCard from "@/components/StorageUsageCard";
 import FeatureSuggestionDialog from "@/components/FeatureSuggestionDialog";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import {
@@ -435,6 +436,11 @@ const Dashboard = () => {
             />
           </motion.div>
         )}
+
+        {/* Storage Usage */}
+        <div className="mb-6">
+          <StorageUsageCard />
+        </div>
 
         {!site ? (
           /* No site yet */
