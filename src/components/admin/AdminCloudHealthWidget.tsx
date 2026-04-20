@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Cloud, HardDrive, Database, FileImage, Shield, Activity } from "lucide-react";
 
+// Drive integration removed — storage handled entirely by Cloudflare R2.
+
 interface BucketStats {
   name: string;
   label: string;
@@ -31,7 +33,6 @@ export function AdminCloudHealthWidget() {
   const [totalFiles, setTotalFiles] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [driveLinked, setDriveLinked] = useState(0);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -67,17 +68,10 @@ export function AdminCloudHealthWidget() {
         })
       );
 
-      // Drive links
-      const { count: driveCount } = await supabase
-        .from("user_google_drive")
-        .select("id", { count: "exact", head: true })
-        .eq("is_linked", true);
-
       setBucketStats(bucketResults);
       setTableStats(tableResults);
       setTotalFiles(bucketResults.reduce((s, b) => s + b.fileCount, 0));
       setTotalRecords(tableResults.reduce((s, t) => s + t.count, 0));
-      setDriveLinked(driveCount ?? 0);
       setLoading(false);
     };
 
@@ -127,7 +121,7 @@ export function AdminCloudHealthWidget() {
             </div>
             <Badge className={`${health.color} text-white border-0 text-[11px]`}>{health.label}</Badge>
           </div>
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-2 gap-4 text-center">
             <div>
               <p className="font-display text-xl font-bold text-foreground">{totalFiles}</p>
               <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Stored Files</p>
@@ -135,10 +129,6 @@ export function AdminCloudHealthWidget() {
             <div>
               <p className="font-display text-xl font-bold text-foreground">{totalRecords.toLocaleString()}</p>
               <p className="text-[10px] text-muted-foreground uppercase tracking-wide">DB Records</p>
-            </div>
-            <div>
-              <p className="font-display text-xl font-bold text-foreground">{driveLinked}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Drive Links</p>
             </div>
           </div>
         </CardContent>

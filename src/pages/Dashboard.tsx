@@ -31,8 +31,6 @@ import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import FreePlanCountdown from "@/components/FreePlanCountdown";
 import FeatureSuggestionDialog from "@/components/FeatureSuggestionDialog";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
-import GoogleDriveLinkCard from "@/components/GoogleDriveLinkCard";
-import { useGoogleDrive } from "@/hooks/use-google-drive";
 import {
   Tabs,
   TabsContent,
@@ -161,7 +159,6 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { loadUserSite, updateSite, saving } = useWeddingSite();
   const { pricing } = usePricingRegion();
-  const googleDrive = useGoogleDrive();
   const [site, setSite] = useState<any>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -172,28 +169,6 @@ const Dashboard = () => {
   const [blessings, setBlessings] = useState<any[]>([]);
   const [blessingsLoading, setBlessingsLoading] = useState(false);
 
-  // Handle Google Drive OAuth callback
-  useEffect(() => {
-    const gdrive = searchParams.get("gdrive");
-    const message = searchParams.get("message");
-
-    if (gdrive === "linked") {
-      googleDrive.checkStatus();
-      toast({ title: "Google Drive linked! ☁️" });
-    } else if (gdrive === "error") {
-      toast({
-        title: "Failed to link Google Drive",
-        description: message || "Please try again.",
-        variant: "destructive",
-      });
-    } else {
-      return;
-    }
-
-    const nextParams = new URLSearchParams(searchParams);
-    ["gdrive", "message", "code", "scope", "state"].forEach((param) => nextParams.delete(param));
-    setSearchParams(nextParams, { replace: true });
-  }, []);
 
   // Load site, profile and subscription status
   useEffect(() => {
@@ -460,11 +435,6 @@ const Dashboard = () => {
             />
           </motion.div>
         )}
-
-        {/* Google Drive Storage */}
-        <div className="mb-6">
-          <GoogleDriveLinkCard compact />
-        </div>
 
         {!site ? (
           /* No site yet */
