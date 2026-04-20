@@ -1,14 +1,11 @@
 import { useCallback } from "react";
 import { useR2Upload } from "@/hooks/use-r2-upload";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
 
 const MAX_DIMENSION = 2048;
 const QUALITY = 0.82;
 
-/**
- * Compress an image file using canvas.
- * Returns the original file unchanged for non-image or very small files.
- */
 async function compressImage(file: File): Promise<File> {
   if (!file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") {
     return file;
@@ -21,19 +18,16 @@ async function compressImage(file: File): Promise<File> {
     img.onload = () => {
       URL.revokeObjectURL(url);
       let { width, height } = img;
-
       if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
         const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
         width = Math.round(width * ratio);
         height = Math.round(height * ratio);
       }
-
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d")!;
       ctx.drawImage(img, 0, 0, width, height);
-
       const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
       canvas.toBlob(
         (blob) => {
@@ -59,6 +53,7 @@ async function compressImage(file: File): Promise<File> {
 
 /**
  * Unified media upload hook backed by Cloudflare R2.
+ * Automatically compresses client-side; server enforces quota and may further reduce.
  */
 export function useMediaUpload() {
   const { user } = useAuth();
@@ -72,9 +67,21 @@ export function useMediaUpload() {
       const ext = compressed.name.split(".").pop() || "jpg";
       const fileName = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-      const result = await uploadToR2(compressed, fileName);
-      if (result?.url) return result.url;
-      throw new Error("Upload failed. Please try again.");
+      try {
+        const result = await uploadToR2(compressed, fileName);
+        if (result?.url) return result.url;
+        throw new Error("Upload failed. Please try again.");
+      } catch (err: any) {
+        const msg = err?.message || "";
+        if (msg.includes("Storage limit") || msg.includes("QUOTA")) {
+          toast({
+            title: "Storage limit reached",
+            description: msg,
+            variant: "destructive",
+          });
+        }
+        throw err;
+      }
     },
     [user, uploadToR2]
   );

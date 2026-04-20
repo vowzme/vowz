@@ -34,8 +34,8 @@ const RefundPolicy = () => (
           body: "Refunds will not be provided for: change of mind after purchase, failure to use the service within the subscription period, issues caused by user error or third-party services outside our control, or dissatisfaction with features that are functioning as described on the platform.",
         },
         {
-          title: "4. Cancellation",
-          body: "You may cancel your premium subscription at any time from your dashboard. Upon cancellation, you will continue to have access to premium features until the end of your current billing period. No partial refunds are provided for unused portions of a billing cycle.",
+          title: "4. Subscription Duration & Renewal",
+          body: "Premium subscriptions are valid for 6 months from the date of purchase. To keep your site live and continue accessing premium features, you must renew by paying ₹1,499 (India) / $19 (international) every 6 months. You may cancel at any time from your dashboard — premium features remain active until the end of the current 6-month billing period. Storage add-ons (+2 GB for ₹499 / $5) are also valid for 6 months and are stackable. No partial refunds are provided for unused portions of a billing cycle or expired storage add-ons.",
         },
         {
           title: "5. How to Request a Refund",

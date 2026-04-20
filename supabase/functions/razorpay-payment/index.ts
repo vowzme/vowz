@@ -9,13 +9,20 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Default pricing by currency (amount in smallest unit) — used as fallback only
-const PRICING: Record<string, { amount: number; currency: string; symbol: string; displayAmount: number }> = {
+// Pricing per currency in smallest unit (paise/cents)
+const PREMIUM_PRICING: Record<string, { amount: number; currency: string; symbol: string; displayAmount: number }> = {
   INR: { amount: 99900, currency: "INR", symbol: "₹", displayAmount: 999 },
   USD: { amount: 2000, currency: "USD", symbol: "$", displayAmount: 20 },
 };
 
-const PREMIUM_PLAN = "premium_yearly";
+const STORAGE_ADDON_PRICING: Record<string, { amount: number; currency: string; symbol: string; displayAmount: number }> = {
+  INR: { amount: 49900, currency: "INR", symbol: "₹", displayAmount: 499 },
+  USD: { amount: 500, currency: "USD", symbol: "$", displayAmount: 5 },
+};
+
+const PREMIUM_PLAN = "premium_6mo";
+const STORAGE_ADDON_PLAN = "storage_addon_2gb";
+const STORAGE_ADDON_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB
 
 const json = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -24,38 +31,29 @@ const json = (body: Record<string, unknown>, status = 200) =>
   });
 
 const toHex = (buffer: ArrayBuffer) =>
-  Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  Array.from(new Uint8Array(buffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
 
 const signPayment = async (secret: string, payload: string) => {
   const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
+    "raw", new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
   );
   const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
   return toHex(signature);
 };
 
-const plusOneYearISO = () => {
+const plus6MonthsISO = () => {
   const d = new Date();
-  d.setFullYear(d.getFullYear() + 1);
+  d.setMonth(d.getMonth() + 6);
   return d.toISOString();
 };
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return json({ error: "Unauthorized" }, 401);
-    }
+    if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
 
     const publicClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -64,10 +62,7 @@ Deno.serve(async (req) => {
     );
 
     const { data: userData, error: userError } = await publicClient.auth.getUser();
-    if (userError || !userData.user) {
-      return json({ error: "Unauthorized" }, 401);
-    }
-
+    if (userError || !userData.user) return json({ error: "Unauthorized" }, 401);
     const user = userData.user;
 
     const adminClient = createClient(
@@ -77,16 +72,16 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const action = body?.action as string;
-
-    // Determine currency from request, default to INR
+    const productType = (body?.product_type as string) || "premium"; // "premium" | "storage_addon"
     const requestedCurrency = ((body?.currency as string) || "INR").toUpperCase();
-    const pricingTier = PRICING[requestedCurrency] || PRICING.INR;
+
+    const isAddon = productType === "storage_addon";
+    const pricingTable = isAddon ? STORAGE_ADDON_PRICING : PREMIUM_PRICING;
+    const pricingTier = pricingTable[requestedCurrency] || pricingTable.INR;
+    const planCode = isAddon ? STORAGE_ADDON_PLAN : PREMIUM_PLAN;
 
     const { data: providerConfig, error: providerError } = await adminClient
-      .from("payment_config")
-      .select("is_enabled, config")
-      .eq("provider", "razorpay")
-      .maybeSingle();
+      .from("payment_config").select("is_enabled, config").eq("provider", "razorpay").maybeSingle();
 
     if (providerError) throw providerError;
     if (!providerConfig?.is_enabled) {
@@ -96,7 +91,6 @@ Deno.serve(async (req) => {
     const razorpayConfig = (providerConfig.config || {}) as Record<string, string>;
     const keyId = (razorpayConfig.key_id || "").trim();
     const keySecret = (razorpayConfig.key_secret || "").trim();
-
     if (!keyId || !keySecret) {
       return json({ error: "Razorpay credentials are missing. Please contact support." }, 400);
     }
@@ -104,44 +98,39 @@ Deno.serve(async (req) => {
     const authBasic = `Basic ${btoa(`${keyId}:${keySecret}`)}`;
 
     if (action === "create_order") {
-      const { data: existingActive, error: existingError } = await adminClient
-        .from("user_subscriptions")
-        .select("status, expires_at")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      // For premium only (not addon): block if already active
+      if (!isAddon) {
+        const { data: existingActive } = await adminClient
+          .from("user_subscriptions")
+          .select("status, expires_at")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-      if (existingError) throw existingError;
-
-      if (existingActive) {
-        const isStillActive =
-          !existingActive.expires_at || new Date(existingActive.expires_at).getTime() > Date.now();
-        if (isStillActive) {
-          return json({ success: true, already_premium: true });
+        if (existingActive) {
+          const isStillActive =
+            !existingActive.expires_at || new Date(existingActive.expires_at).getTime() > Date.now();
+          if (isStillActive) return json({ success: true, already_premium: true });
         }
       }
 
-      const receipt = `vowz_${user.id.slice(0, 8)}_${Date.now()}`;
-
-      // Use final_amount from client (in paise/cents) if provided, otherwise default pricing
+      const receipt = `vowz_${isAddon ? "stor" : "prem"}_${user.id.slice(0, 8)}_${Date.now()}`;
       const clientFinalAmount = body?.final_amount ? Number(body.final_amount) : null;
       const orderAmount = clientFinalAmount && clientFinalAmount > 0 ? clientFinalAmount : pricingTier.amount;
 
       const orderRes = await fetch("https://api.razorpay.com/v1/orders", {
         method: "POST",
-        headers: {
-          Authorization: authBasic,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: authBasic, "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: orderAmount,
           currency: pricingTier.currency,
           receipt,
           notes: {
             user_id: user.id,
-            plan: PREMIUM_PLAN,
+            plan: planCode,
+            product_type: productType,
             currency: pricingTier.currency,
             coupon_code: body?.coupon_code || "",
             affiliate_ref: body?.affiliate_ref || "",
@@ -157,26 +146,25 @@ Deno.serve(async (req) => {
 
       const order = await orderRes.json();
 
-      const { error: saveOrderError } = await adminClient.from("user_subscriptions").upsert(
-        {
-          user_id: user.id,
-          plan: PREMIUM_PLAN,
-          provider: "razorpay",
-          status: "pending",
-          amount_paid: 0,
-          currency: pricingTier.currency,
-          payment_order_id: order.id,
-          expires_at: plusOneYearISO(),
-          metadata: {
-            receipt,
-            created_via: "razorpay_checkout",
-            requested_currency: pricingTier.currency,
+      // Save pending row only for premium (addon row created on verify)
+      if (!isAddon) {
+        const { error: saveOrderError } = await adminClient.from("user_subscriptions").upsert(
+          {
+            user_id: user.id,
+            plan: planCode,
+            provider: "razorpay",
+            status: "pending",
+            amount_paid: 0,
+            currency: pricingTier.currency,
+            payment_order_id: order.id,
+            duration_months: 6,
+            expires_at: plus6MonthsISO(),
+            metadata: { receipt, created_via: "razorpay_checkout", requested_currency: pricingTier.currency },
           },
-        },
-        { onConflict: "payment_order_id" }
-      );
-
-      if (saveOrderError) throw saveOrderError;
+          { onConflict: "payment_order_id" }
+        );
+        if (saveOrderError) throw saveOrderError;
+      }
 
       return json({
         success: true,
@@ -185,7 +173,7 @@ Deno.serve(async (req) => {
         amount: order.amount,
         currency: order.currency,
         name: "Vowz",
-        description: "Premium Plan (1 Year)",
+        description: isAddon ? "Storage Add-on (+2 GB / 6 months)" : "Premium Plan (6 Months)",
         prefill: {
           name: user.user_metadata?.full_name || "",
           email: user.email || "",
@@ -203,14 +191,11 @@ Deno.serve(async (req) => {
       }
 
       const expected = await signPayment(keySecret, `${orderId}|${paymentId}`);
-      if (expected !== signature) {
-        return json({ error: "Invalid payment signature." }, 400);
-      }
+      if (expected !== signature) return json({ error: "Invalid payment signature." }, 400);
 
       const paymentRes = await fetch(`https://api.razorpay.com/v1/payments/${paymentId}`, {
         headers: { Authorization: authBasic },
       });
-
       if (!paymentRes.ok) {
         const errorBody = await paymentRes.text();
         console.error("Razorpay payment lookup error", paymentRes.status, errorBody);
@@ -218,22 +203,40 @@ Deno.serve(async (req) => {
       }
 
       const payment = await paymentRes.json();
-
-      if (payment.order_id !== orderId) {
-        return json({ error: "Payment does not match order." }, 400);
-      }
-
+      if (payment.order_id !== orderId) return json({ error: "Payment does not match order." }, 400);
       if (!["authorized", "captured"].includes(payment.status)) {
         return json({ error: "Payment is not completed." }, 400);
       }
 
       const paymentCurrency = payment.currency || "INR";
-      const divisor = paymentCurrency === "INR" ? 100 : 100;
-      const amountPaid = Number(payment.amount || pricingTier.amount) / divisor;
-      const currencySymbol = PRICING[paymentCurrency]?.symbol || paymentCurrency;
+      const amountPaid = Number(payment.amount || pricingTier.amount) / 100;
+      const currencySymbol = (PREMIUM_PRICING[paymentCurrency]?.symbol) || paymentCurrency;
       const nowISO = new Date().toISOString();
-      const expiresAt = plusOneYearISO();
+      const expiresAt = plus6MonthsISO();
 
+      // Determine product type from notes (server-side authoritative)
+      const notesType = (payment.notes?.product_type as string) || "premium";
+      const isAddonPayment = notesType === "storage_addon";
+
+      if (isAddonPayment) {
+        // Insert a stackable storage addon
+        const { error: addonError } = await adminClient.from("user_storage_addons").insert({
+          user_id: user.id,
+          bytes_added: STORAGE_ADDON_BYTES,
+          amount_paid: amountPaid,
+          currency: paymentCurrency,
+          payment_id: paymentId,
+          payment_order_id: orderId,
+          purchased_at: nowISO,
+          expires_at: expiresAt,
+          status: "active",
+        });
+        if (addonError) throw addonError;
+
+        return json({ success: true, expires_at: expiresAt, product_type: "storage_addon" });
+      }
+
+      // Premium activation
       const { error: activateError } = await adminClient.from("user_subscriptions").upsert(
         {
           user_id: user.id,
@@ -247,6 +250,7 @@ Deno.serve(async (req) => {
           payment_signature: signature,
           started_at: nowISO,
           expires_at: expiresAt,
+          duration_months: 6,
           metadata: {
             payment_status: payment.status,
             method: payment.method,
@@ -257,25 +261,20 @@ Deno.serve(async (req) => {
         },
         { onConflict: "payment_order_id" }
       );
-
       if (activateError) throw activateError;
 
       // Send payment success email
       try {
         const dateLocale = paymentCurrency === "INR" ? "en-IN" : "en-US";
-        const paymentDate = new Date().toLocaleDateString(dateLocale, {
-          day: "numeric", month: "long", year: "numeric",
-        });
-        const expiryDate = new Date(expiresAt).toLocaleDateString(dateLocale, {
-          day: "numeric", month: "long", year: "numeric",
-        });
+        const paymentDate = new Date().toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
+        const expiryDate = new Date(expiresAt).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
 
         const emailProps = {
           recipientName: user.user_metadata?.full_name || "there",
           recipientEmail: user.email || "",
           orderId,
           paymentId,
-          plan: "Premium (1 Year)",
+          plan: "Premium (6 Months)",
           amount: `${currencySymbol}${amountPaid}`,
           currency: paymentCurrency,
           paymentDate,
@@ -283,15 +282,8 @@ Deno.serve(async (req) => {
           paymentMethod: payment.method || "",
         };
 
-        const emailHtml = await renderAsync(
-          React.createElement(PaymentSuccessEmail, emailProps)
-        );
-
-        const emailText = await renderAsync(
-          React.createElement(PaymentSuccessEmail, emailProps),
-          { plainText: true }
-        );
-
+        const emailHtml = await renderAsync(React.createElement(PaymentSuccessEmail, emailProps));
+        const emailText = await renderAsync(React.createElement(PaymentSuccessEmail, emailProps), { plainText: true });
         const messageId = crypto.randomUUID();
 
         await adminClient.from("email_send_log").insert({
@@ -316,15 +308,12 @@ Deno.serve(async (req) => {
             queued_at: new Date().toISOString(),
           },
         });
-
-        console.log("Payment success email enqueued", { email: user.email, orderId });
       } catch (emailErr) {
         console.error("Failed to send payment success email (non-blocking)", emailErr);
       }
 
-      // ── Affiliate & Franchise commission tracking ──
+      // Affiliate & Franchise commissions (use 6mo amount basis)
       try {
-        // Find if this user was referred by an affiliate
         const { data: referral } = await adminClient
           .from("affiliate_referrals")
           .select("id, affiliate_id, status")
@@ -333,42 +322,28 @@ Deno.serve(async (req) => {
           .maybeSingle();
 
         if (referral) {
-          // Mark referral as converted
-          await adminClient
-            .from("affiliate_referrals")
-            .update({
-              status: "converted",
-              converted_at: nowISO,
-              plan: PREMIUM_PLAN,
-              commission_amount: paymentCurrency === "INR" ? 999 * 0.25 : 20 * 0.25,
-            })
-            .eq("id", referral.id);
+          const baseAmount = paymentCurrency === "INR" ? 999 : 20;
+          const affCommission = baseAmount * 0.25;
+          await adminClient.from("affiliate_referrals").update({
+            status: "converted",
+            converted_at: nowISO,
+            plan: PREMIUM_PLAN,
+            commission_amount: affCommission,
+          }).eq("id", referral.id);
 
-          // Update affiliate stats
-          await adminClient.rpc("execute_sql" as any, {} as any).catch(() => {});
-          const { data: aff } = await adminClient
-            .from("affiliates")
+          const { data: aff } = await adminClient.from("affiliates")
             .select("id, successful_referrals, total_earnings, pending_earnings, franchise_id")
-            .eq("id", referral.affiliate_id)
-            .maybeSingle();
+            .eq("id", referral.affiliate_id).maybeSingle();
 
           if (aff) {
-            const affCommission = paymentCurrency === "INR" ? 999 * 0.25 : 20 * 0.25;
-            await adminClient
-              .from("affiliates")
-              .update({
-                successful_referrals: (aff.successful_referrals || 0) + 1,
-                total_earnings: (aff.total_earnings || 0) + affCommission,
-                pending_earnings: (aff.pending_earnings || 0) + affCommission,
-              })
-              .eq("id", aff.id);
+            await adminClient.from("affiliates").update({
+              successful_referrals: (aff.successful_referrals || 0) + 1,
+              total_earnings: (aff.total_earnings || 0) + affCommission,
+              pending_earnings: (aff.pending_earnings || 0) + affCommission,
+            }).eq("id", aff.id);
 
-            // If this affiliate is under a franchise, create franchise override commission
             if (aff.franchise_id) {
-              const franchiseOverride = paymentCurrency === "INR"
-                ? Math.round(999 * 0.05 * 100) / 100   // ₹49.95
-                : Math.round(20 * 0.05 * 100) / 100;    // $1.00
-
+              const franchiseOverride = Math.round(baseAmount * 0.05 * 100) / 100;
               await adminClient.from("franchise_commissions").insert({
                 franchise_id: aff.franchise_id,
                 sub_affiliate_id: aff.id,
@@ -377,13 +352,6 @@ Deno.serve(async (req) => {
                 currency: paymentCurrency,
                 payout_status: "pending",
               });
-
-              console.log("Franchise override commission created", {
-                franchise_id: aff.franchise_id,
-                sub_affiliate_id: aff.id,
-                amount: franchiseOverride,
-                currency: paymentCurrency,
-              });
             }
           }
         }
@@ -391,7 +359,7 @@ Deno.serve(async (req) => {
         console.error("Commission tracking error (non-blocking):", commErr);
       }
 
-      return json({ success: true, expires_at: expiresAt });
+      return json({ success: true, expires_at: expiresAt, product_type: "premium" });
     }
 
     return json({ error: "Invalid action." }, 400);
