@@ -81,29 +81,54 @@ export const PricingRegionProvider = ({ children }: { children: React.ReactNode 
       setDetecting(false);
       return;
     }
-    // IP geolocation is the source of truth. Locale is unreliable
-    // (e.g. an Indian abroad still has en-IN; a tourist in India has en-US).
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
 
-    fetch("https://ipapi.co/json/", { signal: controller.signal })
-      .then((r) => r.json())
-      .then((data) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    const detectFromLocale = (): PricingRegion => {
+      const langs = [navigator.language, ...(navigator.languages || [])]
+        .filter(Boolean)
+        .map((l) => l.toLowerCase());
+      const isIN = langs.some((l) => l === "en-in" || l.endsWith("-in") || l === "hi-in");
+      return isIN ? "IN" : "INTL";
+    };
+
+    const run = async () => {
+      // 1) Server-side header-based detection (Cloudflare / Supabase edge geo headers)
+      try {
+        const { data, error } = await supabase.functions.invoke("detect-region");
+        if (!error && data?.region === "IN") {
+          recordDetected("IN");
+          return;
+        }
+        if (!error && data?.region === "INTL") {
+          recordDetected("INTL");
+          return;
+        }
+        // data.region === null => no header available, fall through
+      } catch {
+        // ignore — try next
+      }
+
+      // 2) Public IP geolocation
+      try {
+        const res = await fetch("https://ipapi.co/json/", { signal: controller.signal });
+        const data = await res.json();
         const country = String(data?.country_code || data?.country || "").toUpperCase();
         recordDetected(country === "IN" ? "IN" : "INTL");
-      })
-      .catch(() => {
-        // Fallback only if IP lookup fails: check for explicit -IN locale tag.
-        const langs = [navigator.language, ...(navigator.languages || [])]
-          .filter(Boolean)
-          .map((l) => l.toLowerCase());
-        const isIN = langs.some((l) => l === "en-in" || l.endsWith("-in") || l === "hi-in");
-        recordDetected(isIN ? "IN" : "INTL");
-      })
-      .finally(() => {
-        clearTimeout(timeout);
-        setDetecting(false);
-      });
+        return;
+      } catch {
+        // ignore — try next
+      }
+
+      // 3) Locale fallback
+      recordDetected(detectFromLocale());
+    };
+
+    run().finally(() => {
+      clearTimeout(timeout);
+      setDetecting(false);
+    });
 
     return () => {
       clearTimeout(timeout);
