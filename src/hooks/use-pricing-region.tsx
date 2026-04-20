@@ -17,6 +17,8 @@ interface PricingRegionContextType {
   setRegion: (r: PricingRegion) => void;
   detecting: boolean;
   pricing: PricingConfig;
+  detectedRegion: PricingRegion | null;
+  isManualOverride: boolean;
 }
 
 const PRICING: Record<PricingRegion, PricingConfig> = {
@@ -41,12 +43,15 @@ const PRICING: Record<PricingRegion, PricingConfig> = {
 };
 
 const STORAGE_KEY = "vowz_pricing_region";
+const DETECTED_KEY = "vowz_pricing_region_detected";
 
 const PricingRegionContext = createContext<PricingRegionContextType>({
   region: "INTL",
   setRegion: () => {},
   detecting: true,
   pricing: PRICING.INTL,
+  detectedRegion: null,
+  isManualOverride: false,
 });
 
 export const PricingRegionProvider = ({ children }: { children: React.ReactNode }) => {
@@ -54,15 +59,25 @@ export const PricingRegionProvider = ({ children }: { children: React.ReactNode 
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved === "IN" || saved === "INTL" ? saved : "INTL";
   });
-  const [detecting, setDetecting] = useState(() => !localStorage.getItem(STORAGE_KEY));
+  const [detecting, setDetecting] = useState(() => !localStorage.getItem(DETECTED_KEY));
+  const [detectedRegion, setDetectedRegion] = useState<PricingRegion | null>(() => {
+    const d = localStorage.getItem(DETECTED_KEY);
+    return d === "IN" || d === "INTL" ? d : null;
+  });
 
   const setRegion = (r: PricingRegion) => {
     setRegionState(r);
     localStorage.setItem(STORAGE_KEY, r);
   };
 
+  const recordDetected = (r: PricingRegion) => {
+    setDetectedRegion(r);
+    localStorage.setItem(DETECTED_KEY, r);
+    if (!localStorage.getItem(STORAGE_KEY)) setRegion(r);
+  };
+
   useEffect(() => {
-    if (localStorage.getItem(STORAGE_KEY)) {
+    if (localStorage.getItem(DETECTED_KEY)) {
       setDetecting(false);
       return;
     }
@@ -75,7 +90,7 @@ export const PricingRegionProvider = ({ children }: { children: React.ReactNode 
       .then((r) => r.json())
       .then((data) => {
         const country = String(data?.country_code || data?.country || "").toUpperCase();
-        setRegion(country === "IN" ? "IN" : "INTL");
+        recordDetected(country === "IN" ? "IN" : "INTL");
       })
       .catch(() => {
         // Fallback only if IP lookup fails: check for explicit -IN locale tag.
@@ -83,7 +98,7 @@ export const PricingRegionProvider = ({ children }: { children: React.ReactNode 
           .filter(Boolean)
           .map((l) => l.toLowerCase());
         const isIN = langs.some((l) => l === "en-in" || l.endsWith("-in") || l === "hi-in");
-        setRegion(isIN ? "IN" : "INTL");
+        recordDetected(isIN ? "IN" : "INTL");
       })
       .finally(() => {
         clearTimeout(timeout);
@@ -96,8 +111,12 @@ export const PricingRegionProvider = ({ children }: { children: React.ReactNode 
     };
   }, []);
 
+  const isManualOverride = detectedRegion !== null && detectedRegion !== region;
+
   return (
-    <PricingRegionContext.Provider value={{ region, setRegion, detecting, pricing: PRICING[region] }}>
+    <PricingRegionContext.Provider
+      value={{ region, setRegion, detecting, pricing: PRICING[region], detectedRegion, isManualOverride }}
+    >
       {children}
     </PricingRegionContext.Provider>
   );
