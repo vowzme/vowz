@@ -22,6 +22,7 @@ import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import SEOHead from "@/components/SEOHead";
 import { useMediaUpload } from "@/hooks/use-media-upload";
 import { StorageBadge } from "@/components/StorageBadge";
+import { DEFAULT_STORY } from "@/lib/default-story";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
