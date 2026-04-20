@@ -8,6 +8,8 @@ interface PricingConfig {
   premiumOriginal: number;
   freePrice: string;
   label: string;
+  storageAddonPrice: number;
+  storageAddonLabel: string;
 }
 
 interface PricingRegionContextType {
@@ -18,8 +20,24 @@ interface PricingRegionContextType {
 }
 
 const PRICING: Record<PricingRegion, PricingConfig> = {
-  IN: { symbol: "₹", premiumPrice: 999, premiumOriginal: 1499, freePrice: "₹0", label: "India 🇮🇳" },
-  INTL: { symbol: "$", premiumPrice: 20, premiumOriginal: 25, freePrice: "$0", label: "International 🌍" },
+  IN: {
+    symbol: "₹",
+    premiumPrice: 999,
+    premiumOriginal: 1499,
+    freePrice: "₹0",
+    label: "India 🇮🇳",
+    storageAddonPrice: 499,
+    storageAddonLabel: "₹499",
+  },
+  INTL: {
+    symbol: "$",
+    premiumPrice: 20,
+    premiumOriginal: 25,
+    freePrice: "$0",
+    label: "International 🌍",
+    storageAddonPrice: 5,
+    storageAddonLabel: "$5",
+  },
 };
 
 const STORAGE_KEY = "vowz_pricing_region";
@@ -48,31 +66,21 @@ export const PricingRegionProvider = ({ children }: { children: React.ReactNode 
       setDetecting(false);
       return;
     }
-
-    // Try navigator language first
     const lang = navigator.language || "";
     if (lang.toLowerCase().includes("in") || lang.toLowerCase() === "hi") {
       setRegion("IN");
       setDetecting(false);
       return;
     }
-
-    // Try IP-based geolocation
     const controller = new AbortController();
     fetch("https://ipapi.co/json/", { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
-        if (data?.country_code === "IN") {
-          setRegion("IN");
-        } else {
-          setRegion("INTL");
-        }
+        if (data?.country_code === "IN") setRegion("IN");
+        else setRegion("INTL");
       })
-      .catch(() => {
-        setRegion("INTL");
-      })
+      .catch(() => setRegion("INTL"))
       .finally(() => setDetecting(false));
-
     return () => controller.abort();
   }, []);
 
