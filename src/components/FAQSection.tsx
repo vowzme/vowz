@@ -9,7 +9,7 @@ import {
 const faqs = [
   {
     q: "Is Vowz really free?",
-    a: "Yes! Start with a 7-day free trial that includes every feature — all templates, RSVP, gallery, budget tracker, AI assistant, custom domain, and more. No credit card required. After 7 days, upgrade to Premium to keep your site live forever.",
+    a: "Yes! Start with a 7-day free trial that includes every feature — all templates, RSVP, gallery, budget tracker, AI assistant, custom domain, and more. No credit card required. After 7 days, upgrade to Premium (6-month subscription, ₹1,499 / $19) to keep your site live. Renew every 6 months to keep it live.",
   },
   {
     q: "How does the Wedding Wizard work?",
@@ -40,12 +40,16 @@ const faqs = [
     a: "100%. Every Vowz site is fully responsive and optimized for phones, tablets, and desktops. Most guests will view your site on their phone, and it looks beautiful on every screen.",
   },
   {
-    q: "Can I add photos and videos?",
-    a: "Free users get 50 photo uploads with a built-in gallery and lightbox viewer. Video embed support and expanded 5GB storage for photos and videos are coming soon with Premium.",
+    q: "Can I add photos and videos? How much storage do I get?",
+    a: "Yes! Free users get 100 MB of cloud storage; Premium users get 500 MB. Photos are auto-optimized to save space. Need more? Buy a +2 GB add-on for ₹499 (India) or $5 (international) — valid for 6 months and fully stackable.",
+  },
+  {
+    q: "What happens after my 6-month subscription expires?",
+    a: "You'll get email reminders 14 days, 3 days, and 1 day before expiry. After expiry, your site is paused (not deleted) and you can renew anytime by paying ₹1,499 / $19 again for another 6 months. All your data, RSVPs, and photos are preserved.",
   },
   {
     q: "What happens to my site after the wedding?",
-    a: "Your site stays live as a digital keepsake for as long as you want. The guestbook messages, photos, and memories are yours to keep forever.",
+    a: "Your site stays live as a digital keepsake as long as your subscription is active. Renew every 6 months to keep it live. The guestbook messages, photos, and memories are yours to keep forever.",
   },
 ];
 

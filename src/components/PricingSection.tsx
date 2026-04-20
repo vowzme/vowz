@@ -48,8 +48,11 @@ const PricingSection = () => {
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
             Start Free, <span className="text-gradient-gold italic">Upgrade Anytime</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto font-body mb-6">
-            All features included in every plan. Free trial gives you 7 days of full access — upgrade to keep your site live forever.
+          <p className="text-muted-foreground max-w-xl mx-auto font-body mb-3">
+            All features included in every plan. Free trial gives you 7 days of full access — upgrade to keep your site live for 6 months. Renew every 6 months to keep it live.
+          </p>
+          <p className="text-xs text-muted-foreground max-w-xl mx-auto font-body mb-6">
+            Includes <strong>500 MB cloud storage</strong> for premium (100 MB free). Need more? Add <strong>+2 GB for {`{₹499 / $5}`}</strong> anytime.
           </p>
           <RegionSelector showNote />
         </motion.div>
@@ -94,13 +97,16 @@ const PricingSection = () => {
               Best Value
             </div>
             <h3 className="font-display text-2xl font-bold text-foreground">Premium</h3>
-            <p className="text-muted-foreground font-body text-sm mt-1">Keep your site live forever</p>
+            <p className="text-muted-foreground font-body text-sm mt-1">6 months — renew to keep live</p>
             <div className="mt-6 mb-2 flex items-baseline gap-2">
               <span className="font-display text-5xl font-bold text-foreground">{formatPrice(pricing, "premium")}</span>
               <span className="font-display text-xl text-muted-foreground line-through">{formatPrice(pricing, "original")}</span>
-              <span className="text-muted-foreground font-body text-sm">/year</span>
+              <span className="text-muted-foreground font-body text-sm">/6 months</span>
             </div>
-            <p className="text-xs text-gold font-body mb-6 font-semibold">Launch offer — save {pricing.symbol}{pricing.premiumOriginal - pricing.premiumPrice}!</p>
+            <p className="text-xs text-gold font-body mb-2 font-semibold">Launch offer — save {pricing.symbol}{pricing.premiumOriginal - pricing.premiumPrice}!</p>
+            <p className="text-xs text-muted-foreground font-body mb-6">
+              Need more storage? Add <strong>+2 GB for {pricing.storageAddonLabel}</strong> (6-month validity, stackable)
+            </p>
             <PremiumUpgradeButton
               variant="gold"
               size="lg"
