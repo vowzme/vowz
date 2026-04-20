@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Globe, Heart, Lightbulb, Ticket, FileText, BarChart3, Crown, Network } from "lucide-react";
 import { AdminUsageWidget } from "@/components/admin/AdminUsageWidget";
 import { AdminCloudHealthWidget } from "@/components/admin/AdminCloudHealthWidget";
+import { AdminStorageWidget } from "@/components/admin/AdminStorageWidget";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -74,6 +75,9 @@ export default function AdminDashboard() {
 
       {/* Cloud Health & Storage */}
       <AdminCloudHealthWidget />
+
+      {/* R2 Storage Usage */}
+      <AdminStorageWidget />
 
       {/* Usage & Credits Monitor */}
       <AdminUsageWidget />
