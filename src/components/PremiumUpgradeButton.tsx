@@ -133,10 +133,10 @@ const PremiumUpgradeButton = ({
         amount: data.amount,
         currency: data.currency,
         name: data.name || "Vowz",
-        description: data.description || "Premium Plan (1 Year)",
+        description: data.description || "Premium Plan (6 Months)",
         order_id: data.order_id,
         prefill: data.prefill || { email: user!.email || "" },
-        notes: { plan: "premium_yearly", coupon: couponResult?.code || "", affiliate: affiliateRef || "" },
+        notes: { plan: "premium_6mo", coupon: couponResult?.code || "", affiliate: affiliateRef || "" },
         handler: async (response: {
           razorpay_payment_id: string;
           razorpay_order_id: string;
@@ -209,7 +209,7 @@ const PremiumUpgradeButton = ({
           </DialogHeader>
           <div className="space-y-4">
             <div className="text-center py-3">
-              <p className="text-sm text-muted-foreground">Premium Plan (1 Year)</p>
+              <p className="text-sm text-muted-foreground">Premium Plan (6 Months)</p>
 
               {hasAffiliate && (
                 <div className="mt-2 mb-1 inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full text-xs font-medium">
