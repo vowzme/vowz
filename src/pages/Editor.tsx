@@ -1683,6 +1683,21 @@ function SectionEditor({
                       {aiLoading === "story_short" ? <Loader2 className="w-3 h-3 animate-spin" /> : "✂️ Shorter"}
                     </Button>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs text-muted-foreground hover:text-foreground px-2"
+                    onClick={() => {
+                      if (data.body && data.body.trim() && data.body.trim() !== DEFAULT_STORY.trim()) {
+                        if (!confirm("Reset your story to the default passage? Your current text will be replaced.")) return;
+                      }
+                      onUpdateData({ body: DEFAULT_STORY });
+                      toast({ title: "Story reset", description: "Default passage restored." });
+                    }}
+                    title="Reset to the universal default story"
+                  >
+                    ↺ Reset
+                  </Button>
                 </div>
               )}
             </div>
