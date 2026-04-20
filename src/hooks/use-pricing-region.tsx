@@ -66,22 +66,34 @@ export const PricingRegionProvider = ({ children }: { children: React.ReactNode 
       setDetecting(false);
       return;
     }
-    const lang = navigator.language || "";
-    if (lang.toLowerCase().includes("in") || lang.toLowerCase() === "hi") {
-      setRegion("IN");
-      setDetecting(false);
-      return;
-    }
+    // IP geolocation is the source of truth. Locale is unreliable
+    // (e.g. an Indian abroad still has en-IN; a tourist in India has en-US).
     const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+
     fetch("https://ipapi.co/json/", { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
-        if (data?.country_code === "IN") setRegion("IN");
-        else setRegion("INTL");
+        const country = String(data?.country_code || data?.country || "").toUpperCase();
+        setRegion(country === "IN" ? "IN" : "INTL");
       })
-      .catch(() => setRegion("INTL"))
-      .finally(() => setDetecting(false));
-    return () => controller.abort();
+      .catch(() => {
+        // Fallback only if IP lookup fails: check for explicit -IN locale tag.
+        const langs = [navigator.language, ...(navigator.languages || [])]
+          .filter(Boolean)
+          .map((l) => l.toLowerCase());
+        const isIN = langs.some((l) => l === "en-in" || l.endsWith("-in") || l === "hi-in");
+        setRegion(isIN ? "IN" : "INTL");
+      })
+      .finally(() => {
+        clearTimeout(timeout);
+        setDetecting(false);
+      });
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
   return (
