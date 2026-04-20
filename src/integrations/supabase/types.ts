@@ -690,6 +690,27 @@ export type Database = {
         }
         Relationships: []
       }
+      r2_storage_usage: {
+        Row: {
+          file_count: number
+          updated_at: string
+          used_bytes: number
+          user_id: string
+        }
+        Insert: {
+          file_count?: number
+          updated_at?: string
+          used_bytes?: number
+          user_id: string
+        }
+        Update: {
+          file_count?: number
+          updated_at?: string
+          used_bytes?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       rsvps: {
         Row: {
           attending: boolean
@@ -825,11 +846,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_storage_addons: {
+        Row: {
+          amount_paid: number
+          bytes_added: number
+          created_at: string
+          currency: string
+          expires_at: string
+          id: string
+          payment_id: string | null
+          payment_order_id: string | null
+          purchased_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          bytes_added?: number
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          id?: string
+          payment_id?: string | null
+          payment_order_id?: string | null
+          purchased_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          bytes_added?: number
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          id?: string
+          payment_id?: string | null
+          payment_order_id?: string | null
+          purchased_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           amount_paid: number
           created_at: string
           currency: string
+          duration_months: number
           expires_at: string | null
           id: string
           metadata: Json
@@ -847,6 +911,7 @@ export type Database = {
           amount_paid?: number
           created_at?: string
           currency?: string
+          duration_months?: number
           expires_at?: string | null
           id?: string
           metadata?: Json
@@ -864,6 +929,7 @@ export type Database = {
           amount_paid?: number
           created_at?: string
           currency?: string
+          duration_months?: number
           expires_at?: string | null
           id?: string
           metadata?: Json
@@ -1236,6 +1302,17 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_user_storage_quota: {
+        Args: { _user_id: string }
+        Returns: {
+          addon_bytes: number
+          base_quota_bytes: number
+          file_count: number
+          is_premium: boolean
+          total_quota_bytes: number
+          used_bytes: number
+        }[]
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
