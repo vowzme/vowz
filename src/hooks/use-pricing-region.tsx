@@ -17,6 +17,8 @@ interface PricingRegionContextType {
   setRegion: (r: PricingRegion) => void;
   detecting: boolean;
   pricing: PricingConfig;
+  detectedRegion: PricingRegion | null;
+  isManualOverride: boolean;
 }
 
 const PRICING: Record<PricingRegion, PricingConfig> = {
