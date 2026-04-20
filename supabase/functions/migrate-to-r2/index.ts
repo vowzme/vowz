@@ -35,6 +35,7 @@ interface MigrationReport {
   skipped_files: number;
   failed_files: number;
   rewritten_sites: number;
+  deleted_files: number;
   errors: string[];
   url_map: Record<string, string>;
 }
@@ -60,6 +61,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const dryRun: boolean = !!body.dryRun;
+    const mode: "migrate" | "cleanup" = body.mode === "cleanup" ? "cleanup" : "migrate";
 
     const report: MigrationReport = {
       scanned_files: 0,
@@ -67,9 +69,18 @@ Deno.serve(async (req) => {
       skipped_files: 0,
       failed_files: 0,
       rewritten_sites: 0,
+      deleted_files: 0,
       errors: [],
       url_map: {},
     };
+
+    // ----- Cleanup mode: delete Supabase Storage files that already exist in R2 -----
+    if (mode === "cleanup") {
+      for (const bucket of BUCKETS) {
+        await cleanupBucket(bucket, "", admin, report, dryRun);
+      }
+      return json({ success: true, dryRun, mode, report });
+    }
 
     // ----- Step 1: Copy files bucket-by-bucket -----
     for (const bucket of BUCKETS) {
@@ -141,7 +152,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ success: true, dryRun, report });
+    return json({ success: true, dryRun, mode, report });
   } catch (err) {
     console.error("migrate-to-r2 error:", err);
     return json({ error: (err as Error).message }, 500);
@@ -206,6 +217,61 @@ async function migrateOne(
   } catch (e) {
     report.failed_files++;
     report.errors.push(`${bucket}/${path}: ${(e as Error).message}`);
+  }
+}
+
+async function cleanupBucket(
+  bucket: string,
+  prefix: string,
+  admin: ReturnType<typeof createClient>,
+  report: MigrationReport,
+  dryRun: boolean,
+) {
+  const { data: entries, error } = await admin.storage.from(bucket).list(prefix, { limit: 1000 });
+  if (error) {
+    report.errors.push(`List ${bucket}/${prefix}: ${error.message}`);
+    return;
+  }
+  if (!entries) return;
+
+  const toDelete: string[] = [];
+
+  for (const entry of entries) {
+    const fullPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (!entry.metadata) {
+      // Folder — recurse
+      await cleanupBucket(bucket, fullPath, admin, report, dryRun);
+      continue;
+    }
+    report.scanned_files++;
+    const r2Key = `_migrated/${bucket}/${fullPath}`;
+    try {
+      const headRes = await r2.fetch(`${R2_ENDPOINT}/${r2Key}`, { method: "HEAD" });
+      if (headRes.ok) {
+        toDelete.push(fullPath);
+      } else {
+        report.skipped_files++;
+      }
+    } catch (e) {
+      report.errors.push(`HEAD ${r2Key}: ${(e as Error).message}`);
+      report.failed_files++;
+    }
+  }
+
+  if (toDelete.length === 0) return;
+
+  if (dryRun) {
+    report.deleted_files += toDelete.length;
+    return;
+  }
+
+  // Batch-delete (Supabase accepts up to 1000 paths per call)
+  const { data: removed, error: rmErr } = await admin.storage.from(bucket).remove(toDelete);
+  if (rmErr) {
+    report.errors.push(`Delete ${bucket}: ${rmErr.message}`);
+    report.failed_files += toDelete.length;
+  } else {
+    report.deleted_files += removed?.length ?? toDelete.length;
   }
 }
 
