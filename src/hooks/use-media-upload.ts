@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useGoogleDrive } from "@/hooks/use-google-drive";
-
+import { useR2Upload } from "@/hooks/use-r2-upload";
 import { useAuth } from "@/hooks/use-auth";
 
 const MAX_DIMENSION = 2048;
@@ -63,11 +63,14 @@ async function compressImage(file: File): Promise<File> {
 
 /**
  * Unified media upload hook.
- * Compresses images, then uploads to Google Drive if linked, otherwise Supabase storage.
+ * Default: Cloudflare R2 (cheap, $0 egress).
+ * Optional: Google Drive if user has linked it (uploads still go to R2 for site delivery,
+ * Drive remains available as a personal backup browser).
  */
 export function useMediaUpload() {
   const { user } = useAuth();
-  const { linked, uploadFile } = useGoogleDrive();
+  const { linked } = useGoogleDrive();
+  const { uploadToR2 } = useR2Upload();
 
   const upload = useCallback(
     async (file: File, prefix: string = "media"): Promise<string | null> => {
@@ -78,17 +81,13 @@ export function useMediaUpload() {
       const ext = compressed.name.split(".").pop() || "jpg";
       const fileName = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-      // Google Drive is mandatory — no platform storage fallback
-      if (!linked) {
-        throw new Error("Google Drive is not linked. Please connect your Google Drive from the dashboard to upload media.");
-      }
-
-      const result = await uploadFile(compressed, fileName);
+      // Primary: Cloudflare R2
+      const result = await uploadToR2(compressed, fileName);
       if (result?.url) return result.url;
-      throw new Error("Upload to Google Drive failed. Please check your Drive connection and try again.");
+      throw new Error("Upload failed. Please try again.");
     },
-    [user, linked, uploadFile]
+    [user, uploadToR2]
   );
 
-  return { upload, isDriveLinked: linked };
+  return { upload, isDriveLinked: linked, storageBackend: "r2" as const };
 }
