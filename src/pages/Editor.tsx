@@ -22,7 +22,7 @@ import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import SEOHead from "@/components/SEOHead";
 import { useMediaUpload } from "@/hooks/use-media-upload";
 import { StorageBadge } from "@/components/StorageBadge";
-import { DEFAULT_STORY } from "@/lib/default-story";
+import { DEFAULT_STORY, STORY_TEMPLATES } from "@/lib/default-story";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
@@ -1693,9 +1693,27 @@ function SectionEditor({
               className="font-body"
             />
             {type === "story" && (
-              <p className="text-[10px] text-muted-foreground font-body mt-1">
-                💡 Our AI creates a short, heartfelt story — feel free to tweak it!
-              </p>
+              <>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] text-muted-foreground font-body mr-1">Quick templates:</span>
+                  {STORY_TEMPLATES.map((tpl) => (
+                    <Button
+                      key={tpl.id}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-xs px-2 font-body"
+                      onClick={() => onUpdateData({ body: tpl.body })}
+                      title={`Use the ${tpl.label} template`}
+                    >
+                      <span className="mr-1">{tpl.emoji}</span>{tpl.label}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-muted-foreground font-body mt-1.5">
+                  💡 Pick a template above, let AI rewrite it, or make it your own.
+                </p>
+              </>
             )}
           </div>
         </>
