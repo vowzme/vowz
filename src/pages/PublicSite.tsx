@@ -18,6 +18,7 @@ import { LivestreamPublicSection } from "@/components/LivestreamSection";
 import BlessingWall from "@/components/BlessingWall";
 import { CurrencyDisplay } from "@/components/CurrencyConverter";
 import LanguageSelector from "@/components/LanguageSelector";
+import { DEFAULT_STORY } from "@/lib/default-story";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
@@ -663,7 +664,7 @@ function StorySection({ data, accent }: { data: any; accent: string }) {
         </h2>
         <div className="w-14 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} aria-hidden="true" />
         <p className="text-muted-foreground font-body text-lg leading-relaxed whitespace-pre-wrap">
-          {data.body}
+          {(data.body && String(data.body).trim()) || DEFAULT_STORY}
         </p>
       </div>
     </section>
