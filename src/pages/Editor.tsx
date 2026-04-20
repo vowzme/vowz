@@ -21,7 +21,6 @@ import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import SEOHead from "@/components/SEOHead";
 import { useMediaUpload } from "@/hooks/use-media-upload";
-import DriveFileBrowserLazy from "@/components/DriveFileBrowser";
 import { StorageBadge } from "@/components/StorageBadge";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -500,7 +499,9 @@ const Editor = () => {
                     />
                   )}
                   {activePanel === "media" && (
-                    <DriveFileBrowserLazy />
+                    <div className="text-center py-10 text-muted-foreground text-sm">
+                      Media is now stored on Cloudflare R2. Upload photos & videos directly from each section above.
+                    </div>
                   )}
                   {activePanel === "ai" && (
                     <AIAssistantPanel

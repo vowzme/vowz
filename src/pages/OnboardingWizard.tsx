@@ -2,20 +2,17 @@ import { useEffect, useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, HardDrive } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useWeddingWizard, CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES } from "@/hooks/use-wedding-wizard";
 import WizardPreview from "@/components/WizardPreview";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
-import GoogleDriveLinkCard from "@/components/GoogleDriveLinkCard";
-import { useGoogleDrive } from "@/hooks/use-google-drive";
 import { toast } from "@/hooks/use-toast";
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
-  { key: "storage", icon: HardDrive, label: "Storage" },
   { key: "story", icon: BookOpen, label: "Story" },
   { key: "theme", icon: Palette, label: "Theme" },
   { key: "events", icon: Calendar, label: "Events" },
@@ -41,8 +38,6 @@ const OnboardingWizard = () => {
     nextStep, prevStep, completeWizard, isComplete,
   } = useWeddingWizard();
   const { generate, loading: aiLoading } = useAIContentGen();
-  const googleDrive = useGoogleDrive();
-  const { linked: driveLinked, loading: driveLoading } = googleDrive;
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
   // Apply template preset if navigated from templates
@@ -55,27 +50,6 @@ const OnboardingWizard = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const gdrive = searchParams.get("gdrive");
-    const message = searchParams.get("message");
-
-    if (gdrive === "linked") {
-      googleDrive.checkStatus();
-      toast({ title: "Google Drive linked! ☁️" });
-    } else if (gdrive === "error") {
-      toast({
-        title: "Failed to link Google Drive",
-        description: message || "Please try again.",
-        variant: "destructive",
-      });
-    } else {
-      return;
-    }
-
-    const nextParams = new URLSearchParams(searchParams);
-    ["gdrive", "message", "code", "scope", "state"].forEach((param) => nextParams.delete(param));
-    setSearchParams(nextParams, { replace: true });
-  }, []);
 
   if (isComplete) {
     return <WizardPreview data={wizardData} />;
@@ -86,7 +60,6 @@ const OnboardingWizard = () => {
   const canProceed = () => {
     switch (step) {
       case "names": return wizardData.partner1.trim() && wizardData.partner2.trim();
-      case "storage": return driveLinked;
       case "story": return wizardData.howWeMet.trim().length >= 10;
       case "theme": return wizardData.suggestedColors.length >= 3;
       case "events": return wizardData.functions.length > 0;
@@ -219,32 +192,6 @@ const OnboardingWizard = () => {
                       ))}
                     </div>
                   </div>
-                </div>
-              )}
-
-              {step === "storage" && (
-                <div className="space-y-6">
-                  <div className="text-center mb-8">
-                    <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Link Your Storage ☁️</h2>
-                     <p className="text-muted-foreground font-body mt-2 max-w-md mx-auto">
-                       Your privacy matters. All photos & videos are stored directly in <strong>your own Google Drive</strong> — we never store your media on our servers. This is mandatory for your data security.
-                     </p>
-                     <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
-                       <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">🔒 End-to-end ownership</span>
-                       <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">☁️ Your cloud, your data</span>
-                       <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">🛡️ Zero third-party storage</span>
-                     </div>
-                  </div>
-                  <div className="max-w-md mx-auto">
-                    <GoogleDriveLinkCard onLinked={() => {}} />
-                  </div>
-                   {!driveLinked && !driveLoading && (
-                     <div className="text-center mt-4 p-3 rounded-xl bg-destructive/5 border border-destructive/20">
-                       <p className="text-xs text-destructive font-body font-medium">
-                         ⚠️ Google Drive connection is required to proceed. We use your personal Drive to keep your content 100% under your control.
-                       </p>
-                     </div>
-                   )}
                 </div>
               )}
 
