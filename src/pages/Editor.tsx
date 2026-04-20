@@ -95,7 +95,7 @@ function buildSections(data: WeddingSiteData): WeddingSection[] {
       type: "story",
       title: "Our Story",
       visible: true,
-      data: { heading: "Our Story", body: data.howWeMet },
+      data: { heading: "Our Story", body: data.howWeMet?.trim() || DEFAULT_STORY },
     },
     {
       id: "events",
