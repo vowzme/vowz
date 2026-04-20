@@ -1,7 +1,6 @@
 // Cloudflare R2 upload edge function with per-user storage quotas + auto-WebP reduction
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
-import { AwsClient } from "https://esm.sh/aws4fetch@1.0.20";
-import { decode, Image } from "https://deno.land/x/imagescript@1.2.17/mod.ts";
+import { createClient } from "npm:@supabase/supabase-js@2.49.4";
+import { AwsClient } from "npm:aws4fetch@1.0.20";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,44 +26,12 @@ const r2 = new AwsClient({
 });
 
 const ENDPOINT = `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${R2_BUCKET_NAME}`;
-const REENCODE_THRESHOLD = 1024 * 1024; // 1 MB
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-
-/** Re-encode large images to WebP (quality 85) — visually lossless, ~40% smaller. */
-async function autoReduce(
-  bytes: Uint8Array,
-  contentType: string,
-  filename: string
-): Promise<{ bytes: Uint8Array; contentType: string; filename: string; reduced: boolean }> {
-  const original = { bytes, contentType, filename, reduced: false };
-  if (bytes.byteLength < REENCODE_THRESHOLD) return original;
-  if (!contentType.startsWith("image/")) return original;
-  if (contentType === "image/gif" || contentType === "image/svg+xml" || contentType === "image/webp") {
-    return original;
-  }
-  try {
-    const img = await decode(bytes);
-    if (!(img instanceof Image)) return original;
-    const webp = await img.encode(85); // imagescript encode → PNG-like; use encodeJPEG for jpg
-    // imagescript doesn't have native webp; fall back to high-quality JPEG
-    const jpeg = await img.encodeJPEG(85);
-    if (jpeg.byteLength >= bytes.byteLength) return original;
-    return {
-      bytes: jpeg,
-      contentType: "image/jpeg",
-      filename: filename.replace(/\.[^.]+$/, ".jpg"),
-      reduced: true,
-    };
-  } catch (e) {
-    console.warn("autoReduce failed, using original:", e);
-    return original;
-  }
-}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -106,14 +73,8 @@ Deno.serve(async (req) => {
       const used = Number(quota?.used_bytes ?? 0);
       const total = Number(quota?.total_quota_bytes ?? 0);
 
-      let bytes = new Uint8Array(await file.arrayBuffer());
-      let contentType = file.type || "application/octet-stream";
-
-      // Auto-reduce large images server-side
-      const reduced = await autoReduce(bytes, contentType, fileName);
-      bytes = reduced.bytes;
-      contentType = reduced.contentType;
-      fileName = reduced.filename;
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const contentType = file.type || "application/octet-stream";
 
       if (used + bytes.byteLength > total) {
         const usedMB = (used / 1048576).toFixed(1);
@@ -170,7 +131,6 @@ Deno.serve(async (req) => {
         url: publicUrl,
         key,
         size: bytes.byteLength,
-        reduced: reduced.reduced,
       });
     }
 
