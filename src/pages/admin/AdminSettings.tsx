@@ -21,6 +21,42 @@ export default function AdminSettings() {
   const [emails, setEmails] = useState<AdminEmail[]>([]);
   const [newEmail, setNewEmail] = useState("");
   const [loading, setLoading] = useState(true);
+  const [migrating, setMigrating] = useState(false);
+  const [migrationReport, setMigrationReport] = useState<any>(null);
+
+  const runR2Migration = async (dryRun: boolean) => {
+    setMigrating(true);
+    setMigrationReport(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/migrate-to-r2`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ dryRun }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        toast({ title: "Migration failed", description: data.error, variant: "destructive" });
+      } else {
+        setMigrationReport(data.report);
+        toast({
+          title: dryRun ? "Dry run complete" : "Migration complete",
+          description: `Copied ${data.report.copied_files}, skipped ${data.report.skipped_files}, rewrote ${data.report.rewritten_sites} sites.`,
+        });
+      }
+    } catch (e: any) {
+      toast({ title: "Migration error", description: e.message, variant: "destructive" });
+    } finally {
+      setMigrating(false);
+    }
+  };
 
   const fetchEmails = async () => {
     const { data } = await supabase.from("admin_emails").select("*").order("created_at");
@@ -169,7 +205,7 @@ export default function AdminSettings() {
           {migrationReport && (
             <div className="bg-muted/50 rounded-lg p-3 text-xs font-mono space-y-1 mt-3">
               <div>Scanned: <strong>{migrationReport.scanned_files}</strong></div>
-              <div>Copied: <strong className="text-emerald-600 dark:text-emerald-400">{migrationReport.copied_files}</strong></div>
+              <div>Copied: <strong className="text-primary">{migrationReport.copied_files}</strong></div>
               <div>Skipped (already in R2): <strong>{migrationReport.skipped_files}</strong></div>
               <div>Failed: <strong className={migrationReport.failed_files > 0 ? "text-destructive" : ""}>{migrationReport.failed_files}</strong></div>
               <div>Sites rewritten: <strong>{migrationReport.rewritten_sites}</strong></div>
