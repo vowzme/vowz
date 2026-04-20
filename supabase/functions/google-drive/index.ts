@@ -82,9 +82,7 @@ function normalizeReturnTo(returnTo?: string) {
 }
 
 function buildOAuthRedirectUri(origin: string) {
-  const redirectUrl = new URL("/dashboard", origin);
-  redirectUrl.searchParams.set("gdrive", "callback");
-  return redirectUrl.toString();
+  return GOOGLE_DRIVE_CALLBACK_URL;
 }
 
 function buildFrontendRedirect(origin: string, returnTo: string, status: "linked" | "error", message?: string) {
