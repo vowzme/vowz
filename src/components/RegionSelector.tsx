@@ -11,10 +11,13 @@ interface RegionSelectorProps {
 }
 
 const RegionSelector = ({ className = "", showNote = false }: RegionSelectorProps) => {
-  const { region, setRegion } = usePricingRegion();
+  const { region, setRegion, detectedRegion, isManualOverride, detecting } = usePricingRegion();
+
+  const detectedLabel =
+    detectedRegion === "IN" ? "🇮🇳 India" : detectedRegion === "INTL" ? "🌍 International" : null;
 
   return (
-    <div className={`flex flex-col items-center gap-1 ${className}`}>
+    <div className={`flex flex-col items-center gap-2 ${className}`}>
       <div className="inline-flex rounded-full border border-border/60 bg-card p-0.5 shadow-sm">
         {options.map((opt) => (
           <button
@@ -31,6 +34,22 @@ const RegionSelector = ({ className = "", showNote = false }: RegionSelectorProp
           </button>
         ))}
       </div>
+
+      {detectedLabel && !detecting && (
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/60 border border-border/40 text-[10px] font-body text-muted-foreground">
+          <span>Detected: {detectedLabel}</span>
+          {isManualOverride && (
+            <button
+              onClick={() => detectedRegion && setRegion(detectedRegion)}
+              className="text-primary hover:underline font-medium"
+              title="Use detected region"
+            >
+              Use this
+            </button>
+          )}
+        </div>
+      )}
+
       {showNote && (
         <p className="text-[10px] text-muted-foreground/60 font-body">
           Price shown based on your location. Change above if needed.
