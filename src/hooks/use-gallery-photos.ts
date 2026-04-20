@@ -61,7 +61,7 @@ export function useGalleryPhotos() {
 
   const deletePhoto = useCallback(
     async (path: string) => {
-      // Only delete from Supabase if it's a Supabase URL; Drive files managed by user
+      // R2 deletion handled by r2-upload edge function; only legacy Supabase Storage paths handled here
       if (path.includes("supabase")) {
         const { error } = await supabase.storage.from("wedding-photos").remove([path]);
         if (error) {
