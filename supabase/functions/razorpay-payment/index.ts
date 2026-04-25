@@ -117,8 +117,42 @@ Deno.serve(async (req) => {
       }
 
       const receipt = `vowz_${isAddon ? "stor" : "prem"}_${user.id.slice(0, 8)}_${Date.now()}`;
-      const clientFinalAmount = body?.final_amount ? Number(body.final_amount) : null;
-      const orderAmount = clientFinalAmount && clientFinalAmount > 0 ? clientFinalAmount : pricingTier.amount;
+      // Server-side coupon validation; never trust client-supplied amounts.
+      let orderAmount = pricingTier.amount;
+      let appliedCouponId: string | null = null;
+      let appliedDiscount = 0;
+      const couponCode = (body?.coupon_code || "").toString().trim().toUpperCase();
+      if (couponCode) {
+        const { data: coupon } = await adminClient
+          .from("coupons")
+          .select("id, status, expires_at, usage_type, max_uses, times_used, min_order_value, max_discount_cap, currency, discount_value, discount_type, scope")
+          .eq("code", couponCode)
+          .maybeSingle();
+        const valid =
+          coupon &&
+          coupon.status === "active" &&
+          (!coupon.expires_at || new Date(coupon.expires_at).getTime() > Date.now()) &&
+          (coupon.usage_type !== "limited" || (coupon.max_uses != null && coupon.times_used < coupon.max_uses)) &&
+          (!coupon.currency || coupon.currency === pricingTier.currency);
+        if (valid && coupon) {
+          const baseMajor = pricingTier.amount / 100; // major units
+          if (coupon.min_order_value == null || baseMajor >= Number(coupon.min_order_value)) {
+            let discountMajor = 0;
+            if (coupon.discount_type === "percentage") {
+              discountMajor = (baseMajor * Number(coupon.discount_value)) / 100;
+            } else {
+              discountMajor = Number(coupon.discount_value);
+            }
+            if (coupon.max_discount_cap != null) {
+              discountMajor = Math.min(discountMajor, Number(coupon.max_discount_cap));
+            }
+            discountMajor = Math.max(0, Math.min(discountMajor, baseMajor));
+            appliedDiscount = discountMajor;
+            appliedCouponId = coupon.id;
+            orderAmount = Math.max(100, Math.round((baseMajor - discountMajor) * 100));
+          }
+        }
+      }
 
       const orderRes = await fetch("https://api.razorpay.com/v1/orders", {
         method: "POST",
@@ -132,7 +166,10 @@ Deno.serve(async (req) => {
             plan: planCode,
             product_type: productType,
             currency: pricingTier.currency,
-            coupon_code: body?.coupon_code || "",
+            coupon_code: couponCode || "",
+            coupon_id: appliedCouponId || "",
+            discount_applied: String(appliedDiscount),
+            expected_amount: String(orderAmount),
             affiliate_ref: body?.affiliate_ref || "",
           },
         }),
