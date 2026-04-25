@@ -245,6 +245,16 @@ Deno.serve(async (req) => {
         return json({ error: "Payment is not completed." }, 400);
       }
 
+      // Verify the captured amount matches the server-computed expected amount
+      const expectedAmountStr = payment.notes?.expected_amount as string | undefined;
+      if (expectedAmountStr) {
+        const expectedAmount = Number(expectedAmountStr);
+        if (Number.isFinite(expectedAmount) && Number(payment.amount) < expectedAmount) {
+          console.error("Amount mismatch", { paid: payment.amount, expected: expectedAmount });
+          return json({ error: "Payment amount does not match expected order amount." }, 400);
+        }
+      }
+
       const paymentCurrency = payment.currency || "INR";
       const amountPaid = Number(payment.amount || pricingTier.amount) / 100;
       const currencySymbol = (PREMIUM_PRICING[paymentCurrency]?.symbol) || paymentCurrency;
