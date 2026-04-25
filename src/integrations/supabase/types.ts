@@ -532,6 +532,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "franchise_commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_referrals_for_affiliate"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "franchise_commissions_sub_affiliate_id_fkey"
             columns: ["sub_affiliate_id"]
             isOneToOne: false
@@ -1375,6 +1382,66 @@ export type Database = {
           {
             foreignKeyName: "affiliates_franchise_id_fkey"
             columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_referrals_for_affiliate: {
+        Row: {
+          affiliate_id: string | null
+          commission_amount: number | null
+          commission_paid: boolean | null
+          converted_at: string | null
+          created_at: string | null
+          id: string | null
+          paid_at: string | null
+          payout_status: string | null
+          plan: string | null
+          referred_email_masked: string | null
+          referred_user_id: string | null
+          status: string | null
+        }
+        Insert: {
+          affiliate_id?: string | null
+          commission_amount?: number | null
+          commission_paid?: boolean | null
+          converted_at?: string | null
+          created_at?: string | null
+          id?: string | null
+          paid_at?: string | null
+          payout_status?: string | null
+          plan?: string | null
+          referred_email_masked?: never
+          referred_user_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          affiliate_id?: string | null
+          commission_amount?: number | null
+          commission_paid?: boolean | null
+          converted_at?: string | null
+          created_at?: string | null
+          id?: string | null
+          paid_at?: string | null
+          payout_status?: string | null
+          plan?: string | null
+          referred_email_masked?: never
+          referred_user_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_public_lookup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
             referencedColumns: ["id"]
