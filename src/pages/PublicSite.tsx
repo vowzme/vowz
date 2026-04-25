@@ -33,7 +33,6 @@ interface WeddingSite {
   sections: any[];
   slug: string;
   is_published: boolean;
-  site_password?: string | null;
   site_language?: string;
   translations?: Record<string, Record<string, string>> | null;
 }
@@ -85,6 +84,8 @@ const PublicSite = () => {
   const [passwordUnlocked, setPasswordUnlocked] = useState(false);
   const [pwInput, setPwInput] = useState("");
   const [pwError, setPwError] = useState(false);
+  const [hasPassword, setHasPassword] = useState(false);
+  const [verifyingPw, setVerifyingPw] = useState(false);
   const [currentLang, setCurrentLang] = useState("en");
   const { trackEvent, trackPageView } = useAnalyticsTracker(site?.id);
 
@@ -126,6 +127,11 @@ const PublicSite = () => {
         }
         setSite(data as any);
         setLoading(false);
+        // Check if site is password-protected (server-side, value never leaves DB)
+        try {
+          const { data: hp } = await supabase.rpc("site_has_password", { _site_id: (data as any).id });
+          setHasPassword(!!hp);
+        } catch { /* ignore */ }
         return;
       }
 
@@ -291,21 +297,33 @@ const PublicSite = () => {
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
 
-  // Password gate
-  if (site.site_password && !passwordUnlocked) {
+  // Password gate (server-side verification)
+  if (hasPassword && !passwordUnlocked) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-sm w-full">
           <Heart className="w-10 h-10 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
           <h1 className="font-display text-2xl font-bold text-foreground mb-2">This site is private</h1>
           <p className="text-muted-foreground font-body text-sm mb-6">Enter the password to view this wedding site.</p>
-          <form onSubmit={(e) => {
+          <form onSubmit={async (e) => {
             e.preventDefault();
-            if (pwInput === site.site_password) {
-              setPasswordUnlocked(true);
-              setPwError(false);
-            } else {
+            if (verifyingPw) return;
+            setVerifyingPw(true);
+            try {
+              const { data: ok, error } = await supabase.rpc("verify_site_password", {
+                _site_id: site.id,
+                _password: pwInput,
+              });
+              if (!error && ok === true) {
+                setPasswordUnlocked(true);
+                setPwError(false);
+              } else {
+                setPwError(true);
+              }
+            } catch {
               setPwError(true);
+            } finally {
+              setVerifyingPw(false);
             }
           }} className="space-y-3">
             <input
@@ -316,8 +334,8 @@ const PublicSite = () => {
               className="w-full rounded-lg border border-border bg-card px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-gold/50"
             />
             {pwError && <p className="text-sm text-destructive font-body">Incorrect password. Try again.</p>}
-            <Button type="submit" className="w-full font-body" style={{ backgroundColor: accent, color: light }}>
-              Enter
+            <Button type="submit" disabled={verifyingPw} className="w-full font-body" style={{ backgroundColor: accent, color: light }}>
+              {verifyingPw ? "Checking…" : "Enter"}
             </Button>
           </form>
           <p className="text-xs text-muted-foreground font-body mt-6">
