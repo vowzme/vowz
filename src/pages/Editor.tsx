@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
@@ -231,7 +232,7 @@ const Editor = () => {
             suggestedColors: (site.suggested_colors as any) || ["#6B1D2A", "#D4A853", "#FFF5E6"],
             tagline: site.tagline,
             siteLanguage: (site as any).site_language || "en",
-            sitePassword: (site as any).site_password || "",
+            sitePassword: "",
             availableLanguages: Object.keys((site as any).translations || {}).length > 0
               ? ["en", ...Object.keys((site as any).translations || {})]
               : ["en"],
@@ -246,6 +247,17 @@ const Editor = () => {
             siteData,
             sections: sections && sections.length > 0 ? sections : buildSections(siteData),
           }));
+          // Load password from owner-only table
+          (supabase as any)
+            .from("wedding_site_passwords")
+            .select("password")
+            .eq("wedding_site_id", site.id)
+            .maybeSingle()
+            .then(({ data }: any) => {
+              if (data?.password) {
+                setState((prev) => ({ ...prev, siteData: { ...prev.siteData, sitePassword: data.password } }));
+              }
+            });
         }
       });
     }
@@ -353,10 +365,25 @@ const Editor = () => {
       tagline: siteData.tagline,
       suggested_colors: siteData.suggestedColors,
       sections: sections as any,
-      site_password: siteData.sitePassword || null,
       site_language: siteData.siteLanguage || "en",
       translations: siteData.translations || {},
     });
+    // Persist password to owner-only table
+    try {
+      const pw = (siteData.sitePassword || "").trim();
+      if (pw) {
+        await (supabase as any)
+          .from("wedding_site_passwords")
+          .upsert({ wedding_site_id: dbSiteId, password: pw }, { onConflict: "wedding_site_id" });
+      } else {
+        await (supabase as any)
+          .from("wedding_site_passwords")
+          .delete()
+          .eq("wedding_site_id", dbSiteId);
+      }
+    } catch (e) {
+      console.error("Failed to save site password", e);
+    }
     if (success) {
       toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
     }

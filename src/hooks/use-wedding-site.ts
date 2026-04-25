@@ -81,7 +81,6 @@ export function useWeddingSite() {
         suggested_colors?: string[];
         sections?: any[];
         is_published?: boolean;
-        site_password?: string | null;
         site_language?: string;
         translations?: any;
       }
