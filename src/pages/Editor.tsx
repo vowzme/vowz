@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useGalleryPhotos, GalleryPhoto } from "@/hooks/use-gallery-photos";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
