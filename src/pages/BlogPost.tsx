@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import SEOHead from "@/components/SEOHead";
 import { Calendar, User, ArrowLeft } from "lucide-react";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 interface Post {
   id: string;
@@ -18,18 +20,13 @@ interface Post {
 }
 
 function renderMarkdown(text: string) {
-  // Simple markdown: headings, bold, italic, links, paragraphs, lists
-  return text
-    .replace(/^### (.+)$/gm, '<h3 class="text-xl font-display font-semibold mt-6 mb-2">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-display font-bold mt-8 mb-3">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h2 class="text-3xl font-display font-bold mt-8 mb-4">$1</h2>')
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-primary underline" target="_blank" rel="noopener">$1</a>')
-    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
-    .replace(/\n\n/g, '</p><p class="mb-4 leading-relaxed font-body">')
-    .replace(/^/, '<p class="mb-4 leading-relaxed font-body">')
-    .concat("</p>");
+  // Parse markdown to HTML, then sanitize to strip any raw HTML / script / event handlers.
+  const rawHtml = marked.parse(text ?? "", { async: false, gfm: true, breaks: true }) as string;
+  return DOMPurify.sanitize(rawHtml, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ["script", "style", "iframe", "object", "embed", "form"],
+    FORBID_ATTR: ["onerror", "onload", "onclick", "onmouseover", "onfocus", "onblur", "style"],
+  });
 }
 
 export default function BlogPost() {
