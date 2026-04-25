@@ -1104,7 +1104,7 @@ export type Database = {
       }
       wedding_family_members: {
         Row: {
-          access_token: string | null
+          access_token_hash: string | null
           can_edit: boolean
           created_at: string
           email: string | null
@@ -1115,7 +1115,7 @@ export type Database = {
           wedding_site_id: string
         }
         Insert: {
-          access_token?: string | null
+          access_token_hash?: string | null
           can_edit?: boolean
           created_at?: string
           email?: string | null
@@ -1126,7 +1126,7 @@ export type Database = {
           wedding_site_id: string
         }
         Update: {
-          access_token?: string | null
+          access_token_hash?: string | null
           can_edit?: boolean
           created_at?: string
           email?: string | null
@@ -1387,6 +1387,10 @@ export type Database = {
         Args: { _exclude_site_id?: string; _slug: string }
         Returns: boolean
       }
+      create_family_member_token: {
+        Args: { _member_id: string }
+        Returns: string
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1451,6 +1455,15 @@ export type Database = {
           max_discount_cap: number
           message: string
           min_order_value: number
+        }[]
+      }
+      verify_family_member_token: {
+        Args: { _token: string }
+        Returns: {
+          can_edit: boolean
+          member_id: string
+          role: string
+          wedding_site_id: string
         }[]
       }
       verify_site_password: {
