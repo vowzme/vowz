@@ -170,6 +170,7 @@ Deno.serve(async (req) => {
             coupon_id: appliedCouponId || "",
             discount_applied: String(appliedDiscount),
             expected_amount: String(orderAmount),
+            original_amount: String(pricingTier.amount / 100),
             affiliate_ref: body?.affiliate_ref || "",
           },
         }),
