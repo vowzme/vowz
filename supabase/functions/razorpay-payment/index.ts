@@ -170,6 +170,7 @@ Deno.serve(async (req) => {
             coupon_id: appliedCouponId || "",
             discount_applied: String(appliedDiscount),
             expected_amount: String(orderAmount),
+            original_amount: String(pricingTier.amount / 100),
             affiliate_ref: body?.affiliate_ref || "",
           },
         }),
@@ -309,6 +310,35 @@ Deno.serve(async (req) => {
         { onConflict: "payment_order_id" }
       );
       if (activateError) throw activateError;
+
+      // Log coupon redemption and increment usage atomically (server-side authoritative)
+      const couponIdFromNotes = (payment.notes?.coupon_id as string) || "";
+      const couponCodeFromNotes = (payment.notes?.coupon_code as string) || "";
+      if (couponIdFromNotes) {
+        try {
+          await adminClient.from("coupon_redemptions").insert({
+            coupon_id: couponIdFromNotes,
+            user_id: user.id,
+            discount_applied: Math.max(0, (Number(payment.notes?.original_amount || 0)) - amountPaid),
+            currency: paymentCurrency,
+            original_amount: Number(payment.notes?.original_amount || amountPaid),
+            final_amount: amountPaid,
+          });
+          const { data: cur } = await adminClient
+            .from("coupons")
+            .select("times_used")
+            .eq("id", couponIdFromNotes)
+            .single();
+          if (cur) {
+            await adminClient
+              .from("coupons")
+              .update({ times_used: (cur.times_used || 0) + 1 })
+              .eq("id", couponIdFromNotes);
+          }
+        } catch (e) {
+          console.error("Coupon redemption logging failed", e, { couponCodeFromNotes });
+        }
+      }
 
       // Send payment success email
       try {

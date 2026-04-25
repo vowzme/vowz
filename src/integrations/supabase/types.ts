@@ -1436,6 +1436,23 @@ export type Database = {
         }[]
       }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }
+      validate_coupon_for_redemption: {
+        Args: {
+          _code: string
+          _currency: string
+          _order_amount: number
+          _scope: string
+        }
+        Returns: {
+          code: string
+          coupon_id: string
+          discount_type: string
+          discount_value: number
+          max_discount_cap: number
+          message: string
+          min_order_value: number
+        }[]
+      }
       verify_site_password: {
         Args: { _password: string; _site_id: string }
         Returns: boolean

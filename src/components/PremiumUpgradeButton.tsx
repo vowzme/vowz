@@ -107,21 +107,8 @@ const PremiumUpgradeButton = ({
         return;
       }
 
-      // Log coupon redemption
-      if (couponResult?.valid && couponResult.coupon_id) {
-        await supabase.from("coupon_redemptions").insert({
-          coupon_id: couponResult.coupon_id,
-          user_id: user!.id,
-          discount_applied: couponResult.discount_amount,
-          currency,
-          original_amount: originalPrice,
-          final_amount: finalPrice,
-        });
-        const { data: couponData } = await supabase.from("coupons").select("times_used").eq("id", couponResult.coupon_id).single();
-        if (couponData) {
-          await supabase.from("coupons").update({ times_used: (couponData as any).times_used + 1 }).eq("id", couponResult.coupon_id);
-        }
-      }
+      // Note: coupon redemption logging and times_used increment are handled
+      // server-side in the razorpay-payment edge function after payment verification.
 
       const sdkLoaded = await loadRazorpayCheckout();
       if (!sdkLoaded || !window.Razorpay) {
