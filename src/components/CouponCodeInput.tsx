@@ -39,69 +39,34 @@ export default function CouponCodeInput({ originalPrice, currency, onApply }: Co
 
     try {
       const trimmed = code.trim().toUpperCase();
-
-      const { data: coupon, error: fetchErr } = await supabase
-        .from("coupons")
-        .select("*")
-        .eq("code", trimmed)
-        .eq("status", "active")
-        .maybeSingle();
-
-      if (fetchErr || !coupon) {
-        setError("Invalid coupon code.");
-        onApply(null);
-        setLoading(false);
-        return;
-      }
-
-      // Check expiry
-      if (coupon.expires_at && new Date(coupon.expires_at as string) < new Date()) {
-        setError("This coupon has expired.");
-        onApply(null);
-        setLoading(false);
-        return;
-      }
-
-      // Check scope
       const userScope = region === "IN" ? "india" : "international";
-      if ((coupon as any).scope !== "global" && (coupon as any).scope !== userScope) {
-        setError("This coupon is not valid for your region.");
+
+      // Server-side validated lookup; only safe redemption fields are returned.
+      const { data, error: rpcErr } = await supabase.rpc("validate_coupon_for_redemption", {
+        _code: trimmed,
+        _currency: currency,
+        _scope: userScope,
+        _order_amount: originalPrice,
+      });
+
+      const coupon = Array.isArray(data) ? data[0] : null;
+
+      if (rpcErr || !coupon) {
+        setError("Invalid, expired, or ineligible coupon code.");
         onApply(null);
         setLoading(false);
         return;
       }
 
-      // Check usage
-      if ((coupon as any).usage_type !== "unlimited") {
-        const maxUses = (coupon as any).max_uses ?? 1;
-        if ((coupon as any).times_used >= maxUses) {
-          setError("This coupon has reached its usage limit.");
-          onApply(null);
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Check min order value
-      if ((coupon as any).min_order_value && originalPrice < Number((coupon as any).min_order_value)) {
-        setError(`Minimum order value is ${currency === "INR" ? "₹" : "$"}${(coupon as any).min_order_value}.`);
-        onApply(null);
-        setLoading(false);
-        return;
-      }
-
-      // Calculate discount
       let discountAmount = 0;
-      if ((coupon as any).discount_type === "percentage") {
-        discountAmount = (originalPrice * Number((coupon as any).discount_value)) / 100;
+      if (coupon.discount_type === "percentage") {
+        discountAmount = (originalPrice * Number(coupon.discount_value)) / 100;
       } else {
-        // Fixed amount - use as-is (admin sets currency-appropriate value)
-        discountAmount = Number((coupon as any).discount_value);
+        discountAmount = Number(coupon.discount_value);
       }
 
-      // Apply max cap
-      if ((coupon as any).max_discount_cap && discountAmount > Number((coupon as any).max_discount_cap)) {
-        discountAmount = Number((coupon as any).max_discount_cap);
+      if (coupon.max_discount_cap != null && discountAmount > Number(coupon.max_discount_cap)) {
+        discountAmount = Number(coupon.max_discount_cap);
       }
 
       discountAmount = Math.min(discountAmount, originalPrice);
@@ -110,13 +75,13 @@ export default function CouponCodeInput({ originalPrice, currency, onApply }: Co
       const res: CouponResult = {
         valid: true,
         code: trimmed,
-        discount_type: (coupon as any).discount_type,
-        discount_value: Number((coupon as any).discount_value),
+        discount_type: coupon.discount_type,
+        discount_value: Number(coupon.discount_value),
         final_price: finalPrice,
         original_price: originalPrice,
         discount_amount: discountAmount,
-        message: `${(coupon as any).discount_type === "percentage" ? `${(coupon as any).discount_value}%` : `${currency === "INR" ? "₹" : "$"}${(coupon as any).discount_value}`} discount applied!`,
-        coupon_id: coupon.id,
+        message: `${coupon.discount_type === "percentage" ? `${coupon.discount_value}%` : `${currency === "INR" ? "₹" : "$"}${coupon.discount_value}`} discount applied!`,
+        coupon_id: coupon.coupon_id,
       };
 
       setResult(res);
