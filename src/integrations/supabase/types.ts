@@ -80,6 +80,13 @@ export type Database = {
             foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
             columns: ["affiliate_id"]
             isOneToOne: false
+            referencedRelation: "affiliate_public_lookup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
             referencedRelation: "affiliates"
             referencedColumns: ["id"]
           },
@@ -153,6 +160,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_public_lookup"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "affiliates_franchise_id_fkey"
             columns: ["franchise_id"]
@@ -500,6 +514,13 @@ export type Database = {
             foreignKeyName: "franchise_commissions_franchise_id_fkey"
             columns: ["franchise_id"]
             isOneToOne: false
+            referencedRelation: "affiliate_public_lookup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_commissions_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
             referencedRelation: "affiliates"
             referencedColumns: ["id"]
           },
@@ -508,6 +529,13 @@ export type Database = {
             columns: ["referral_id"]
             isOneToOne: false
             referencedRelation: "affiliate_referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_commissions_sub_affiliate_id_fkey"
+            columns: ["sub_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_public_lookup"
             referencedColumns: ["id"]
           },
           {
@@ -1214,6 +1242,32 @@ export type Database = {
           },
         ]
       }
+      wedding_site_passwords: {
+        Row: {
+          password: string
+          updated_at: string
+          wedding_site_id: string
+        }
+        Insert: {
+          password: string
+          updated_at?: string
+          wedding_site_id: string
+        }
+        Update: {
+          password?: string
+          updated_at?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_site_passwords_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: true
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wedding_sites: {
         Row: {
           created_at: string
@@ -1228,7 +1282,6 @@ export type Database = {
           partner2: string
           sections: Json
           site_language: string | null
-          site_password: string | null
           slug: string | null
           status: string
           suggested_colors: Json
@@ -1251,7 +1304,6 @@ export type Database = {
           partner2?: string
           sections?: Json
           site_language?: string | null
-          site_password?: string | null
           slug?: string | null
           status?: string
           suggested_colors?: Json
@@ -1274,7 +1326,6 @@ export type Database = {
           partner2?: string
           sections?: Json
           site_language?: string | null
-          site_password?: string | null
           slug?: string | null
           status?: string
           suggested_colors?: Json
@@ -1288,7 +1339,48 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      affiliate_public_lookup: {
+        Row: {
+          custom_coupon: string | null
+          franchise_id: string | null
+          id: string | null
+          is_active: boolean | null
+          is_franchise: boolean | null
+          referral_code: string | null
+        }
+        Insert: {
+          custom_coupon?: string | null
+          franchise_id?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          is_franchise?: boolean | null
+          referral_code?: string | null
+        }
+        Update: {
+          custom_coupon?: string | null
+          franchise_id?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          is_franchise?: boolean | null
+          referral_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_public_lookup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       check_slug_available: {
@@ -1315,6 +1407,17 @@ export type Database = {
         }[]
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      lookup_affiliate_by_code: {
+        Args: { _code: string }
+        Returns: {
+          custom_coupon: string
+          franchise_id: string
+          id: string
+          is_active: boolean
+          is_franchise: boolean
+          referral_code: string
+        }[]
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -1331,6 +1434,11 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      site_has_password: { Args: { _site_id: string }; Returns: boolean }
+      verify_site_password: {
+        Args: { _password: string; _site_id: string }
+        Returns: boolean
       }
     }
     Enums: {
