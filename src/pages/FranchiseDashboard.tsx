@@ -83,7 +83,7 @@ export default function FranchiseDashboard() {
 
     // Load sub-affiliates
     const { data: subs } = await (supabase as any)
-      .from("affiliates")
+      .from("franchise_sub_affiliates")
       .select("id, full_name, email, created_at, successful_referrals, total_referrals")
       .eq("franchise_id", aff.id);
     setSubAffiliates(subs || []);
