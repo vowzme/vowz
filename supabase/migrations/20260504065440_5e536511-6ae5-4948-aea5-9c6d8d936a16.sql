@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Affiliates can view own referrals" ON public.affiliate_referrals;
