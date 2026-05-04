@@ -90,6 +90,13 @@ export type Database = {
             referencedRelation: "affiliates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_sub_affiliates"
+            referencedColumns: ["id"]
+          },
         ]
       }
       affiliates: {
@@ -172,6 +179,13 @@ export type Database = {
             columns: ["franchise_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_sub_affiliates"
             referencedColumns: ["id"]
           },
         ]
@@ -525,6 +539,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "franchise_commissions_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_sub_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "franchise_commissions_referral_id_fkey"
             columns: ["referral_id"]
             isOneToOne: false
@@ -550,6 +571,13 @@ export type Database = {
             columns: ["sub_affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_commissions_sub_affiliate_id_fkey"
+            columns: ["sub_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_sub_affiliates"
             referencedColumns: ["id"]
           },
         ]
@@ -1386,6 +1414,13 @@ export type Database = {
             referencedRelation: "affiliates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_sub_affiliates"
+            referencedColumns: ["id"]
+          },
         ]
       }
       affiliate_referrals_for_affiliate: {
@@ -1444,6 +1479,71 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_sub_affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_sub_affiliates: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          franchise_id: string | null
+          full_name: string | null
+          id: string | null
+          is_active: boolean | null
+          referral_code: string | null
+          successful_referrals: number | null
+          total_referrals: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          franchise_id?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          referral_code?: string | null
+          successful_referrals?: number | null
+          total_referrals?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          franchise_id?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          referral_code?: string | null
+          successful_referrals?: number | null
+          total_referrals?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_public_lookup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_sub_affiliates"
             referencedColumns: ["id"]
           },
         ]
