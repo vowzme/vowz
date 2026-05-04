@@ -103,7 +103,7 @@ const Affiliate = () => {
       setPayoutUpi((aff as any).payout_upi || "");
       setPayoutPaypal((aff as any).payout_paypal || "");
       const { data: refs } = await supabase
-        .from("affiliate_referrals")
+        .from("affiliate_referrals_for_affiliate")
         .select("*")
         .eq("affiliate_id", aff.id)
         .order("created_at", { ascending: false });
