@@ -60,7 +60,7 @@ const HeroSection = () => {
               <Link to="/auth">Create Your Wedding Site</Link>
             </Button>
             <Button variant="heroOutline" size="xl" asChild>
-              <a href="#templates">View Templates</a>
+              <Link to="/site/demo">View Live Demo</Link>
             </Button>
           </div>
 

@@ -19,6 +19,7 @@ import BlessingWall from "@/components/BlessingWall";
 import { CurrencyDisplay } from "@/components/CurrencyConverter";
 import LanguageSelector from "@/components/LanguageSelector";
 import { DEFAULT_STORY } from "@/lib/default-story";
+import { demoWeddingSite } from "@/lib/demo-site";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
@@ -103,6 +104,13 @@ const PublicSite = () => {
 
   useEffect(() => {
     if (!slug) return;
+    // Demo site short-circuit — no DB lookup, no password gate
+    if (slug === "demo") {
+      setSite(demoWeddingSite as any);
+      setLoading(false);
+      setHasPassword(false);
+      return;
+    }
     const fetchSite = async () => {
       // Try finding site by slug (published or paused)
       const { data, error } = await supabase
