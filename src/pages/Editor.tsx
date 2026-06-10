@@ -368,14 +368,17 @@ const Editor = () => {
       site_language: siteData.siteLanguage || "en",
       translations: siteData.translations || {},
     });
-    // Persist password to owner-only table
+    // Persist password to owner-only table.
+    // The current password value is never loaded back to the client, so we only
+    // act when the user explicitly typed a new value or asked to clear it.
     try {
       const pw = (siteData.sitePassword || "").trim();
+      const clearPw = (siteData as any).clearPassword === true;
       if (pw) {
         await (supabase as any)
           .from("wedding_site_passwords")
           .upsert({ wedding_site_id: dbSiteId, password: pw }, { onConflict: "wedding_site_id" });
-      } else {
+      } else if (clearPw) {
         await (supabase as any)
           .from("wedding_site_passwords")
           .delete()
