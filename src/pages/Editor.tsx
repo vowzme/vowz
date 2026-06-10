@@ -247,15 +247,15 @@ const Editor = () => {
             siteData,
             sections: sections && sections.length > 0 ? sections : buildSections(siteData),
           }));
-          // Load password from owner-only table
+          // Indicate whether a password is set (the value itself is never returned to the client).
           (supabase as any)
-            .from("wedding_site_passwords")
-            .select("password")
-            .eq("wedding_site_id", site.id)
-            .maybeSingle()
+            .rpc("site_has_password", { _site_id: site.id })
             .then(({ data }: any) => {
-              if (data?.password) {
-                setState((prev) => ({ ...prev, siteData: { ...prev.siteData, sitePassword: data.password } }));
+              if (data === true) {
+                setState((prev) => ({
+                  ...prev,
+                  siteData: { ...prev.siteData, sitePassword: prev.siteData.sitePassword || "••••••••" },
+                }));
               }
             });
         }
