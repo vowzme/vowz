@@ -254,8 +254,8 @@ const Editor = () => {
               if (data === true) {
                 setState((prev) => ({
                   ...prev,
-                  siteData: { ...prev.siteData, sitePassword: prev.siteData.sitePassword || "••••••••" },
-                }));
+                  siteData: { ...prev.siteData, hasPassword: true },
+                } as any));
               }
             });
         }
