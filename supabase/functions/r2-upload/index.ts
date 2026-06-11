@@ -66,15 +66,39 @@ Deno.serve(async (req) => {
       let fileName = (formData.get("fileName") as string) || file?.name || `file-${Date.now()}`;
       if (!file) return json({ error: "No file provided" }, 400);
 
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const contentType = file.type || "application/octet-stream";
+
+      // SHA-256 hash for deduplication
+      const hashBuf = await crypto.subtle.digest("SHA-256", bytes);
+      const sha256 = Array.from(new Uint8Array(hashBuf))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      // Dedup: if user already uploaded this exact file, return existing URL
+      const { data: existingFile } = await admin
+        .from("r2_files")
+        .select("url, key, size_bytes")
+        .eq("user_id", user.id)
+        .eq("sha256", sha256)
+        .maybeSingle();
+
+      if (existingFile) {
+        return json({
+          success: true,
+          url: existingFile.url,
+          key: existingFile.key,
+          size: Number(existingFile.size_bytes),
+          deduplicated: true,
+        });
+      }
+
       // Quota check (pre-flight)
       const { data: q, error: qErr } = await admin.rpc("get_user_storage_quota", { _user_id: user.id });
       if (qErr) throw qErr;
       const quota = Array.isArray(q) ? q[0] : q;
       const used = Number(quota?.used_bytes ?? 0);
       const total = Number(quota?.total_quota_bytes ?? 0);
-
-      const bytes = new Uint8Array(await file.arrayBuffer());
-      const contentType = file.type || "application/octet-stream";
 
       if (used + bytes.byteLength > total) {
         const usedMB = (used / 1048576).toFixed(1);
@@ -102,6 +126,18 @@ Deno.serve(async (req) => {
         return json({ error: `Upload failed: ${putRes.status}` }, 500);
       }
 
+      const publicUrl = `${R2_PUBLIC_URL}/${key}`;
+
+      // Track file for dedup + orphan cleanup
+      await admin.from("r2_files").insert({
+        user_id: user.id,
+        key,
+        url: publicUrl,
+        sha256,
+        size_bytes: bytes.byteLength,
+        content_type: contentType,
+      });
+
       // Increment usage (UPSERT)
       const { data: existing } = await admin
         .from("r2_storage_usage")
@@ -125,7 +161,6 @@ Deno.serve(async (req) => {
         });
       }
 
-      const publicUrl = `${R2_PUBLIC_URL}/${key}`;
       return json({
         success: true,
         url: publicUrl,
@@ -139,13 +174,23 @@ Deno.serve(async (req) => {
       const { key } = await req.json();
       if (!key || !key.startsWith(`${user.id}/`)) return json({ error: "Invalid key" }, 400);
 
-      // Get size from R2 first
-      const head = await r2.fetch(`${ENDPOINT}/${key}`, { method: "HEAD" });
-      const size = head.ok ? Number(head.headers.get("content-length") || 0) : 0;
+      // Prefer tracked size; fall back to HEAD
+      const { data: tracked } = await admin
+        .from("r2_files")
+        .select("size_bytes")
+        .eq("user_id", user.id)
+        .eq("key", key)
+        .maybeSingle();
+      let size = tracked ? Number(tracked.size_bytes) : 0;
+      if (!size) {
+        const head = await r2.fetch(`${ENDPOINT}/${key}`, { method: "HEAD" });
+        size = head.ok ? Number(head.headers.get("content-length") || 0) : 0;
+      }
 
       const delRes = await r2.fetch(`${ENDPOINT}/${key}`, { method: "DELETE" });
 
       if (delRes.ok && size > 0) {
+        await admin.from("r2_files").delete().eq("user_id", user.id).eq("key", key);
         const { data: existing } = await admin
           .from("r2_storage_usage")
           .select("used_bytes, file_count")
@@ -163,6 +208,51 @@ Deno.serve(async (req) => {
       }
 
       return json({ success: delRes.ok });
+    }
+
+    // ── cleanup: delete orphan files (in R2 but no longer referenced) ──
+    if (action === "cleanup") {
+      const body = await req.json();
+      const referencedUrls: string[] = Array.isArray(body?.referenced_urls) ? body.referenced_urls : [];
+      const refSet = new Set(referencedUrls.map((u) => String(u).trim()).filter(Boolean));
+
+      const { data: files, error: fErr } = await admin
+        .from("r2_files")
+        .select("key, url, size_bytes")
+        .eq("user_id", user.id);
+      if (fErr) throw fErr;
+
+      const orphans = (files || []).filter((f) => !refSet.has(f.url));
+      let deletedCount = 0;
+      let freedBytes = 0;
+
+      for (const orphan of orphans) {
+        const delRes = await r2.fetch(`${ENDPOINT}/${orphan.key}`, { method: "DELETE" });
+        if (delRes.ok) {
+          await admin.from("r2_files").delete().eq("user_id", user.id).eq("key", orphan.key);
+          deletedCount++;
+          freedBytes += Number(orphan.size_bytes || 0);
+        }
+      }
+
+      if (deletedCount > 0) {
+        const { data: existing } = await admin
+          .from("r2_storage_usage")
+          .select("used_bytes, file_count")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (existing) {
+          await admin
+            .from("r2_storage_usage")
+            .update({
+              used_bytes: Math.max(0, Number(existing.used_bytes) - freedBytes),
+              file_count: Math.max(0, (existing.file_count || 0) - deletedCount),
+            })
+            .eq("user_id", user.id);
+        }
+      }
+
+      return json({ success: true, deleted: deletedCount, freed_bytes: freedBytes });
     }
 
     return json({ error: "Unknown action" }, 400);
