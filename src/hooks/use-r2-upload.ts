@@ -7,7 +7,7 @@ export function useR2Upload() {
   const { session } = useAuth();
 
   const uploadToR2 = useCallback(
-    async (file: File, fileName?: string): Promise<{ url: string; key: string } | null> => {
+    async (file: File, fileName?: string): Promise<{ url: string; key: string; deduplicated?: boolean } | null> => {
       if (!session?.access_token) throw new Error("Not authenticated");
 
       const formData = new FormData();
@@ -25,7 +25,7 @@ export function useR2Upload() {
 
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "R2 upload failed");
-      return { url: data.url, key: data.key };
+      return { url: data.url, key: data.key, deduplicated: !!data.deduplicated };
     },
     [session]
   );
