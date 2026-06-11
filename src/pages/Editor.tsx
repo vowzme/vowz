@@ -24,6 +24,7 @@ import SEOHead from "@/components/SEOHead";
 import { useMediaUpload } from "@/hooks/use-media-upload";
 import { StorageBadge } from "@/components/StorageBadge";
 import { DEFAULT_STORY, STORY_TEMPLATES } from "@/lib/default-story";
+import MediaManagerPanel from "@/components/MediaManagerPanel";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
@@ -530,9 +531,7 @@ const Editor = () => {
                     />
                   )}
                   {activePanel === "media" && (
-                    <div className="text-center py-10 text-muted-foreground text-sm">
-                      Media is now stored on Cloudflare R2. Upload photos & videos directly from each section above.
-                    </div>
+                    <MediaManagerPanel sections={sections} siteData={siteData as any} />
                   )}
                   {activePanel === "ai" && (
                     <AIAssistantPanel

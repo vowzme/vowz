@@ -753,6 +753,39 @@ export type Database = {
         }
         Relationships: []
       }
+      r2_files: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          id: string
+          key: string
+          sha256: string | null
+          size_bytes: number
+          url: string
+          user_id: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          key: string
+          sha256?: string | null
+          size_bytes?: number
+          url: string
+          user_id: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          key?: string
+          sha256?: string | null
+          size_bytes?: number
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       r2_storage_usage: {
         Row: {
           file_count: number
