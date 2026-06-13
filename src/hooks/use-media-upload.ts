@@ -5,6 +5,8 @@ import { toast } from "@/hooks/use-toast";
 
 const MAX_DIMENSION = 2048;
 const QUALITY = 0.82;
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50 MB — protects quota from raw phone videos
+const MAX_IMAGE_BYTES = 25 * 1024 * 1024; // 25 MB pre-compression sanity cap
 
 async function compressImage(file: File): Promise<File> {
   if (!file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") {
@@ -62,6 +64,18 @@ export function useMediaUpload() {
   const upload = useCallback(
     async (file: File, prefix: string = "media"): Promise<string | null> => {
       if (!user) return null;
+
+      // Hard limits before we spend bandwidth compressing or uploading
+      if (file.type.startsWith("video/") && file.size > MAX_VIDEO_BYTES) {
+        const msg = `Videos must be under 50 MB. This file is ${(file.size / 1048576).toFixed(1)} MB — please compress it first (try a free tool like handbrake.fr or your phone's built-in trim).`;
+        toast({ title: "Video too large", description: msg, variant: "destructive" });
+        throw new Error(msg);
+      }
+      if (file.type.startsWith("image/") && file.size > MAX_IMAGE_BYTES) {
+        const msg = `Images must be under 25 MB. This file is ${(file.size / 1048576).toFixed(1)} MB.`;
+        toast({ title: "Image too large", description: msg, variant: "destructive" });
+        throw new Error(msg);
+      }
 
       const compressed = await compressImage(file);
       const ext = compressed.name.split(".").pop() || "jpg";
