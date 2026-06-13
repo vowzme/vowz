@@ -25,6 +25,7 @@ import { useMediaUpload } from "@/hooks/use-media-upload";
 import { StorageBadge } from "@/components/StorageBadge";
 import { DEFAULT_STORY, STORY_TEMPLATES } from "@/lib/default-story";
 import MediaManagerPanel from "@/components/MediaManagerPanel";
+import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS } from "@/lib/video-embed";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
