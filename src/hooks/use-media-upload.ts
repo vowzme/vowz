@@ -5,7 +5,6 @@ import { toast } from "@/hooks/use-toast";
 
 const MAX_DIMENSION = 2048;
 const QUALITY = 0.82;
-const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50 MB — protects quota from raw phone videos
 const MAX_IMAGE_BYTES = 25 * 1024 * 1024; // 25 MB pre-compression sanity cap
 
 async function compressImage(file: File): Promise<File> {
@@ -65,10 +64,11 @@ export function useMediaUpload() {
     async (file: File, prefix: string = "media"): Promise<string | null> => {
       if (!user) return null;
 
-      // Hard limits before we spend bandwidth compressing or uploading
-      if (file.type.startsWith("video/") && file.size > MAX_VIDEO_BYTES) {
-        const msg = `Videos must be under 50 MB. This file is ${(file.size / 1048576).toFixed(1)} MB — please compress it first (try a free tool like handbrake.fr or your phone's built-in trim).`;
-        toast({ title: "Video too large", description: msg, variant: "destructive" });
+      // Direct video upload is disabled platform-wide — videos must be embedded via URL
+      // (YouTube, Vimeo, Instagram, TikTok, Facebook, etc.) for zero buffering & zero quota cost.
+      if (file.type.startsWith("video/")) {
+        const msg = "Videos can't be uploaded directly. Upload your video to YouTube, Vimeo, Instagram or another platform, then paste the link in the Video section of your editor.";
+        toast({ title: "Use a video link instead", description: msg, variant: "destructive" });
         throw new Error(msg);
       }
       if (file.type.startsWith("image/") && file.size > MAX_IMAGE_BYTES) {

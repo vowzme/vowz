@@ -1,18 +1,6 @@
 import { motion } from "framer-motion";
 import { Video, ExternalLink } from "lucide-react";
-
-function getLivestreamEmbedUrl(url: string): string | null {
-  if (!url) return null;
-  // YouTube Live
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/live\/)([\w-]+)/);
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0`;
-  // Vimeo
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  // Google Meet - can't embed, show link
-  // Zoom - can't embed, show link
-  return null;
-}
+import { getVideoEmbedUrl } from "@/lib/video-embed";
 
 interface LivestreamSectionProps {
   data: {
@@ -27,7 +15,7 @@ interface LivestreamSectionProps {
 export function LivestreamPublicSection({ data, accent, isPremium }: LivestreamSectionProps) {
   if (!data.embedUrl) return null;
 
-  const embedSrc = getLivestreamEmbedUrl(data.embedUrl);
+  const embedSrc = getVideoEmbedUrl(data.embedUrl);
 
   return (
     <motion.div
