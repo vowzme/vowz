@@ -3359,7 +3359,7 @@ function SectionRenderer({
                   </div>
                 ) : (
                   <div className="aspect-video rounded-lg bg-muted flex items-center justify-center">
-                    <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>Paste a YouTube or Vimeo URL</p>
+                    <p className="text-sm text-muted-foreground" style={{ fontFamily: bFont }}>Paste a YouTube, Vimeo, Instagram, TikTok or Facebook URL</p>
                   </div>
                 )}
                 {video.caption && (
