@@ -2203,10 +2203,26 @@ function SectionEditor({
           </div>
           <div className="space-y-3">
             <label className="font-body text-sm font-medium text-foreground block">Videos</label>
+            <div className="text-[11px] text-muted-foreground font-body bg-muted/50 rounded-lg p-2.5 leading-relaxed">
+              Upload your video to any of these platforms, then paste the link here:
+              <div className="flex flex-wrap gap-1.5 mt-1.5">
+                {SUPPORTED_VIDEO_PROVIDERS.map((p) => (
+                  <a
+                    key={p.id}
+                    href={p.uploadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2 py-0.5 rounded-full bg-background border border-border/60 text-[10px] hover:border-primary/60 hover:text-primary transition-colors"
+                  >
+                    {p.label} ↗
+                  </a>
+                ))}
+              </div>
+            </div>
             {(data.videos || []).map((video: any, i: number) => (
               <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
                 <Input
-                  placeholder="YouTube or Vimeo URL"
+                  placeholder="Paste video URL (YouTube, Vimeo, Instagram, TikTok, Facebook…)"
                   value={video.url || ""}
                   onChange={(e) => {
                     const videos = [...(data.videos || [])];
@@ -2215,6 +2231,16 @@ function SectionEditor({
                   }}
                   className="font-body text-sm h-8"
                 />
+                {video.url && (
+                  (() => {
+                    const p = parseVideoUrl(video.url);
+                    return p ? (
+                      <p className="text-[10px] text-green-600 font-body">✓ Detected: {p.label}</p>
+                    ) : (
+                      <p className="text-[10px] text-destructive font-body">Unsupported URL — use one of the platforms above</p>
+                    );
+                  })()
+                )}
                 <div className="flex gap-2">
                   <Input
                     placeholder="Caption (optional)"
@@ -2260,12 +2286,24 @@ function SectionEditor({
           <div>
             <label className="font-body text-sm font-medium text-foreground mb-1 block">Stream URL</label>
             <Input
-              placeholder="YouTube Live, Vimeo, Zoom, or Google Meet URL"
+              placeholder="YouTube Live URL (e.g. https://youtube.com/live/abc123)"
               value={data.embedUrl || ""}
               onChange={(e) => onUpdateData({ embedUrl: e.target.value })}
               className="font-body text-sm"
             />
-            <p className="text-[10px] text-muted-foreground font-body mt-1">Supports YouTube Live, Vimeo, Zoom, Google Meet, Instagram Live</p>
+            <p className="text-[10px] text-muted-foreground font-body mt-1">
+              Best with <a href="https://studio.youtube.com" target="_blank" rel="noopener noreferrer" className="underline text-primary">YouTube Live</a> — also supports Vimeo, Facebook Live, Twitch. For Zoom/Google Meet, paste the join link (opens in a new tab).
+            </p>
+            {data.embedUrl && (
+              (() => {
+                const p = parseVideoUrl(data.embedUrl);
+                return p ? (
+                  <p className="text-[10px] text-green-600 font-body mt-1">✓ Live player will embed via {p.label}</p>
+                ) : (
+                  <p className="text-[10px] text-amber-600 font-body mt-1">Link will open in a new tab (no inline player)</p>
+                );
+              })()
+            )}
           </div>
         </>
       )}
