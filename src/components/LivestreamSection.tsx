@@ -15,7 +15,7 @@ interface LivestreamSectionProps {
 export function LivestreamPublicSection({ data, accent, isPremium }: LivestreamSectionProps) {
   if (!data.embedUrl) return null;
 
-  const embedSrc = getLivestreamEmbedUrl(data.embedUrl);
+  const embedSrc = getVideoEmbedUrl(data.embedUrl);
 
   return (
     <motion.div
