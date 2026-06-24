@@ -359,6 +359,20 @@ export function InvitationCardArtwork({
   const height = Math.round(width * 1.4); // 5:7
   const pad = Math.round(width * 0.07);
   const kind = page?.kind ?? "front";
+  const hScale = theme.headingScale ?? 1;
+  const hSpace = theme.headingLetterSpacing ?? 0.5;
+  const bSpace = theme.bodyLetterSpacing ?? 6;
+  // ── Photo framing geometry
+  const aspect = (PHOTO_ASPECTS.find((a) => a.value === (theme.photoAspect ?? "1:1"))?.ratio) ?? 1;
+  const photoW = width * 0.34;
+  const photoH = photoW / aspect;
+  const shape = theme.photoShape ?? "circle";
+  const radius =
+    shape === "circle" ? "50%" :
+    shape === "oval" ? "50%" :
+    shape === "rounded" ? `${theme.photoRadius ?? 18}px` :
+    shape === "arch" ? `${Math.round(photoW / 2)}px ${Math.round(photoW / 2)}px 6px 6px` :
+    "2px";
   const qrAnchorStyle: Record<QrPosition, React.CSSProperties> = {
     bottom: { position: "absolute", left: 0, right: 0, bottom: pad * 0.7, display: "flex", justifyContent: "center" },
     "bottom-left": { position: "absolute", left: pad * 0.8, bottom: pad * 0.7 },
