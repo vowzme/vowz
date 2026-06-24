@@ -982,6 +982,20 @@ export default function InvitationCard() {
                 </p>
               </div>
               <div>
+                <Label className="text-xs">Bulk-apply to every page</Label>
+                <Select value="" onValueChange={applyPresetToAllPages}>
+                  <SelectTrigger><SelectValue placeholder="Apply preset + DPI to all pages…" /></SelectTrigger>
+                  <SelectContent>
+                    {PRINT_PRESETS.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Overwrites each page's paper, scaling and crop marks.
+                </p>
+              </div>
+              <div>
                 <Label className="text-xs">Export DPI / quality</Label>
                 <Select value={String(pdfDpi)} onValueChange={(v) => setPdfDpi(parseInt(v, 10))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -992,7 +1006,21 @@ export default function InvitationCard() {
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Applies to both PDF and PNG. Higher DPI = crisper print, larger file.
+                  Drives PDF resolution and the PNG export below (they always match).
+                </p>
+              </div>
+              <div>
+                <Label className="text-xs">PNG export quality</Label>
+                <Select value={String(pdfDpi)} onValueChange={(v) => setPdfDpi(parseInt(v, 10))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {DPI_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={String(o.value)}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Shared with the PDF DPI setting. 300 dpi looks crisp for single- and multi-page exports at 5×7".
                 </p>
               </div>
               <div>
