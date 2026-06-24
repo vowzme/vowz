@@ -7,7 +7,7 @@ import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
-  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive
+  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import ReactMarkdown from "react-markdown";
@@ -427,6 +427,11 @@ const Editor = () => {
         <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => updateState({ previewMode: true })}>
           <Eye className="w-4 h-4 mr-1" /> Preview
         </Button>
+        {dbSiteId && (
+          <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => navigate(`/invitation-card/${dbSiteId}`)}>
+            <Mail className="w-4 h-4 mr-1" /> Card
+          </Button>
+        )}
         <Button variant="outline" size="icon" className="sm:hidden w-9 h-9" onClick={() => updateState({ previewMode: true })}>
           <Eye className="w-4 h-4" />
         </Button>

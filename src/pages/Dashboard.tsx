@@ -597,6 +597,11 @@ const Dashboard = () => {
                         </Button>
                       </>
                     )}
+                    <Button variant="gold" size="sm" asChild>
+                      <Link to={`/invitation-card/${site.id}`}>
+                        <Download className="w-4 h-4 mr-1" /> Invitation Card
+                      </Link>
+                    </Button>
                   </div>
                   {site.is_published && site.slug && (
                     <div className="mt-4 border-t border-border/30 pt-4">
