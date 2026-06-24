@@ -487,21 +487,60 @@ export default function InvitationCard() {
         <div className="flex flex-col items-center">
           {/* Page picker */}
           <div className="flex items-center gap-2 mb-4 flex-wrap">
-            {pages.map((p, i) => (
-              <div
-                key={p.id}
-                draggable
-                onDragStart={() => { dragIdx.current = i; }}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => { e.preventDefault(); if (dragIdx.current !== null) reorderPages(dragIdx.current, i); dragIdx.current = null; }}
-                onClick={() => setActivePageIdx(i)}
-                title="Drag to reorder"
-                className={`cursor-grab active:cursor-grabbing inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full border ${i === activePageIdx ? "bg-gold text-gold-foreground border-gold" : "bg-card border-border/50 text-muted-foreground hover:text-foreground"}`}
-              >
-                <GripVertical className="w-3 h-3 opacity-60" />
-                <span>{i + 1}. {p.kind === "front" ? "Front" : p.kind === "back" ? "Back" : p.title || "Event"}</span>
-              </div>
-            ))}
+            <ol role="listbox" aria-label="Card pages — use arrow keys to reorder" className="flex items-center gap-2 flex-wrap p-0 m-0 list-none">
+              {pages.map((p, i) => {
+                const label = p.kind === "front" ? "Front" : p.kind === "back" ? "Back" : p.title || "Event";
+                return (
+                  <li key={p.id} className="inline-flex">
+                    <div
+                      role="option"
+                      aria-selected={i === activePageIdx}
+                      aria-label={`Page ${i + 1} of ${pages.length}: ${label}. Press Alt plus Arrow Left or Right to reorder, Enter to select.`}
+                      tabIndex={0}
+                      draggable
+                      onDragStart={() => { dragIdx.current = i; }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => { e.preventDefault(); if (dragIdx.current !== null) reorderPages(dragIdx.current, i); dragIdx.current = null; }}
+                      onClick={() => setActivePageIdx(i)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActivePageIdx(i); }
+                        else if ((e.altKey || e.metaKey) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+                          e.preventDefault();
+                          movePage(i, e.key === "ArrowLeft" ? -1 : 1);
+                        } else if (e.key === "ArrowLeft" && i > 0) {
+                          e.preventDefault(); setActivePageIdx(i - 1);
+                        } else if (e.key === "ArrowRight" && i < pages.length - 1) {
+                          e.preventDefault(); setActivePageIdx(i + 1);
+                        }
+                      }}
+                      title="Drag, or focus and press Alt + Arrow keys to reorder"
+                      className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-gold cursor-grab active:cursor-grabbing inline-flex items-center gap-1 text-xs pl-2 pr-1 py-1 rounded-full border ${i === activePageIdx ? "bg-gold text-gold-foreground border-gold" : "bg-card border-border/50 text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <GripVertical className="w-3 h-3 opacity-60" aria-hidden />
+                      <span>{i + 1}. {label}</span>
+                      <button
+                        type="button"
+                        aria-label={`Move page ${i + 1} left`}
+                        disabled={i === 0}
+                        onClick={(e) => { e.stopPropagation(); movePage(i, -1); }}
+                        className="ml-1 p-0.5 rounded hover:bg-background/30 disabled:opacity-30"
+                      >
+                        <ArrowUp className="w-3 h-3 -rotate-90" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Move page ${i + 1} right`}
+                        disabled={i === pages.length - 1}
+                        onClick={(e) => { e.stopPropagation(); movePage(i, 1); }}
+                        className="p-0.5 rounded hover:bg-background/30 disabled:opacity-30"
+                      >
+                        <ArrowDown className="w-3 h-3 -rotate-90" />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
             <div className="flex gap-1">
               <Button size="sm" variant="outline" onClick={() => addPage("event")} className="h-7 text-xs">
                 <Plus className="w-3 h-3 mr-1" /> Event
@@ -514,8 +553,27 @@ export default function InvitationCard() {
                   <Trash2 className="w-3 h-3" />
                 </Button>
               )}
+              <Button size="sm" variant={livePreview ? "gold" : "outline"} onClick={() => setLivePreview((v) => !v)} className="h-7 text-xs" aria-pressed={livePreview}>
+                <Eye className="w-3 h-3 mr-1" /> PDF preview
+              </Button>
             </div>
           </div>
+
+          {livePreview && (
+            <div className="w-full mb-4 rounded-lg border border-border/50 bg-card overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/40 bg-muted/40">
+                <span className="text-xs font-medium">Live PDF preview {previewBuilding && "· updating…"}</span>
+                <button onClick={() => setLivePreview(false)} className="text-muted-foreground hover:text-foreground" aria-label="Close PDF preview">
+                  <XIcon className="w-4 h-4" />
+                </button>
+              </div>
+              {pdfUrl ? (
+                <iframe title="PDF preview" src={pdfUrl} className="w-full" style={{ height: 520, border: 0, background: "#f5f5f5" }} />
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-xs text-muted-foreground">Building preview…</div>
+              )}
+            </div>
+          )}
 
           <div className="rounded-lg p-4 sm:p-8 bg-muted/30 w-full flex flex-col items-center">
             <div ref={cardRef}>
