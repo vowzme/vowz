@@ -430,18 +430,6 @@ export default function InvitationCard() {
     }
   };
 
-  // (legacy block removed below)
-  const _unusedLegacy = () => (
-    <div
-      style={{
-        width: 5 * DPI,
-        height: 7 * DPI,
-        background: theme.bg,
-        boxSizing: "border-box",
-      }}
-    />
-  );
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
