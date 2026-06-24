@@ -233,7 +233,7 @@ export default function InvitationCard() {
   // ─── Save / Load variants ────────────────────────────────────
   const saveVariant = async () => {
     if (!user || !siteId) return;
-    const printSettings = { bleed, safeMargin, cropMarks, defaultPaper };
+    const printSettings = { bleed, safeMargin, cropMarks, defaultPaper, pdfDpi };
     const payload = {
       wedding_site_id: siteId,
       user_id: user.id,
@@ -268,8 +268,9 @@ export default function InvitationCard() {
       setSafeMargin(typeof __print.safeMargin === "number" ? __print.safeMargin : 0.25);
       setCropMarks(__print.cropMarks !== false);
       setDefaultPaper((__print.defaultPaper as PaperSize) ?? DEFAULT_PAPER);
+      setPdfDpi(typeof __print.pdfDpi === "number" ? __print.pdfDpi : DEFAULT_DPI);
     } else {
-      setBleed(0); setSafeMargin(0.25); setCropMarks(true); setDefaultPaper(DEFAULT_PAPER);
+      setBleed(0); setSafeMargin(0.25); setCropMarks(true); setDefaultPaper(DEFAULT_PAPER); setPdfDpi(DEFAULT_DPI);
     }
     setThemeOverrides(v.theme_overrides || {});
     setPages(v.pages?.length ? v.pages : defaultPages());
