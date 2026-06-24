@@ -22,6 +22,32 @@ export interface CardTheme {
   body: string;
 }
 
+export type QrPosition = "bottom" | "bottom-left" | "bottom-right" | "top-right" | "hidden";
+
+export const DISPLAY_FONTS = [
+  { label: "Playfair Display", value: "'Playfair Display', serif" },
+  { label: "Cormorant Garamond", value: "'Cormorant Garamond', serif" },
+  { label: "Cinzel", value: "'Cinzel', serif" },
+  { label: "Great Vibes", value: "'Great Vibes', cursive" },
+  { label: "DM Serif Display", value: "'DM Serif Display', serif" },
+] as const;
+
+export const BODY_FONTS = [
+  { label: "Inter", value: "'Inter', sans-serif" },
+  { label: "Lato", value: "'Lato', sans-serif" },
+  { label: "Cormorant", value: "'Cormorant Garamond', serif" },
+  { label: "Georgia", value: "Georgia, serif" },
+] as const;
+
+export const PRESET_PALETTES: { label: string; colors: Pick<CardTheme, "bg" | "panel" | "ink" | "accent" | "muted"> }[] = [
+  { label: "Maroon & Gold", colors: { bg: "#4A0E11", panel: "#5B121A", ink: "#FFF1C9", accent: "#E5BB55", muted: "#D4AF37" } },
+  { label: "Ivory & Blush", colors: { bg: "#FBF4EE", panel: "#FFFFFF", ink: "#3A2A24", accent: "#C49A86", muted: "#8E6F62" } },
+  { label: "Emerald & Gold", colors: { bg: "#0F3D2E", panel: "#13533D", ink: "#F5EBC8", accent: "#D4AF37", muted: "#C9B98A" } },
+  { label: "Noir & Gold", colors: { bg: "#111111", panel: "#181818", ink: "#F2EAD3", accent: "#D4AF37", muted: "#BFB69C" } },
+  { label: "Cream & Sage", colors: { bg: "#F4EFE6", panel: "#FFFFFF", ink: "#1A1A1A", accent: "#7A8C6A", muted: "#6B6056" } },
+  { label: "Navy & Champagne", colors: { bg: "#0E1B3A", panel: "#15244A", ink: "#F5E6C8", accent: "#D4AF37", muted: "#C8B98A" } },
+];
+
 export const CATEGORY_LABELS: Record<CardCategory, string> = {
   hindu_sikh: "Hindu & Sikh",
   christian_muslim: "Christian & Muslim",
@@ -163,17 +189,41 @@ export interface CardData {
   photo?: string;
 }
 
+export interface PageContent {
+  id: string;
+  kind: "front" | "event" | "back";
+  title?: string;
+  subtitle?: string;
+  body?: string;
+  showQr: boolean;
+  qrPosition: QrPosition;
+}
+
 export function InvitationCardArtwork({
   data,
   theme,
   width = 500,
+  page,
+  qrSlot,
+  qrPosition = "bottom",
 }: {
   data: CardData;
   theme: CardTheme;
   width?: number;
+  page?: PageContent;
+  qrSlot?: ReactNode;
+  qrPosition?: QrPosition;
 }) {
   const height = Math.round(width * 1.4); // 5:7
   const pad = Math.round(width * 0.07);
+  const kind = page?.kind ?? "front";
+  const qrAnchorStyle: Record<QrPosition, React.CSSProperties> = {
+    bottom: { position: "absolute", left: 0, right: 0, bottom: pad * 0.7, display: "flex", justifyContent: "center" },
+    "bottom-left": { position: "absolute", left: pad * 0.8, bottom: pad * 0.7 },
+    "bottom-right": { position: "absolute", right: pad * 0.8, bottom: pad * 0.7 },
+    "top-right": { position: "absolute", right: pad * 0.8, top: pad * 0.8 },
+    hidden: { display: "none" },
+  };
   return (
     <div
       style={{
@@ -214,121 +264,107 @@ export function InvitationCardArtwork({
           <Ornament kind={theme.ornament} color={theme.accent} size={width * 0.18} />
         </div>
 
-        <p
-          style={{
-            marginTop: pad * 0.6,
-            fontFamily: theme.body,
-            color: theme.muted,
-            letterSpacing: 4,
-            fontSize: width * 0.024,
-            textTransform: "uppercase",
-          }}
-        >
-          {data.invitationLine || "Together with their families"}
-        </p>
+        {kind === "front" ? (
+          <>
+            {data.photo && (
+              <div
+                style={{
+                  marginTop: pad * 0.5,
+                  width: width * 0.32,
+                  height: width * 0.32,
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  border: `3px solid ${theme.accent}`,
+                  boxShadow: `0 0 0 4px ${theme.panel}`,
+                }}
+              >
+                <img
+                  src={data.photo}
+                  alt="Couple"
+                  crossOrigin="anonymous"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+            )}
 
-        {/* Couple */}
-        <h1
-          style={{
-            fontFamily: theme.display,
-            fontSize: width * 0.095,
-            lineHeight: 1.05,
-            margin: `${pad * 0.5}px 0 0`,
-            color: theme.ink,
-            fontStyle: "italic",
-          }}
-        >
-          {data.partner1}
-        </h1>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            margin: `${pad * 0.3}px 0`,
-            width: "70%",
-          }}
-        >
-          <span style={{ flex: 1, height: 1, background: theme.accent }} />
-          <span style={{ fontFamily: theme.display, color: theme.accent, fontSize: width * 0.06 }}>&amp;</span>
-          <span style={{ flex: 1, height: 1, background: theme.accent }} />
-        </div>
-        <h1
-          style={{
-            fontFamily: theme.display,
-            fontSize: width * 0.095,
-            lineHeight: 1.05,
-            margin: 0,
-            color: theme.ink,
-            fontStyle: "italic",
-          }}
-        >
-          {data.partner2}
-        </h1>
+            <p
+              style={{
+                marginTop: pad * 0.5,
+                fontFamily: theme.body,
+                color: theme.muted,
+                letterSpacing: 4,
+                fontSize: width * 0.024,
+                textTransform: "uppercase",
+              }}
+            >
+              {data.invitationLine || "Together with their families"}
+            </p>
 
-        {/* Date / Venue */}
-        <div style={{ marginTop: pad * 0.9, fontFamily: theme.body, color: theme.ink }}>
-          <div style={{ fontSize: width * 0.04, letterSpacing: 2, textTransform: "uppercase" }}>
-            {data.date}
-          </div>
-          {data.time && (
-            <div style={{ fontSize: width * 0.028, color: theme.muted, marginTop: 4, letterSpacing: 1 }}>
-              {data.time}
+            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.095, lineHeight: 1.05, margin: `${pad * 0.4}px 0 0`, color: theme.ink, fontStyle: "italic" }}>
+              {data.partner1}
+            </h1>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, margin: `${pad * 0.25}px 0`, width: "70%" }}>
+              <span style={{ flex: 1, height: 1, background: theme.accent }} />
+              <span style={{ fontFamily: theme.display, color: theme.accent, fontSize: width * 0.06 }}>&amp;</span>
+              <span style={{ flex: 1, height: 1, background: theme.accent }} />
             </div>
-          )}
-          <div style={{ fontSize: width * 0.028, color: theme.muted, marginTop: 8, maxWidth: width * 0.78 }}>
-            {data.venue}
-          </div>
-        </div>
+            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.095, lineHeight: 1.05, margin: 0, color: theme.ink, fontStyle: "italic" }}>
+              {data.partner2}
+            </h1>
 
-        {data.message && (
-          <p
-            style={{
-              marginTop: pad * 0.6,
-              fontFamily: theme.display,
-              fontStyle: "italic",
-              color: theme.muted,
-              fontSize: width * 0.026,
-              maxWidth: width * 0.78,
-              lineHeight: 1.5,
-            }}
-          >
-            “{data.message}”
-          </p>
+            <div style={{ marginTop: pad * 0.8, fontFamily: theme.body, color: theme.ink }}>
+              <div style={{ fontSize: width * 0.04, letterSpacing: 2, textTransform: "uppercase" }}>{data.date}</div>
+              {data.time && (
+                <div style={{ fontSize: width * 0.028, color: theme.muted, marginTop: 4, letterSpacing: 1 }}>{data.time}</div>
+              )}
+              <div style={{ fontSize: width * 0.028, color: theme.muted, marginTop: 8, maxWidth: width * 0.78 }}>{data.venue}</div>
+            </div>
+
+            {data.message && (
+              <p style={{ marginTop: pad * 0.5, fontFamily: theme.display, fontStyle: "italic", color: theme.muted, fontSize: width * 0.026, maxWidth: width * 0.78, lineHeight: 1.5 }}>
+                “{data.message}”
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <h2 style={{ fontFamily: theme.display, fontSize: width * 0.075, margin: `${pad * 0.5}px 0 0`, color: theme.ink, fontStyle: "italic" }}>
+              {page?.title || "Event"}
+            </h2>
+            {page?.subtitle && (
+              <p style={{ marginTop: pad * 0.25, color: theme.muted, fontSize: width * 0.028, letterSpacing: 2, textTransform: "uppercase" }}>
+                {page.subtitle}
+              </p>
+            )}
+            <div style={{ width: "60%", height: 1, background: theme.accent, margin: `${pad * 0.5}px 0` }} />
+            <p style={{ fontSize: width * 0.028, color: theme.ink, lineHeight: 1.7, whiteSpace: "pre-wrap", maxWidth: width * 0.82 }}>
+              {page?.body || ""}
+            </p>
+          </>
         )}
 
         <div style={{ flex: 1 }} />
 
-        {/* QR + footer ornament */}
-        <div style={{ display: "flex", alignItems: "flex-end", gap: pad * 0.6, width: "100%", justifyContent: "center" }}>
-          {data.qrSlot && (
+        <div style={{ marginTop: pad * 0.3 }}>
+          <Ornament kind={theme.ornament} color={theme.accent} size={width * 0.1} />
+        </div>
+
+        {/* Absolutely-positioned QR overlay */}
+        {qrSlot && qrPosition !== "hidden" && (
+          <div style={qrAnchorStyle[qrPosition]}>
             <div
               style={{
                 background: "#fff",
                 padding: 6,
                 borderRadius: 4,
                 border: `1px solid ${theme.accent}55`,
+                display: "inline-block",
               }}
             >
-              {data.qrSlot}
+              {qrSlot}
             </div>
-          )}
-        </div>
-        <p
-          style={{
-            marginTop: pad * 0.5,
-            color: theme.muted,
-            fontSize: width * 0.02,
-            letterSpacing: 3,
-            textTransform: "uppercase",
-          }}
-        >
-          Scan to RSVP &amp; view full invitation
-        </p>
-
-        <div style={{ marginTop: pad * 0.3 }}>
-          <Ornament kind={theme.ornament} color={theme.accent} size={width * 0.1} />
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
