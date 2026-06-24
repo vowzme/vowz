@@ -161,6 +161,31 @@ export default function InvitationCard() {
     toast({ title: `Applied "${p.label}" to page ${activePageIdx + 1}` });
   };
 
+  // Bulk-apply preset (and its DPI) to every page in the current variant.
+  const applyPresetToAllPages = (presetId: string) => {
+    const p = PRINT_PRESETS.find((x) => x.id === presetId); if (!p) return;
+    setDefaultPaper(p.paperSize); setBleed(p.bleed); setSafeMargin(p.safeMargin);
+    setCropMarks(p.cropMarks); if (p.dpi) setPdfDpi(p.dpi);
+    setPages((ps) => ps.map((pg) => ({
+      ...pg, paperSize: p.paperSize, scaling: p.scaling ?? "fit", cropMarks: p.cropMarks,
+    })));
+    toast({ title: `Applied "${p.label}" to all ${pages.length} pages` });
+  };
+
+  // Reset helpers — strip variant-level + per-page overrides back to defaults.
+  const resetVariantPrintSettings = () => {
+    setBleed(0); setSafeMargin(0.25); setCropMarks(true);
+    setDefaultPaper(DEFAULT_PAPER); setPdfDpi(DEFAULT_DPI);
+    setPages((ps) => ps.map((pg) => ({
+      ...pg, paperSize: undefined, scaling: undefined, cropMarks: undefined,
+    })));
+    toast({ title: "Print settings reset", description: "Variant and all pages restored to defaults." });
+  };
+  const resetCurrentPagePrintSettings = () => {
+    updatePage({ paperSize: undefined, scaling: undefined, cropMarks: undefined });
+    toast({ title: `Page ${activePageIdx + 1} print settings reset` });
+  };
+
   useEffect(() => {
     (async () => {
       if (!user || !siteId) return;
