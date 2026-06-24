@@ -325,14 +325,14 @@ export default function InvitationCard() {
       if (pageAspect > cardAspect) { cardW = w; cardH = w / cardAspect; }
       else { cardH = h; cardW = h * cardAspect; }
     } // stretch: cardW=w cardH=h
-    const cardWpx = Math.round(cardW * DPI);
+    const cardWpx = Math.round(cardW * pdfDpi);
     return (
       <div
         style={{
-          width: w * DPI + bleed * 2 * DPI,
-          height: h * DPI + bleed * 2 * DPI,
+          width: w * pdfDpi + bleed * 2 * pdfDpi,
+          height: h * pdfDpi + bleed * 2 * pdfDpi,
           background: theme.bg,
-          padding: bleed * DPI,
+          padding: bleed * pdfDpi,
           boxSizing: "border-box",
           display: "flex",
           alignItems: "center",
@@ -342,15 +342,15 @@ export default function InvitationCard() {
       >
         <div
           style={{
-            width: cardW * DPI,
-            height: cardH * DPI,
+            width: cardW * pdfDpi,
+            height: cardH * pdfDpi,
             overflow: "hidden",
           }}
         >
           <div
             style={
               scaling === "stretch"
-                ? { transform: `scale(${(cardW * DPI) / cardWpx}, ${(cardH * DPI) / (cardWpx * 1.4)})`, transformOrigin: "top left", width: cardWpx, height: cardWpx * 1.4 }
+                ? { transform: `scale(${(cardW * pdfDpi) / cardWpx}, ${(cardH * pdfDpi) / (cardWpx * 1.4)})`, transformOrigin: "top left", width: cardWpx, height: cardWpx * 1.4 }
                 : undefined
             }
           >
