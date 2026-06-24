@@ -863,6 +863,20 @@ export default function InvitationCard() {
             {/* Print settings */}
             <TabsContent value="print" className="mt-3 space-y-3 bg-card border border-border/50 rounded-xl p-4">
               <div>
+                <Label className="text-xs">Default paper size</Label>
+                <Select value={defaultPaper} onValueChange={(v) => setDefaultPaper(v as PaperSize)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(PAPER_SIZES) as PaperSize[]).map((k) => (
+                      <SelectItem key={k} value={k}>{PAPER_SIZES[k].label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Used by every page unless overridden in the Page tab.
+                </p>
+              </div>
+              <div>
                 <Label className="text-xs">Bleed</Label>
                 <Select value={String(bleed)} onValueChange={(v) => setBleed(parseFloat(v))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
