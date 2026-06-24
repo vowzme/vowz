@@ -459,9 +459,9 @@ export function InvitationCardArtwork({
               <div
                 style={{
                   marginTop: pad * 0.45,
-                  width: width * 0.34,
-                  height: width * 0.34,
-                  borderRadius: "50%",
+                  width: photoW,
+                  height: photoH,
+                  borderRadius: radius,
                   overflow: "hidden",
                   border: `1.5px solid ${theme.accent}`,
                   boxShadow: `0 0 0 4px ${theme.panel}, 0 0 0 5.5px ${theme.accent}66, 0 18px 30px -16px rgba(0,0,0,0.45)`,
@@ -491,7 +491,7 @@ export function InvitationCardArtwork({
                 marginTop: pad * 0.55,
                 fontFamily: theme.body,
                 color: theme.muted,
-                letterSpacing: 6,
+                letterSpacing: bSpace,
                 fontSize: width * 0.022,
                 textTransform: "uppercase",
                 display: "flex",
@@ -504,17 +504,17 @@ export function InvitationCardArtwork({
               <span style={{ width: 18, height: 1, background: theme.accent, opacity: 0.6 }} />
             </p>
 
-            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108, lineHeight: 1.02, margin: `${pad * 0.45}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
+            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108 * hScale, lineHeight: 1.02, margin: `${pad * 0.45}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: hSpace }}>
               {data.partner1}
             </h1>
             <div style={{ display: "flex", alignItems: "center", gap: 14, margin: `${pad * 0.28}px 0`, width: "72%" }}>
               <span style={{ flex: 1, height: 0.5, background: theme.accent, opacity: 0.55 }} />
               <span style={{ flex: 1, height: 1, background: theme.accent }} />
-              <span style={{ fontFamily: theme.display, color: theme.accent, fontSize: width * 0.072, fontStyle: "italic", lineHeight: 1 }}>&amp;</span>
+              <span style={{ fontFamily: theme.display, color: theme.accent, fontSize: width * 0.072 * hScale, fontStyle: "italic", lineHeight: 1 }}>&amp;</span>
               <span style={{ flex: 1, height: 1, background: theme.accent }} />
               <span style={{ flex: 1, height: 0.5, background: theme.accent, opacity: 0.55 }} />
             </div>
-            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108, lineHeight: 1.02, margin: 0, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
+            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108 * hScale, lineHeight: 1.02, margin: 0, color: theme.ink, fontStyle: "italic", letterSpacing: hSpace }}>
               {data.partner2}
             </h1>
 
@@ -522,7 +522,7 @@ export function InvitationCardArtwork({
             <div style={{ marginTop: pad * 0.85, fontFamily: theme.body, color: theme.ink, width: "70%" }}>
               <div style={{ height: 1, background: theme.accent, opacity: 0.7 }} />
               <div style={{ height: 0.5, background: theme.accent, opacity: 0.4, marginTop: 2 }} />
-              <div style={{ fontSize: width * 0.038, letterSpacing: 4, textTransform: "uppercase", padding: `${pad * 0.28}px 0 ${pad * 0.18}px`, fontWeight: 500 }}>
+              <div style={{ fontSize: width * 0.038, letterSpacing: bSpace * 0.7, textTransform: "uppercase", padding: `${pad * 0.28}px 0 ${pad * 0.18}px`, fontWeight: 500 }}>
                 {data.date}
               </div>
               <div style={{ height: 0.5, background: theme.accent, opacity: 0.4, marginBottom: 2 }} />
@@ -541,7 +541,7 @@ export function InvitationCardArtwork({
           </>
         ) : (
           <>
-            <h2 style={{ fontFamily: theme.display, fontSize: width * 0.086, margin: `${pad * 0.5}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
+            <h2 style={{ fontFamily: theme.display, fontSize: width * 0.086 * hScale, margin: `${pad * 0.5}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: hSpace }}>
               {page?.title || "Event"}
             </h2>
             {page?.subtitle && (
