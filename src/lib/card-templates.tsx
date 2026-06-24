@@ -20,6 +20,14 @@ export interface CardTheme {
   ornament: "mandala" | "cross" | "arch" | "damask" | "peacock" | "noir" | "editorial" | "sanskrit";
   display: string; // font-family
   body: string;
+  // Photo framing
+  photoShape?: "circle" | "rounded" | "square" | "arch" | "oval";
+  photoAspect?: "1:1" | "4:5" | "3:4" | "16:9";
+  photoRadius?: number; // px corner radius when shape = "rounded"
+  // Typography hierarchy
+  headingLetterSpacing?: number;
+  bodyLetterSpacing?: number;
+  headingScale?: number; // multiplier on h1/h2 font-size
 }
 
 export type QrPosition = "bottom" | "bottom-left" | "bottom-right" | "top-right" | "hidden";
@@ -49,6 +57,50 @@ export const BODY_FONTS = [
   { label: "Cormorant", value: "'Cormorant Garamond', serif" },
   { label: "Georgia", value: "Georgia, serif" },
 ] as const;
+
+// ─── Typography presets (international wedding-stationery look) ─────
+export interface TypographyPreset {
+  id: string;
+  label: string;
+  description: string;
+  display: string;
+  body: string;
+  headingLetterSpacing: number;
+  bodyLetterSpacing: number;
+  headingScale: number;
+}
+export const TYPOGRAPHY_PRESETS: TypographyPreset[] = [
+  { id: "editorial-classic", label: "Editorial Classic", description: "Playfair + Inter, balanced",
+    display: "'Playfair Display', serif", body: "'Inter', sans-serif",
+    headingLetterSpacing: 0.5, bodyLetterSpacing: 6, headingScale: 1.0 },
+  { id: "romantic-script", label: "Romantic Script", description: "Great Vibes display + Lato",
+    display: "'Great Vibes', cursive", body: "'Lato', sans-serif",
+    headingLetterSpacing: 0, bodyLetterSpacing: 4, headingScale: 1.25 },
+  { id: "modern-roman", label: "Modern Roman", description: "Cinzel caps + Inter",
+    display: "'Cinzel', serif", body: "'Inter', sans-serif",
+    headingLetterSpacing: 4, bodyLetterSpacing: 5, headingScale: 0.85 },
+  { id: "luxe-couture", label: "Luxe Couture", description: "DM Serif Display + Cormorant",
+    display: "'DM Serif Display', serif", body: "'Cormorant Garamond', serif",
+    headingLetterSpacing: 1, bodyLetterSpacing: 8, headingScale: 1.05 },
+  { id: "soft-quiet", label: "Soft & Quiet", description: "Cormorant display + Inter",
+    display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif",
+    headingLetterSpacing: 2, bodyLetterSpacing: 3, headingScale: 0.95 },
+];
+
+// ─── Photo framing options ──────────────────────────────────────────
+export const PHOTO_SHAPES: { value: NonNullable<CardTheme["photoShape"]>; label: string }[] = [
+  { value: "circle", label: "Circle" },
+  { value: "oval", label: "Oval portrait" },
+  { value: "rounded", label: "Rounded square" },
+  { value: "square", label: "Sharp square" },
+  { value: "arch", label: "Cathedral arch" },
+];
+export const PHOTO_ASPECTS: { value: NonNullable<CardTheme["photoAspect"]>; label: string; ratio: number }[] = [
+  { value: "1:1", label: "Square (1:1)", ratio: 1 },
+  { value: "4:5", label: "Portrait (4:5)", ratio: 4 / 5 },
+  { value: "3:4", label: "Tall (3:4)", ratio: 3 / 4 },
+  { value: "16:9", label: "Wide (16:9)", ratio: 16 / 9 },
+];
 
 export const PRESET_PALETTES: { label: string; colors: Pick<CardTheme, "bg" | "panel" | "ink" | "accent" | "muted"> }[] = [
   { label: "Maroon & Gold", colors: { bg: "#4A0E11", panel: "#5B121A", ink: "#FFF1C9", accent: "#E5BB55", muted: "#D4AF37" } },
