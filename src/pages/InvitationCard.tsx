@@ -588,15 +588,31 @@ export default function InvitationCard() {
             </div>
           </div>
 
+          {/* Screen-reader live announcements for keyboard/drag reordering */}
+          <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+            {srMessage}
+          </div>
+
           {livePreview && (
             <div className="w-full mb-4 rounded-lg border border-border/50 bg-card overflow-hidden">
               <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/40 bg-muted/40">
-                <span className="text-xs font-medium">Live PDF preview {previewBuilding && "· updating…"}</span>
+                <span className="text-xs font-medium">
+                  Live PDF preview {previewBuilding && "· updating…"}
+                </span>
                 <button onClick={() => setLivePreview(false)} className="text-muted-foreground hover:text-foreground" aria-label="Close PDF preview">
                   <XIcon className="w-4 h-4" />
                 </button>
               </div>
-              {pdfUrl ? (
+              {previewError ? (
+                <div role="alert" className="p-4 text-xs text-destructive bg-destructive/5 border-t border-destructive/30">
+                  <div className="font-medium mb-1">Preview failed</div>
+                  <div className="text-muted-foreground">{previewError}</div>
+                  <Button size="sm" variant="outline" className="mt-2 h-7 text-xs"
+                    onClick={() => { setPreviewError(null); setLivePreview(false); setTimeout(() => setLivePreview(true), 50); }}>
+                    Retry
+                  </Button>
+                </div>
+              ) : pdfUrl ? (
                 <iframe title="PDF preview" src={pdfUrl} className="w-full" style={{ height: 520, border: 0, background: "#f5f5f5" }} />
               ) : (
                 <div className="h-[200px] flex items-center justify-center text-xs text-muted-foreground">Building preview…</div>
