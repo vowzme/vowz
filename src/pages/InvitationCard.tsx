@@ -45,8 +45,37 @@ const MARGIN_PRESETS: { value: number; label: string }[] = [
   { value: 0.25, label: "Standard (0.25\")" },
   { value: 0.375, label: "Roomy (0.375\")" },
 ];
-const DPI = 300;
+const DEFAULT_DPI = 300;
+const DPI_OPTIONS: { value: number; label: string }[] = [
+  { value: 150, label: "150 dpi · Draft / screen" },
+  { value: 300, label: "300 dpi · Standard print" },
+  { value: 450, label: "450 dpi · Premium" },
+  { value: 600, label: "600 dpi · Pro press (large file)" },
+];
 const DEFAULT_PAPER: PaperSize = "5x7";
+
+// Named print presets — apply per variant (or per page) for one-click setup.
+type PrintPreset = {
+  id: string;
+  label: string;
+  scope: "variant" | "page" | "both";
+  paperSize: PaperSize;
+  bleed: number;
+  safeMargin: number;
+  cropMarks: boolean;
+  scaling?: PageScaling;
+  dpi?: number;
+  description?: string;
+};
+const PRINT_PRESETS: PrintPreset[] = [
+  { id: "5x7-matte", label: '5×7 Matte', scope: "both", paperSize: "5x7", bleed: 0.125, safeMargin: 0.25, cropMarks: true, scaling: "fit", dpi: 300, description: "Classic flat invitation, 0.125\" bleed" },
+  { id: "5x7-luxe", label: '5×7 Luxe (600 dpi)', scope: "both", paperSize: "5x7", bleed: 0.25, safeMargin: 0.375, cropMarks: true, scaling: "fit", dpi: 600, description: "Full bleed for premium press" },
+  { id: "letter-fold", label: 'Letter Fold', scope: "both", paperSize: "letter", bleed: 0.125, safeMargin: 0.375, cropMarks: true, scaling: "fit", dpi: 300, description: "US Letter, ideal for folded program" },
+  { id: "india-a6", label: 'India A6 Insert', scope: "both", paperSize: "a6", bleed: 0.125, safeMargin: 0.2, cropMarks: true, scaling: "fit", dpi: 300, description: "Common Indian printer size" },
+  { id: "a5-no-bleed", label: 'A5 No-Bleed Home', scope: "both", paperSize: "a5", bleed: 0, safeMargin: 0.25, cropMarks: false, scaling: "fit", dpi: 300, description: "Home printer friendly" },
+  { id: "6x9-arch", label: '6×9 Arch', scope: "both", paperSize: "6x9", bleed: 0.125, safeMargin: 0.3, cropMarks: true, scaling: "fit", dpi: 300, description: "Tall format for event pages" },
+];
+
 const pageSizeOf = (p: PageContent, fallback: PaperSize) =>
   PAPER_SIZES[p.paperSize ?? fallback];
 
@@ -92,14 +121,22 @@ export default function InvitationCard() {
   const [safeMargin, setSafeMargin] = useState<number>(0.25); // inches
   const [cropMarks, setCropMarks] = useState<boolean>(true); // variant default
   const [defaultPaper, setDefaultPaper] = useState<PaperSize>(DEFAULT_PAPER);
+  const [pdfDpi, setPdfDpi] = useState<number>(DEFAULT_DPI);
   const [livePreview, setLivePreview] = useState<boolean>(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [previewBuilding, setPreviewBuilding] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
+  // Screen-reader live region for drag/keyboard reordering
+  const [srMessage, setSrMessage] = useState<string>("");
+  const announce = (msg: string) => setSrMessage(msg);
 
   // Drag & drop reordering
   const dragIdx = useRef<number | null>(null);
   const reorderPages = (from: number, to: number) => {
     if (from === to || to < 0 || to >= pages.length) return;
+    const moved = pages[from];
+    const kindLabel = moved.kind === "front" ? "Front" : moved.kind === "back" ? "Back" : (moved.title || "Event");
     setPages((p) => {
       const next = [...p];
       const [m] = next.splice(from, 1);
@@ -107,8 +144,22 @@ export default function InvitationCard() {
       return next;
     });
     setActivePageIdx(to);
+    announce(`Moved ${kindLabel} page from position ${from + 1} to position ${to + 1} of ${pages.length}.`);
   };
   const movePage = (idx: number, dir: -1 | 1) => reorderPages(idx, idx + dir);
+
+  // Apply a named print preset to the whole variant or just the current page.
+  const applyPresetToVariant = (presetId: string) => {
+    const p = PRINT_PRESETS.find((x) => x.id === presetId); if (!p) return;
+    setDefaultPaper(p.paperSize); setBleed(p.bleed); setSafeMargin(p.safeMargin);
+    setCropMarks(p.cropMarks); if (p.dpi) setPdfDpi(p.dpi);
+    toast({ title: `Applied "${p.label}"`, description: "Variant print defaults updated." });
+  };
+  const applyPresetToPage = (presetId: string) => {
+    const p = PRINT_PRESETS.find((x) => x.id === presetId); if (!p) return;
+    updatePage({ paperSize: p.paperSize, scaling: p.scaling ?? "fit", cropMarks: p.cropMarks });
+    toast({ title: `Applied "${p.label}" to page ${activePageIdx + 1}` });
+  };
 
   useEffect(() => {
     (async () => {
@@ -195,7 +246,7 @@ export default function InvitationCard() {
   // ─── Save / Load variants ────────────────────────────────────
   const saveVariant = async () => {
     if (!user || !siteId) return;
-    const printSettings = { bleed, safeMargin, cropMarks, defaultPaper };
+    const printSettings = { bleed, safeMargin, cropMarks, defaultPaper, pdfDpi };
     const payload = {
       wedding_site_id: siteId,
       user_id: user.id,
@@ -230,8 +281,9 @@ export default function InvitationCard() {
       setSafeMargin(typeof __print.safeMargin === "number" ? __print.safeMargin : 0.25);
       setCropMarks(__print.cropMarks !== false);
       setDefaultPaper((__print.defaultPaper as PaperSize) ?? DEFAULT_PAPER);
+      setPdfDpi(typeof __print.pdfDpi === "number" ? __print.pdfDpi : DEFAULT_DPI);
     } else {
-      setBleed(0); setSafeMargin(0.25); setCropMarks(true); setDefaultPaper(DEFAULT_PAPER);
+      setBleed(0); setSafeMargin(0.25); setCropMarks(true); setDefaultPaper(DEFAULT_PAPER); setPdfDpi(DEFAULT_DPI);
     }
     setThemeOverrides(v.theme_overrides || {});
     setPages(v.pages?.length ? v.pages : defaultPages());
@@ -287,14 +339,14 @@ export default function InvitationCard() {
       if (pageAspect > cardAspect) { cardW = w; cardH = w / cardAspect; }
       else { cardH = h; cardW = h * cardAspect; }
     } // stretch: cardW=w cardH=h
-    const cardWpx = Math.round(cardW * DPI);
+    const cardWpx = Math.round(cardW * pdfDpi);
     return (
       <div
         style={{
-          width: w * DPI + bleed * 2 * DPI,
-          height: h * DPI + bleed * 2 * DPI,
+          width: w * pdfDpi + bleed * 2 * pdfDpi,
+          height: h * pdfDpi + bleed * 2 * pdfDpi,
           background: theme.bg,
-          padding: bleed * DPI,
+          padding: bleed * pdfDpi,
           boxSizing: "border-box",
           display: "flex",
           alignItems: "center",
@@ -304,15 +356,15 @@ export default function InvitationCard() {
       >
         <div
           style={{
-            width: cardW * DPI,
-            height: cardH * DPI,
+            width: cardW * pdfDpi,
+            height: cardH * pdfDpi,
             overflow: "hidden",
           }}
         >
           <div
             style={
               scaling === "stretch"
-                ? { transform: `scale(${(cardW * DPI) / cardWpx}, ${(cardH * DPI) / (cardWpx * 1.4)})`, transformOrigin: "top left", width: cardWpx, height: cardWpx * 1.4 }
+                ? { transform: `scale(${(cardW * pdfDpi) / cardWpx}, ${(cardH * pdfDpi) / (cardWpx * 1.4)})`, transformOrigin: "top left", width: cardWpx, height: cardWpx * 1.4 }
                 : undefined
             }
           >
@@ -380,6 +432,7 @@ export default function InvitationCard() {
     if (!livePreview) return;
     let cancelled = false;
     setPreviewBuilding(true);
+    setPreviewError(null);
     const t = window.setTimeout(async () => {
       try {
         const pdf = await buildPdf();
@@ -387,15 +440,16 @@ export default function InvitationCard() {
         const blob = pdf.output("blob");
         const url = URL.createObjectURL(blob);
         setPdfUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return url; });
-      } catch (e) {
+      } catch (e: any) {
         console.error("PDF preview failed", e);
+        if (!cancelled) setPreviewError(e?.message || "Couldn't render PDF preview. Try toggling preview off and on again.");
       } finally {
         if (!cancelled) setPreviewBuilding(false);
       }
     }, 700);
     return () => { cancelled = true; window.clearTimeout(t); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [livePreview, pages, bleed, cropMarks, defaultPaper, themeOverrides, selectedSlug, form]);
+  }, [livePreview, pages, bleed, safeMargin, cropMarks, defaultPaper, pdfDpi, themeOverrides, selectedSlug, form, siteUrl]);
 
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, []);
 
@@ -489,16 +543,16 @@ export default function InvitationCard() {
                       onDragStart={() => { dragIdx.current = i; }}
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => { e.preventDefault(); if (dragIdx.current !== null) reorderPages(dragIdx.current, i); dragIdx.current = null; }}
-                      onClick={() => setActivePageIdx(i)}
+                      onClick={() => { setActivePageIdx(i); announce(`Selected page ${i + 1} of ${pages.length}: ${label}.`); }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActivePageIdx(i); }
+                        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActivePageIdx(i); announce(`Selected page ${i + 1} of ${pages.length}: ${label}.`); }
                         else if ((e.altKey || e.metaKey) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
                           e.preventDefault();
                           movePage(i, e.key === "ArrowLeft" ? -1 : 1);
                         } else if (e.key === "ArrowLeft" && i > 0) {
-                          e.preventDefault(); setActivePageIdx(i - 1);
+                          e.preventDefault(); setActivePageIdx(i - 1); announce(`Focused page ${i} of ${pages.length}.`);
                         } else if (e.key === "ArrowRight" && i < pages.length - 1) {
-                          e.preventDefault(); setActivePageIdx(i + 1);
+                          e.preventDefault(); setActivePageIdx(i + 1); announce(`Focused page ${i + 2} of ${pages.length}.`);
                         }
                       }}
                       title="Drag, or focus and press Alt + Arrow keys to reorder"
@@ -547,15 +601,31 @@ export default function InvitationCard() {
             </div>
           </div>
 
+          {/* Screen-reader live announcements for keyboard/drag reordering */}
+          <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+            {srMessage}
+          </div>
+
           {livePreview && (
             <div className="w-full mb-4 rounded-lg border border-border/50 bg-card overflow-hidden">
               <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/40 bg-muted/40">
-                <span className="text-xs font-medium">Live PDF preview {previewBuilding && "· updating…"}</span>
+                <span className="text-xs font-medium">
+                  Live PDF preview {previewBuilding && "· updating…"}
+                </span>
                 <button onClick={() => setLivePreview(false)} className="text-muted-foreground hover:text-foreground" aria-label="Close PDF preview">
                   <XIcon className="w-4 h-4" />
                 </button>
               </div>
-              {pdfUrl ? (
+              {previewError ? (
+                <div role="alert" className="p-4 text-xs text-destructive bg-destructive/5 border-t border-destructive/30">
+                  <div className="font-medium mb-1">Preview failed</div>
+                  <div className="text-muted-foreground">{previewError}</div>
+                  <Button size="sm" variant="outline" className="mt-2 h-7 text-xs"
+                    onClick={() => { setPreviewError(null); setLivePreview(false); setTimeout(() => setLivePreview(true), 50); }}>
+                    Retry
+                  </Button>
+                </div>
+              ) : pdfUrl ? (
                 <iframe title="PDF preview" src={pdfUrl} className="w-full" style={{ height: 520, border: 0, background: "#f5f5f5" }} />
               ) : (
                 <div className="h-[200px] flex items-center justify-center text-xs text-muted-foreground">Building preview…</div>
@@ -722,6 +792,17 @@ export default function InvitationCard() {
               <div className="pt-3 border-t border-border/40 space-y-3">
                 <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Per-page export</div>
                 <div>
+                  <Label className="text-xs">Quick preset for this page</Label>
+                  <Select value="" onValueChange={applyPresetToPage}>
+                    <SelectTrigger><SelectValue placeholder="Apply a print preset…" /></SelectTrigger>
+                    <SelectContent>
+                      {PRINT_PRESETS.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <Label className="text-xs">Paper size</Label>
                   <Select
                     value={currentPage.paperSize ?? "__default"}
@@ -850,6 +931,36 @@ export default function InvitationCard() {
 
             {/* Print settings */}
             <TabsContent value="print" className="mt-3 space-y-3 bg-card border border-border/50 rounded-xl p-4">
+              <div>
+                <Label className="text-xs">Named preset</Label>
+                <Select value="" onValueChange={applyPresetToVariant}>
+                  <SelectTrigger><SelectValue placeholder="Apply a print preset to variant…" /></SelectTrigger>
+                  <SelectContent>
+                    {PRINT_PRESETS.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.label}{p.description ? ` — ${p.description}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  One-click bundles for paper, bleed, crop marks and DPI.
+                </p>
+              </div>
+              <div>
+                <Label className="text-xs">Export DPI / quality</Label>
+                <Select value={String(pdfDpi)} onValueChange={(v) => setPdfDpi(parseInt(v, 10))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {DPI_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={String(o.value)}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Applies to both PDF and PNG. Higher DPI = crisper print, larger file.
+                </p>
+              </div>
               <div>
                 <Label className="text-xs">Default paper size</Label>
                 <Select value={defaultPaper} onValueChange={(v) => setDefaultPaper(v as PaperSize)}>
