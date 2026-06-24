@@ -730,6 +730,47 @@ export default function InvitationCard() {
                   </Select>
                 </div>
               )}
+
+              <div className="pt-3 border-t border-border/40 space-y-3">
+                <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Per-page export</div>
+                <div>
+                  <Label className="text-xs">Paper size</Label>
+                  <Select
+                    value={currentPage.paperSize ?? "__default"}
+                    onValueChange={(v) => updatePage({ paperSize: v === "__default" ? undefined : (v as PaperSize) })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__default">Use variant default ({PAPER_SIZES[defaultPaper].label})</SelectItem>
+                      {(Object.keys(PAPER_SIZES) as PaperSize[]).map((k) => (
+                        <SelectItem key={k} value={k}>{PAPER_SIZES[k].label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Scaling</Label>
+                  <Select
+                    value={currentPage.scaling ?? "fit"}
+                    onValueChange={(v) => updatePage({ scaling: v as PageScaling })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fit">Fit (keep card ratio, may letterbox)</SelectItem>
+                      <SelectItem value="fill">Fill (crop to fill page)</SelectItem>
+                      <SelectItem value="stretch">Stretch to page</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Crop marks on this page</Label>
+                  <input
+                    type="checkbox"
+                    checked={currentPage.cropMarks ?? cropMarks}
+                    onChange={(e) => updatePage({ cropMarks: e.target.checked })}
+                  />
+                </div>
+              </div>
             </TabsContent>
 
             {/* Style: palette + fonts */}
