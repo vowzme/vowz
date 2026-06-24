@@ -419,6 +419,7 @@ export default function InvitationCard() {
     if (!livePreview) return;
     let cancelled = false;
     setPreviewBuilding(true);
+    setPreviewError(null);
     const t = window.setTimeout(async () => {
       try {
         const pdf = await buildPdf();
@@ -426,15 +427,16 @@ export default function InvitationCard() {
         const blob = pdf.output("blob");
         const url = URL.createObjectURL(blob);
         setPdfUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return url; });
-      } catch (e) {
+      } catch (e: any) {
         console.error("PDF preview failed", e);
+        if (!cancelled) setPreviewError(e?.message || "Couldn't render PDF preview. Try toggling preview off and on again.");
       } finally {
         if (!cancelled) setPreviewBuilding(false);
       }
     }, 700);
     return () => { cancelled = true; window.clearTimeout(t); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [livePreview, pages, bleed, cropMarks, defaultPaper, themeOverrides, selectedSlug, form]);
+  }, [livePreview, pages, bleed, safeMargin, cropMarks, defaultPaper, pdfDpi, themeOverrides, selectedSlug, form, siteUrl]);
 
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, []);
 
