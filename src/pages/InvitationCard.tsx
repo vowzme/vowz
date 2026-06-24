@@ -350,6 +350,32 @@ export default function InvitationCard() {
     );
   };
 
+  // ─── Template gallery thumbnail (live artwork at small scale) ─────
+  const TemplateThumb = ({ slug }: { slug: string }) => {
+    const tTheme = CARD_THEMES[slug] ?? CARD_THEMES["hindu-ganesha-classic"];
+    // Use current form data + overrides if this is the selected template, so the preview is "live".
+    const liveTheme: CardTheme = slug === selectedSlug ? theme : tTheme;
+    return (
+      <div className="aspect-[5/7] w-full overflow-hidden bg-card pointer-events-none">
+        <div style={{ transform: "scale(0.32)", transformOrigin: "top left", width: 500, height: 700 }}>
+          <InvitationCardArtwork
+            data={{
+              partner1: form.partner1 || "Aarav",
+              partner2: form.partner2 || "Meera",
+              date: form.date || "Sat 12 Oct",
+              venue: form.venue || "",
+              invitationLine: form.invitationLine,
+              photo: slug === selectedSlug ? (form.photo || undefined) : undefined,
+            }}
+            theme={liveTheme}
+            width={500}
+            page={{ id: "p", kind: "front", showQr: false, qrPosition: "hidden" }}
+          />
+        </div>
+      </div>
+    );
+  };
+
   // ─── Export ──────────────────────────────────────────────────
   const renderPageNode = (page: PageContent) => {
     const { w, h } = pageSizeOf(page, defaultPaper);
