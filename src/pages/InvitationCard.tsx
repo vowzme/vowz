@@ -148,6 +148,19 @@ export default function InvitationCard() {
   };
   const movePage = (idx: number, dir: -1 | 1) => reorderPages(idx, idx + dir);
 
+  // Apply a named print preset to the whole variant or just the current page.
+  const applyPresetToVariant = (presetId: string) => {
+    const p = PRINT_PRESETS.find((x) => x.id === presetId); if (!p) return;
+    setDefaultPaper(p.paperSize); setBleed(p.bleed); setSafeMargin(p.safeMargin);
+    setCropMarks(p.cropMarks); if (p.dpi) setPdfDpi(p.dpi);
+    toast({ title: `Applied "${p.label}"`, description: "Variant print defaults updated." });
+  };
+  const applyPresetToPage = (presetId: string) => {
+    const p = PRINT_PRESETS.find((x) => x.id === presetId); if (!p) return;
+    updatePage({ paperSize: p.paperSize, scaling: p.scaling ?? "fit", cropMarks: p.cropMarks });
+    toast({ title: `Applied "${p.label}" to page ${activePageIdx + 1}` });
+  };
+
   useEffect(() => {
     (async () => {
       if (!user || !siteId) return;
