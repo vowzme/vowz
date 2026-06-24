@@ -530,16 +530,16 @@ export default function InvitationCard() {
                       onDragStart={() => { dragIdx.current = i; }}
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => { e.preventDefault(); if (dragIdx.current !== null) reorderPages(dragIdx.current, i); dragIdx.current = null; }}
-                      onClick={() => setActivePageIdx(i)}
+                      onClick={() => { setActivePageIdx(i); announce(`Selected page ${i + 1} of ${pages.length}: ${label}.`); }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActivePageIdx(i); }
+                        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActivePageIdx(i); announce(`Selected page ${i + 1} of ${pages.length}: ${label}.`); }
                         else if ((e.altKey || e.metaKey) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
                           e.preventDefault();
                           movePage(i, e.key === "ArrowLeft" ? -1 : 1);
                         } else if (e.key === "ArrowLeft" && i > 0) {
-                          e.preventDefault(); setActivePageIdx(i - 1);
+                          e.preventDefault(); setActivePageIdx(i - 1); announce(`Focused page ${i} of ${pages.length}.`);
                         } else if (e.key === "ArrowRight" && i < pages.length - 1) {
-                          e.preventDefault(); setActivePageIdx(i + 1);
+                          e.preventDefault(); setActivePageIdx(i + 1); announce(`Focused page ${i + 2} of ${pages.length}.`);
                         }
                       }}
                       title="Drag, or focus and press Alt + Arrow keys to reorder"
