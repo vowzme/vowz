@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import {
   ArrowLeft, Download, Lock, FileImage, FileText, Sparkles, Upload, X as XIcon,
   Plus, Trash2, Save, Image as ImageIcon, Palette as PaletteIcon, Type as TypeIcon,
-  GripVertical, Printer,
+  GripVertical, Printer, ArrowUp, ArrowDown, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ import {
   CARD_THEMES, CATEGORY_LABELS, CardCategory, CardTemplateMeta, FALLBACK_TEMPLATES,
   InvitationCardArtwork, CardTheme, PageContent, QrPosition,
   DISPLAY_FONTS, BODY_FONTS, PRESET_PALETTES,
+  PAPER_SIZES, PaperSize, PageScaling,
 } from "@/lib/card-templates";
 
 const QR_POSITIONS: { value: QrPosition; label: string }[] = [
@@ -45,8 +46,9 @@ const MARGIN_PRESETS: { value: number; label: string }[] = [
   { value: 0.375, label: "Roomy (0.375\")" },
 ];
 const DPI = 300;
-const CARD_W_IN = 5;
-const CARD_H_IN = 7;
+const DEFAULT_PAPER: PaperSize = "5x7";
+const pageSizeOf = (p: PageContent, fallback: PaperSize) =>
+  PAPER_SIZES[p.paperSize ?? fallback];
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
@@ -86,14 +88,18 @@ export default function InvitationCard() {
   const [activePageIdx, setActivePageIdx] = useState(0);
 
   // Print settings
-  const [bleed, setBleed] = useState<number>(0); // inches
+  const [bleed, setBleed] = useState<number>(0); // inches (variant default)
   const [safeMargin, setSafeMargin] = useState<number>(0.25); // inches
-  const [cropMarks, setCropMarks] = useState<boolean>(true);
+  const [cropMarks, setCropMarks] = useState<boolean>(true); // variant default
+  const [defaultPaper, setDefaultPaper] = useState<PaperSize>(DEFAULT_PAPER);
+  const [livePreview, setLivePreview] = useState<boolean>(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [previewBuilding, setPreviewBuilding] = useState(false);
 
   // Drag & drop reordering
   const dragIdx = useRef<number | null>(null);
   const reorderPages = (from: number, to: number) => {
-    if (from === to) return;
+    if (from === to || to < 0 || to >= pages.length) return;
     setPages((p) => {
       const next = [...p];
       const [m] = next.splice(from, 1);
@@ -102,6 +108,7 @@ export default function InvitationCard() {
     });
     setActivePageIdx(to);
   };
+  const movePage = (idx: number, dir: -1 | 1) => reorderPages(idx, idx + dir);
 
   useEffect(() => {
     (async () => {
@@ -188,12 +195,13 @@ export default function InvitationCard() {
   // ─── Save / Load variants ────────────────────────────────────
   const saveVariant = async () => {
     if (!user || !siteId) return;
+    const printSettings = { bleed, safeMargin, cropMarks, defaultPaper };
     const payload = {
       wedding_site_id: siteId,
       user_id: user.id,
       name: variantName || "My card",
       template_slug: selectedSlug,
-      data: form,
+      data: { ...form, __print: printSettings },
       theme_overrides: themeOverrides,
       pages,
       photo_url: form.photo ?? null,
@@ -215,7 +223,16 @@ export default function InvitationCard() {
     setVariantId(v.id);
     setVariantName(v.name);
     setSelectedSlug(v.template_slug);
-    setForm({ ...v.data, photo: v.photo_url ?? v.data?.photo ?? "" });
+    const { __print, ...formData } = v.data || {};
+    setForm({ ...formData, photo: v.photo_url ?? v.data?.photo ?? "" });
+    if (__print) {
+      setBleed(typeof __print.bleed === "number" ? __print.bleed : 0);
+      setSafeMargin(typeof __print.safeMargin === "number" ? __print.safeMargin : 0.25);
+      setCropMarks(__print.cropMarks !== false);
+      setDefaultPaper((__print.defaultPaper as PaperSize) ?? DEFAULT_PAPER);
+    } else {
+      setBleed(0); setSafeMargin(0.25); setCropMarks(true); setDefaultPaper(DEFAULT_PAPER);
+    }
     setThemeOverrides(v.theme_overrides || {});
     setPages(v.pages?.length ? v.pages : defaultPages());
     setActivePageIdx(0);
@@ -256,39 +273,131 @@ export default function InvitationCard() {
   };
 
   // ─── Export ──────────────────────────────────────────────────
-  const renderPageNode = (page: PageContent) => (
-    <div
-      style={{
-        width: CARD_W_IN * DPI + bleed * 2 * DPI,
-        height: CARD_H_IN * DPI + bleed * 2 * DPI,
-        background: theme.bg,
-        padding: bleed * DPI,
-        boxSizing: "border-box",
-      }}
-    >
-      <InvitationCardArtwork
-        data={{
-          partner1: form.partner1 || "Partner One",
-          partner2: form.partner2 || "Partner Two",
-          date: form.date || "Date TBA",
-          time: form.time,
-          venue: form.venue || "Venue TBA",
-          message: form.message,
-          invitationLine: form.invitationLine,
-          photo: form.photo || undefined,
+  const renderPageNode = (page: PageContent) => {
+    const { w, h } = pageSizeOf(page, defaultPaper);
+    const cardAspect = 5 / 7;
+    const pageAspect = w / h;
+    const scaling: PageScaling = page.scaling ?? "fit";
+    // Determine the rendered card size (in inches) inside the page (before bleed).
+    let cardW = w, cardH = h;
+    if (scaling === "fit") {
+      if (pageAspect > cardAspect) { cardH = h; cardW = h * cardAspect; }
+      else { cardW = w; cardH = w / cardAspect; }
+    } else if (scaling === "fill") {
+      if (pageAspect > cardAspect) { cardW = w; cardH = w / cardAspect; }
+      else { cardH = h; cardW = h * cardAspect; }
+    } // stretch: cardW=w cardH=h
+    const cardWpx = Math.round(cardW * DPI);
+    return (
+      <div
+        style={{
+          width: w * DPI + bleed * 2 * DPI,
+          height: h * DPI + bleed * 2 * DPI,
+          background: theme.bg,
+          padding: bleed * DPI,
+          boxSizing: "border-box",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
         }}
-        theme={theme}
-        width={CARD_W_IN * DPI}
-        page={page}
-        qrPosition={page.showQr ? page.qrPosition : "hidden"}
-        qrSlot={
-          page.showQr ? (
-            <QRCodeSVG value={siteUrl} size={260} level="H" bgColor="#ffffff" fgColor="#001F3F" />
-          ) : undefined
-        }
-      />
-    </div>
-  );
+      >
+        <div
+          style={{
+            width: cardW * DPI,
+            height: cardH * DPI,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={
+              scaling === "stretch"
+                ? { transform: `scale(${(cardW * DPI) / cardWpx}, ${(cardH * DPI) / (cardWpx * 1.4)})`, transformOrigin: "top left", width: cardWpx, height: cardWpx * 1.4 }
+                : undefined
+            }
+          >
+            <InvitationCardArtwork
+              data={{
+                partner1: form.partner1 || "Partner One",
+                partner2: form.partner2 || "Partner Two",
+                date: form.date || "Date TBA",
+                time: form.time,
+                venue: form.venue || "Venue TBA",
+                message: form.message,
+                invitationLine: form.invitationLine,
+                photo: form.photo || undefined,
+              }}
+              theme={theme}
+              width={cardWpx}
+              page={page}
+              qrPosition={page.showQr ? page.qrPosition : "hidden"}
+              qrSlot={
+                page.showQr ? (
+                  <QRCodeSVG value={siteUrl} size={Math.round(cardWpx * 0.17)} level="H" bgColor="#ffffff" fgColor="#001F3F" />
+                ) : undefined
+              }
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ─── Build PDF (used by both download + live preview) ─────────
+  const buildPdf = async (): Promise<jsPDF | null> => {
+    if (!exportContainerRef.current) return null;
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
+    const nodes = Array.from(exportContainerRef.current.children) as HTMLElement[];
+    let pdf: jsPDF | null = null;
+    for (let i = 0; i < nodes.length; i++) {
+      const page = pages[i];
+      const { w: pw, h: ph } = pageSizeOf(page, defaultPaper);
+      const pageW = pw + bleed * 2;
+      const pageH = ph + bleed * 2;
+      const orientation = pageW > pageH ? "landscape" : "portrait";
+      if (!pdf) pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation });
+      else pdf.addPage([pageW, pageH], orientation);
+      const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH, undefined, "FAST");
+      const showMarks = (page.cropMarks ?? cropMarks) && bleed > 0;
+      if (showMarks) {
+        const m = 0.18, o = bleed;
+        pdf.setDrawColor(0); pdf.setLineWidth(0.005);
+        const corners = [[o, o], [pageW - o, o], [o, pageH - o], [pageW - o, pageH - o]] as const;
+        corners.forEach(([x, y]) => {
+          pdf!.line(x - m, y, x - 0.02, y);
+          pdf!.line(x + 0.02, y, x + m, y);
+          pdf!.line(x, y - m, x, y - 0.02);
+          pdf!.line(x, y + 0.02, x, y + m);
+        });
+      }
+    }
+    return pdf;
+  };
+
+  // ─── Live PDF preview (debounced) ─────────────────────────────
+  useEffect(() => {
+    if (!livePreview) return;
+    let cancelled = false;
+    setPreviewBuilding(true);
+    const t = window.setTimeout(async () => {
+      try {
+        const pdf = await buildPdf();
+        if (cancelled || !pdf) return;
+        const blob = pdf.output("blob");
+        const url = URL.createObjectURL(blob);
+        setPdfUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return url; });
+      } catch (e) {
+        console.error("PDF preview failed", e);
+      } finally {
+        if (!cancelled) setPreviewBuilding(false);
+      }
+    }, 700);
+    return () => { cancelled = true; window.clearTimeout(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [livePreview, pages, bleed, cropMarks, defaultPaper, themeOverrides, selectedSlug, form]);
+
+  useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, []);
 
   const handleExport = async (type: "png" | "pdf") => {
     if (requiresUpgrade) {
@@ -298,13 +407,10 @@ export default function InvitationCard() {
     if (!exportContainerRef.current) return;
     try {
       setExporting(type);
-      // Wait one frame so all pages are painted in the hidden container.
-      await new Promise((r) => requestAnimationFrame(() => r(null)));
-      const nodes = Array.from(exportContainerRef.current.children) as HTMLElement[];
       const filename = `${(form.partner1 || "wedding").replace(/\s+/g, "-")}-${(form.partner2 || "card").replace(/\s+/g, "-")}-invitation`;
-
       if (type === "png") {
-        // For PNG: download each page (zip is overkill — multiple files).
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+        const nodes = Array.from(exportContainerRef.current.children) as HTMLElement[];
         for (let i = 0; i < nodes.length; i++) {
           const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
           const a = document.createElement("a");
@@ -313,33 +419,8 @@ export default function InvitationCard() {
           a.click();
         }
       } else {
-        const pageW = CARD_W_IN + bleed * 2;
-        const pageH = CARD_H_IN + bleed * 2;
-        const pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation: "portrait" });
-        const drawCropMarks = () => {
-          if (!cropMarks || bleed <= 0) return;
-          const m = 0.18; // tick length
-          const o = bleed; // offset from page edge to trim
-          pdf.setDrawColor(0);
-          pdf.setLineWidth(0.005);
-          // 4 corners
-          const corners = [
-            [o, o], [pageW - o, o], [o, pageH - o], [pageW - o, pageH - o],
-          ] as const;
-          corners.forEach(([x, y]) => {
-            pdf.line(x - m, y, x - 0.02, y);
-            pdf.line(x + 0.02, y, x + m, y);
-            pdf.line(x, y - m, x, y - 0.02);
-            pdf.line(x, y + 0.02, x, y + m);
-          });
-        };
-        for (let i = 0; i < nodes.length; i++) {
-          const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
-          if (i > 0) pdf.addPage([pageW, pageH], "portrait");
-          pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH, undefined, "FAST");
-          drawCropMarks();
-        }
-        pdf.save(`${filename}.pdf`);
+        const pdf = await buildPdf();
+        if (pdf) pdf.save(`${filename}.pdf`);
       }
       toast({ title: `Downloaded ${type.toUpperCase()}`, description: `${pages.length} page${pages.length > 1 ? "s" : ""} exported.` });
     } catch (e: any) {
@@ -348,6 +429,18 @@ export default function InvitationCard() {
       setExporting(null);
     }
   };
+
+  // (legacy block removed below)
+  const _unusedLegacy = () => (
+    <div
+      style={{
+        width: 5 * DPI,
+        height: 7 * DPI,
+        background: theme.bg,
+        boxSizing: "border-box",
+      }}
+    />
+  );
 
   if (loading) {
     return (
