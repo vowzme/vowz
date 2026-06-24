@@ -403,14 +403,23 @@ export default function InvitationCard() {
     let pdf: jsPDF | null = null;
     for (let i = 0; i < nodes.length; i++) {
       const page = pages[i];
+      const paperKey = page.paperSize ?? defaultPaper;
       const { w: pw, h: ph } = pageSizeOf(page, defaultPaper);
       const pageW = pw + bleed * 2;
       const pageH = ph + bleed * 2;
       const orientation = pageW > pageH ? "landscape" : "portrait";
-      if (!pdf) pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation });
-      else pdf.addPage([pageW, pageH], orientation);
-      const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH, undefined, "FAST");
+      const ctx = `page ${i + 1} (paper ${paperKey}, scaling ${page.scaling ?? "fit"}, QR ${page.showQr ? page.qrPosition : "hidden"}, bleed ${bleed}")`;
+      let step = "init PDF page";
+      try {
+        if (!pdf) pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation });
+        else pdf.addPage([pageW, pageH], orientation);
+        step = "rasterize artwork";
+        const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
+        step = "embed image";
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH, undefined, "FAST");
+      } catch (err: any) {
+        throw new Error(`Failed at ${ctx} during "${step}": ${err?.message || err}`);
+      }
       const showMarks = (page.cropMarks ?? cropMarks) && bleed > 0;
       if (showMarks) {
         const m = 0.18, o = bleed;
