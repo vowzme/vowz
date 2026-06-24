@@ -20,6 +20,14 @@ export interface CardTheme {
   ornament: "mandala" | "cross" | "arch" | "damask" | "peacock" | "noir" | "editorial" | "sanskrit";
   display: string; // font-family
   body: string;
+  // Photo framing
+  photoShape?: "circle" | "rounded" | "square" | "arch" | "oval";
+  photoAspect?: "1:1" | "4:5" | "3:4" | "16:9";
+  photoRadius?: number; // px corner radius when shape = "rounded"
+  // Typography hierarchy
+  headingLetterSpacing?: number;
+  bodyLetterSpacing?: number;
+  headingScale?: number; // multiplier on h1/h2 font-size
 }
 
 export type QrPosition = "bottom" | "bottom-left" | "bottom-right" | "top-right" | "hidden";
@@ -49,6 +57,50 @@ export const BODY_FONTS = [
   { label: "Cormorant", value: "'Cormorant Garamond', serif" },
   { label: "Georgia", value: "Georgia, serif" },
 ] as const;
+
+// ─── Typography presets (international wedding-stationery look) ─────
+export interface TypographyPreset {
+  id: string;
+  label: string;
+  description: string;
+  display: string;
+  body: string;
+  headingLetterSpacing: number;
+  bodyLetterSpacing: number;
+  headingScale: number;
+}
+export const TYPOGRAPHY_PRESETS: TypographyPreset[] = [
+  { id: "editorial-classic", label: "Editorial Classic", description: "Playfair + Inter, balanced",
+    display: "'Playfair Display', serif", body: "'Inter', sans-serif",
+    headingLetterSpacing: 0.5, bodyLetterSpacing: 6, headingScale: 1.0 },
+  { id: "romantic-script", label: "Romantic Script", description: "Great Vibes display + Lato",
+    display: "'Great Vibes', cursive", body: "'Lato', sans-serif",
+    headingLetterSpacing: 0, bodyLetterSpacing: 4, headingScale: 1.25 },
+  { id: "modern-roman", label: "Modern Roman", description: "Cinzel caps + Inter",
+    display: "'Cinzel', serif", body: "'Inter', sans-serif",
+    headingLetterSpacing: 4, bodyLetterSpacing: 5, headingScale: 0.85 },
+  { id: "luxe-couture", label: "Luxe Couture", description: "DM Serif Display + Cormorant",
+    display: "'DM Serif Display', serif", body: "'Cormorant Garamond', serif",
+    headingLetterSpacing: 1, bodyLetterSpacing: 8, headingScale: 1.05 },
+  { id: "soft-quiet", label: "Soft & Quiet", description: "Cormorant display + Inter",
+    display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif",
+    headingLetterSpacing: 2, bodyLetterSpacing: 3, headingScale: 0.95 },
+];
+
+// ─── Photo framing options ──────────────────────────────────────────
+export const PHOTO_SHAPES: { value: NonNullable<CardTheme["photoShape"]>; label: string }[] = [
+  { value: "circle", label: "Circle" },
+  { value: "oval", label: "Oval portrait" },
+  { value: "rounded", label: "Rounded square" },
+  { value: "square", label: "Sharp square" },
+  { value: "arch", label: "Cathedral arch" },
+];
+export const PHOTO_ASPECTS: { value: NonNullable<CardTheme["photoAspect"]>; label: string; ratio: number }[] = [
+  { value: "1:1", label: "Square (1:1)", ratio: 1 },
+  { value: "4:5", label: "Portrait (4:5)", ratio: 4 / 5 },
+  { value: "3:4", label: "Tall (3:4)", ratio: 3 / 4 },
+  { value: "16:9", label: "Wide (16:9)", ratio: 16 / 9 },
+];
 
 export const PRESET_PALETTES: { label: string; colors: Pick<CardTheme, "bg" | "panel" | "ink" | "accent" | "muted"> }[] = [
   { label: "Maroon & Gold", colors: { bg: "#4A0E11", panel: "#5B121A", ink: "#FFF1C9", accent: "#E5BB55", muted: "#D4AF37" } },
@@ -307,6 +359,20 @@ export function InvitationCardArtwork({
   const height = Math.round(width * 1.4); // 5:7
   const pad = Math.round(width * 0.07);
   const kind = page?.kind ?? "front";
+  const hScale = theme.headingScale ?? 1;
+  const hSpace = theme.headingLetterSpacing ?? 0.5;
+  const bSpace = theme.bodyLetterSpacing ?? 6;
+  // ── Photo framing geometry
+  const aspect = (PHOTO_ASPECTS.find((a) => a.value === (theme.photoAspect ?? "1:1"))?.ratio) ?? 1;
+  const photoW = width * 0.34;
+  const photoH = photoW / aspect;
+  const shape = theme.photoShape ?? "circle";
+  const radius =
+    shape === "circle" ? "50%" :
+    shape === "oval" ? "50%" :
+    shape === "rounded" ? `${theme.photoRadius ?? 18}px` :
+    shape === "arch" ? `${Math.round(photoW / 2)}px ${Math.round(photoW / 2)}px 6px 6px` :
+    "2px";
   const qrAnchorStyle: Record<QrPosition, React.CSSProperties> = {
     bottom: { position: "absolute", left: 0, right: 0, bottom: pad * 0.7, display: "flex", justifyContent: "center" },
     "bottom-left": { position: "absolute", left: pad * 0.8, bottom: pad * 0.7 },
@@ -393,9 +459,9 @@ export function InvitationCardArtwork({
               <div
                 style={{
                   marginTop: pad * 0.45,
-                  width: width * 0.34,
-                  height: width * 0.34,
-                  borderRadius: "50%",
+                  width: photoW,
+                  height: photoH,
+                  borderRadius: radius,
                   overflow: "hidden",
                   border: `1.5px solid ${theme.accent}`,
                   boxShadow: `0 0 0 4px ${theme.panel}, 0 0 0 5.5px ${theme.accent}66, 0 18px 30px -16px rgba(0,0,0,0.45)`,
@@ -425,7 +491,7 @@ export function InvitationCardArtwork({
                 marginTop: pad * 0.55,
                 fontFamily: theme.body,
                 color: theme.muted,
-                letterSpacing: 6,
+                letterSpacing: bSpace,
                 fontSize: width * 0.022,
                 textTransform: "uppercase",
                 display: "flex",
@@ -438,17 +504,17 @@ export function InvitationCardArtwork({
               <span style={{ width: 18, height: 1, background: theme.accent, opacity: 0.6 }} />
             </p>
 
-            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108, lineHeight: 1.02, margin: `${pad * 0.45}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
+            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108 * hScale, lineHeight: 1.02, margin: `${pad * 0.45}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: hSpace }}>
               {data.partner1}
             </h1>
             <div style={{ display: "flex", alignItems: "center", gap: 14, margin: `${pad * 0.28}px 0`, width: "72%" }}>
               <span style={{ flex: 1, height: 0.5, background: theme.accent, opacity: 0.55 }} />
               <span style={{ flex: 1, height: 1, background: theme.accent }} />
-              <span style={{ fontFamily: theme.display, color: theme.accent, fontSize: width * 0.072, fontStyle: "italic", lineHeight: 1 }}>&amp;</span>
+              <span style={{ fontFamily: theme.display, color: theme.accent, fontSize: width * 0.072 * hScale, fontStyle: "italic", lineHeight: 1 }}>&amp;</span>
               <span style={{ flex: 1, height: 1, background: theme.accent }} />
               <span style={{ flex: 1, height: 0.5, background: theme.accent, opacity: 0.55 }} />
             </div>
-            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108, lineHeight: 1.02, margin: 0, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
+            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108 * hScale, lineHeight: 1.02, margin: 0, color: theme.ink, fontStyle: "italic", letterSpacing: hSpace }}>
               {data.partner2}
             </h1>
 
@@ -456,7 +522,7 @@ export function InvitationCardArtwork({
             <div style={{ marginTop: pad * 0.85, fontFamily: theme.body, color: theme.ink, width: "70%" }}>
               <div style={{ height: 1, background: theme.accent, opacity: 0.7 }} />
               <div style={{ height: 0.5, background: theme.accent, opacity: 0.4, marginTop: 2 }} />
-              <div style={{ fontSize: width * 0.038, letterSpacing: 4, textTransform: "uppercase", padding: `${pad * 0.28}px 0 ${pad * 0.18}px`, fontWeight: 500 }}>
+              <div style={{ fontSize: width * 0.038, letterSpacing: bSpace * 0.7, textTransform: "uppercase", padding: `${pad * 0.28}px 0 ${pad * 0.18}px`, fontWeight: 500 }}>
                 {data.date}
               </div>
               <div style={{ height: 0.5, background: theme.accent, opacity: 0.4, marginBottom: 2 }} />
@@ -475,7 +541,7 @@ export function InvitationCardArtwork({
           </>
         ) : (
           <>
-            <h2 style={{ fontFamily: theme.display, fontSize: width * 0.086, margin: `${pad * 0.5}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
+            <h2 style={{ fontFamily: theme.display, fontSize: width * 0.086 * hScale, margin: `${pad * 0.5}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: hSpace }}>
               {page?.title || "Event"}
             </h2>
             {page?.subtitle && (

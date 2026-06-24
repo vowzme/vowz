@@ -25,6 +25,7 @@ import {
   InvitationCardArtwork, CardTheme, PageContent, QrPosition,
   DISPLAY_FONTS, BODY_FONTS, PRESET_PALETTES,
   PAPER_SIZES, PaperSize, PageScaling,
+  TYPOGRAPHY_PRESETS, PHOTO_SHAPES, PHOTO_ASPECTS,
 } from "@/lib/card-templates";
 
 const QR_POSITIONS: { value: QrPosition; label: string }[] = [
@@ -343,6 +344,32 @@ export default function InvitationCard() {
             theme={vTheme}
             width={500}
             page={{ ...firstPage, showQr: false, qrPosition: "hidden" }}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // ─── Template gallery thumbnail (live artwork at small scale) ─────
+  const TemplateThumb = ({ slug }: { slug: string }) => {
+    const tTheme = CARD_THEMES[slug] ?? CARD_THEMES["hindu-ganesha-classic"];
+    // Use current form data + overrides if this is the selected template, so the preview is "live".
+    const liveTheme: CardTheme = slug === selectedSlug ? theme : tTheme;
+    return (
+      <div className="aspect-[5/7] w-full overflow-hidden bg-card pointer-events-none">
+        <div style={{ transform: "scale(0.42)", transformOrigin: "top left", width: 500, height: 700 }}>
+          <InvitationCardArtwork
+            data={{
+              partner1: form.partner1 || "Aarav",
+              partner2: form.partner2 || "Meera",
+              date: form.date || "Sat 12 Oct",
+              venue: form.venue || "",
+              invitationLine: form.invitationLine,
+              photo: slug === selectedSlug ? (form.photo || undefined) : undefined,
+            }}
+            theme={liveTheme}
+            width={500}
+            page={{ id: "p", kind: "front", showQr: false, qrPosition: "hidden" }}
           />
         </div>
       </div>
@@ -725,23 +752,27 @@ export default function InvitationCard() {
                   const isSel = t.slug === selectedSlug;
                   const locked = t.is_premium && !isPremium;
                   return (
-                    <button key={t.slug} onClick={() => { setSelectedSlug(t.slug); setThemeOverrides({}); }}
+                    <button key={t.slug}
+                      onClick={() => {
+                        if (locked) {
+                          toast({ title: "Premium template", description: "Upgrade your plan to use this international-standard design.", variant: "destructive" });
+                          return;
+                        }
+                        setSelectedSlug(t.slug); setThemeOverrides({});
+                      }}
+                      aria-disabled={locked}
                       className={`relative rounded-lg border-2 overflow-hidden text-left transition-all ${isSel ? "border-gold shadow-md" : "border-border/50 hover:border-border"}`}>
-                      <div className="aspect-[5/7] w-full flex items-center justify-center text-center p-2"
-                        style={{ background: tTheme?.bg, color: tTheme?.ink, fontFamily: tTheme?.display }}>
-                        <div>
-                          <div style={{ fontSize: 14, fontStyle: "italic" }}>{form.partner1 || "Aarav"}</div>
-                          <div style={{ fontSize: 10, color: tTheme?.accent, margin: "2px 0" }}>&amp;</div>
-                          <div style={{ fontSize: 14, fontStyle: "italic" }}>{form.partner2 || "Meera"}</div>
-                        </div>
-                      </div>
+                      <TemplateThumb slug={t.slug} />
                       <div className="px-2 py-1.5 bg-card border-t border-border/50 flex items-center justify-between">
                         <span className="text-xs font-body truncate">{t.name}</span>
                         {t.is_premium && <Lock className={`w-3 h-3 ${locked ? "text-muted-foreground" : "text-gold"}`} />}
                       </div>
                       {locked && (
-                        <div className="absolute inset-0 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
-                          <Badge className="bg-gold text-gold-foreground">Premium</Badge>
+                        <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2">
+                          <Badge className="bg-gold text-gold-foreground"><Lock className="w-3 h-3 mr-1" /> Premium</Badge>
+                          <Button size="sm" variant="gold" className="h-7 text-[11px]" onClick={(e) => { e.stopPropagation(); navigate("/pricing"); }}>
+                            Upgrade to unlock
+                          </Button>
                         </div>
                       )}
                     </button>
@@ -908,6 +939,32 @@ export default function InvitationCard() {
 
               <div className="grid grid-cols-1 gap-2 pt-2 border-t border-border/40">
                 <div>
+                  <Label className="text-xs mb-1 block">Typography preset</Label>
+                  <Select
+                    value=""
+                    onValueChange={(id) => {
+                      const p = TYPOGRAPHY_PRESETS.find((x) => x.id === id); if (!p) return;
+                      setThemeOverrides((t) => ({
+                        ...t,
+                        display: p.display, body: p.body,
+                        headingLetterSpacing: p.headingLetterSpacing,
+                        bodyLetterSpacing: p.bodyLetterSpacing,
+                        headingScale: p.headingScale,
+                      }));
+                      toast({ title: `Applied "${p.label}" typography` });
+                    }}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Apply a wedding-stationery preset…" /></SelectTrigger>
+                    <SelectContent>
+                      {TYPOGRAPHY_PRESETS.map((p) => (
+                        <SelectItem key={p.id} value={p.id} style={{ fontFamily: p.display }}>
+                          {p.label} — <span className="text-muted-foreground text-xs">{p.description}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <Label className="text-xs flex items-center gap-1"><TypeIcon className="w-3 h-3" /> Display font</Label>
                   <Select value={theme.display} onValueChange={(v) => setThemeOverrides((t) => ({ ...t, display: v }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
@@ -929,6 +986,65 @@ export default function InvitationCard() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <Label className="text-[11px]">Heading spacing</Label>
+                    <Input type="number" step={0.5} value={theme.headingLetterSpacing ?? 0.5}
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, headingLetterSpacing: Number(e.target.value) }))} />
+                  </div>
+                  <div>
+                    <Label className="text-[11px]">Body spacing</Label>
+                    <Input type="number" step={0.5} value={theme.bodyLetterSpacing ?? 6}
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, bodyLetterSpacing: Number(e.target.value) }))} />
+                  </div>
+                  <div>
+                    <Label className="text-[11px]">Heading scale</Label>
+                    <Input type="number" step={0.05} value={theme.headingScale ?? 1}
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, headingScale: Number(e.target.value) }))} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Photo framing */}
+              <div className="grid grid-cols-1 gap-2 pt-2 border-t border-border/40">
+                <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Photo framing</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Shape</Label>
+                    <Select
+                      value={theme.photoShape ?? "circle"}
+                      onValueChange={(v) => setThemeOverrides((t) => ({ ...t, photoShape: v as CardTheme["photoShape"] }))}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PHOTO_SHAPES.map((s) => (
+                          <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Aspect ratio</Label>
+                    <Select
+                      value={theme.photoAspect ?? "1:1"}
+                      onValueChange={(v) => setThemeOverrides((t) => ({ ...t, photoAspect: v as CardTheme["photoAspect"] }))}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PHOTO_ASPECTS.map((a) => (
+                          <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {(theme.photoShape ?? "circle") === "rounded" && (
+                  <div>
+                    <Label className="text-xs">Corner radius (px)</Label>
+                    <Input type="number" min={0} max={120} value={theme.photoRadius ?? 18}
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, photoRadius: Number(e.target.value) }))} />
+                  </div>
+                )}
               </div>
 
               <Button variant="ghost" size="sm" className="w-full" onClick={() => setThemeOverrides({})}>
