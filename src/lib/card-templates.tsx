@@ -24,6 +24,17 @@ export interface CardTheme {
 
 export type QrPosition = "bottom" | "bottom-left" | "bottom-right" | "top-right" | "hidden";
 
+export type PaperSize = "5x7" | "6x9" | "a5" | "a6" | "letter";
+export type PageScaling = "fit" | "fill" | "stretch";
+
+export const PAPER_SIZES: Record<PaperSize, { label: string; w: number; h: number }> = {
+  "5x7": { label: '5" × 7" (card)', w: 5, h: 7 },
+  "6x9": { label: '6" × 9"', w: 6, h: 9 },
+  a5: { label: "A5 (5.83 × 8.27)", w: 5.83, h: 8.27 },
+  a6: { label: "A6 (4.13 × 5.83)", w: 4.13, h: 5.83 },
+  letter: { label: 'US Letter (8.5 × 11)', w: 8.5, h: 11 },
+};
+
 export const DISPLAY_FONTS = [
   { label: "Playfair Display", value: "'Playfair Display', serif" },
   { label: "Cormorant Garamond", value: "'Cormorant Garamond', serif" },
@@ -197,6 +208,10 @@ export interface PageContent {
   body?: string;
   showQr: boolean;
   qrPosition: QrPosition;
+  // Per-page export controls (optional — fall back to variant defaults)
+  paperSize?: PaperSize;
+  scaling?: PageScaling;
+  cropMarks?: boolean;
 }
 
 export function InvitationCardArtwork({

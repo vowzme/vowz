@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import {
   ArrowLeft, Download, Lock, FileImage, FileText, Sparkles, Upload, X as XIcon,
   Plus, Trash2, Save, Image as ImageIcon, Palette as PaletteIcon, Type as TypeIcon,
-  GripVertical, Printer,
+  GripVertical, Printer, ArrowUp, ArrowDown, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ import {
   CARD_THEMES, CATEGORY_LABELS, CardCategory, CardTemplateMeta, FALLBACK_TEMPLATES,
   InvitationCardArtwork, CardTheme, PageContent, QrPosition,
   DISPLAY_FONTS, BODY_FONTS, PRESET_PALETTES,
+  PAPER_SIZES, PaperSize, PageScaling,
 } from "@/lib/card-templates";
 
 const QR_POSITIONS: { value: QrPosition; label: string }[] = [
@@ -45,8 +46,9 @@ const MARGIN_PRESETS: { value: number; label: string }[] = [
   { value: 0.375, label: "Roomy (0.375\")" },
 ];
 const DPI = 300;
-const CARD_W_IN = 5;
-const CARD_H_IN = 7;
+const DEFAULT_PAPER: PaperSize = "5x7";
+const pageSizeOf = (p: PageContent, fallback: PaperSize) =>
+  PAPER_SIZES[p.paperSize ?? fallback];
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
@@ -86,14 +88,18 @@ export default function InvitationCard() {
   const [activePageIdx, setActivePageIdx] = useState(0);
 
   // Print settings
-  const [bleed, setBleed] = useState<number>(0); // inches
+  const [bleed, setBleed] = useState<number>(0); // inches (variant default)
   const [safeMargin, setSafeMargin] = useState<number>(0.25); // inches
-  const [cropMarks, setCropMarks] = useState<boolean>(true);
+  const [cropMarks, setCropMarks] = useState<boolean>(true); // variant default
+  const [defaultPaper, setDefaultPaper] = useState<PaperSize>(DEFAULT_PAPER);
+  const [livePreview, setLivePreview] = useState<boolean>(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [previewBuilding, setPreviewBuilding] = useState(false);
 
   // Drag & drop reordering
   const dragIdx = useRef<number | null>(null);
   const reorderPages = (from: number, to: number) => {
-    if (from === to) return;
+    if (from === to || to < 0 || to >= pages.length) return;
     setPages((p) => {
       const next = [...p];
       const [m] = next.splice(from, 1);
@@ -102,6 +108,7 @@ export default function InvitationCard() {
     });
     setActivePageIdx(to);
   };
+  const movePage = (idx: number, dir: -1 | 1) => reorderPages(idx, idx + dir);
 
   useEffect(() => {
     (async () => {
@@ -188,12 +195,13 @@ export default function InvitationCard() {
   // ─── Save / Load variants ────────────────────────────────────
   const saveVariant = async () => {
     if (!user || !siteId) return;
+    const printSettings = { bleed, safeMargin, cropMarks, defaultPaper };
     const payload = {
       wedding_site_id: siteId,
       user_id: user.id,
       name: variantName || "My card",
       template_slug: selectedSlug,
-      data: form,
+      data: { ...form, __print: printSettings },
       theme_overrides: themeOverrides,
       pages,
       photo_url: form.photo ?? null,
@@ -215,7 +223,16 @@ export default function InvitationCard() {
     setVariantId(v.id);
     setVariantName(v.name);
     setSelectedSlug(v.template_slug);
-    setForm({ ...v.data, photo: v.photo_url ?? v.data?.photo ?? "" });
+    const { __print, ...formData } = v.data || {};
+    setForm({ ...formData, photo: v.photo_url ?? v.data?.photo ?? "" });
+    if (__print) {
+      setBleed(typeof __print.bleed === "number" ? __print.bleed : 0);
+      setSafeMargin(typeof __print.safeMargin === "number" ? __print.safeMargin : 0.25);
+      setCropMarks(__print.cropMarks !== false);
+      setDefaultPaper((__print.defaultPaper as PaperSize) ?? DEFAULT_PAPER);
+    } else {
+      setBleed(0); setSafeMargin(0.25); setCropMarks(true); setDefaultPaper(DEFAULT_PAPER);
+    }
     setThemeOverrides(v.theme_overrides || {});
     setPages(v.pages?.length ? v.pages : defaultPages());
     setActivePageIdx(0);
@@ -256,39 +273,131 @@ export default function InvitationCard() {
   };
 
   // ─── Export ──────────────────────────────────────────────────
-  const renderPageNode = (page: PageContent) => (
-    <div
-      style={{
-        width: CARD_W_IN * DPI + bleed * 2 * DPI,
-        height: CARD_H_IN * DPI + bleed * 2 * DPI,
-        background: theme.bg,
-        padding: bleed * DPI,
-        boxSizing: "border-box",
-      }}
-    >
-      <InvitationCardArtwork
-        data={{
-          partner1: form.partner1 || "Partner One",
-          partner2: form.partner2 || "Partner Two",
-          date: form.date || "Date TBA",
-          time: form.time,
-          venue: form.venue || "Venue TBA",
-          message: form.message,
-          invitationLine: form.invitationLine,
-          photo: form.photo || undefined,
+  const renderPageNode = (page: PageContent) => {
+    const { w, h } = pageSizeOf(page, defaultPaper);
+    const cardAspect = 5 / 7;
+    const pageAspect = w / h;
+    const scaling: PageScaling = page.scaling ?? "fit";
+    // Determine the rendered card size (in inches) inside the page (before bleed).
+    let cardW = w, cardH = h;
+    if (scaling === "fit") {
+      if (pageAspect > cardAspect) { cardH = h; cardW = h * cardAspect; }
+      else { cardW = w; cardH = w / cardAspect; }
+    } else if (scaling === "fill") {
+      if (pageAspect > cardAspect) { cardW = w; cardH = w / cardAspect; }
+      else { cardH = h; cardW = h * cardAspect; }
+    } // stretch: cardW=w cardH=h
+    const cardWpx = Math.round(cardW * DPI);
+    return (
+      <div
+        style={{
+          width: w * DPI + bleed * 2 * DPI,
+          height: h * DPI + bleed * 2 * DPI,
+          background: theme.bg,
+          padding: bleed * DPI,
+          boxSizing: "border-box",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
         }}
-        theme={theme}
-        width={CARD_W_IN * DPI}
-        page={page}
-        qrPosition={page.showQr ? page.qrPosition : "hidden"}
-        qrSlot={
-          page.showQr ? (
-            <QRCodeSVG value={siteUrl} size={260} level="H" bgColor="#ffffff" fgColor="#001F3F" />
-          ) : undefined
-        }
-      />
-    </div>
-  );
+      >
+        <div
+          style={{
+            width: cardW * DPI,
+            height: cardH * DPI,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={
+              scaling === "stretch"
+                ? { transform: `scale(${(cardW * DPI) / cardWpx}, ${(cardH * DPI) / (cardWpx * 1.4)})`, transformOrigin: "top left", width: cardWpx, height: cardWpx * 1.4 }
+                : undefined
+            }
+          >
+            <InvitationCardArtwork
+              data={{
+                partner1: form.partner1 || "Partner One",
+                partner2: form.partner2 || "Partner Two",
+                date: form.date || "Date TBA",
+                time: form.time,
+                venue: form.venue || "Venue TBA",
+                message: form.message,
+                invitationLine: form.invitationLine,
+                photo: form.photo || undefined,
+              }}
+              theme={theme}
+              width={cardWpx}
+              page={page}
+              qrPosition={page.showQr ? page.qrPosition : "hidden"}
+              qrSlot={
+                page.showQr ? (
+                  <QRCodeSVG value={siteUrl} size={Math.round(cardWpx * 0.17)} level="H" bgColor="#ffffff" fgColor="#001F3F" />
+                ) : undefined
+              }
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ─── Build PDF (used by both download + live preview) ─────────
+  const buildPdf = async (): Promise<jsPDF | null> => {
+    if (!exportContainerRef.current) return null;
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
+    const nodes = Array.from(exportContainerRef.current.children) as HTMLElement[];
+    let pdf: jsPDF | null = null;
+    for (let i = 0; i < nodes.length; i++) {
+      const page = pages[i];
+      const { w: pw, h: ph } = pageSizeOf(page, defaultPaper);
+      const pageW = pw + bleed * 2;
+      const pageH = ph + bleed * 2;
+      const orientation = pageW > pageH ? "landscape" : "portrait";
+      if (!pdf) pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation });
+      else pdf.addPage([pageW, pageH], orientation);
+      const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH, undefined, "FAST");
+      const showMarks = (page.cropMarks ?? cropMarks) && bleed > 0;
+      if (showMarks) {
+        const m = 0.18, o = bleed;
+        pdf.setDrawColor(0); pdf.setLineWidth(0.005);
+        const corners = [[o, o], [pageW - o, o], [o, pageH - o], [pageW - o, pageH - o]] as const;
+        corners.forEach(([x, y]) => {
+          pdf!.line(x - m, y, x - 0.02, y);
+          pdf!.line(x + 0.02, y, x + m, y);
+          pdf!.line(x, y - m, x, y - 0.02);
+          pdf!.line(x, y + 0.02, x, y + m);
+        });
+      }
+    }
+    return pdf;
+  };
+
+  // ─── Live PDF preview (debounced) ─────────────────────────────
+  useEffect(() => {
+    if (!livePreview) return;
+    let cancelled = false;
+    setPreviewBuilding(true);
+    const t = window.setTimeout(async () => {
+      try {
+        const pdf = await buildPdf();
+        if (cancelled || !pdf) return;
+        const blob = pdf.output("blob");
+        const url = URL.createObjectURL(blob);
+        setPdfUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return url; });
+      } catch (e) {
+        console.error("PDF preview failed", e);
+      } finally {
+        if (!cancelled) setPreviewBuilding(false);
+      }
+    }, 700);
+    return () => { cancelled = true; window.clearTimeout(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [livePreview, pages, bleed, cropMarks, defaultPaper, themeOverrides, selectedSlug, form]);
+
+  useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, []);
 
   const handleExport = async (type: "png" | "pdf") => {
     if (requiresUpgrade) {
@@ -298,13 +407,10 @@ export default function InvitationCard() {
     if (!exportContainerRef.current) return;
     try {
       setExporting(type);
-      // Wait one frame so all pages are painted in the hidden container.
-      await new Promise((r) => requestAnimationFrame(() => r(null)));
-      const nodes = Array.from(exportContainerRef.current.children) as HTMLElement[];
       const filename = `${(form.partner1 || "wedding").replace(/\s+/g, "-")}-${(form.partner2 || "card").replace(/\s+/g, "-")}-invitation`;
-
       if (type === "png") {
-        // For PNG: download each page (zip is overkill — multiple files).
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+        const nodes = Array.from(exportContainerRef.current.children) as HTMLElement[];
         for (let i = 0; i < nodes.length; i++) {
           const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
           const a = document.createElement("a");
@@ -313,33 +419,8 @@ export default function InvitationCard() {
           a.click();
         }
       } else {
-        const pageW = CARD_W_IN + bleed * 2;
-        const pageH = CARD_H_IN + bleed * 2;
-        const pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation: "portrait" });
-        const drawCropMarks = () => {
-          if (!cropMarks || bleed <= 0) return;
-          const m = 0.18; // tick length
-          const o = bleed; // offset from page edge to trim
-          pdf.setDrawColor(0);
-          pdf.setLineWidth(0.005);
-          // 4 corners
-          const corners = [
-            [o, o], [pageW - o, o], [o, pageH - o], [pageW - o, pageH - o],
-          ] as const;
-          corners.forEach(([x, y]) => {
-            pdf.line(x - m, y, x - 0.02, y);
-            pdf.line(x + 0.02, y, x + m, y);
-            pdf.line(x, y - m, x, y - 0.02);
-            pdf.line(x, y + 0.02, x, y + m);
-          });
-        };
-        for (let i = 0; i < nodes.length; i++) {
-          const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
-          if (i > 0) pdf.addPage([pageW, pageH], "portrait");
-          pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH, undefined, "FAST");
-          drawCropMarks();
-        }
-        pdf.save(`${filename}.pdf`);
+        const pdf = await buildPdf();
+        if (pdf) pdf.save(`${filename}.pdf`);
       }
       toast({ title: `Downloaded ${type.toUpperCase()}`, description: `${pages.length} page${pages.length > 1 ? "s" : ""} exported.` });
     } catch (e: any) {
@@ -394,21 +475,60 @@ export default function InvitationCard() {
         <div className="flex flex-col items-center">
           {/* Page picker */}
           <div className="flex items-center gap-2 mb-4 flex-wrap">
-            {pages.map((p, i) => (
-              <div
-                key={p.id}
-                draggable
-                onDragStart={() => { dragIdx.current = i; }}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => { e.preventDefault(); if (dragIdx.current !== null) reorderPages(dragIdx.current, i); dragIdx.current = null; }}
-                onClick={() => setActivePageIdx(i)}
-                title="Drag to reorder"
-                className={`cursor-grab active:cursor-grabbing inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full border ${i === activePageIdx ? "bg-gold text-gold-foreground border-gold" : "bg-card border-border/50 text-muted-foreground hover:text-foreground"}`}
-              >
-                <GripVertical className="w-3 h-3 opacity-60" />
-                <span>{i + 1}. {p.kind === "front" ? "Front" : p.kind === "back" ? "Back" : p.title || "Event"}</span>
-              </div>
-            ))}
+            <ol role="listbox" aria-label="Card pages — use arrow keys to reorder" className="flex items-center gap-2 flex-wrap p-0 m-0 list-none">
+              {pages.map((p, i) => {
+                const label = p.kind === "front" ? "Front" : p.kind === "back" ? "Back" : p.title || "Event";
+                return (
+                  <li key={p.id} className="inline-flex">
+                    <div
+                      role="option"
+                      aria-selected={i === activePageIdx}
+                      aria-label={`Page ${i + 1} of ${pages.length}: ${label}. Press Alt plus Arrow Left or Right to reorder, Enter to select.`}
+                      tabIndex={0}
+                      draggable
+                      onDragStart={() => { dragIdx.current = i; }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => { e.preventDefault(); if (dragIdx.current !== null) reorderPages(dragIdx.current, i); dragIdx.current = null; }}
+                      onClick={() => setActivePageIdx(i)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActivePageIdx(i); }
+                        else if ((e.altKey || e.metaKey) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+                          e.preventDefault();
+                          movePage(i, e.key === "ArrowLeft" ? -1 : 1);
+                        } else if (e.key === "ArrowLeft" && i > 0) {
+                          e.preventDefault(); setActivePageIdx(i - 1);
+                        } else if (e.key === "ArrowRight" && i < pages.length - 1) {
+                          e.preventDefault(); setActivePageIdx(i + 1);
+                        }
+                      }}
+                      title="Drag, or focus and press Alt + Arrow keys to reorder"
+                      className={`focus:outline-none focus-visible:ring-2 focus-visible:ring-gold cursor-grab active:cursor-grabbing inline-flex items-center gap-1 text-xs pl-2 pr-1 py-1 rounded-full border ${i === activePageIdx ? "bg-gold text-gold-foreground border-gold" : "bg-card border-border/50 text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <GripVertical className="w-3 h-3 opacity-60" aria-hidden />
+                      <span>{i + 1}. {label}</span>
+                      <button
+                        type="button"
+                        aria-label={`Move page ${i + 1} left`}
+                        disabled={i === 0}
+                        onClick={(e) => { e.stopPropagation(); movePage(i, -1); }}
+                        className="ml-1 p-0.5 rounded hover:bg-background/30 disabled:opacity-30"
+                      >
+                        <ArrowUp className="w-3 h-3 -rotate-90" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Move page ${i + 1} right`}
+                        disabled={i === pages.length - 1}
+                        onClick={(e) => { e.stopPropagation(); movePage(i, 1); }}
+                        className="p-0.5 rounded hover:bg-background/30 disabled:opacity-30"
+                      >
+                        <ArrowDown className="w-3 h-3 -rotate-90" />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
             <div className="flex gap-1">
               <Button size="sm" variant="outline" onClick={() => addPage("event")} className="h-7 text-xs">
                 <Plus className="w-3 h-3 mr-1" /> Event
@@ -421,8 +541,27 @@ export default function InvitationCard() {
                   <Trash2 className="w-3 h-3" />
                 </Button>
               )}
+              <Button size="sm" variant={livePreview ? "gold" : "outline"} onClick={() => setLivePreview((v) => !v)} className="h-7 text-xs" aria-pressed={livePreview}>
+                <Eye className="w-3 h-3 mr-1" /> PDF preview
+              </Button>
             </div>
           </div>
+
+          {livePreview && (
+            <div className="w-full mb-4 rounded-lg border border-border/50 bg-card overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/40 bg-muted/40">
+                <span className="text-xs font-medium">Live PDF preview {previewBuilding && "· updating…"}</span>
+                <button onClick={() => setLivePreview(false)} className="text-muted-foreground hover:text-foreground" aria-label="Close PDF preview">
+                  <XIcon className="w-4 h-4" />
+                </button>
+              </div>
+              {pdfUrl ? (
+                <iframe title="PDF preview" src={pdfUrl} className="w-full" style={{ height: 520, border: 0, background: "#f5f5f5" }} />
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-xs text-muted-foreground">Building preview…</div>
+              )}
+            </div>
+          )}
 
           <div className="rounded-lg p-4 sm:p-8 bg-muted/30 w-full flex flex-col items-center">
             <div ref={cardRef}>
@@ -579,6 +718,47 @@ export default function InvitationCard() {
                   </Select>
                 </div>
               )}
+
+              <div className="pt-3 border-t border-border/40 space-y-3">
+                <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Per-page export</div>
+                <div>
+                  <Label className="text-xs">Paper size</Label>
+                  <Select
+                    value={currentPage.paperSize ?? "__default"}
+                    onValueChange={(v) => updatePage({ paperSize: v === "__default" ? undefined : (v as PaperSize) })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__default">Use variant default ({PAPER_SIZES[defaultPaper].label})</SelectItem>
+                      {(Object.keys(PAPER_SIZES) as PaperSize[]).map((k) => (
+                        <SelectItem key={k} value={k}>{PAPER_SIZES[k].label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Scaling</Label>
+                  <Select
+                    value={currentPage.scaling ?? "fit"}
+                    onValueChange={(v) => updatePage({ scaling: v as PageScaling })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fit">Fit (keep card ratio, may letterbox)</SelectItem>
+                      <SelectItem value="fill">Fill (crop to fill page)</SelectItem>
+                      <SelectItem value="stretch">Stretch to page</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Crop marks on this page</Label>
+                  <input
+                    type="checkbox"
+                    checked={currentPage.cropMarks ?? cropMarks}
+                    onChange={(e) => updatePage({ cropMarks: e.target.checked })}
+                  />
+                </div>
+              </div>
             </TabsContent>
 
             {/* Style: palette + fonts */}
@@ -671,6 +851,20 @@ export default function InvitationCard() {
             {/* Print settings */}
             <TabsContent value="print" className="mt-3 space-y-3 bg-card border border-border/50 rounded-xl p-4">
               <div>
+                <Label className="text-xs">Default paper size</Label>
+                <Select value={defaultPaper} onValueChange={(v) => setDefaultPaper(v as PaperSize)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(PAPER_SIZES) as PaperSize[]).map((k) => (
+                      <SelectItem key={k} value={k}>{PAPER_SIZES[k].label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Used by every page unless overridden in the Page tab.
+                </p>
+              </div>
+              <div>
                 <Label className="text-xs">Bleed</Label>
                 <Select value={String(bleed)} onValueChange={(v) => setBleed(parseFloat(v))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -703,8 +897,8 @@ export default function InvitationCard() {
                 <input type="checkbox" checked={cropMarks} onChange={(e) => setCropMarks(e.target.checked)} />
               </div>
               <div className="text-[11px] text-muted-foreground rounded-md border border-border/40 p-2 bg-muted/30">
-                Final PDF size: <span className="font-medium text-foreground">{(CARD_W_IN + bleed * 2).toFixed(3)}" × {(CARD_H_IN + bleed * 2).toFixed(3)}"</span><br />
-                Trim size: 5" × 7"
+                Default page: <span className="font-medium text-foreground">{PAPER_SIZES[defaultPaper].label}</span><br />
+                With bleed: <span className="font-medium text-foreground">{(PAPER_SIZES[defaultPaper].w + bleed * 2).toFixed(3)}" × {(PAPER_SIZES[defaultPaper].h + bleed * 2).toFixed(3)}"</span>
               </div>
             </TabsContent>
           </Tabs>
