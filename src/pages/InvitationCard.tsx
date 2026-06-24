@@ -45,8 +45,37 @@ const MARGIN_PRESETS: { value: number; label: string }[] = [
   { value: 0.25, label: "Standard (0.25\")" },
   { value: 0.375, label: "Roomy (0.375\")" },
 ];
-const DPI = 300;
+const DEFAULT_DPI = 300;
+const DPI_OPTIONS: { value: number; label: string }[] = [
+  { value: 150, label: "150 dpi · Draft / screen" },
+  { value: 300, label: "300 dpi · Standard print" },
+  { value: 450, label: "450 dpi · Premium" },
+  { value: 600, label: "600 dpi · Pro press (large file)" },
+];
 const DEFAULT_PAPER: PaperSize = "5x7";
+
+// Named print presets — apply per variant (or per page) for one-click setup.
+type PrintPreset = {
+  id: string;
+  label: string;
+  scope: "variant" | "page" | "both";
+  paperSize: PaperSize;
+  bleed: number;
+  safeMargin: number;
+  cropMarks: boolean;
+  scaling?: PageScaling;
+  dpi?: number;
+  description?: string;
+};
+const PRINT_PRESETS: PrintPreset[] = [
+  { id: "5x7-matte", label: '5×7 Matte', scope: "both", paperSize: "5x7", bleed: 0.125, safeMargin: 0.25, cropMarks: true, scaling: "fit", dpi: 300, description: "Classic flat invitation, 0.125\" bleed" },
+  { id: "5x7-luxe", label: '5×7 Luxe (600 dpi)', scope: "both", paperSize: "5x7", bleed: 0.25, safeMargin: 0.375, cropMarks: true, scaling: "fit", dpi: 600, description: "Full bleed for premium press" },
+  { id: "letter-fold", label: 'Letter Fold', scope: "both", paperSize: "letter", bleed: 0.125, safeMargin: 0.375, cropMarks: true, scaling: "fit", dpi: 300, description: "US Letter, ideal for folded program" },
+  { id: "india-a6", label: 'India A6 Insert', scope: "both", paperSize: "a6", bleed: 0.125, safeMargin: 0.2, cropMarks: true, scaling: "fit", dpi: 300, description: "Common Indian printer size" },
+  { id: "a5-no-bleed", label: 'A5 No-Bleed Home', scope: "both", paperSize: "a5", bleed: 0, safeMargin: 0.25, cropMarks: false, scaling: "fit", dpi: 300, description: "Home printer friendly" },
+  { id: "6x9-arch", label: '6×9 Arch', scope: "both", paperSize: "6x9", bleed: 0.125, safeMargin: 0.3, cropMarks: true, scaling: "fit", dpi: 300, description: "Tall format for event pages" },
+];
+
 const pageSizeOf = (p: PageContent, fallback: PaperSize) =>
   PAPER_SIZES[p.paperSize ?? fallback];
 
@@ -92,14 +121,22 @@ export default function InvitationCard() {
   const [safeMargin, setSafeMargin] = useState<number>(0.25); // inches
   const [cropMarks, setCropMarks] = useState<boolean>(true); // variant default
   const [defaultPaper, setDefaultPaper] = useState<PaperSize>(DEFAULT_PAPER);
+  const [pdfDpi, setPdfDpi] = useState<number>(DEFAULT_DPI);
   const [livePreview, setLivePreview] = useState<boolean>(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [previewBuilding, setPreviewBuilding] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
+  // Screen-reader live region for drag/keyboard reordering
+  const [srMessage, setSrMessage] = useState<string>("");
+  const announce = (msg: string) => setSrMessage(msg);
 
   // Drag & drop reordering
   const dragIdx = useRef<number | null>(null);
   const reorderPages = (from: number, to: number) => {
     if (from === to || to < 0 || to >= pages.length) return;
+    const moved = pages[from];
+    const kindLabel = moved.kind === "front" ? "Front" : moved.kind === "back" ? "Back" : (moved.title || "Event");
     setPages((p) => {
       const next = [...p];
       const [m] = next.splice(from, 1);
@@ -107,6 +144,7 @@ export default function InvitationCard() {
       return next;
     });
     setActivePageIdx(to);
+    announce(`Moved ${kindLabel} page from position ${from + 1} to position ${to + 1} of ${pages.length}.`);
   };
   const movePage = (idx: number, dir: -1 | 1) => reorderPages(idx, idx + dir);
 
