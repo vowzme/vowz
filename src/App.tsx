@@ -37,6 +37,8 @@ import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminFeatureRequests from "./pages/admin/AdminFeatureRequests";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminPartners from "./pages/admin/AdminPartners";
+import AdminCardTemplates from "./pages/admin/AdminCardTemplates";
+import InvitationCard from "./pages/InvitationCard";
 import FranchiseDashboard from "./pages/FranchiseDashboard";
 import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
@@ -61,6 +63,7 @@ const AppRoutes = () => (
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
+    <Route path="/invitation-card/:siteId" element={<ProtectedRoute><InvitationCard /></ProtectedRoute>} />
     <Route path="/site/:slug" element={<PublicSite />} />
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
@@ -83,6 +86,7 @@ const AppRoutes = () => (
       <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>} />
       <Route path="/admin/feature-requests" element={<AdminLayout><AdminFeatureRequests /></AdminLayout>} />
       <Route path="/admin/partners" element={<AdminLayout><AdminPartners /></AdminLayout>} />
+      <Route path="/admin/card-templates" element={<AdminLayout><AdminCardTemplates /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
