@@ -25,6 +25,7 @@ import {
   InvitationCardArtwork, CardTheme, PageContent, QrPosition,
   DISPLAY_FONTS, BODY_FONTS, PRESET_PALETTES,
   PAPER_SIZES, PaperSize, PageScaling,
+  TYPOGRAPHY_PRESETS, PHOTO_SHAPES, PHOTO_ASPECTS,
 } from "@/lib/card-templates";
 
 const QR_POSITIONS: { value: QrPosition; label: string }[] = [
