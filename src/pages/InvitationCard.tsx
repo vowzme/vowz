@@ -1073,6 +1073,9 @@ export default function InvitationCard() {
                 Default page: <span className="font-medium text-foreground">{PAPER_SIZES[defaultPaper].label}</span><br />
                 With bleed: <span className="font-medium text-foreground">{(PAPER_SIZES[defaultPaper].w + bleed * 2).toFixed(3)}" × {(PAPER_SIZES[defaultPaper].h + bleed * 2).toFixed(3)}"</span>
               </div>
+              <Button variant="ghost" size="sm" className="w-full" onClick={resetVariantPrintSettings}>
+                Reset print settings (variant + all pages)
+              </Button>
             </TabsContent>
           </Tabs>
 
