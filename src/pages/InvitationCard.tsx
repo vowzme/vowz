@@ -873,6 +873,9 @@ export default function InvitationCard() {
                     onChange={(e) => updatePage({ cropMarks: e.target.checked })}
                   />
                 </div>
+                <Button variant="ghost" size="sm" className="w-full" onClick={resetCurrentPagePrintSettings}>
+                  Reset this page's print overrides
+                </Button>
               </div>
             </TabsContent>
 
