@@ -327,17 +327,50 @@ export function InvitationCardArtwork({
         overflow: "hidden",
       }}
     >
-      {/* Inner panel + border */}
+      {/* Subtle paper / vignette wash */}
       <div
+        aria-hidden
+        style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          background: `radial-gradient(120% 80% at 50% 0%, ${theme.accent}10 0%, transparent 55%),
+                       radial-gradient(120% 80% at 50% 100%, ${theme.accent}12 0%, transparent 55%)`,
+        }}
+      />
+      {/* Outer thin hairline */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: pad * 0.35,
+          border: `0.5px solid ${theme.accent}55`,
+        }}
+      />
+      {/* Inner panel with double-rule gold frame */}
+      <div
+        aria-hidden
         style={{
           position: "absolute",
           inset: pad * 0.6,
           background: theme.panel,
-          border: `1px solid ${theme.accent}55`,
-          outline: `1px solid ${theme.accent}33`,
-          outlineOffset: 6,
+          border: `1px solid ${theme.accent}aa`,
+          boxShadow: `inset 0 0 0 3px ${theme.bg}, inset 0 0 0 3.5px ${theme.accent}55`,
         }}
       />
+      {/* Corner flourishes anchored to the inner frame */}
+      {(["tl", "tr", "bl", "br"] as const).map((corner) => {
+        const rot = corner === "tl" ? 0 : corner === "tr" ? 90 : corner === "br" ? 180 : 270;
+        const pos: React.CSSProperties = {
+          position: "absolute",
+          [corner.includes("t") ? "top" : "bottom"]: pad * 0.7,
+          [corner.includes("l") ? "left" : "right"]: pad * 0.7,
+          pointerEvents: "none",
+        };
+        return (
+          <div key={corner} style={pos} aria-hidden>
+            <CornerFlourish color={theme.accent} size={width * 0.11} rotate={rot} />
+          </div>
+        );
+      })}
       <div
         style={{
           position: "relative",
@@ -350,8 +383,8 @@ export function InvitationCardArtwork({
         }}
       >
         {/* Top ornament */}
-        <div style={{ marginTop: pad * 0.2 }}>
-          <Ornament kind={theme.ornament} color={theme.accent} size={width * 0.18} />
+        <div style={{ marginTop: pad * 0.25 }}>
+          <Ornament kind={theme.ornament} color={theme.accent} size={width * 0.22} />
         </div>
 
         {kind === "front" ? (
@@ -359,13 +392,13 @@ export function InvitationCardArtwork({
             {data.photo && (
               <div
                 style={{
-                  marginTop: pad * 0.5,
-                  width: width * 0.32,
-                  height: width * 0.32,
+                  marginTop: pad * 0.45,
+                  width: width * 0.34,
+                  height: width * 0.34,
                   borderRadius: "50%",
                   overflow: "hidden",
-                  border: `3px solid ${theme.accent}`,
-                  boxShadow: `0 0 0 4px ${theme.panel}`,
+                  border: `1.5px solid ${theme.accent}`,
+                  boxShadow: `0 0 0 4px ${theme.panel}, 0 0 0 5.5px ${theme.accent}66, 0 18px 30px -16px rgba(0,0,0,0.45)`,
                 }}
               >
                 <img
@@ -377,57 +410,85 @@ export function InvitationCardArtwork({
               </div>
             )}
 
+            {!data.photo && (
+              <div style={{ marginTop: pad * 0.55 }}>
+                <Monogram
+                  a={data.partner1} b={data.partner2}
+                  color={theme.accent} ink={theme.ink} family={theme.display}
+                  size={width * 0.22}
+                />
+              </div>
+            )}
+
             <p
               style={{
-                marginTop: pad * 0.5,
+                marginTop: pad * 0.55,
                 fontFamily: theme.body,
                 color: theme.muted,
-                letterSpacing: 4,
-                fontSize: width * 0.024,
+                letterSpacing: 6,
+                fontSize: width * 0.022,
                 textTransform: "uppercase",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
               }}
             >
-              {data.invitationLine || "Together with their families"}
+              <span style={{ width: 18, height: 1, background: theme.accent, opacity: 0.6 }} />
+              <span>{data.invitationLine || "Together with their families"}</span>
+              <span style={{ width: 18, height: 1, background: theme.accent, opacity: 0.6 }} />
             </p>
 
-            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.095, lineHeight: 1.05, margin: `${pad * 0.4}px 0 0`, color: theme.ink, fontStyle: "italic" }}>
+            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108, lineHeight: 1.02, margin: `${pad * 0.45}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
               {data.partner1}
             </h1>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, margin: `${pad * 0.25}px 0`, width: "70%" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, margin: `${pad * 0.28}px 0`, width: "72%" }}>
+              <span style={{ flex: 1, height: 0.5, background: theme.accent, opacity: 0.55 }} />
               <span style={{ flex: 1, height: 1, background: theme.accent }} />
-              <span style={{ fontFamily: theme.display, color: theme.accent, fontSize: width * 0.06 }}>&amp;</span>
+              <span style={{ fontFamily: theme.display, color: theme.accent, fontSize: width * 0.072, fontStyle: "italic", lineHeight: 1 }}>&amp;</span>
               <span style={{ flex: 1, height: 1, background: theme.accent }} />
+              <span style={{ flex: 1, height: 0.5, background: theme.accent, opacity: 0.55 }} />
             </div>
-            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.095, lineHeight: 1.05, margin: 0, color: theme.ink, fontStyle: "italic" }}>
+            <h1 style={{ fontFamily: theme.display, fontSize: width * 0.108, lineHeight: 1.02, margin: 0, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
               {data.partner2}
             </h1>
 
-            <div style={{ marginTop: pad * 0.8, fontFamily: theme.body, color: theme.ink }}>
-              <div style={{ fontSize: width * 0.04, letterSpacing: 2, textTransform: "uppercase" }}>{data.date}</div>
+            {/* Date bar with thin double rule */}
+            <div style={{ marginTop: pad * 0.85, fontFamily: theme.body, color: theme.ink, width: "70%" }}>
+              <div style={{ height: 1, background: theme.accent, opacity: 0.7 }} />
+              <div style={{ height: 0.5, background: theme.accent, opacity: 0.4, marginTop: 2 }} />
+              <div style={{ fontSize: width * 0.038, letterSpacing: 4, textTransform: "uppercase", padding: `${pad * 0.28}px 0 ${pad * 0.18}px`, fontWeight: 500 }}>
+                {data.date}
+              </div>
+              <div style={{ height: 0.5, background: theme.accent, opacity: 0.4, marginBottom: 2 }} />
+              <div style={{ height: 1, background: theme.accent, opacity: 0.7 }} />
               {data.time && (
-                <div style={{ fontSize: width * 0.028, color: theme.muted, marginTop: 4, letterSpacing: 1 }}>{data.time}</div>
+                <div style={{ fontSize: width * 0.026, color: theme.muted, marginTop: 8, letterSpacing: 3, textTransform: "uppercase" }}>{data.time}</div>
               )}
-              <div style={{ fontSize: width * 0.028, color: theme.muted, marginTop: 8, maxWidth: width * 0.78 }}>{data.venue}</div>
+              <div style={{ fontSize: width * 0.028, color: theme.muted, marginTop: 8, maxWidth: "100%", fontStyle: "italic" }}>{data.venue}</div>
             </div>
 
             {data.message && (
-              <p style={{ marginTop: pad * 0.5, fontFamily: theme.display, fontStyle: "italic", color: theme.muted, fontSize: width * 0.026, maxWidth: width * 0.78, lineHeight: 1.5 }}>
+              <p style={{ marginTop: pad * 0.5, fontFamily: theme.display, fontStyle: "italic", color: theme.muted, fontSize: width * 0.028, maxWidth: width * 0.78, lineHeight: 1.55 }}>
                 “{data.message}”
               </p>
             )}
           </>
         ) : (
           <>
-            <h2 style={{ fontFamily: theme.display, fontSize: width * 0.075, margin: `${pad * 0.5}px 0 0`, color: theme.ink, fontStyle: "italic" }}>
+            <h2 style={{ fontFamily: theme.display, fontSize: width * 0.086, margin: `${pad * 0.5}px 0 0`, color: theme.ink, fontStyle: "italic", letterSpacing: 0.5 }}>
               {page?.title || "Event"}
             </h2>
             {page?.subtitle && (
-              <p style={{ marginTop: pad * 0.25, color: theme.muted, fontSize: width * 0.028, letterSpacing: 2, textTransform: "uppercase" }}>
+              <p style={{ marginTop: pad * 0.25, color: theme.muted, fontSize: width * 0.026, letterSpacing: 4, textTransform: "uppercase" }}>
                 {page.subtitle}
               </p>
             )}
-            <div style={{ width: "60%", height: 1, background: theme.accent, margin: `${pad * 0.5}px 0` }} />
-            <p style={{ fontSize: width * 0.028, color: theme.ink, lineHeight: 1.7, whiteSpace: "pre-wrap", maxWidth: width * 0.82 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, width: "60%", margin: `${pad * 0.5}px 0` }}>
+              <span style={{ flex: 1, height: 0.5, background: theme.accent, opacity: 0.5 }} />
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: theme.accent }} />
+              <span style={{ flex: 1, height: 0.5, background: theme.accent, opacity: 0.5 }} />
+            </div>
+            <p style={{ fontSize: width * 0.03, color: theme.ink, lineHeight: 1.75, whiteSpace: "pre-wrap", maxWidth: width * 0.82, fontFamily: theme.body }}>
               {page?.body || ""}
             </p>
           </>
@@ -435,8 +496,8 @@ export function InvitationCardArtwork({
 
         <div style={{ flex: 1 }} />
 
-        <div style={{ marginTop: pad * 0.3 }}>
-          <Ornament kind={theme.ornament} color={theme.accent} size={width * 0.1} />
+        <div style={{ marginTop: pad * 0.3, opacity: 0.9, transform: "rotate(180deg)" }}>
+          <Ornament kind={theme.ornament} color={theme.accent} size={width * 0.13} />
         </div>
 
         {/* Absolutely-positioned QR overlay */}
