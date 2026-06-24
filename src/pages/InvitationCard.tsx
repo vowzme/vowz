@@ -932,6 +932,36 @@ export default function InvitationCard() {
             {/* Print settings */}
             <TabsContent value="print" className="mt-3 space-y-3 bg-card border border-border/50 rounded-xl p-4">
               <div>
+                <Label className="text-xs">Named preset</Label>
+                <Select value="" onValueChange={applyPresetToVariant}>
+                  <SelectTrigger><SelectValue placeholder="Apply a print preset to variant…" /></SelectTrigger>
+                  <SelectContent>
+                    {PRINT_PRESETS.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.label}{p.description ? ` — ${p.description}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  One-click bundles for paper, bleed, crop marks and DPI.
+                </p>
+              </div>
+              <div>
+                <Label className="text-xs">Export DPI / quality</Label>
+                <Select value={String(pdfDpi)} onValueChange={(v) => setPdfDpi(parseInt(v, 10))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {DPI_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={String(o.value)}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Applies to both PDF and PNG. Higher DPI = crisper print, larger file.
+                </p>
+              </div>
+              <div>
                 <Label className="text-xs">Default paper size</Label>
                 <Select value={defaultPaper} onValueChange={(v) => setDefaultPaper(v as PaperSize)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
