@@ -697,6 +697,56 @@ export type Database = {
           },
         ]
       }
+      invitation_card_variants: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          name: string
+          pages: Json
+          photo_url: string | null
+          template_slug: string
+          theme_overrides: Json
+          updated_at: string
+          user_id: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          name?: string
+          pages?: Json
+          photo_url?: string | null
+          template_slug: string
+          theme_overrides?: Json
+          updated_at?: string
+          user_id: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          name?: string
+          pages?: Json
+          photo_url?: string | null
+          template_slug?: string
+          theme_overrides?: Json
+          updated_at?: string
+          user_id?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_card_variants_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_config: {
         Row: {
           config: Json
