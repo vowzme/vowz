@@ -122,69 +122,144 @@ function Ornament({ kind, color, size = 90 }: { kind: CardTheme["ornament"]; col
     case "mandala":
     case "sanskrit":
       return (
-        <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke={c} strokeWidth={1.2}>
-          <circle cx="50" cy="50" r="46" />
-          <circle cx="50" cy="50" r="34" strokeDasharray="2 3" />
-          <circle cx="50" cy="50" r="22" />
-          {Array.from({ length: 12 }).map((_, i) => (
-            <line key={i} x1="50" y1="6" x2="50" y2="20"
-              transform={`rotate(${i * 30} 50 50)`} />
+        <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke={c} strokeWidth={0.7}>
+          <circle cx="50" cy="50" r="48" />
+          <circle cx="50" cy="50" r="44" strokeWidth={0.4} />
+          {Array.from({ length: 24 }).map((_, i) => (
+            <line key={`a${i}`} x1="50" y1="6" x2="50" y2="12" transform={`rotate(${i * 15} 50 50)`} strokeWidth={0.6} />
           ))}
-          <circle cx="50" cy="50" r="8" fill={c} />
+          <circle cx="50" cy="50" r="34" strokeDasharray="1 2" />
+          {Array.from({ length: 12 }).map((_, i) => (
+            <path key={`p${i}`} d="M50 16 Q54 26 50 34 Q46 26 50 16 Z" transform={`rotate(${i * 30} 50 50)`} fill={c} opacity={0.85} stroke="none" />
+          ))}
+          <circle cx="50" cy="50" r="22" />
+          {Array.from({ length: 8 }).map((_, i) => (
+            <circle key={`d${i}`} cx="50" cy="28" r="1.2" fill={c} stroke="none" transform={`rotate(${i * 45} 50 50)`} />
+          ))}
+          <circle cx="50" cy="50" r="10" />
+          <circle cx="50" cy="50" r="4" fill={c} stroke="none" />
         </svg>
       );
     case "cross":
       return (
-        <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke={c} strokeWidth={1.5}>
-          <line x1="50" y1="15" x2="50" y2="85" />
-          <line x1="25" y1="42" x2="75" y2="42" />
-          <circle cx="50" cy="50" r="40" strokeDasharray="3 5" />
-          <path d="M30 65 Q50 80 70 65" />
+        <svg viewBox="0 0 100 110" width={size} height={size * 1.1} fill="none" stroke={c} strokeWidth={0.8}>
+          <path d="M50 6 C58 20 70 24 70 36 C70 46 60 50 50 50 C40 50 30 46 30 36 C30 24 42 20 50 6 Z" opacity={0.7} />
+          <line x1="50" y1="20" x2="50" y2="92" strokeWidth={1.1} />
+          <line x1="28" y1="44" x2="72" y2="44" strokeWidth={1.1} />
+          <circle cx="50" cy="44" r="3.5" fill={c} stroke="none" />
+          <path d="M22 78 Q35 96 50 88 Q65 96 78 78" strokeWidth={0.8} />
+          <path d="M30 82 Q40 92 50 85 Q60 92 70 82" strokeWidth={0.5} />
+          {[28, 72].map((x) => <circle key={x} cx={x} cy={44} r="1.2" fill={c} stroke="none" />)}
         </svg>
       );
     case "arch":
       return (
-        <svg viewBox="0 0 100 120" width={size} height={size * 1.2} fill="none" stroke={c} strokeWidth={1.4}>
-          <path d="M15 115 V55 Q50 5 85 55 V115" />
-          <path d="M25 115 V60 Q50 20 75 60 V115" strokeDasharray="2 3" />
-          <circle cx="50" cy="50" r="3" fill={c} />
+        <svg viewBox="0 0 100 120" width={size} height={size * 1.2} fill="none" stroke={c} strokeWidth={0.8}>
+          <path d="M10 118 V58 Q50 0 90 58 V118" strokeWidth={1.1} />
+          <path d="M18 118 V62 Q50 10 82 62 V118" strokeWidth={0.5} />
+          <path d="M26 118 V64 Q50 22 74 64 V118" strokeDasharray="1 2" />
+          {/* eight-point geometric star */}
+          <g transform="translate(50 56)">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <line key={i} x1="0" y1="-12" x2="0" y2="12" transform={`rotate(${i * 22.5})`} strokeWidth={0.6} />
+            ))}
+            <circle r="6" />
+            <circle r="2" fill={c} stroke="none" />
+          </g>
+          {/* hanging lamp */}
+          <line x1="50" y1="68" x2="50" y2="92" />
+          <circle cx="50" cy="96" r="3.5" fill={c} stroke="none" />
         </svg>
       );
     case "peacock":
       return (
-        <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke={c} strokeWidth={1.2}>
-          {Array.from({ length: 7 }).map((_, i) => (
-            <ellipse key={i} cx="50" cy="35" rx="6" ry="22"
-              transform={`rotate(${(i - 3) * 18} 50 55)`} />
-          ))}
-          <circle cx="50" cy="65" r="6" fill={c} />
+        <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke={c} strokeWidth={0.7}>
+          {Array.from({ length: 11 }).map((_, i) => {
+            const a = (i - 5) * 14;
+            return (
+              <g key={i} transform={`rotate(${a} 50 70)`}>
+                <ellipse cx="50" cy="34" rx="5" ry="24" />
+                <ellipse cx="50" cy="22" rx="3" ry="5" fill={c} stroke="none" opacity={0.9} />
+                <circle cx="50" cy="22" r="1.2" fill={c} stroke="none" opacity={0.4} />
+              </g>
+            );
+          })}
+          <path d="M40 70 Q50 60 60 70 Q50 78 40 70 Z" fill={c} stroke="none" />
+          <circle cx="50" cy="72" r="2.5" fill={c} stroke="none" />
+          <path d="M50 74 Q46 82 44 90" strokeWidth={0.6} />
+          <path d="M50 74 Q54 82 56 90" strokeWidth={0.6} />
         </svg>
       );
     case "damask":
       return (
-        <svg viewBox="0 0 100 100" width={size} height={size} fill={c} opacity={0.85}>
-          <path d="M50 8 C58 24 78 24 78 42 C78 58 58 60 50 76 C42 60 22 58 22 42 C22 24 42 24 50 8 Z" />
-          <circle cx="50" cy="50" r="4" fill="none" stroke={c} strokeWidth={1.5} />
+        <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke={c} strokeWidth={0.6}>
+          <path d="M50 4 C62 18 84 22 80 42 C76 60 60 56 50 72 C40 56 24 60 20 42 C16 22 38 18 50 4 Z" fill={c} opacity={0.9} stroke="none" />
+          <path d="M50 14 C58 24 72 26 70 40 C68 52 58 50 50 62 C42 50 32 52 30 40 C28 26 42 24 50 14 Z" fill={"#FBF4EE"} opacity={0.18} stroke="none" />
+          <path d="M50 76 Q56 84 50 96 Q44 84 50 76 Z" fill={c} stroke="none" />
+          <circle cx="50" cy="42" r="3.5" fill="none" strokeWidth={0.8} />
+          <circle cx="50" cy="42" r="1.2" fill={c} stroke="none" />
         </svg>
       );
     case "noir":
       return (
-        <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke={c} strokeWidth={1}>
-          <rect x="15" y="15" width="70" height="70" />
-          <rect x="25" y="25" width="50" height="50" />
-          <circle cx="50" cy="50" r="3" fill={c} />
+        <svg viewBox="0 0 100 100" width={size} height={size} fill="none" stroke={c} strokeWidth={0.6}>
+          <rect x="14" y="14" width="72" height="72" />
+          <rect x="20" y="20" width="60" height="60" strokeDasharray="0.5 2.5" />
+          <line x1="50" y1="18" x2="50" y2="36" />
+          <line x1="50" y1="64" x2="50" y2="82" />
+          <line x1="18" y1="50" x2="36" y2="50" />
+          <line x1="64" y1="50" x2="82" y2="50" />
+          <circle cx="50" cy="50" r="14" />
+          <circle cx="50" cy="50" r="3" fill={c} stroke="none" />
         </svg>
       );
     case "editorial":
     default:
       return (
-        <svg viewBox="0 0 120 20" width={size * 2} height={20} stroke={c} strokeWidth={1}>
-          <line x1="0" y1="10" x2="50" y2="10" />
-          <circle cx="60" cy="10" r="3" fill={c} stroke="none" />
-          <line x1="70" y1="10" x2="120" y2="10" />
+        <svg viewBox="0 0 200 24" width={size * 2.2} height={26} stroke={c} strokeWidth={0.7} fill="none">
+          <line x1="0" y1="12" x2="78" y2="12" />
+          <line x1="0" y1="15" x2="78" y2="15" strokeWidth={0.3} />
+          <path d="M86 12 L94 6 L102 12 L94 18 Z" fill={c} stroke="none" />
+          <circle cx="110" cy="12" r="2.2" fill={c} stroke="none" />
+          <path d="M118 12 L110 6" strokeWidth={0.3} />
+          <line x1="122" y1="12" x2="200" y2="12" />
+          <line x1="122" y1="15" x2="200" y2="15" strokeWidth={0.3} />
         </svg>
       );
   }
+}
+
+// Decorative corner flourish — placed in each corner of the inner gold frame.
+function CornerFlourish({ color, size = 36, rotate = 0 }: { color: string; size?: number; rotate?: number }) {
+  return (
+    <svg viewBox="0 0 60 60" width={size} height={size} fill="none" stroke={color} strokeWidth={0.7}
+      style={{ transform: `rotate(${rotate}deg)`, transformOrigin: "center" }}>
+      <path d="M2 2 L40 2" />
+      <path d="M2 2 L2 40" />
+      <path d="M2 2 L18 18" strokeWidth={0.4} />
+      <path d="M8 2 Q22 6 22 16 Q22 22 16 22 Q6 22 2 8" />
+      <circle cx="22" cy="22" r="1.6" fill={color} stroke="none" />
+      <path d="M2 14 Q10 18 14 26" strokeWidth={0.4} />
+    </svg>
+  );
+}
+
+// Couple monogram — initials joined by an italic ampersand inside a thin gold roundel.
+function Monogram({ a, b, color, ink, family, size = 64 }: { a: string; b: string; color: string; ink: string; family: string; size?: number }) {
+  const i1 = (a || "").trim().charAt(0).toUpperCase() || "A";
+  const i2 = (b || "").trim().charAt(0).toUpperCase() || "B";
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size}>
+      <circle cx="50" cy="50" r="46" fill="none" stroke={color} strokeWidth={0.6} />
+      <circle cx="50" cy="50" r="42" fill="none" stroke={color} strokeWidth={0.3} />
+      {Array.from({ length: 24 }).map((_, i) => (
+        <line key={i} x1="50" y1="6" x2="50" y2="9" stroke={color} strokeWidth={0.4} transform={`rotate(${i * 15} 50 50)`} />
+      ))}
+      <text x="30" y="62" fontSize="34" fontFamily={family} fontStyle="italic" fill={ink} textAnchor="middle">{i1}</text>
+      <text x="50" y="58" fontSize="22" fontFamily={family} fontStyle="italic" fill={color} textAnchor="middle">&amp;</text>
+      <text x="70" y="62" fontSize="34" fontFamily={family} fontStyle="italic" fill={ink} textAnchor="middle">{i2}</text>
+    </svg>
+  );
 }
 
 // ─── The card itself ──────────────────────────────────────────────
