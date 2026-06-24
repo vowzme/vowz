@@ -357,7 +357,7 @@ export default function InvitationCard() {
     const liveTheme: CardTheme = slug === selectedSlug ? theme : tTheme;
     return (
       <div className="aspect-[5/7] w-full overflow-hidden bg-card pointer-events-none">
-        <div style={{ transform: "scale(0.32)", transformOrigin: "top left", width: 500, height: 700 }}>
+        <div style={{ transform: "scale(0.42)", transformOrigin: "top left", width: 500, height: 700 }}>
           <InvitationCardArtwork
             data={{
               partner1: form.partner1 || "Aarav",
