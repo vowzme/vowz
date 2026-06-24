@@ -792,6 +792,17 @@ export default function InvitationCard() {
               <div className="pt-3 border-t border-border/40 space-y-3">
                 <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Per-page export</div>
                 <div>
+                  <Label className="text-xs">Quick preset for this page</Label>
+                  <Select value="" onValueChange={applyPresetToPage}>
+                    <SelectTrigger><SelectValue placeholder="Apply a print preset…" /></SelectTrigger>
+                    <SelectContent>
+                      {PRINT_PRESETS.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <Label className="text-xs">Paper size</Label>
                   <Select
                     value={currentPage.paperSize ?? "__default"}
