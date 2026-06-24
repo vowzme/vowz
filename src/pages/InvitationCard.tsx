@@ -796,8 +796,8 @@ export default function InvitationCard() {
                 <input type="checkbox" checked={cropMarks} onChange={(e) => setCropMarks(e.target.checked)} />
               </div>
               <div className="text-[11px] text-muted-foreground rounded-md border border-border/40 p-2 bg-muted/30">
-                Final PDF size: <span className="font-medium text-foreground">{(CARD_W_IN + bleed * 2).toFixed(3)}" × {(CARD_H_IN + bleed * 2).toFixed(3)}"</span><br />
-                Trim size: 5" × 7"
+                Default page: <span className="font-medium text-foreground">{PAPER_SIZES[defaultPaper].label}</span><br />
+                With bleed: <span className="font-medium text-foreground">{(PAPER_SIZES[defaultPaper].w + bleed * 2).toFixed(3)}" × {(PAPER_SIZES[defaultPaper].h + bleed * 2).toFixed(3)}"</span>
               </div>
             </TabsContent>
           </Tabs>
