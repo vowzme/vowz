@@ -161,6 +161,31 @@ export default function InvitationCard() {
     toast({ title: `Applied "${p.label}" to page ${activePageIdx + 1}` });
   };
 
+  // Bulk-apply preset (and its DPI) to every page in the current variant.
+  const applyPresetToAllPages = (presetId: string) => {
+    const p = PRINT_PRESETS.find((x) => x.id === presetId); if (!p) return;
+    setDefaultPaper(p.paperSize); setBleed(p.bleed); setSafeMargin(p.safeMargin);
+    setCropMarks(p.cropMarks); if (p.dpi) setPdfDpi(p.dpi);
+    setPages((ps) => ps.map((pg) => ({
+      ...pg, paperSize: p.paperSize, scaling: p.scaling ?? "fit", cropMarks: p.cropMarks,
+    })));
+    toast({ title: `Applied "${p.label}" to all ${pages.length} pages` });
+  };
+
+  // Reset helpers — strip variant-level + per-page overrides back to defaults.
+  const resetVariantPrintSettings = () => {
+    setBleed(0); setSafeMargin(0.25); setCropMarks(true);
+    setDefaultPaper(DEFAULT_PAPER); setPdfDpi(DEFAULT_DPI);
+    setPages((ps) => ps.map((pg) => ({
+      ...pg, paperSize: undefined, scaling: undefined, cropMarks: undefined,
+    })));
+    toast({ title: "Print settings reset", description: "Variant and all pages restored to defaults." });
+  };
+  const resetCurrentPagePrintSettings = () => {
+    updatePage({ paperSize: undefined, scaling: undefined, cropMarks: undefined });
+    toast({ title: `Page ${activePageIdx + 1} print settings reset` });
+  };
+
   useEffect(() => {
     (async () => {
       if (!user || !siteId) return;
@@ -403,14 +428,23 @@ export default function InvitationCard() {
     let pdf: jsPDF | null = null;
     for (let i = 0; i < nodes.length; i++) {
       const page = pages[i];
+      const paperKey = page.paperSize ?? defaultPaper;
       const { w: pw, h: ph } = pageSizeOf(page, defaultPaper);
       const pageW = pw + bleed * 2;
       const pageH = ph + bleed * 2;
       const orientation = pageW > pageH ? "landscape" : "portrait";
-      if (!pdf) pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation });
-      else pdf.addPage([pageW, pageH], orientation);
-      const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH, undefined, "FAST");
+      const ctx = `page ${i + 1} (paper ${paperKey}, scaling ${page.scaling ?? "fit"}, QR ${page.showQr ? page.qrPosition : "hidden"}, bleed ${bleed}")`;
+      let step = "init PDF page";
+      try {
+        if (!pdf) pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation });
+        else pdf.addPage([pageW, pageH], orientation);
+        step = "rasterize artwork";
+        const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
+        step = "embed image";
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH, undefined, "FAST");
+      } catch (err: any) {
+        throw new Error(`Failed at ${ctx} during "${step}": ${err?.message || err}`);
+      }
       const showMarks = (page.cropMarks ?? cropMarks) && bleed > 0;
       if (showMarks) {
         const m = 0.18, o = bleed;
@@ -839,6 +873,9 @@ export default function InvitationCard() {
                     onChange={(e) => updatePage({ cropMarks: e.target.checked })}
                   />
                 </div>
+                <Button variant="ghost" size="sm" className="w-full" onClick={resetCurrentPagePrintSettings}>
+                  Reset this page's print overrides
+                </Button>
               </div>
             </TabsContent>
 
@@ -948,6 +985,20 @@ export default function InvitationCard() {
                 </p>
               </div>
               <div>
+                <Label className="text-xs">Bulk-apply to every page</Label>
+                <Select value="" onValueChange={applyPresetToAllPages}>
+                  <SelectTrigger><SelectValue placeholder="Apply preset + DPI to all pages…" /></SelectTrigger>
+                  <SelectContent>
+                    {PRINT_PRESETS.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Overwrites each page's paper, scaling and crop marks.
+                </p>
+              </div>
+              <div>
                 <Label className="text-xs">Export DPI / quality</Label>
                 <Select value={String(pdfDpi)} onValueChange={(v) => setPdfDpi(parseInt(v, 10))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -958,7 +1009,21 @@ export default function InvitationCard() {
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Applies to both PDF and PNG. Higher DPI = crisper print, larger file.
+                  Drives PDF resolution and the PNG export below (they always match).
+                </p>
+              </div>
+              <div>
+                <Label className="text-xs">PNG export quality</Label>
+                <Select value={String(pdfDpi)} onValueChange={(v) => setPdfDpi(parseInt(v, 10))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {DPI_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={String(o.value)}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Shared with the PDF DPI setting. 300 dpi looks crisp for single- and multi-page exports at 5×7".
                 </p>
               </div>
               <div>
@@ -1011,6 +1076,9 @@ export default function InvitationCard() {
                 Default page: <span className="font-medium text-foreground">{PAPER_SIZES[defaultPaper].label}</span><br />
                 With bleed: <span className="font-medium text-foreground">{(PAPER_SIZES[defaultPaper].w + bleed * 2).toFixed(3)}" × {(PAPER_SIZES[defaultPaper].h + bleed * 2).toFixed(3)}"</span>
               </div>
+              <Button variant="ghost" size="sm" className="w-full" onClick={resetVariantPrintSettings}>
+                Reset print settings (variant + all pages)
+              </Button>
             </TabsContent>
           </Tabs>
 
