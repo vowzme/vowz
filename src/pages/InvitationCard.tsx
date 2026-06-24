@@ -752,23 +752,27 @@ export default function InvitationCard() {
                   const isSel = t.slug === selectedSlug;
                   const locked = t.is_premium && !isPremium;
                   return (
-                    <button key={t.slug} onClick={() => { setSelectedSlug(t.slug); setThemeOverrides({}); }}
+                    <button key={t.slug}
+                      onClick={() => {
+                        if (locked) {
+                          toast({ title: "Premium template", description: "Upgrade your plan to use this international-standard design.", variant: "destructive" });
+                          return;
+                        }
+                        setSelectedSlug(t.slug); setThemeOverrides({});
+                      }}
+                      aria-disabled={locked}
                       className={`relative rounded-lg border-2 overflow-hidden text-left transition-all ${isSel ? "border-gold shadow-md" : "border-border/50 hover:border-border"}`}>
-                      <div className="aspect-[5/7] w-full flex items-center justify-center text-center p-2"
-                        style={{ background: tTheme?.bg, color: tTheme?.ink, fontFamily: tTheme?.display }}>
-                        <div>
-                          <div style={{ fontSize: 14, fontStyle: "italic" }}>{form.partner1 || "Aarav"}</div>
-                          <div style={{ fontSize: 10, color: tTheme?.accent, margin: "2px 0" }}>&amp;</div>
-                          <div style={{ fontSize: 14, fontStyle: "italic" }}>{form.partner2 || "Meera"}</div>
-                        </div>
-                      </div>
+                      <TemplateThumb slug={t.slug} />
                       <div className="px-2 py-1.5 bg-card border-t border-border/50 flex items-center justify-between">
                         <span className="text-xs font-body truncate">{t.name}</span>
                         {t.is_premium && <Lock className={`w-3 h-3 ${locked ? "text-muted-foreground" : "text-gold"}`} />}
                       </div>
                       {locked && (
-                        <div className="absolute inset-0 bg-background/60 backdrop-blur-[1px] flex items-center justify-center">
-                          <Badge className="bg-gold text-gold-foreground">Premium</Badge>
+                        <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2">
+                          <Badge className="bg-gold text-gold-foreground"><Lock className="w-3 h-3 mr-1" /> Premium</Badge>
+                          <Button size="sm" variant="gold" className="h-7 text-[11px]" onClick={(e) => { e.stopPropagation(); navigate("/pricing"); }}>
+                            Upgrade to unlock
+                          </Button>
                         </div>
                       )}
                     </button>
