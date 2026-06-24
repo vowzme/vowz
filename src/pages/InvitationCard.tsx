@@ -939,6 +939,32 @@ export default function InvitationCard() {
 
               <div className="grid grid-cols-1 gap-2 pt-2 border-t border-border/40">
                 <div>
+                  <Label className="text-xs mb-1 block">Typography preset</Label>
+                  <Select
+                    value=""
+                    onValueChange={(id) => {
+                      const p = TYPOGRAPHY_PRESETS.find((x) => x.id === id); if (!p) return;
+                      setThemeOverrides((t) => ({
+                        ...t,
+                        display: p.display, body: p.body,
+                        headingLetterSpacing: p.headingLetterSpacing,
+                        bodyLetterSpacing: p.bodyLetterSpacing,
+                        headingScale: p.headingScale,
+                      }));
+                      toast({ title: `Applied "${p.label}" typography` });
+                    }}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Apply a wedding-stationery preset…" /></SelectTrigger>
+                    <SelectContent>
+                      {TYPOGRAPHY_PRESETS.map((p) => (
+                        <SelectItem key={p.id} value={p.id} style={{ fontFamily: p.display }}>
+                          {p.label} — <span className="text-muted-foreground text-xs">{p.description}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <Label className="text-xs flex items-center gap-1"><TypeIcon className="w-3 h-3" /> Display font</Label>
                   <Select value={theme.display} onValueChange={(v) => setThemeOverrides((t) => ({ ...t, display: v }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
@@ -960,6 +986,65 @@ export default function InvitationCard() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <Label className="text-[11px]">Heading spacing</Label>
+                    <Input type="number" step={0.5} value={theme.headingLetterSpacing ?? 0.5}
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, headingLetterSpacing: Number(e.target.value) }))} />
+                  </div>
+                  <div>
+                    <Label className="text-[11px]">Body spacing</Label>
+                    <Input type="number" step={0.5} value={theme.bodyLetterSpacing ?? 6}
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, bodyLetterSpacing: Number(e.target.value) }))} />
+                  </div>
+                  <div>
+                    <Label className="text-[11px]">Heading scale</Label>
+                    <Input type="number" step={0.05} value={theme.headingScale ?? 1}
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, headingScale: Number(e.target.value) }))} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Photo framing */}
+              <div className="grid grid-cols-1 gap-2 pt-2 border-t border-border/40">
+                <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Photo framing</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Shape</Label>
+                    <Select
+                      value={theme.photoShape ?? "circle"}
+                      onValueChange={(v) => setThemeOverrides((t) => ({ ...t, photoShape: v as CardTheme["photoShape"] }))}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PHOTO_SHAPES.map((s) => (
+                          <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Aspect ratio</Label>
+                    <Select
+                      value={theme.photoAspect ?? "1:1"}
+                      onValueChange={(v) => setThemeOverrides((t) => ({ ...t, photoAspect: v as CardTheme["photoAspect"] }))}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PHOTO_ASPECTS.map((a) => (
+                          <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {(theme.photoShape ?? "circle") === "rounded" && (
+                  <div>
+                    <Label className="text-xs">Corner radius (px)</Label>
+                    <Input type="number" min={0} max={120} value={theme.photoRadius ?? 18}
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, photoRadius: Number(e.target.value) }))} />
+                  </div>
+                )}
               </div>
 
               <Button variant="ghost" size="sm" className="w-full" onClick={() => setThemeOverrides({})}>
