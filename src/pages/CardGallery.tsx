@@ -332,7 +332,7 @@ export default function CardGallery() {
                 >
                   <button
                     type="button"
-                    onClick={() => { setDetailSlug(t.slug); }}
+                    onClick={() => openDetail(t)}
                     className="relative bg-muted/30 h-[300px] sm:h-[360px] overflow-hidden flex items-start justify-center pt-3 sm:pt-4 cursor-zoom-in"
                     aria-label={`Open ${t.name} preview`}
                   >
@@ -366,10 +366,10 @@ export default function CardGallery() {
                       <p className="text-xs text-muted-foreground font-body line-clamp-2 mb-3">{t.description}</p>
                     )}
                     <div className="mt-auto flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1" onClick={() => setDetailSlug(t.slug)}>
+                      <Button size="sm" variant="outline" className="flex-1" onClick={() => openDetail(t)}>
                         Preview
                       </Button>
-                      <Button size="sm" className="flex-1" onClick={() => handleUse(t.slug, t.is_premium)}>
+                      <Button size="sm" className="flex-1" onClick={() => handleUse(t)}>
                         Use
                       </Button>
                     </div>
@@ -477,11 +477,33 @@ export default function CardGallery() {
                 )}
 
                 <div className="mt-auto flex flex-col gap-2">
-                  <Button onClick={() => handleUse(detailTpl.slug, detailTpl.is_premium)} className="w-full">
+                  <Button onClick={() => handleUse(detailTpl)} className="w-full">
                     Use this template
                   </Button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleDownloadPdf(detailTpl, "phone")}
+                      disabled={pdfBusy !== null}
+                    >
+                      {pdfBusy === "phone"
+                        ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        : <Download className="w-4 h-4 mr-2" />}
+                      Phone PDF
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleDownloadPdf(detailTpl, "print")}
+                      disabled={pdfBusy !== null}
+                    >
+                      {pdfBusy === "print"
+                        ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        : <Printer className="w-4 h-4 mr-2" />}
+                      Print PDF
+                    </Button>
+                  </div>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => toggleFav(detailTpl.slug)}
                     className="w-full"
                   >
@@ -497,6 +519,19 @@ export default function CardGallery() {
           )}
         </DialogContent>
       </Dialog>
+
+      <UpgradeTemplateDialog
+        open={!!upgradeFor}
+        onOpenChange={(o) => !o && setUpgradeFor(null)}
+        templateName={upgradeFor?.name}
+        onUpgraded={() => {
+          // Premium status will refresh; the resume effect handles redirect.
+          if (upgradeFor) {
+            try { sessionStorage.setItem(PENDING_PREMIUM_TEMPLATE_KEY, upgradeFor.slug); } catch {}
+          }
+          setUpgradeFor(null);
+        }}
+      />
     </div>
   );
 }
