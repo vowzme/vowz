@@ -39,6 +39,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminPartners from "./pages/admin/AdminPartners";
 import AdminCardTemplates from "./pages/admin/AdminCardTemplates";
 import InvitationCard from "./pages/InvitationCard";
+import CardGallery from "./pages/CardGallery";
 import FranchiseDashboard from "./pages/FranchiseDashboard";
 import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
@@ -67,6 +68,7 @@ const AppRoutes = () => (
     <Route path="/site/:slug" element={<PublicSite />} />
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
+    <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/domain-demo" element={<Layout><DomainWizardDemo /></Layout>} />
     <Route path="/affiliate" element={<Layout><Affiliate /></Layout>} />
     <Route path="/franchise" element={<Layout><FranchiseLanding /></Layout>} />

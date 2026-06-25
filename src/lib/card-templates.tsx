@@ -136,9 +136,8 @@ export const TEMPLATE_FACETS: Record<string, TemplateFacets> = {
   "royal-peacock":          { tags: ["royal", "peacock", "ornate", "maroon"],          orientation: "portrait", focus: "photo-first" },
   "royal-velvet":           { tags: ["royal", "damask", "velvet", "luxe"],             orientation: "portrait", focus: "ornament-first" },
 };
-export const ALL_TEMPLATE_TAGS = Array.from(
-  new Set(Object.values(TEMPLATE_FACETS).flatMap((f) => f.tags))
-).sort();
+// Computed after NEW_PREMIUM_TEMPLATES merge below.
+export let ALL_TEMPLATE_TAGS: string[] = [];
 export const ORIENTATION_LABELS: Record<TemplateOrientation, string> = {
   portrait: "Portrait", landscape: "Landscape", square: "Square",
 };
@@ -196,6 +195,110 @@ export const FALLBACK_TEMPLATES: CardTemplateMeta[] = [
   { slug: "royal-peacock", name: "Royal Peacock", category: "royal_traditional", is_premium: true, description: "Maroon & gold with peacock crown" },
   { slug: "royal-velvet", name: "Velvet Damask", category: "royal_traditional", is_premium: true, description: "Wine velvet with damask gold ornament" },
 ];
+
+// ─── 25 Premium International Templates ─────────────────────────────
+// Reuses the eight built-in ornaments with a wide palette range.
+interface NewTpl {
+  slug: string; name: string; category: CardCategory; description: string;
+  theme: CardTheme; facets: TemplateFacets;
+}
+const NEW_PREMIUM_TEMPLATES: NewTpl[] = [
+  // Hindu / Sikh (8)
+  { slug: "hindu-saffron-marigold", name: "Saffron Marigold", category: "hindu_sikh", description: "Saffron + ivory with mandala motif",
+    theme: { bg: "#FFF1D6", panel: "#FFFAEC", ink: "#7A2410", accent: "#D97706", muted: "#9A4A1A", ornament: "mandala", display: "'Playfair Display', serif", body: "'Inter', sans-serif", photoShape: "circle", photoAspect: "1:1" },
+    facets: { tags: ["traditional", "saffron", "mandala", "warm"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "hindu-sindoor-rose", name: "Sindoor Rose", category: "hindu_sikh", description: "Crimson + rose-gold mandala",
+    theme: { bg: "#5C0A1A", panel: "#6E0F22", ink: "#FFE8D6", accent: "#E5A07A", muted: "#D88A6E", ornament: "mandala", display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif", photoShape: "oval", photoAspect: "4:5" },
+    facets: { tags: ["royal", "crimson", "mandala", "rose-gold"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "sikh-anand-karaj", name: "Anand Karaj", category: "hindu_sikh", description: "Kesari & navy with sacred geometry",
+    theme: { bg: "#0B1E3C", panel: "#13294F", ink: "#FFE7B0", accent: "#E1A23B", muted: "#C68F38", ornament: "sanskrit", display: "'Cinzel', serif", body: "'Inter', sans-serif", photoShape: "arch", photoAspect: "3:4" },
+    facets: { tags: ["traditional", "navy", "geometric", "gold"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "hindu-om-ivory", name: "Om Ivory", category: "hindu_sikh", description: "Ivory + soft gold, light & airy",
+    theme: { bg: "#FAF5EB", panel: "#FFFFFF", ink: "#3F2A1B", accent: "#B8860B", muted: "#8A6E45", ornament: "sanskrit", display: "'Playfair Display', serif", body: "'Cormorant Garamond', serif", photoShape: "circle", photoAspect: "1:1" },
+    facets: { tags: ["minimal", "ivory", "soft", "gold"], orientation: "portrait", focus: "text-first" } },
+  { slug: "hindu-jaipur-pink", name: "Jaipur Pink", category: "hindu_sikh", description: "Hot pink palace tones with mandala",
+    theme: { bg: "#A6135C", panel: "#B91D6B", ink: "#FFF1C9", accent: "#F5C26B", muted: "#F2B27A", ornament: "mandala", display: "'Playfair Display', serif", body: "'Lato', sans-serif", photoShape: "rounded", photoAspect: "1:1", photoRadius: 24 },
+    facets: { tags: ["royal", "pink", "mandala", "vibrant"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "hindu-banarasi-silk", name: "Banarasi Silk", category: "hindu_sikh", description: "Wine silk with gold zari damask",
+    theme: { bg: "#4A0A24", panel: "#5C0E2B", ink: "#FFE8C7", accent: "#D4AF37", muted: "#B89968", ornament: "damask", display: "'Playfair Display', serif", body: "'Cormorant Garamond', serif", photoShape: "arch", photoAspect: "3:4" },
+    facets: { tags: ["royal", "silk", "damask", "wine"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "hindu-mehendi-green", name: "Mehendi Garden", category: "hindu_sikh", description: "Olive green + gold with peacock",
+    theme: { bg: "#2A3A1A", panel: "#36481F", ink: "#F0E6C2", accent: "#D4AF37", muted: "#B0A36A", ornament: "peacock", display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif", photoShape: "circle", photoAspect: "1:1" },
+    facets: { tags: ["traditional", "green", "peacock", "garden"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "hindu-kalash-cream", name: "Kalash Cream", category: "hindu_sikh", description: "Cream + terracotta with sacred motif",
+    theme: { bg: "#F3E7CF", panel: "#FBF3DE", ink: "#5C2A14", accent: "#C76E3B", muted: "#9A553A", ornament: "mandala", display: "'Playfair Display', serif", body: "'Inter', sans-serif", photoShape: "oval", photoAspect: "4:5" },
+    facets: { tags: ["warm", "cream", "terracotta", "mandala"], orientation: "portrait", focus: "text-first" } },
+
+  // Christian / Muslim (6)
+  { slug: "chapel-rose", name: "Chapel Rose", category: "christian_muslim", description: "Blush + ivory with floral cross",
+    theme: { bg: "#FBEDE7", panel: "#FFFFFF", ink: "#4A2B2B", accent: "#C49A86", muted: "#9F7967", ornament: "cross", display: "'Playfair Display', serif", body: "'Inter', sans-serif", photoShape: "arch", photoAspect: "3:4" },
+    facets: { tags: ["soft", "blush", "cross", "romantic"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "sacred-dove", name: "Sacred Dove", category: "christian_muslim", description: "Pale sage + cream with editorial trim",
+    theme: { bg: "#EFEDE3", panel: "#FBFAF3", ink: "#2C3A2A", accent: "#7A8C6A", muted: "#5E6E58", ornament: "cross", display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif", photoShape: "circle", photoAspect: "1:1" },
+    facets: { tags: ["minimal", "sage", "cross", "soft"], orientation: "portrait", focus: "text-first" } },
+  { slug: "lace-pearl", name: "Lace & Pearl", category: "christian_muslim", description: "Pearl white with delicate damask",
+    theme: { bg: "#F6F1EA", panel: "#FFFFFF", ink: "#2E2A26", accent: "#A8895C", muted: "#7E6B4F", ornament: "damask", display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif", photoShape: "rounded", photoAspect: "4:5", photoRadius: 14 },
+    facets: { tags: ["minimal", "pearl", "lace", "luxe"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "mehrab-gold", name: "Mehrab Gold", category: "christian_muslim", description: "Deep teal arch with gold geometry",
+    theme: { bg: "#0E2E2C", panel: "#15403D", ink: "#F2E6BD", accent: "#D4AF37", muted: "#C2A572", ornament: "arch", display: "'Cinzel', serif", body: "'Inter', sans-serif", photoShape: "arch", photoAspect: "3:4" },
+    facets: { tags: ["geometric", "teal", "arch", "gold"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "henna-noir", name: "Henna Noir", category: "christian_muslim", description: "Charcoal with copper Islamic motifs",
+    theme: { bg: "#161311", panel: "#1F1A17", ink: "#F2D9B5", accent: "#C57E3F", muted: "#A06A38", ornament: "arch", display: "'DM Serif Display', serif", body: "'Inter', sans-serif", photoShape: "rounded", photoAspect: "1:1", photoRadius: 8 },
+    facets: { tags: ["dark", "luxe", "copper", "arch"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "crescent-ivory", name: "Crescent Ivory", category: "christian_muslim", description: "Ivory + emerald accent, refined",
+    theme: { bg: "#F4EFE3", panel: "#FFFFFF", ink: "#173B30", accent: "#1F6B4E", muted: "#3D7A5E", ornament: "arch", display: "'Playfair Display', serif", body: "'Inter', sans-serif", photoShape: "oval", photoAspect: "4:5" },
+    facets: { tags: ["minimal", "ivory", "emerald", "arch"], orientation: "portrait", focus: "text-first" } },
+
+  // Modern / Minimal (6)
+  { slug: "paris-blanc", name: "Paris Blanc", category: "modern_minimal", description: "Editorial all-white with hairline rules",
+    theme: { bg: "#FFFFFF", panel: "#FAFAF7", ink: "#1A1A1A", accent: "#8A7A56", muted: "#6E6452", ornament: "editorial", display: "'DM Serif Display', serif", body: "'Inter', sans-serif", photoShape: "square", photoAspect: "1:1", headingLetterSpacing: 1.5 },
+    facets: { tags: ["minimal", "editorial", "white", "modern"], orientation: "portrait", focus: "text-first" } },
+  { slug: "scandi-mist", name: "Scandi Mist", category: "modern_minimal", description: "Cool grey-blue with quiet typography",
+    theme: { bg: "#EDEFF1", panel: "#F8F9FA", ink: "#1E2A35", accent: "#5C7B8C", muted: "#7C8B96", ornament: "noir", display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif", photoShape: "rounded", photoAspect: "4:5", photoRadius: 4 },
+    facets: { tags: ["minimal", "cool", "modern", "scandi"], orientation: "portrait", focus: "text-first" } },
+  { slug: "tokyo-ink", name: "Tokyo Ink", category: "modern_minimal", description: "Cream with sumi-ink black accents",
+    theme: { bg: "#F4EFE6", panel: "#FFFFFF", ink: "#0C0C0C", accent: "#0C0C0C", muted: "#3A3A3A", ornament: "editorial", display: "'Cinzel', serif", body: "'Inter', sans-serif", photoShape: "square", photoAspect: "1:1", headingLetterSpacing: 4 },
+    facets: { tags: ["minimal", "editorial", "modern", "monochrome"], orientation: "portrait", focus: "text-first" } },
+  { slug: "monaco-marble", name: "Monaco Marble", category: "modern_minimal", description: "Soft marble cream with gold accents",
+    theme: { bg: "#F2EDE3", panel: "#FBF7EE", ink: "#2A241D", accent: "#B8860B", muted: "#7E6A48", ornament: "editorial", display: "'Playfair Display', serif", body: "'Cormorant Garamond', serif", photoShape: "rounded", photoAspect: "4:5", photoRadius: 12 },
+    facets: { tags: ["luxe", "marble", "modern", "gold"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "atelier-sand", name: "Atelier Sand", category: "modern_minimal", description: "Warm sand neutrals, gallery-style",
+    theme: { bg: "#E8DFD0", panel: "#F2EBDB", ink: "#3A2D20", accent: "#9C7A4A", muted: "#7A6147", ornament: "editorial", display: "'DM Serif Display', serif", body: "'Inter', sans-serif", photoShape: "square", photoAspect: "4:5" },
+    facets: { tags: ["minimal", "sand", "modern", "editorial"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "copenhagen-rose", name: "Copenhagen Rose", category: "modern_minimal", description: "Dusty rose with thin serif type",
+    theme: { bg: "#EFDCD6", panel: "#FBEFEA", ink: "#3A1F1F", accent: "#9C5A53", muted: "#7E4B47", ornament: "editorial", display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif", photoShape: "circle", photoAspect: "1:1" },
+    facets: { tags: ["soft", "rose", "modern", "romantic"], orientation: "portrait", focus: "text-first" } },
+
+  // Royal / Traditional (5)
+  { slug: "mughal-court", name: "Mughal Court", category: "royal_traditional", description: "Indigo + gold mehrab arch grandeur",
+    theme: { bg: "#13204A", panel: "#1B2C5E", ink: "#F5E6C8", accent: "#E1B84B", muted: "#C8A148", ornament: "arch", display: "'Cinzel', serif", body: "'Cormorant Garamond', serif", photoShape: "arch", photoAspect: "3:4", headingScale: 1.05 },
+    facets: { tags: ["royal", "indigo", "arch", "gold"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "venetian-rouge", name: "Venetian Rouge", category: "royal_traditional", description: "Rich red velvet with damask filigree",
+    theme: { bg: "#5A0E1B", panel: "#6E1224", ink: "#F8E3B8", accent: "#E0B654", muted: "#C49A4A", ornament: "damask", display: "'DM Serif Display', serif", body: "'Cormorant Garamond', serif", photoShape: "oval", photoAspect: "4:5", headingScale: 1.05 },
+    facets: { tags: ["royal", "red", "damask", "velvet"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "hyderabad-nawab", name: "Hyderabad Nawab", category: "royal_traditional", description: "Forest green + antique gold peacock",
+    theme: { bg: "#142D24", panel: "#1B3C30", ink: "#F2E2B8", accent: "#D4AF37", muted: "#B89968", ornament: "peacock", display: "'Playfair Display', serif", body: "'Inter', sans-serif", photoShape: "arch", photoAspect: "3:4" },
+    facets: { tags: ["royal", "green", "peacock", "nawab"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "rajputana-crimson", name: "Rajputana Crimson", category: "royal_traditional", description: "Crimson + ivory with mandala crest",
+    theme: { bg: "#6B0E18", panel: "#7C1322", ink: "#FFF1C9", accent: "#E5BB55", muted: "#D4AF37", ornament: "mandala", display: "'Cinzel', serif", body: "'Inter', sans-serif", photoShape: "rounded", photoAspect: "4:5", photoRadius: 10 },
+    facets: { tags: ["royal", "crimson", "mandala", "regal"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "baroque-emerald", name: "Baroque Emerald", category: "royal_traditional", description: "Emerald + champagne with baroque damask",
+    theme: { bg: "#0E3D34", panel: "#13533D", ink: "#F5EBC8", accent: "#E1C896", muted: "#C9B98A", ornament: "damask", display: "'DM Serif Display', serif", body: "'Cormorant Garamond', serif", photoShape: "oval", photoAspect: "4:5", headingScale: 1.05 },
+    facets: { tags: ["royal", "emerald", "damask", "baroque"], orientation: "portrait", focus: "ornament-first" } },
+];
+
+// Merge into the exported maps so every consumer sees the new templates.
+NEW_PREMIUM_TEMPLATES.forEach((t) => {
+  CARD_THEMES[t.slug] = t.theme;
+  TEMPLATE_FACETS[t.slug] = t.facets;
+  FALLBACK_TEMPLATES.push({
+    slug: t.slug, name: t.name, category: t.category,
+    is_premium: true, is_enabled: true, description: t.description,
+  });
+});
+ALL_TEMPLATE_TAGS = Array.from(
+  new Set(Object.values(TEMPLATE_FACETS).flatMap((f) => f.tags))
+).sort();
 
 // ─── SVG ornaments ────────────────────────────────────────────────
 function Ornament({ kind, color, size = 90 }: { kind: CardTheme["ornament"]; color: string; size?: number }) {

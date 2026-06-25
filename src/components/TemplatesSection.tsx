@@ -1877,6 +1877,16 @@ const TemplatesSection = () => {
             >
               View All {templates.length} Templates →
             </Button>
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate("/card-gallery")}
+                className="font-body"
+              >
+                Browse 30+ Invitation Card Designs →
+              </Button>
+            </div>
           </motion.div>
         </div>
       </section>
