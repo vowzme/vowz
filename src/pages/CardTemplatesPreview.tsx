@@ -43,7 +43,7 @@ const LS_QUALITY = "vowz.preview.quality";
 function buildWhatsappShareUrl(tpl: CardTemplateMeta): string {
   const url = `${window.location.origin}/card-templates-preview?slug=${encodeURIComponent(tpl.slug)}`;
   const msg =
-    `💍 *${tpl.partner ?? "Our"} Wedding Invitation* — "${tpl.name}"\n\n` +
+    `💍 *Wedding Invitation* — "${tpl.name}"\n\n` +
     `Preview this beautiful invitation card, download it as PDF or image, and use it for your big day:\n${url}`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
