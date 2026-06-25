@@ -393,6 +393,9 @@ const Dashboard = () => {
           </p>
         </div>
 
+        {/* Pending invitation-card template chosen from the public gallery */}
+        <PendingCardTemplateBanner />
+
         {/* Premium Status / Upgrade Banner */}
         {isPremium ? (
           <motion.div
