@@ -771,6 +771,73 @@ export default function InvitationCard() {
                   ))}
                 </TabsList>
               </Tabs>
+
+              {/* Search + filters */}
+              <div className="space-y-2 bg-card border border-border/50 rounded-lg p-2.5">
+                <Input
+                  value={galleryQuery}
+                  onChange={(e) => setGalleryQuery(e.target.value)}
+                  placeholder="Search templates by name, tag, or style…"
+                  className="h-8 text-xs"
+                />
+                <div className="grid grid-cols-3 gap-2">
+                  <Select value={galleryOrientation} onValueChange={(v) => setGalleryOrientation(v as any)}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Orientation" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Any orientation</SelectItem>
+                      {(Object.keys(ORIENTATION_LABELS) as TemplateOrientation[]).map((o) => (
+                        <SelectItem key={o} value={o}>{ORIENTATION_LABELS[o]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={galleryFocus} onValueChange={(v) => setGalleryFocus(v as any)}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Layout" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Any layout</SelectItem>
+                      {(Object.keys(FOCUS_LABELS) as TemplateFocus[]).map((f) => (
+                        <SelectItem key={f} value={f}>{FOCUS_LABELS[f]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={galleryShowPremium} onValueChange={(v) => setGalleryShowPremium(v as any)}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Tier" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All tiers</SelectItem>
+                      <SelectItem value="free">Free only</SelectItem>
+                      <SelectItem value="premium">Premium only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {ALL_TEMPLATE_TAGS.map((tag) => {
+                    const on = galleryTags.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setGalleryTags((s) => on ? s.filter((x) => x !== tag) : [...s, tag])}
+                        className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${on ? "bg-gold text-gold-foreground border-gold" : "bg-background border-border/60 text-muted-foreground hover:border-border"}`}
+                        aria-pressed={on}
+                      >
+                        #{tag}
+                      </button>
+                    );
+                  })}
+                  {(galleryTags.length > 0 || galleryQuery || galleryOrientation !== "all" || galleryFocus !== "all" || galleryShowPremium !== "all") && (
+                    <button
+                      type="button"
+                      onClick={() => { setGalleryTags([]); setGalleryQuery(""); setGalleryOrientation("all"); setGalleryFocus("all"); setGalleryShowPremium("all"); }}
+                      className="text-[10px] px-2 py-0.5 rounded-full border border-border/60 text-muted-foreground hover:text-foreground"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  {visibleTemplates.length} of {templates.filter((t) => t.category === activeCategory).length} templates
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 {visibleTemplates.map((t) => {
                   const tTheme = CARD_THEMES[t.slug];
