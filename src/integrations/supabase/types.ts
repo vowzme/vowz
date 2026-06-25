@@ -1039,6 +1039,7 @@ export type Database = {
           created_at: string
           event_type: string
           id: string
+          meta: Json | null
           template_slug: string
           user_id: string | null
           visitor_id: string | null
@@ -1047,6 +1048,7 @@ export type Database = {
           created_at?: string
           event_type: string
           id?: string
+          meta?: Json | null
           template_slug: string
           user_id?: string | null
           visitor_id?: string | null
@@ -1055,6 +1057,7 @@ export type Database = {
           created_at?: string
           event_type?: string
           id?: string
+          meta?: Json | null
           template_slug?: string
           user_id?: string | null
           visitor_id?: string | null
