@@ -239,10 +239,23 @@ export default function InvitationCard() {
   const selected = templates.find((t) => t.slug === selectedSlug) ?? templates[0];
   const baseTheme = CARD_THEMES[selectedSlug] ?? CARD_THEMES["hindu-ganesha-classic"];
   const theme: CardTheme = { ...baseTheme, ...themeOverrides };
-  const visibleTemplates = useMemo(
-    () => templates.filter((t) => t.category === activeCategory),
-    [templates, activeCategory]
-  );
+  const visibleTemplates = useMemo(() => {
+    const q = galleryQuery.trim().toLowerCase();
+    return templates.filter((t) => {
+      if (t.category !== activeCategory) return false;
+      const facets = TEMPLATE_FACETS[t.slug];
+      if (galleryShowPremium === "free" && t.is_premium) return false;
+      if (galleryShowPremium === "premium" && !t.is_premium) return false;
+      if (galleryOrientation !== "all" && facets?.orientation !== galleryOrientation) return false;
+      if (galleryFocus !== "all" && facets?.focus !== galleryFocus) return false;
+      if (galleryTags.length && !galleryTags.every((tag) => facets?.tags.includes(tag))) return false;
+      if (q) {
+        const hay = [t.name, t.description ?? "", ...(facets?.tags ?? [])].join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [templates, activeCategory, galleryQuery, galleryTags, galleryOrientation, galleryFocus, galleryShowPremium]);
   const siteUrl = site?.slug ? `${window.location.origin}/site/${site.slug}` : `${window.location.origin}/`;
   const requiresUpgrade = selected?.is_premium && !isPremium;
   const currentPage = pages[activePageIdx] || pages[0];
