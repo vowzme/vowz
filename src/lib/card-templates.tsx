@@ -118,6 +118,36 @@ export const CATEGORY_LABELS: Record<CardCategory, string> = {
   royal_traditional: "Royal / Traditional",
 };
 
+// ─── Gallery facets: searchable tags, orientation, and layout focus ──
+export type TemplateOrientation = "portrait" | "landscape" | "square";
+export type TemplateFocus = "photo-first" | "text-first" | "ornament-first";
+export interface TemplateFacets {
+  tags: string[];            // free-text style tags for search/filter
+  orientation: TemplateOrientation;
+  focus: TemplateFocus;
+}
+export const TEMPLATE_FACETS: Record<string, TemplateFacets> = {
+  "hindu-ganesha-classic":  { tags: ["traditional", "mandala", "warm", "gold"],        orientation: "portrait", focus: "ornament-first" },
+  "hindu-royal-mandala":    { tags: ["traditional", "royal", "mandala", "maroon"],     orientation: "portrait", focus: "ornament-first" },
+  "christian-floral-cross": { tags: ["floral", "soft", "ivory", "classic"],            orientation: "portrait", focus: "text-first" },
+  "muslim-emerald-arch":    { tags: ["geometric", "arch", "emerald", "gold"],          orientation: "portrait", focus: "ornament-first" },
+  "modern-typographic":     { tags: ["minimal", "editorial", "modern"],                orientation: "portrait", focus: "text-first" },
+  "modern-noir":            { tags: ["minimal", "dark", "luxe", "modern"],             orientation: "portrait", focus: "photo-first" },
+  "royal-peacock":          { tags: ["royal", "peacock", "ornate", "maroon"],          orientation: "portrait", focus: "photo-first" },
+  "royal-velvet":           { tags: ["royal", "damask", "velvet", "luxe"],             orientation: "portrait", focus: "ornament-first" },
+};
+export const ALL_TEMPLATE_TAGS = Array.from(
+  new Set(Object.values(TEMPLATE_FACETS).flatMap((f) => f.tags))
+).sort();
+export const ORIENTATION_LABELS: Record<TemplateOrientation, string> = {
+  portrait: "Portrait", landscape: "Landscape", square: "Square",
+};
+export const FOCUS_LABELS: Record<TemplateFocus, string> = {
+  "photo-first": "Photo-first",
+  "text-first": "Text-first",
+  "ornament-first": "Ornament-first",
+};
+
 // Built-in palette/ornament configs. The DB row controls availability + premium gating;
 // rendering details live here so they can ship with the bundle.
 export const CARD_THEMES: Record<string, CardTheme> = {
