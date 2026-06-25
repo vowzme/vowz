@@ -26,6 +26,8 @@ import {
   DISPLAY_FONTS, BODY_FONTS, PRESET_PALETTES,
   PAPER_SIZES, PaperSize, PageScaling,
   TYPOGRAPHY_PRESETS, PHOTO_SHAPES, PHOTO_ASPECTS,
+  TEMPLATE_FACETS, ALL_TEMPLATE_TAGS, ORIENTATION_LABELS, FOCUS_LABELS,
+  TemplateOrientation, TemplateFocus,
 } from "@/lib/card-templates";
 
 const QR_POSITIONS: { value: QrPosition; label: string }[] = [
