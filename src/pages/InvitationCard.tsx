@@ -102,6 +102,12 @@ export default function InvitationCard() {
   const [isPremium, setIsPremium] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CardCategory>("hindu_sikh");
   const [selectedSlug, setSelectedSlug] = useState<string>("hindu-ganesha-classic");
+  // Gallery search & filters
+  const [galleryQuery, setGalleryQuery] = useState("");
+  const [galleryTags, setGalleryTags] = useState<string[]>([]);
+  const [galleryOrientation, setGalleryOrientation] = useState<TemplateOrientation | "all">("all");
+  const [galleryFocus, setGalleryFocus] = useState<TemplateFocus | "all">("all");
+  const [galleryShowPremium, setGalleryShowPremium] = useState<"all" | "free" | "premium">("all");
   const [exporting, setExporting] = useState<null | "png" | "pdf">(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
