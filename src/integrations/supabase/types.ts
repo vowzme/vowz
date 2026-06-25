@@ -1732,6 +1732,7 @@ export type Database = {
         }[]
       }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }
+      user_has_premium: { Args: { _user_id: string }; Returns: boolean }
       validate_coupon_for_redemption: {
         Args: {
           _code: string
