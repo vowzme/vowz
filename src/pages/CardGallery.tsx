@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, Lock, Heart, Smartphone, Printer, Monitor, X as XIcon, Sparkles } from "lucide-react";
+import { ArrowLeft, Search, Lock, Heart, Smartphone, Printer, Monitor, X as XIcon, Sparkles, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,12 @@ import {
   type CardTemplateMeta,
   type CardCategory,
 } from "@/lib/card-templates";
+import { useTemplateFavorites } from "@/hooks/use-template-favorites";
+import { usePremiumStatus } from "@/hooks/use-premium-status";
+import { trackTemplateEvent, fetchTemplatePopularity } from "@/lib/template-analytics";
+import UpgradeTemplateDialog, { PENDING_PREMIUM_TEMPLATE_KEY } from "@/components/UpgradeTemplateDialog";
+import { exportTemplateToPdf, type PdfMode } from "@/lib/template-pdf-export";
+import { toast } from "@/hooks/use-toast";
 
 const DEMO_DATA = {
   partner1: "Aanya",
@@ -37,15 +43,11 @@ const CATEGORIES: { value: "all" | CardCategory; label: string }[] = [
 type SortMode = "recommended" | "newest" | "popular" | "favorites";
 type PreviewMode = "card" | "mobile" | "print";
 
-const FAV_KEY = "vowz.cardGallery.favorites";
-function loadFavs(): string[] {
-  try { return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); } catch { return []; }
-}
-// Pseudo-popularity ranking so "Most Popular" feels stable & meaningful.
-function popularityScore(slug: string): number {
+// Stable fallback so "Most Popular" still feels meaningful when no analytics yet.
+function fallbackScore(slug: string): number {
   let h = 0;
   for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) | 0;
-  return Math.abs(h) % 1000;
+  return Math.abs(h) % 100;
 }
 
 // ── Reusable card preview at varying scales / framings ──
@@ -100,24 +102,73 @@ export default function CardGallery() {
   const [category, setCategory] = useState<"all" | CardCategory>("all");
   const [tier, setTier] = useState<"all" | "free" | "premium">("all");
   const [sort, setSort] = useState<SortMode>("recommended");
-  const [favorites, setFavorites] = useState<string[]>(() => loadFavs());
+  const { favorites, toggle: toggleFav } = useTemplateFavorites();
+  const { isPremium } = usePremiumStatus();
   const [detailSlug, setDetailSlug] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<PreviewMode>("card");
+  const [popularity, setPopularity] = useState<Record<string, number>>({});
+  const [upgradeFor, setUpgradeFor] = useState<CardTemplateMeta | null>(null);
+  const [pdfBusy, setPdfBusy] = useState<null | PdfMode>(null);
 
+  // Load popularity counts on mount
   useEffect(() => {
-    try { localStorage.setItem(FAV_KEY, JSON.stringify(favorites)); } catch {}
-  }, [favorites]);
+    fetchTemplatePopularity().then(setPopularity).catch(() => {});
+  }, []);
 
-  const toggleFav = (slug: string) =>
-    setFavorites((f) => (f.includes(slug) ? f.filter((s) => s !== slug) : [...f, slug]));
+  // Resume a previously interrupted "Use this template" after upgrade
+  useEffect(() => {
+    if (!isPremium) return;
+    try {
+      const pending = sessionStorage.getItem(PENDING_PREMIUM_TEMPLATE_KEY);
+      if (pending) {
+        sessionStorage.removeItem(PENDING_PREMIUM_TEMPLATE_KEY);
+        sessionStorage.setItem("pendingCardTemplate", pending);
+        toast({ title: "Premium unlocked", description: "Resuming your template…" });
+        navigate("/dashboard");
+      }
+    } catch {}
+  }, [isPremium, navigate]);
 
-  // "Use this template" → stash slug, send to dashboard so user can pick a site.
-  const handleUse = (slug: string, isPremium: boolean) => {
-    if (isPremium) {
-      // Premium is locked at the editor save step; still let user open the editor.
+  // Open detail = track open + preview, intercept locked premium templates
+  const openDetail = (t: CardTemplateMeta) => {
+    trackTemplateEvent(t.slug, "open");
+    trackTemplateEvent(t.slug, "preview");
+    if (t.is_premium && !isPremium) {
+      setUpgradeFor(t);
+      return;
     }
-    try { sessionStorage.setItem("pendingCardTemplate", slug); } catch {}
+    setDetailSlug(t.slug);
+  };
+
+  // "Use this template" → premium-gate first, then stash slug and route to dashboard
+  const handleUse = (t: CardTemplateMeta) => {
+    trackTemplateEvent(t.slug, "use");
+    if (t.is_premium && !isPremium) {
+      try { sessionStorage.setItem(PENDING_PREMIUM_TEMPLATE_KEY, t.slug); } catch {}
+      setUpgradeFor(t);
+      return;
+    }
+    try { sessionStorage.setItem("pendingCardTemplate", t.slug); } catch {}
     navigate("/dashboard");
+  };
+
+  const handleDownloadPdf = async (t: CardTemplateMeta, mode: PdfMode) => {
+    if (t.is_premium && !isPremium) {
+      setUpgradeFor(t);
+      return;
+    }
+    setPdfBusy(mode);
+    try {
+      await exportTemplateToPdf(
+        { slug: t.slug, name: t.name, data: DEMO_DATA, theme: CARD_THEMES[t.slug] },
+        mode,
+      );
+      toast({ title: "PDF ready", description: `${t.name} (${mode}) downloaded.` });
+    } catch (e: any) {
+      toast({ title: "PDF export failed", description: e?.message || "Try again.", variant: "destructive" });
+    } finally {
+      setPdfBusy(null);
+    }
   };
 
   const visible = useMemo(() => {
@@ -142,7 +193,12 @@ export default function CardGallery() {
         FALLBACK_TEMPLATES.indexOf(b) - FALLBACK_TEMPLATES.indexOf(a)
       );
     } else if (sort === "popular") {
-      sorted.sort((a, b) => popularityScore(b.slug) - popularityScore(a.slug));
+      // Real analytics score; fall back to deterministic hash if no events yet.
+      sorted.sort((a, b) => {
+        const sb = (popularity[b.slug] ?? 0) * 1000 + fallbackScore(b.slug);
+        const sa = (popularity[a.slug] ?? 0) * 1000 + fallbackScore(a.slug);
+        return sb - sa;
+      });
     } else if (sort === "recommended") {
       // Premium first, then favorites bubbled up.
       sorted.sort((a, b) => {
@@ -154,7 +210,7 @@ export default function CardGallery() {
       });
     }
     return sorted;
-  }, [query, category, tier, sort, favorites]);
+  }, [query, category, tier, sort, favorites, popularity]);
 
   const detailTpl = detailSlug ? FALLBACK_TEMPLATES.find((t) => t.slug === detailSlug) : null;
 
