@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, Lock } from "lucide-react";
+import { ArrowLeft, Search, Lock, Heart, Smartphone, Printer, Monitor, X as XIcon, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 import {
@@ -11,6 +12,7 @@ import {
   TEMPLATE_FACETS,
   CATEGORY_LABELS,
   InvitationCardArtwork,
+  type CardTemplateMeta,
   type CardCategory,
 } from "@/lib/card-templates";
 
@@ -32,18 +34,99 @@ const CATEGORIES: { value: "all" | CardCategory; label: string }[] = [
   { value: "royal_traditional", label: CATEGORY_LABELS.royal_traditional },
 ];
 
+type SortMode = "recommended" | "newest" | "popular" | "favorites";
+type PreviewMode = "card" | "mobile" | "print";
+
+const FAV_KEY = "vowz.cardGallery.favorites";
+function loadFavs(): string[] {
+  try { return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); } catch { return []; }
+}
+// Pseudo-popularity ranking so "Most Popular" feels stable & meaningful.
+function popularityScore(slug: string): number {
+  let h = 0;
+  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) | 0;
+  return Math.abs(h) % 1000;
+}
+
+// ── Reusable card preview at varying scales / framings ──
+function TemplatePreview({
+  template, scale = 0.5, mode = "card", width = 420,
+}: { template: CardTemplateMeta; scale?: number; mode?: PreviewMode; width?: number }) {
+  const theme = CARD_THEMES[template.slug];
+  if (!theme) return null;
+  const artwork = <InvitationCardArtwork data={DEMO_DATA} theme={theme} width={width} />;
+  if (mode === "mobile") {
+    // Render inside a phone frame
+    return (
+      <div className="relative" style={{ width: 260, height: 540 }}>
+        <div className="absolute inset-0 rounded-[36px] bg-foreground/90 shadow-xl" />
+        <div className="absolute inset-[10px] rounded-[28px] bg-background overflow-hidden flex items-center justify-center">
+          <div style={{ transform: `scale(${(240 / width)})`, transformOrigin: "center" }}>{artwork}</div>
+        </div>
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-1.5 rounded-full bg-background/30" />
+      </div>
+    );
+  }
+  if (mode === "print") {
+    // Render with a paper / crop-mark frame
+    return (
+      <div className="relative bg-white p-6 shadow-2xl" style={{ width: width * scale + 64, height: width * 1.4 * scale + 64 }}>
+        {/* Crop marks */}
+        {(["tl","tr","bl","br"] as const).map((c) => (
+          <div key={c} className="absolute w-4 h-4" style={{
+            top: c.includes("t") ? 8 : undefined, bottom: c.includes("b") ? 8 : undefined,
+            left: c.includes("l") ? 8 : undefined, right: c.includes("r") ? 8 : undefined,
+          }}>
+            <div className="absolute top-1/2 left-0 w-full h-px bg-foreground/60" />
+            <div className="absolute left-1/2 top-0 h-full w-px bg-foreground/60" />
+          </div>
+        ))}
+        <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", width, height: width * 1.4 }}>
+          {artwork}
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div style={{ transform: `scale(${scale})`, transformOrigin: "top center", pointerEvents: "none" }}>
+      {artwork}
+    </div>
+  );
+}
+
 export default function CardGallery() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"all" | CardCategory>("all");
   const [tier, setTier] = useState<"all" | "free" | "premium">("all");
+  const [sort, setSort] = useState<SortMode>("recommended");
+  const [favorites, setFavorites] = useState<string[]>(() => loadFavs());
+  const [detailSlug, setDetailSlug] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("card");
+
+  useEffect(() => {
+    try { localStorage.setItem(FAV_KEY, JSON.stringify(favorites)); } catch {}
+  }, [favorites]);
+
+  const toggleFav = (slug: string) =>
+    setFavorites((f) => (f.includes(slug) ? f.filter((s) => s !== slug) : [...f, slug]));
+
+  // "Use this template" → stash slug, send to dashboard so user can pick a site.
+  const handleUse = (slug: string, isPremium: boolean) => {
+    if (isPremium) {
+      // Premium is locked at the editor save step; still let user open the editor.
+    }
+    try { sessionStorage.setItem("pendingCardTemplate", slug); } catch {}
+    navigate("/dashboard");
+  };
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return FALLBACK_TEMPLATES.filter((t) => {
+    const filtered = FALLBACK_TEMPLATES.filter((t) => {
       if (category !== "all" && t.category !== category) return false;
       if (tier === "free" && t.is_premium) return false;
       if (tier === "premium" && !t.is_premium) return false;
+      if (sort === "favorites" && !favorites.includes(t.slug)) return false;
       if (!q) return true;
       const facets = TEMPLATE_FACETS[t.slug];
       return (
@@ -52,7 +135,28 @@ export default function CardGallery() {
         (facets?.tags ?? []).some((tag) => tag.includes(q))
       );
     });
-  }, [query, category, tier]);
+    const sorted = [...filtered];
+    if (sort === "newest") {
+      // The new premium templates were appended; later index = newer.
+      sorted.sort((a, b) =>
+        FALLBACK_TEMPLATES.indexOf(b) - FALLBACK_TEMPLATES.indexOf(a)
+      );
+    } else if (sort === "popular") {
+      sorted.sort((a, b) => popularityScore(b.slug) - popularityScore(a.slug));
+    } else if (sort === "recommended") {
+      // Premium first, then favorites bubbled up.
+      sorted.sort((a, b) => {
+        const fa = favorites.includes(a.slug) ? 1 : 0;
+        const fb = favorites.includes(b.slug) ? 1 : 0;
+        if (fa !== fb) return fb - fa;
+        if (a.is_premium !== b.is_premium) return a.is_premium ? -1 : 1;
+        return 0;
+      });
+    }
+    return sorted;
+  }, [query, category, tier, sort, favorites]);
+
+  const detailTpl = detailSlug ? FALLBACK_TEMPLATES.find((t) => t.slug === detailSlug) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -63,24 +167,24 @@ export default function CardGallery() {
         robots="index, follow"
       />
       <Navbar />
-      <section className="pt-28 pb-20 px-4">
+      <section className="pt-24 sm:pt-28 pb-16 sm:pb-20 px-3 sm:px-4">
         <div className="max-w-7xl mx-auto">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="mb-4 font-body text-muted-foreground">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="mb-3 sm:mb-4 font-body text-muted-foreground">
             <ArrowLeft className="w-4 h-4 mr-1" /> Back to Home
           </Button>
-          <div className="text-center mb-10">
+          <div className="text-center mb-6 sm:mb-10">
             <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-3">
               {FALLBACK_TEMPLATES.length} Premium Card Designs
             </p>
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-3">
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3">
               Invitation <span className="text-gradient-gold italic">Card Gallery</span>
             </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto font-body">
+            <p className="text-muted-foreground max-w-2xl mx-auto font-body text-sm sm:text-base">
               Fully editable, print-ready wedding invitation cards. Pick a design and customize every detail from your dashboard.
             </p>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-center mb-6 max-w-3xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-2 sm:gap-3 items-stretch md:items-center justify-center mb-4 sm:mb-6 max-w-4xl mx-auto">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -91,18 +195,32 @@ export default function CardGallery() {
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
-            <select
-              value={tier}
-              onChange={(e) => setTier(e.target.value as any)}
-              className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-body"
-            >
-              <option value="all">All tiers</option>
-              <option value="free">Free</option>
-              <option value="premium">Premium</option>
-            </select>
+            <div className="flex gap-2">
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortMode)}
+                className="flex-1 md:flex-none px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-body"
+                aria-label="Sort templates"
+              >
+                <option value="recommended">Recommended</option>
+                <option value="newest">Newest</option>
+                <option value="popular">Most popular</option>
+                <option value="favorites">My favorites ({favorites.length})</option>
+              </select>
+              <select
+                value={tier}
+                onChange={(e) => setTier(e.target.value as any)}
+                className="flex-1 md:flex-none px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-body"
+                aria-label="Filter by tier"
+              >
+                <option value="all">All tiers</option>
+                <option value="free">Free</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8">
             {CATEGORIES.map((c) => (
               <button
                 key={c.value}
@@ -118,36 +236,70 @@ export default function CardGallery() {
             ))}
           </div>
 
-          <p className="text-center text-sm text-muted-foreground font-body mb-6">
+          {/* Preview-mode toggle */}
+          <div className="flex items-center justify-center gap-1 mb-4 sm:mb-6">
+            <div className="inline-flex rounded-lg border border-border bg-card p-1">
+              {([
+                { v: "card", label: "Card", icon: Monitor },
+                { v: "mobile", label: "Mobile", icon: Smartphone },
+                { v: "print", label: "Print/PDF", icon: Printer },
+              ] as const).map(({ v, label, icon: Icon }) => (
+                <button
+                  key={v}
+                  onClick={() => setPreviewMode(v)}
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-body font-medium flex items-center gap-1.5 transition-all ${
+                    previewMode === v
+                      ? "bg-accent text-accent-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  aria-pressed={previewMode === v}
+                >
+                  <Icon className="w-3.5 h-3.5" /> {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-center text-xs sm:text-sm text-muted-foreground font-body mb-6">
             Showing {visible.length} of {FALLBACK_TEMPLATES.length} designs
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {visible.map((t) => {
               const theme = CARD_THEMES[t.slug];
               if (!theme) return null;
+              const isFav = favorites.includes(t.slug);
               return (
                 <div
                   key={t.slug}
-                  className="group rounded-xl overflow-hidden border border-border/50 bg-card hover:shadow-elegant transition-all duration-300 hover:-translate-y-1"
+                  className="group rounded-xl overflow-hidden border border-border/50 bg-card hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 flex flex-col"
                 >
-                  <div className="relative bg-muted/30 h-[360px] overflow-hidden flex items-start justify-center pt-4">
-                    <div
-                      style={{
-                        transform: "scale(0.5)",
-                        transformOrigin: "top center",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <InvitationCardArtwork data={DEMO_DATA} theme={theme} width={420} />
-                    </div>
+                  <button
+                    type="button"
+                    onClick={() => { setDetailSlug(t.slug); }}
+                    className="relative bg-muted/30 h-[300px] sm:h-[360px] overflow-hidden flex items-start justify-center pt-3 sm:pt-4 cursor-zoom-in"
+                    aria-label={`Open ${t.name} preview`}
+                  >
+                    <TemplatePreview template={t} mode={previewMode} scale={previewMode === "print" ? 0.36 : 0.5} />
                     {t.is_premium && (
-                      <Badge className="absolute top-3 right-3 bg-gold/90 text-background border-0 text-[10px] gap-1">
+                      <Badge className="absolute top-2 left-2 bg-gold/90 text-background border-0 text-[10px] gap-1">
                         <Lock className="w-2.5 h-2.5" /> Premium
                       </Badge>
                     )}
-                  </div>
-                  <div className="p-4">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleFav(t.slug); }}
+                      className={`absolute top-2 right-2 w-8 h-8 rounded-full grid place-items-center backdrop-blur-sm border transition-all ${
+                        isFav
+                          ? "bg-rose-500/90 border-rose-300 text-white"
+                          : "bg-background/70 border-border text-muted-foreground hover:text-rose-500"
+                      }`}
+                      aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+                    >
+                      <Heart className="w-4 h-4" fill={isFav ? "currentColor" : "none"} />
+                    </button>
+                  </button>
+                  <div className="p-3 sm:p-4 flex-1 flex flex-col">
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <h3 className="font-display text-base font-semibold text-foreground truncate">{t.name}</h3>
                       <Badge variant="outline" className="text-[10px] shrink-0">
@@ -157,9 +309,14 @@ export default function CardGallery() {
                     {t.description && (
                       <p className="text-xs text-muted-foreground font-body line-clamp-2 mb-3">{t.description}</p>
                     )}
-                    <Button asChild size="sm" className="w-full" variant="outline">
-                      <Link to="/dashboard">Use this design</Link>
-                    </Button>
+                    <div className="mt-auto flex gap-2">
+                      <Button size="sm" variant="outline" className="flex-1" onClick={() => setDetailSlug(t.slug)}>
+                        Preview
+                      </Button>
+                      <Button size="sm" className="flex-1" onClick={() => handleUse(t.slug, t.is_premium)}>
+                        Use
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
@@ -168,13 +325,15 @@ export default function CardGallery() {
 
           {visible.length === 0 && (
             <div className="text-center py-16">
-              <p className="text-muted-foreground font-body">No designs match your filters.</p>
+              <p className="text-muted-foreground font-body">
+                {sort === "favorites" ? "You haven't favorited any designs yet — tap the heart on any card." : "No designs match your filters."}
+              </p>
             </div>
           )}
 
-          <div className="text-center mt-16 p-8 rounded-2xl bg-gradient-to-br from-gold/10 via-background to-accent/10 border border-border/50">
+          <div className="text-center mt-12 sm:mt-16 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-gold/10 via-background to-accent/10 border border-border/50">
             <h2 className="font-display text-2xl font-semibold mb-2">Ready to customize?</h2>
-            <p className="text-muted-foreground font-body mb-5 max-w-lg mx-auto">
+            <p className="text-muted-foreground font-body mb-5 max-w-lg mx-auto text-sm sm:text-base">
               Open your dashboard, pick a wedding site, and tap “Invitation Card” to start editing any of these designs.
             </p>
             <Button asChild size="lg">
@@ -183,6 +342,105 @@ export default function CardGallery() {
           </div>
         </div>
       </section>
+
+      {/* ── Template detail / full-screen preview dialog ── */}
+      <Dialog open={!!detailTpl} onOpenChange={(o) => !o && setDetailSlug(null)}>
+        <DialogContent className="max-w-5xl w-[96vw] max-h-[92vh] overflow-y-auto p-0">
+          {detailTpl && (
+            <div className="grid md:grid-cols-[1fr_320px]">
+              {/* Preview pane */}
+              <div className="bg-muted/30 p-4 sm:p-8 flex flex-col items-center justify-center min-h-[420px]">
+                <DialogTitle className="sr-only">{detailTpl.name} preview</DialogTitle>
+                <div className="flex items-center gap-1 mb-4">
+                  <div className="inline-flex rounded-lg border border-border bg-card p-1">
+                    {([
+                      { v: "card", label: "Card", icon: Monitor },
+                      { v: "mobile", label: "Mobile", icon: Smartphone },
+                      { v: "print", label: "Print/PDF", icon: Printer },
+                    ] as const).map(({ v, label, icon: Icon }) => (
+                      <button
+                        key={v}
+                        onClick={() => setPreviewMode(v)}
+                        className={`px-2.5 py-1.5 rounded-md text-xs font-body font-medium flex items-center gap-1.5 transition-all ${
+                          previewMode === v
+                            ? "bg-accent text-accent-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" /> {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-start justify-center overflow-auto max-h-[60vh] w-full">
+                  <TemplatePreview
+                    template={detailTpl}
+                    mode={previewMode}
+                    scale={previewMode === "print" ? 0.6 : 0.85}
+                    width={500}
+                  />
+                </div>
+              </div>
+
+              {/* Info pane */}
+              <div className="p-5 sm:p-6 border-t md:border-t-0 md:border-l border-border/60 flex flex-col">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-display text-2xl font-semibold">{detailTpl.name}</h3>
+                  <button
+                    onClick={() => setDetailSlug(null)}
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Close"
+                  >
+                    <XIcon className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  <Badge variant="outline" className="text-[10px]">{CATEGORY_LABELS[detailTpl.category]}</Badge>
+                  {detailTpl.is_premium && (
+                    <Badge className="bg-gold/20 text-gold border-gold/40 text-[10px] gap-1">
+                      <Lock className="w-2.5 h-2.5" /> Premium
+                    </Badge>
+                  )}
+                  {(TEMPLATE_FACETS[detailTpl.slug]?.tags ?? []).slice(0, 5).map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-[10px]">{tag}</Badge>
+                  ))}
+                </div>
+                {detailTpl.description && (
+                  <p className="text-sm text-muted-foreground font-body mb-4">{detailTpl.description}</p>
+                )}
+
+                {detailTpl.is_premium && (
+                  <div className="rounded-lg border border-gold/40 bg-gold/5 p-3 mb-4 text-xs font-body">
+                    <div className="flex items-center gap-1.5 font-semibold text-gold mb-1">
+                      <Sparkles className="w-3.5 h-3.5" /> Premium template
+                    </div>
+                    <p className="text-muted-foreground">
+                      Open the editor to customize freely. Saving and exporting requires an active Premium plan — upgrade anytime from your dashboard.
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-auto flex flex-col gap-2">
+                  <Button onClick={() => handleUse(detailTpl.slug, detailTpl.is_premium)} className="w-full">
+                    Use this template
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => toggleFav(detailTpl.slug)}
+                    className="w-full"
+                  >
+                    <Heart
+                      className="w-4 h-4 mr-2"
+                      fill={favorites.includes(detailTpl.slug) ? "currentColor" : "none"}
+                    />
+                    {favorites.includes(detailTpl.slug) ? "Favorited" : "Add to favorites"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
