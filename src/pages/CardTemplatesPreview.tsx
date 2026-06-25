@@ -40,17 +40,28 @@ const LS_MODE = "vowz.preview.mode";
 const LS_PAPER = "vowz.preview.paper";
 const LS_QUALITY = "vowz.preview.quality";
 
-function buildWhatsappShareUrl(tpl: CardTemplateMeta): string {
-  const url = `${window.location.origin}/card-templates-preview?slug=${encodeURIComponent(tpl.slug)}`;
+type ShareFormat = "pdf" | "image" | "all";
+
+function formatLabel(f: ShareFormat): string {
+  if (f === "pdf") return "PDF";
+  if (f === "image") return "Image (PNG)";
+  return "PDF or Image";
+}
+
+function buildWhatsappShareUrl(tpl: CardTemplateMeta, format: ShareFormat): string {
+  const params = new URLSearchParams({ slug: tpl.slug });
+  if (format !== "all") params.set("format", format);
+  const url = `${window.location.origin}/card-templates-preview?${params.toString()}`;
+  const fmt = formatLabel(format);
   const msg =
     `💍 *Wedding Invitation* — "${tpl.name}"\n\n` +
-    `Preview this beautiful invitation card, download it as PDF or image, and use it for your big day:\n${url}`;
+    `Preview this invitation card and download it as ${fmt} to share with family & friends:\n${url}`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
-function shareOnWhatsapp(tpl: CardTemplateMeta) {
-  trackTemplateEvent(tpl.slug, "share", { channel: "whatsapp" });
-  window.open(buildWhatsappShareUrl(tpl), "_blank", "noopener,noreferrer");
+function shareOnWhatsapp(tpl: CardTemplateMeta, format: ShareFormat = "all") {
+  trackTemplateEvent(tpl.slug, "share", { channel: "whatsapp", format });
+  window.open(buildWhatsappShareUrl(tpl, format), "_blank", "noopener,noreferrer");
 }
 
 function downloadDataUrl(url: string, filename: string) {
@@ -315,9 +326,15 @@ export default function CardTemplatesPreview() {
                 <Button
                   variant="secondary"
                   className="w-full bg-[#25D366] hover:bg-[#1ebe5d] text-white"
-                  onClick={() => shareOnWhatsapp(active)}
+                  onClick={() =>
+                    shareOnWhatsapp(
+                      active,
+                      mode === "pdf" ? "pdf" : mode === "image" ? "image" : "all",
+                    )
+                  }
                 >
-                  <Share2 className="h-4 w-4 mr-2" /> Share on WhatsApp
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share on WhatsApp{mode === "pdf" || mode === "image" ? ` (${formatLabel(mode === "pdf" ? "pdf" : "image")})` : ""}
                 </Button>
 
                 <Button variant="outline" className="w-full" onClick={() => handleUseTemplate(active)}>
@@ -408,8 +425,11 @@ export default function CardTemplatesPreview() {
                   <Button
                     size="icon" variant="ghost"
                     className="absolute top-1 left-1 h-7 w-7 bg-[#25D366] hover:bg-[#1ebe5d] text-white"
-                    aria-label="Share on WhatsApp"
-                    onClick={(e) => { e.stopPropagation(); shareOnWhatsapp(tpl); }}
+                    aria-label={`Share ${tpl.name} on WhatsApp`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      shareOnWhatsapp(tpl, formatFilter === "all" ? "all" : formatFilter);
+                    }}
                   >
                     <Share2 className="h-3.5 w-3.5" />
                   </Button>
