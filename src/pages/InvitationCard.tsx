@@ -236,6 +236,26 @@ export default function InvitationCard() {
     })();
   }, [user, siteId]);
 
+  // Honor a template picked from the public Card Gallery or Dashboard:
+  // ?template=slug takes precedence, else sessionStorage.pendingCardTemplate.
+  useEffect(() => {
+    if (loading) return;
+    let slug: string | null = null;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      slug = sp.get("template");
+      if (!slug) slug = sessionStorage.getItem("pendingCardTemplate");
+    } catch {}
+    if (!slug) return;
+    const match = templates.find((t) => t.slug === slug);
+    if (!match) return;
+    setSelectedSlug(slug);
+    setThemeOverrides({});
+    setActiveCategory(match.category);
+    try { sessionStorage.removeItem("pendingCardTemplate"); } catch {}
+    toast({ title: `Loaded "${match.name}"`, description: "Template applied — customize and save." });
+  }, [loading, templates]);
+
   const selected = templates.find((t) => t.slug === selectedSlug) ?? templates[0];
   const baseTheme = CARD_THEMES[selectedSlug] ?? CARD_THEMES["hindu-ganesha-classic"];
   const theme: CardTheme = { ...baseTheme, ...themeOverrides };
