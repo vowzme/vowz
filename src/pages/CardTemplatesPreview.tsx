@@ -48,10 +48,10 @@ function formatLabel(f: ShareFormat): string {
   return "PDF or Image";
 }
 
-function buildWhatsappShareUrl(tpl: CardTemplateMeta, format: ShareFormat): string {
+export function buildWhatsappShareUrl(tpl: Pick<CardTemplateMeta, "slug" | "name"> & Partial<CardTemplateMeta>, format: ShareFormat, origin: string = typeof window !== "undefined" ? window.location.origin : ""): string {
   const params = new URLSearchParams({ slug: tpl.slug });
   if (format !== "all") params.set("format", format);
-  const url = `${window.location.origin}/card-templates-preview?${params.toString()}`;
+  const url = `${origin}/card-templates-preview?${params.toString()}`;
   const safeName = encodeURIComponent(tpl.name);
   const safeFmt = encodeURIComponent(formatLabel(format));
   const safeUrl = encodeURIComponent(url);
