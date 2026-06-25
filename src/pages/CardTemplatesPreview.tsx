@@ -52,11 +52,14 @@ function buildWhatsappShareUrl(tpl: CardTemplateMeta, format: ShareFormat): stri
   const params = new URLSearchParams({ slug: tpl.slug });
   if (format !== "all") params.set("format", format);
   const url = `${window.location.origin}/card-templates-preview?${params.toString()}`;
-  const fmt = formatLabel(format);
-  const msg =
-    `💍 *Wedding Invitation* — "${tpl.name}"\n\n` +
-    `Preview this invitation card and download it as ${fmt} to share with family & friends:\n${url}`;
-  return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  const safeName = encodeURIComponent(tpl.name);
+  const safeFmt = encodeURIComponent(formatLabel(format));
+  const safeUrl = encodeURIComponent(url);
+  const text =
+    `${encodeURIComponent('💍 *Wedding Invitation* — "')}${safeName}${encodeURIComponent('"\n\n')}` +
+    `${encodeURIComponent("Preview this invitation card and download it as ")}${safeFmt}` +
+    `${encodeURIComponent(" to share with family & friends:\n")}${safeUrl}`;
+  return `https://wa.me/?text=${text}`;
 }
 
 function shareOnWhatsapp(tpl: CardTemplateMeta, format: ShareFormat = "all") {
