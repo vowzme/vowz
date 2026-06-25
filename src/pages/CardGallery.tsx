@@ -532,9 +532,7 @@ export default function CardGallery() {
         templateName={upgradeFor?.name}
         onUpgraded={() => {
           // Premium status will refresh; the resume effect handles redirect.
-          if (upgradeFor) {
-            try { sessionStorage.setItem(PENDING_PREMIUM_TEMPLATE_KEY, upgradeFor.slug); } catch {}
-          }
+          if (upgradeFor) writePendingPremiumTemplate(upgradeFor.slug);
           setUpgradeFor(null);
         }}
       />
