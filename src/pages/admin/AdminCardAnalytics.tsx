@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Eye, MousePointerClick, Sparkles, TrendingUp } from "lucide-react";
+import { BarChart3, Eye, MousePointerClick, Sparkles, TrendingUp, Image as ImageIcon, Download } from "lucide-react";
 import { FALLBACK_TEMPLATES } from "@/lib/card-templates";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -10,8 +10,9 @@ import {
 
 interface Row {
   template_slug: string;
-  event_type: "open" | "preview" | "use";
+  event_type: "open" | "preview" | "use" | "render" | "download";
   created_at: string;
+  meta?: { paper?: string; mode?: string; quality?: string } | null;
 }
 
 const NAME = (slug: string) =>
@@ -28,7 +29,7 @@ export default function AdminCardAnalytics() {
       const since = new Date(); since.setDate(since.getDate() - range);
       const { data } = await (supabase as any)
         .from("template_events")
-        .select("template_slug,event_type,created_at")
+        .select("template_slug,event_type,created_at,meta")
         .gte("created_at", since.toISOString())
         .order("created_at", { ascending: false })
         .limit(5000);
@@ -38,13 +39,26 @@ export default function AdminCardAnalytics() {
   }, [range]);
 
   const totals = useMemo(() => {
-    const t = { opens: 0, previews: 0, uses: 0 };
+    const t = { opens: 0, previews: 0, uses: 0, renders: 0, downloads: 0 };
     for (const r of rows) {
       if (r.event_type === "open") t.opens++;
       else if (r.event_type === "preview") t.previews++;
       else if (r.event_type === "use") t.uses++;
+      else if (r.event_type === "render") t.renders++;
+      else if (r.event_type === "download") t.downloads++;
     }
     return t;
+  }, [rows]);
+
+  // Paper-size breakdown for downloads (A4 vs Letter vs Card)
+  const paperBreakdown = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const r of rows) {
+      if (r.event_type !== "download") continue;
+      const p = (r.meta?.paper ?? "unknown").toUpperCase();
+      m[p] = (m[p] ?? 0) + 1;
+    }
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
   }, [rows]);
 
   const ranked = useMemo(() => {
@@ -62,11 +76,11 @@ export default function AdminCardAnalytics() {
   }, [rows]);
 
   const trend = useMemo(() => {
-    const buckets: Record<string, { date: string; opens: number; previews: number; uses: number }> = {};
+    const buckets: Record<string, { date: string; opens: number; previews: number; uses: number; renders: number; downloads: number }> = {};
     for (let i = range - 1; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i);
       const key = d.toISOString().slice(0, 10);
-      buckets[key] = { date: key.slice(5), opens: 0, previews: 0, uses: 0 };
+      buckets[key] = { date: key.slice(5), opens: 0, previews: 0, uses: 0, renders: 0, downloads: 0 };
     }
     for (const r of rows) {
       const key = r.created_at.slice(0, 10);
@@ -75,6 +89,8 @@ export default function AdminCardAnalytics() {
       if (r.event_type === "open") b.opens++;
       else if (r.event_type === "preview") b.previews++;
       else if (r.event_type === "use") b.uses++;
+      else if (r.event_type === "render") b.renders++;
+      else if (r.event_type === "download") b.downloads++;
     }
     return Object.values(buckets);
   }, [rows, range]);
@@ -103,10 +119,12 @@ export default function AdminCardAnalytics() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard icon={Eye} label="Opens" value={totals.opens} hint="Detail view opened" />
         <StatCard icon={BarChart3} label="Previews" value={totals.previews} hint="Rendered in preview" />
         <StatCard icon={MousePointerClick} label="Uses" value={totals.uses} hint="'Use this template' clicked" />
+        <StatCard icon={ImageIcon} label="Renders" value={totals.renders} hint="PDF rendered" />
+        <StatCard icon={Download} label="Downloads" value={totals.downloads} hint="PDF downloaded" />
         <StatCard icon={Sparkles} label="Templates tracked" value={ranked.length} hint="Distinct templates" />
       </div>
 
@@ -129,8 +147,31 @@ export default function AdminCardAnalytics() {
                 <Line type="monotone" dataKey="opens" stroke="#94a3b8" dot={false} />
                 <Line type="monotone" dataKey="previews" stroke="#3b82f6" dot={false} />
                 <Line type="monotone" dataKey="uses" stroke="#D4AF37" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="renders" stroke="#10b981" dot={false} />
+                <Line type="monotone" dataKey="downloads" stroke="#ec4899" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Download className="w-4 h-4 text-pink-500" /> PDF downloads by paper size
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {paperBreakdown.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No downloads in this window yet.</div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {paperBreakdown.map(([paper, count]) => (
+                <Badge key={paper} variant="outline" className="text-xs">
+                  {paper}: <span className="ml-1 font-semibold">{count}</span>
+                </Badge>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
