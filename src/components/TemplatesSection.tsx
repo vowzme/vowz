@@ -1952,6 +1952,31 @@ const TemplatesSection = () => {
             })}
           </div>
 
+          {/* Theme subsections */}
+          <div className="mt-12">
+            <h3 className="text-center text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4 font-body">
+              Browse offline cards by theme
+            </h3>
+            <div className="flex flex-wrap justify-center gap-3">
+              {[
+                { key: "hindu_sikh", label: "Hindu / Sikh" },
+                { key: "christian_muslim", label: "Christian / Muslim" },
+                { key: "modern_minimal", label: "Modern / Minimal" },
+                { key: "royal_traditional", label: "Royal / Traditional" },
+              ].map((t) => (
+                <Button
+                  key={t.key}
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate(`/card-templates-preview?theme=${t.key}`)}
+                  className="font-body"
+                >
+                  {t.label} →
+                </Button>
+              ))}
+            </div>
+          </div>
+
           <motion.div
             className="text-center mt-12"
             initial={{ opacity: 0, y: 20 }}
