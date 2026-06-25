@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type TemplateEventType = "open" | "preview" | "use" | "render" | "download";
+export type TemplateEventType = "open" | "preview" | "use" | "render" | "download" | "share";
 
 function getVisitorId(): string {
   try {
