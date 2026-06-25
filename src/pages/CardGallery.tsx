@@ -23,8 +23,11 @@ import UpgradeTemplateDialog, {
   writePendingPremiumTemplate,
   clearPendingPremiumTemplate,
 } from "@/components/UpgradeTemplateDialog";
-import { exportTemplateToPdf, type PdfMode, type PdfPaper } from "@/lib/template-pdf-export";
+import { exportTemplateToPdf, type PdfMode, type PdfPaper, type PdfQuality } from "@/lib/template-pdf-export";
 import { toast } from "@/hooks/use-toast";
+
+const PDF_PAPER_KEY = "vowz.pdf.paper";
+const PDF_QUALITY_KEY = "vowz.pdf.quality";
 
 const DEMO_DATA = {
   partner1: "Aanya",
@@ -113,8 +116,17 @@ export default function CardGallery() {
   const [popularity, setPopularity] = useState<Record<string, number>>({});
   const [upgradeFor, setUpgradeFor] = useState<CardTemplateMeta | null>(null);
   const [pdfBusy, setPdfBusy] = useState<null | PdfMode>(null);
-  const [pdfPaper, setPdfPaper] = useState<PdfPaper>("card");
+  const [pdfPaper, setPdfPaper] = useState<PdfPaper>(() => {
+    try { return (localStorage.getItem(PDF_PAPER_KEY) as PdfPaper) || "card"; } catch { return "card"; }
+  });
+  const [pdfQuality, setPdfQuality] = useState<PdfQuality>(() => {
+    try { return (localStorage.getItem(PDF_QUALITY_KEY) as PdfQuality) || "high"; } catch { return "high"; }
+  });
   const [pendingPremiumSlug, setPendingPremiumSlug] = useState<string | null>(() => readPendingPremiumTemplate());
+
+  // Persist last-used PDF dialog settings so they default next time.
+  useEffect(() => { try { localStorage.setItem(PDF_PAPER_KEY, pdfPaper); } catch {} }, [pdfPaper]);
+  useEffect(() => { try { localStorage.setItem(PDF_QUALITY_KEY, pdfQuality); } catch {} }, [pdfQuality]);
 
   // Load popularity counts on mount
   useEffect(() => {
@@ -163,13 +175,17 @@ export default function CardGallery() {
       return;
     }
     setPdfBusy(mode);
+    // Render event fires before the heavy canvas work begins.
+    trackTemplateEvent(t.slug, "render", { mode, paper: pdfPaper, quality: pdfQuality });
     try {
       await exportTemplateToPdf(
         { slug: t.slug, name: t.name, data: DEMO_DATA, theme: CARD_THEMES[t.slug] },
         mode,
         pdfPaper,
+        pdfQuality,
       );
-      toast({ title: "PDF ready", description: `${t.name} · ${mode} · ${pdfPaper.toUpperCase()} downloaded.` });
+      trackTemplateEvent(t.slug, "download", { mode, paper: pdfPaper, quality: pdfQuality });
+      toast({ title: "PDF ready", description: `${t.name} · ${mode} · ${pdfPaper.toUpperCase()} · ${pdfQuality} quality downloaded.` });
     } catch (e: any) {
       toast({ title: "PDF export failed", description: e?.message || "Try again.", variant: "destructive" });
     } finally {
@@ -521,6 +537,18 @@ export default function CardGallery() {
                       <option value="card">Card (5×7 / 4×6)</option>
                       <option value="a4">A4 (210×297 mm)</option>
                       <option value="letter">Letter (8.5×11 in)</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                    <span className="shrink-0">Quality:</span>
+                    <select
+                      value={pdfQuality}
+                      onChange={(e) => setPdfQuality(e.target.value as PdfQuality)}
+                      className="flex-1 px-2 py-1.5 rounded-md border border-border bg-background text-foreground"
+                      aria-label="PDF image quality"
+                    >
+                      <option value="high">High (~300 dpi · sharper)</option>
+                      <option value="standard">Standard (~200 dpi · faster)</option>
                     </select>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
