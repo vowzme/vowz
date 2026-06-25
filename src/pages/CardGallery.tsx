@@ -298,6 +298,30 @@ export default function CardGallery() {
             ))}
           </div>
 
+          {/* Pending premium resume banner — survives refresh until cleared */}
+          {pendingPremiumSlug && !isPremium && (() => {
+            const t = FALLBACK_TEMPLATES.find((x) => x.slug === pendingPremiumSlug);
+            if (!t) return null;
+            return (
+              <div className="mb-6 mx-auto max-w-3xl rounded-xl border border-gold/40 bg-gold/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-2 flex-1 text-sm font-body">
+                  <Lock className="w-4 h-4 text-gold" />
+                  <span><strong>{t.name}</strong> is waiting. Upgrade to resume — your pick is saved across refreshes.</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => setUpgradeFor(t)}>Resume upgrade</Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => { clearPendingPremiumTemplate(); setPendingPremiumSlug(null); }}
+                  >
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Preview-mode toggle */}
           <div className="flex items-center justify-center gap-1 mb-4 sm:mb-6">
             <div className="inline-flex rounded-lg border border-border bg-card p-1">
