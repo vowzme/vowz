@@ -60,8 +60,18 @@ function buildWhatsappShareUrl(tpl: CardTemplateMeta, format: ShareFormat): stri
 }
 
 function shareOnWhatsapp(tpl: CardTemplateMeta, format: ShareFormat = "all") {
-  trackTemplateEvent(tpl.slug, "share", { channel: "whatsapp", format });
-  window.open(buildWhatsappShareUrl(tpl, format), "_blank", "noopener,noreferrer");
+  const shareUrl = buildWhatsappShareUrl(tpl, format);
+  trackTemplateEvent(tpl.slug, "share", {
+    channel: "whatsapp",
+    slug: tpl.slug,
+    template_name: tpl.name,
+    category: tpl.category,
+    is_premium: tpl.is_premium,
+    format,
+    format_label: formatLabel(format),
+    share_url: shareUrl,
+  });
+  window.open(shareUrl, "_blank", "noopener,noreferrer");
 }
 
 function downloadDataUrl(url: string, filename: string) {
