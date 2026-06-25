@@ -6,6 +6,7 @@ import { InvitationCardArtwork, CARD_THEMES, type CardTheme } from "@/lib/card-t
 
 export type PdfMode = "phone" | "print";
 export type PdfPaper = "card" | "a4" | "letter";
+export type PdfQuality = "standard" | "high";
 
 export interface ExportInput {
   slug: string;
@@ -23,7 +24,7 @@ export interface ExportInput {
  */
 export async function exportTemplateToPdf({
   slug, name, data, theme,
-}: ExportInput, mode: PdfMode = "print", paper: PdfPaper = "card"): Promise<void> {
+}: ExportInput, mode: PdfMode = "print", paper: PdfPaper = "card", quality: PdfQuality = "high"): Promise<void> {
   const themeToUse = theme ?? CARD_THEMES[slug];
   if (!themeToUse) throw new Error("Template theme not found");
 
@@ -43,14 +44,15 @@ export async function exportTemplateToPdf({
   try {
     // Wait a tick so fonts / images settle
     await new Promise((r) => setTimeout(r, 60));
-    // scale=3 ≈ 300dpi at our artwork width — sharp crop marks & text in print.
+    // scale=3 ≈ 300dpi (high), scale=2 ≈ 200dpi (standard, faster + smaller files).
+    const renderScale = quality === "high" ? 3 : 2;
     const canvas = await html2canvas(host, {
       backgroundColor: "#ffffff",
-      scale: 3,
+      scale: renderScale,
       useCORS: true,
       logging: false,
     });
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+    const imgData = canvas.toDataURL("image/jpeg", quality === "high" ? 0.95 : 0.88);
 
     // Trim sizes by paper choice. "card" keeps the original postcard/5x7 look,
     // "a4" and "letter" produce full standard sheets with margins.

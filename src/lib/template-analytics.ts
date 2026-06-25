@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type TemplateEventType = "open" | "preview" | "use";
+export type TemplateEventType = "open" | "preview" | "use" | "render" | "download";
 
 function getVisitorId(): string {
   try {
@@ -13,10 +13,16 @@ function getVisitorId(): string {
 // Lightweight per-session dedupe so a single page render doesn't fire 10 events.
 const fired = new Set<string>();
 
-export async function trackTemplateEvent(slug: string, type: TemplateEventType) {
+export async function trackTemplateEvent(
+  slug: string,
+  type: TemplateEventType,
+  meta?: Record<string, unknown>,
+) {
+  // Dedupe only passive events; user-driven actions always fire.
+  const dedupable = type === "open" || type === "preview";
   const key = `${slug}:${type}`;
-  if (fired.has(key) && type !== "use") return;
-  fired.add(key);
+  if (dedupable && fired.has(key)) return;
+  if (dedupable) fired.add(key);
   try {
     const { data: { user } } = await supabase.auth.getUser();
     await (supabase as any).from("template_events").insert({
@@ -24,6 +30,7 @@ export async function trackTemplateEvent(slug: string, type: TemplateEventType) 
       event_type: type,
       user_id: user?.id ?? null,
       visitor_id: getVisitorId(),
+      meta: meta ?? null,
     });
   } catch {
     // analytics must never throw

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
 
 const LOCAL_KEY = "vowz.cardGallery.favorites";
+const MIGRATED_KEY = "vowz.cardGallery.favorites.migratedFor";
 
 const loadLocal = (): string[] => {
   try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]"); } catch { return []; }
@@ -36,13 +38,30 @@ export function useTemplateFavorites() {
       const cloud: string[] = (data ?? []).map((r: any) => r.template_slug);
       const local = loadLocal();
       const merged = Array.from(new Set([...cloud, ...local]));
-      // Push any local-only entries up so they follow the user
-      const toInsert = local.filter((s) => !cloud.includes(s));
+      // Push any local-only entries up so they follow the user. Use upsert on
+      // the (user_id, template_slug) unique constraint to be duplicate-proof.
+      const toInsert = Array.from(new Set(local)).filter((s) => !cloud.includes(s));
+      let migratedCount = 0;
       if (toInsert.length) {
-        await (supabase as any).from("template_favorites").insert(
+        const { error } = await (supabase as any).from("template_favorites").upsert(
           toInsert.map((slug) => ({ user_id: user.id, template_slug: slug })),
+          { onConflict: "user_id,template_slug", ignoreDuplicates: true },
         );
+        if (!error) migratedCount = toInsert.length;
       }
+      // One-time post-login migration toast (per user).
+      try {
+        const already = localStorage.getItem(MIGRATED_KEY);
+        if (already !== user.id) {
+          if (migratedCount > 0) {
+            toast({
+              title: "Favorites synced",
+              description: `${migratedCount} local favorite${migratedCount === 1 ? "" : "s"} moved to your account.`,
+            });
+          }
+          localStorage.setItem(MIGRATED_KEY, user.id);
+        }
+      } catch {}
       if (!cancelled) {
         setFavorites(merged);
         saveLocal(merged); // keep local mirror for offline
