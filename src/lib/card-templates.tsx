@@ -136,9 +136,8 @@ export const TEMPLATE_FACETS: Record<string, TemplateFacets> = {
   "royal-peacock":          { tags: ["royal", "peacock", "ornate", "maroon"],          orientation: "portrait", focus: "photo-first" },
   "royal-velvet":           { tags: ["royal", "damask", "velvet", "luxe"],             orientation: "portrait", focus: "ornament-first" },
 };
-export const ALL_TEMPLATE_TAGS = Array.from(
-  new Set(Object.values(TEMPLATE_FACETS).flatMap((f) => f.tags))
-).sort();
+// Computed after NEW_PREMIUM_TEMPLATES merge below.
+export let ALL_TEMPLATE_TAGS: string[] = [];
 export const ORIENTATION_LABELS: Record<TemplateOrientation, string> = {
   portrait: "Portrait", landscape: "Landscape", square: "Square",
 };
@@ -297,6 +296,9 @@ NEW_PREMIUM_TEMPLATES.forEach((t) => {
     is_premium: true, is_enabled: true, description: t.description,
   });
 });
+ALL_TEMPLATE_TAGS = Array.from(
+  new Set(Object.values(TEMPLATE_FACETS).flatMap((f) => f.tags))
+).sort();
 
 // ─── SVG ornaments ────────────────────────────────────────────────
 function Ornament({ kind, color, size = 90 }: { kind: CardTheme["ornament"]; color: string; size?: number }) {
