@@ -5,6 +5,7 @@ import { createElement } from "react";
 import { InvitationCardArtwork, CARD_THEMES, type CardTheme } from "@/lib/card-templates";
 
 export type PdfMode = "phone" | "print";
+export type PdfPaper = "card" | "a4" | "letter";
 
 export interface ExportInput {
   slug: string;
@@ -22,12 +23,12 @@ export interface ExportInput {
  */
 export async function exportTemplateToPdf({
   slug, name, data, theme,
-}: ExportInput, mode: PdfMode = "print"): Promise<void> {
+}: ExportInput, mode: PdfMode = "print", paper: PdfPaper = "card"): Promise<void> {
   const themeToUse = theme ?? CARD_THEMES[slug];
   if (!themeToUse) throw new Error("Template theme not found");
 
   // Render artwork as static HTML inside an off-screen host so html2canvas can paint it.
-  const ARTWORK_WIDTH = 900; // px, high-res source
+  const ARTWORK_WIDTH = 1200; // px, high-res source
   const host = document.createElement("div");
   host.style.position = "fixed";
   host.style.left = "-10000px";
@@ -42,19 +43,27 @@ export async function exportTemplateToPdf({
   try {
     // Wait a tick so fonts / images settle
     await new Promise((r) => setTimeout(r, 60));
+    // scale=3 ≈ 300dpi at our artwork width — sharp crop marks & text in print.
     const canvas = await html2canvas(host, {
       backgroundColor: "#ffffff",
-      scale: 2,
+      scale: 3,
       useCORS: true,
       logging: false,
     });
-    const imgData = canvas.toDataURL("image/jpeg", 0.94);
+    const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
-    const sizes = {
-      phone: { w: 4, h: 6, bleed: 0, crop: false },
-      print: { w: 5, h: 7, bleed: 0.125, crop: true },
-    } as const;
-    const cfg = sizes[mode];
+    // Trim sizes by paper choice. "card" keeps the original postcard/5x7 look,
+    // "a4" and "letter" produce full standard sheets with margins.
+    const cropOn = mode === "print";
+    const bleed = cropOn ? 0.125 : 0;
+    const margin = 0.4; // inches, for A4/Letter sheets
+    const sizes: Record<PdfPaper, { w: number; h: number }> = {
+      card: mode === "phone" ? { w: 4, h: 6 } : { w: 5, h: 7 },
+      a4: { w: 8.27, h: 11.69 },
+      letter: { w: 8.5, h: 11 },
+    };
+    const trim = sizes[paper];
+    const cfg = { w: trim.w, h: trim.h, bleed, crop: cropOn };
 
     const pageW = cfg.w + cfg.bleed * 2;
     const pageH = cfg.h + cfg.bleed * 2;
