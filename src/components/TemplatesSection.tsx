@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, ChevronDown } from "lucide-react";
+import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, ChevronDown, FileText, ImageIcon, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Lightbox from "@/components/Lightbox";
+import { CARD_THEMES, FALLBACK_TEMPLATES, InvitationCardArtwork } from "@/lib/card-templates";
 
 export interface TemplateData {
   name: string;
@@ -1887,6 +1888,84 @@ const TemplatesSection = () => {
                 Browse 30+ Invitation Card Designs →
               </Button>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Offline / PDF / Image Invitation Cards for WhatsApp sharing */}
+      <section className="py-16 sm:py-24 px-4 bg-muted/20" id="offline-cards">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span className="inline-block px-4 py-1.5 mb-4 text-xs tracking-[0.2em] uppercase bg-primary/10 text-primary rounded-full font-body">
+              Offline & WhatsApp-Ready
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-heading mb-3">
+              Invitation Cards as PDF or Image
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto font-body">
+              Download premium invitation cards as PDF or PNG and share instantly on WhatsApp — no internet required for guests to view.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {FALLBACK_TEMPLATES.filter((t) => CARD_THEMES[t.slug]).slice(0, 8).map((tpl, i) => {
+              const theme = CARD_THEMES[tpl.slug];
+              const sample = {
+                partner1: "Aanya",
+                partner2: "Rohan",
+                date: "12 December 2026",
+                time: "6:30 PM",
+                venue: "The Leela Palace, Bengaluru",
+                invitationLine: "Together with their families",
+                message: "Request the pleasure of your company.",
+              };
+              return (
+                <motion.div
+                  key={tpl.slug}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  className="group cursor-pointer rounded-lg overflow-hidden border bg-card hover:shadow-xl transition-shadow"
+                  onClick={() => navigate(`/card-templates-preview?slug=${tpl.slug}`)}
+                >
+                  <div className="bg-muted/40 p-3 flex justify-center overflow-hidden">
+                    <div style={{ transform: "scale(0.42)", transformOrigin: "top center", height: 230 }}>
+                      <InvitationCardArtwork data={sample} theme={theme} width={400} />
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <p className="font-body font-medium text-sm truncate">{tpl.name}</p>
+                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                      <FileText className="h-3 w-3" /> PDF
+                      <ImageIcon className="h-3 w-3 ml-1" /> PNG
+                      <Share2 className="h-3 w-3 ml-1" /> WhatsApp
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Button
+              variant="gold"
+              size="xl"
+              onClick={() => navigate("/card-templates-preview")}
+              className="font-body"
+            >
+              View All Offline Card Templates →
+            </Button>
           </motion.div>
         </div>
       </section>
