@@ -69,14 +69,18 @@ export async function exportTemplateToPdf({
     const pageH = cfg.h + cfg.bleed * 2;
     const pdf = new jsPDF({ unit: "in", format: [pageW, pageH], orientation: pageW > pageH ? "landscape" : "portrait" });
 
-    // Fit artwork into the trim area, centered
+    // Fit artwork into the trim area, centered. A4/Letter get safe margins
+    // so the card sits inside a printable sheet rather than bleeding edge-to-edge.
     const trimW = cfg.w;
     const trimH = cfg.h;
+    const innerMargin = (paper === "a4" || paper === "letter") ? margin : 0;
+    const fitW = trimW - innerMargin * 2;
+    const fitH = trimH - innerMargin * 2;
     const aspect = canvas.width / canvas.height;
-    let drawW = trimW, drawH = trimW / aspect;
-    if (drawH > trimH) { drawH = trimH; drawW = trimH * aspect; }
-    const x = cfg.bleed + (trimW - drawW) / 2;
-    const y = cfg.bleed + (trimH - drawH) / 2;
+    let drawW = fitW, drawH = fitW / aspect;
+    if (drawH > fitH) { drawH = fitH; drawW = fitH * aspect; }
+    const x = cfg.bleed + innerMargin + (fitW - drawW) / 2;
+    const y = cfg.bleed + innerMargin + (fitH - drawH) / 2;
     pdf.addImage(imgData, "JPEG", x, y, drawW, drawH, undefined, "FAST");
 
     if (cfg.crop) {
@@ -102,7 +106,7 @@ export async function exportTemplateToPdf({
     }
 
     const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    pdf.save(`${safeName || slug}-${mode}.pdf`);
+    pdf.save(`${safeName || slug}-${mode}-${paper}.pdf`);
   } finally {
     host.remove();
   }
