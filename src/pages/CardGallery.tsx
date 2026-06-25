@@ -18,8 +18,12 @@ import {
 import { useTemplateFavorites } from "@/hooks/use-template-favorites";
 import { usePremiumStatus } from "@/hooks/use-premium-status";
 import { trackTemplateEvent, fetchTemplatePopularity } from "@/lib/template-analytics";
-import UpgradeTemplateDialog, { PENDING_PREMIUM_TEMPLATE_KEY } from "@/components/UpgradeTemplateDialog";
-import { exportTemplateToPdf, type PdfMode } from "@/lib/template-pdf-export";
+import UpgradeTemplateDialog, {
+  readPendingPremiumTemplate,
+  writePendingPremiumTemplate,
+  clearPendingPremiumTemplate,
+} from "@/components/UpgradeTemplateDialog";
+import { exportTemplateToPdf, type PdfMode, type PdfPaper } from "@/lib/template-pdf-export";
 import { toast } from "@/hooks/use-toast";
 
 const DEMO_DATA = {
@@ -109,6 +113,8 @@ export default function CardGallery() {
   const [popularity, setPopularity] = useState<Record<string, number>>({});
   const [upgradeFor, setUpgradeFor] = useState<CardTemplateMeta | null>(null);
   const [pdfBusy, setPdfBusy] = useState<null | PdfMode>(null);
+  const [pdfPaper, setPdfPaper] = useState<PdfPaper>("card");
+  const [pendingPremiumSlug, setPendingPremiumSlug] = useState<string | null>(() => readPendingPremiumTemplate());
 
   // Load popularity counts on mount
   useEffect(() => {
@@ -118,15 +124,13 @@ export default function CardGallery() {
   // Resume a previously interrupted "Use this template" after upgrade
   useEffect(() => {
     if (!isPremium) return;
-    try {
-      const pending = sessionStorage.getItem(PENDING_PREMIUM_TEMPLATE_KEY);
-      if (pending) {
-        sessionStorage.removeItem(PENDING_PREMIUM_TEMPLATE_KEY);
-        sessionStorage.setItem("pendingCardTemplate", pending);
-        toast({ title: "Premium unlocked", description: "Resuming your template…" });
-        navigate("/dashboard");
-      }
-    } catch {}
+    const pending = readPendingPremiumTemplate();
+    if (pending) {
+      clearPendingPremiumTemplate();
+      try { sessionStorage.setItem("pendingCardTemplate", pending); } catch {}
+      toast({ title: "Premium unlocked", description: "Resuming your template…" });
+      navigate("/dashboard");
+    }
   }, [isPremium, navigate]);
 
   // Open detail = track open + preview, intercept locked premium templates
@@ -144,7 +148,8 @@ export default function CardGallery() {
   const handleUse = (t: CardTemplateMeta) => {
     trackTemplateEvent(t.slug, "use");
     if (t.is_premium && !isPremium) {
-      try { sessionStorage.setItem(PENDING_PREMIUM_TEMPLATE_KEY, t.slug); } catch {}
+      writePendingPremiumTemplate(t.slug);
+      setPendingPremiumSlug(t.slug);
       setUpgradeFor(t);
       return;
     }
@@ -162,8 +167,9 @@ export default function CardGallery() {
       await exportTemplateToPdf(
         { slug: t.slug, name: t.name, data: DEMO_DATA, theme: CARD_THEMES[t.slug] },
         mode,
+        pdfPaper,
       );
-      toast({ title: "PDF ready", description: `${t.name} (${mode}) downloaded.` });
+      toast({ title: "PDF ready", description: `${t.name} · ${mode} · ${pdfPaper.toUpperCase()} downloaded.` });
     } catch (e: any) {
       toast({ title: "PDF export failed", description: e?.message || "Try again.", variant: "destructive" });
     } finally {
