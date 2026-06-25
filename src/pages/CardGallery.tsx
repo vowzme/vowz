@@ -18,8 +18,12 @@ import {
 import { useTemplateFavorites } from "@/hooks/use-template-favorites";
 import { usePremiumStatus } from "@/hooks/use-premium-status";
 import { trackTemplateEvent, fetchTemplatePopularity } from "@/lib/template-analytics";
-import UpgradeTemplateDialog, { PENDING_PREMIUM_TEMPLATE_KEY } from "@/components/UpgradeTemplateDialog";
-import { exportTemplateToPdf, type PdfMode } from "@/lib/template-pdf-export";
+import UpgradeTemplateDialog, {
+  readPendingPremiumTemplate,
+  writePendingPremiumTemplate,
+  clearPendingPremiumTemplate,
+} from "@/components/UpgradeTemplateDialog";
+import { exportTemplateToPdf, type PdfMode, type PdfPaper } from "@/lib/template-pdf-export";
 import { toast } from "@/hooks/use-toast";
 
 const DEMO_DATA = {
@@ -109,6 +113,8 @@ export default function CardGallery() {
   const [popularity, setPopularity] = useState<Record<string, number>>({});
   const [upgradeFor, setUpgradeFor] = useState<CardTemplateMeta | null>(null);
   const [pdfBusy, setPdfBusy] = useState<null | PdfMode>(null);
+  const [pdfPaper, setPdfPaper] = useState<PdfPaper>("card");
+  const [pendingPremiumSlug, setPendingPremiumSlug] = useState<string | null>(() => readPendingPremiumTemplate());
 
   // Load popularity counts on mount
   useEffect(() => {
@@ -118,15 +124,13 @@ export default function CardGallery() {
   // Resume a previously interrupted "Use this template" after upgrade
   useEffect(() => {
     if (!isPremium) return;
-    try {
-      const pending = sessionStorage.getItem(PENDING_PREMIUM_TEMPLATE_KEY);
-      if (pending) {
-        sessionStorage.removeItem(PENDING_PREMIUM_TEMPLATE_KEY);
-        sessionStorage.setItem("pendingCardTemplate", pending);
-        toast({ title: "Premium unlocked", description: "Resuming your template…" });
-        navigate("/dashboard");
-      }
-    } catch {}
+    const pending = readPendingPremiumTemplate();
+    if (pending) {
+      clearPendingPremiumTemplate();
+      try { sessionStorage.setItem("pendingCardTemplate", pending); } catch {}
+      toast({ title: "Premium unlocked", description: "Resuming your template…" });
+      navigate("/dashboard");
+    }
   }, [isPremium, navigate]);
 
   // Open detail = track open + preview, intercept locked premium templates
@@ -144,7 +148,8 @@ export default function CardGallery() {
   const handleUse = (t: CardTemplateMeta) => {
     trackTemplateEvent(t.slug, "use");
     if (t.is_premium && !isPremium) {
-      try { sessionStorage.setItem(PENDING_PREMIUM_TEMPLATE_KEY, t.slug); } catch {}
+      writePendingPremiumTemplate(t.slug);
+      setPendingPremiumSlug(t.slug);
       setUpgradeFor(t);
       return;
     }
@@ -162,8 +167,9 @@ export default function CardGallery() {
       await exportTemplateToPdf(
         { slug: t.slug, name: t.name, data: DEMO_DATA, theme: CARD_THEMES[t.slug] },
         mode,
+        pdfPaper,
       );
-      toast({ title: "PDF ready", description: `${t.name} (${mode}) downloaded.` });
+      toast({ title: "PDF ready", description: `${t.name} · ${mode} · ${pdfPaper.toUpperCase()} downloaded.` });
     } catch (e: any) {
       toast({ title: "PDF export failed", description: e?.message || "Try again.", variant: "destructive" });
     } finally {
@@ -291,6 +297,30 @@ export default function CardGallery() {
               </button>
             ))}
           </div>
+
+          {/* Pending premium resume banner — survives refresh until cleared */}
+          {pendingPremiumSlug && !isPremium && (() => {
+            const t = FALLBACK_TEMPLATES.find((x) => x.slug === pendingPremiumSlug);
+            if (!t) return null;
+            return (
+              <div className="mb-6 mx-auto max-w-3xl rounded-xl border border-gold/40 bg-gold/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-2 flex-1 text-sm font-body">
+                  <Lock className="w-4 h-4 text-gold" />
+                  <span><strong>{t.name}</strong> is waiting. Upgrade to resume — your pick is saved across refreshes.</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => setUpgradeFor(t)}>Resume upgrade</Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => { clearPendingPremiumTemplate(); setPendingPremiumSlug(null); }}
+                  >
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Preview-mode toggle */}
           <div className="flex items-center justify-center gap-1 mb-4 sm:mb-6">
@@ -480,6 +510,19 @@ export default function CardGallery() {
                   <Button onClick={() => handleUse(detailTpl)} className="w-full">
                     Use this template
                   </Button>
+                  <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                    <span className="shrink-0">Paper:</span>
+                    <select
+                      value={pdfPaper}
+                      onChange={(e) => setPdfPaper(e.target.value as PdfPaper)}
+                      className="flex-1 px-2 py-1.5 rounded-md border border-border bg-background text-foreground"
+                      aria-label="PDF paper size"
+                    >
+                      <option value="card">Card (5×7 / 4×6)</option>
+                      <option value="a4">A4 (210×297 mm)</option>
+                      <option value="letter">Letter (8.5×11 in)</option>
+                    </select>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="outline"
@@ -526,9 +569,7 @@ export default function CardGallery() {
         templateName={upgradeFor?.name}
         onUpgraded={() => {
           // Premium status will refresh; the resume effect handles redirect.
-          if (upgradeFor) {
-            try { sessionStorage.setItem(PENDING_PREMIUM_TEMPLATE_KEY, upgradeFor.slug); } catch {}
-          }
+          if (upgradeFor) writePendingPremiumTemplate(upgradeFor.slug);
           setUpgradeFor(null);
         }}
       />

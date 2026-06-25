@@ -64,5 +64,18 @@ export default function UpgradeTemplateDialog({
   );
 }
 
-/** Shared session key so the editor can resume the chosen template after upgrade. */
-export const PENDING_PREMIUM_TEMPLATE_KEY = "pendingPremiumTemplate";
+/**
+ * Shared key so the editor/gallery can resume the chosen template after upgrade.
+ * Stored in localStorage so it survives page refreshes and tab restarts.
+ */
+export const PENDING_PREMIUM_TEMPLATE_KEY = "vowz.pendingPremiumTemplate";
+
+export const readPendingPremiumTemplate = (): string | null => {
+  try { return localStorage.getItem(PENDING_PREMIUM_TEMPLATE_KEY); } catch { return null; }
+};
+export const writePendingPremiumTemplate = (slug: string) => {
+  try { localStorage.setItem(PENDING_PREMIUM_TEMPLATE_KEY, slug); } catch {}
+};
+export const clearPendingPremiumTemplate = () => {
+  try { localStorage.removeItem(PENDING_PREMIUM_TEMPLATE_KEY); } catch {}
+};
