@@ -510,6 +510,19 @@ export default function CardGallery() {
                   <Button onClick={() => handleUse(detailTpl)} className="w-full">
                     Use this template
                   </Button>
+                  <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                    <span className="shrink-0">Paper:</span>
+                    <select
+                      value={pdfPaper}
+                      onChange={(e) => setPdfPaper(e.target.value as PdfPaper)}
+                      className="flex-1 px-2 py-1.5 rounded-md border border-border bg-background text-foreground"
+                      aria-label="PDF paper size"
+                    >
+                      <option value="card">Card (5×7 / 4×6)</option>
+                      <option value="a4">A4 (210×297 mm)</option>
+                      <option value="letter">Letter (8.5×11 in)</option>
+                    </select>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="outline"
