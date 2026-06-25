@@ -38,6 +38,7 @@ import AdminFeatureRequests from "./pages/admin/AdminFeatureRequests";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminPartners from "./pages/admin/AdminPartners";
 import AdminCardTemplates from "./pages/admin/AdminCardTemplates";
+import AdminCardAnalytics from "./pages/admin/AdminCardAnalytics";
 import InvitationCard from "./pages/InvitationCard";
 import CardGallery from "./pages/CardGallery";
 import FranchiseDashboard from "./pages/FranchiseDashboard";
@@ -89,6 +90,7 @@ const AppRoutes = () => (
       <Route path="/admin/feature-requests" element={<AdminLayout><AdminFeatureRequests /></AdminLayout>} />
       <Route path="/admin/partners" element={<AdminLayout><AdminPartners /></AdminLayout>} />
       <Route path="/admin/card-templates" element={<AdminLayout><AdminCardTemplates /></AdminLayout>} />
+    <Route path="/admin/card-analytics" element={<AdminLayout><AdminCardAnalytics /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />

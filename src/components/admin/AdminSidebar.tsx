@@ -36,6 +36,7 @@ const items = [
   { title: "Feature Requests", url: "/admin/feature-requests", icon: Lightbulb },
   { title: "Partners", url: "/admin/partners", icon: Network },
   { title: "Card Templates", url: "/admin/card-templates", icon: Mail },
+  { title: "Card Analytics", url: "/admin/card-analytics", icon: BarChart3 },
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
