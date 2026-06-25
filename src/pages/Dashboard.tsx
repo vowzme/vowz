@@ -154,6 +154,35 @@ function generateInvoicePDF(payment: any, profile: any) {
   doc.save(`Vowz-Invoice-${invoiceNo}.pdf`);
 }
 
+// Shown when the user picked a template from /card-gallery and landed back here.
+function PendingCardTemplateBanner() {
+  const [slug, setSlug] = useState<string | null>(null);
+  useEffect(() => {
+    try { setSlug(sessionStorage.getItem("pendingCardTemplate")); } catch {}
+  }, []);
+  if (!slug) return null;
+  return (
+    <div className="mb-6 rounded-2xl border border-gold/40 bg-gold/5 p-4 sm:p-5 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+      <div className="bg-gold/20 rounded-full p-2 shrink-0">
+        <Sparkles className="w-5 h-5 text-gold" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-display text-sm sm:text-base font-bold">Template ready to apply</h3>
+        <p className="font-body text-xs sm:text-sm text-muted-foreground">
+          Open any site's <span className="font-medium">Invitation Card</span> below and "{slug}" will load automatically.
+        </p>
+      </div>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => { try { sessionStorage.removeItem("pendingCardTemplate"); } catch {}; setSlug(null); }}
+      >
+        Dismiss
+      </Button>
+    </div>
+  );
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
