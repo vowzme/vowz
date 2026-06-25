@@ -1034,6 +1034,54 @@ export type Database = {
         }
         Relationships: []
       }
+      template_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          template_slug: string
+          user_id: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          template_slug: string
+          user_id?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          template_slug?: string
+          user_id?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
+      template_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          template_slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          template_slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          template_slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_storage_addons: {
         Row: {
           amount_paid: number
@@ -1690,6 +1738,16 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_template_popularity: {
+        Args: never
+        Returns: {
+          opens: number
+          previews: number
+          score: number
+          template_slug: string
+          uses: number
+        }[]
       }
       get_user_storage_quota: {
         Args: { _user_id: string }
