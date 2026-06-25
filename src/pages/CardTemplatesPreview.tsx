@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import html2canvas from "html2canvas";
 import {
   CARD_THEMES,
@@ -7,6 +7,7 @@ import {
   FALLBACK_TEMPLATES,
   InvitationCardArtwork,
   type CardData,
+  type CardCategory,
   type CardTemplateMeta,
 } from "@/lib/card-templates";
 import { exportTemplateToPdf, type PdfPaper, type PdfQuality } from "@/lib/template-pdf-export";
@@ -19,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, ImageIcon, FileText, Eye, ArrowLeft, Lock, Heart } from "lucide-react";
+import { Download, ImageIcon, FileText, Eye, ArrowLeft, Lock, Heart, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 
@@ -34,9 +35,23 @@ const SAMPLE: CardData = {
 };
 
 type PreviewMode = "image" | "pdf" | "offline";
+type FormatFilter = "all" | "pdf" | "image";
 const LS_MODE = "vowz.preview.mode";
 const LS_PAPER = "vowz.preview.paper";
 const LS_QUALITY = "vowz.preview.quality";
+
+function buildWhatsappShareUrl(tpl: CardTemplateMeta): string {
+  const url = `${window.location.origin}/card-templates-preview?slug=${encodeURIComponent(tpl.slug)}`;
+  const msg =
+    `💍 *Wedding Invitation* — "${tpl.name}"\n\n` +
+    `Preview this beautiful invitation card, download it as PDF or image, and use it for your big day:\n${url}`;
+  return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
+
+function shareOnWhatsapp(tpl: CardTemplateMeta) {
+  trackTemplateEvent(tpl.slug, "share", { channel: "whatsapp" });
+  window.open(buildWhatsappShareUrl(tpl), "_blank", "noopener,noreferrer");
+}
 
 function downloadDataUrl(url: string, filename: string) {
   const a = document.createElement("a");
@@ -49,6 +64,7 @@ function downloadDataUrl(url: string, filename: string) {
 
 export default function CardTemplatesPreview() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [active, setActive] = useState<CardTemplateMeta | null>(null);
   const [mode, setMode] = useState<PreviewMode>(
     () => ((localStorage.getItem(LS_MODE) as PreviewMode) || "image"),
@@ -68,6 +84,16 @@ export default function CardTemplatesPreview() {
   const { favorites, toggle: toggleFavorite } = useTemplateFavorites();
   const { isPremium } = usePremiumStatus();
 
+  const themeFilter = (searchParams.get("theme") || "all") as CardCategory | "all";
+  const formatFilter = (searchParams.get("format") || "all") as FormatFilter;
+
+  function updateParam(key: string, value: string) {
+    const next = new URLSearchParams(searchParams);
+    if (value === "all") next.delete(key);
+    else next.set(key, value);
+    setSearchParams(next, { replace: true });
+  }
+
   useEffect(() => { localStorage.setItem(LS_MODE, mode); }, [mode]);
   useEffect(() => { localStorage.setItem(LS_PAPER, paper); }, [paper]);
   useEffect(() => { localStorage.setItem(LS_QUALITY, quality); }, [quality]);
@@ -75,9 +101,30 @@ export default function CardTemplatesPreview() {
   useEffect(() => { fetchTemplatePopularity().then(setPopularity); }, []);
 
   const templates = useMemo(() => {
-    const list = FALLBACK_TEMPLATES.filter((t) => CARD_THEMES[t.slug]);
+    const list = FALLBACK_TEMPLATES.filter((t) => CARD_THEMES[t.slug])
+      .filter((t) => themeFilter === "all" || t.category === themeFilter);
+    // All offline cards support both PDF and PNG, so the format filter
+    // is informational (it surfaces WhatsApp-ready output type).
     return [...list].sort((a, b) => (popularity[b.slug] ?? 0) - (popularity[a.slug] ?? 0));
-  }, [popularity]);
+  }, [popularity, themeFilter]);
+
+  // Deep-link: open a specific template if ?slug=
+  useEffect(() => {
+    const slug = searchParams.get("slug");
+    if (!slug || active) return;
+    const tpl = FALLBACK_TEMPLATES.find((t) => t.slug === slug && CARD_THEMES[t.slug]);
+    if (tpl) {
+      setActive(tpl);
+      trackTemplateEvent(tpl.slug, "open", { via: "deeplink" });
+    }
+  }, [searchParams, active]);
+
+  // Default mode to format filter when user lands with ?format=
+  useEffect(() => {
+    if (formatFilter === "pdf") setMode("pdf");
+    else if (formatFilter === "image") setMode("image");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formatFilter]);
 
   // Resume after upgrade
   useEffect(() => {
@@ -265,6 +312,14 @@ export default function CardTemplatesPreview() {
                   </>
                 )}
 
+                <Button
+                  variant="secondary"
+                  className="w-full bg-[#25D366] hover:bg-[#1ebe5d] text-white"
+                  onClick={() => shareOnWhatsapp(active)}
+                >
+                  <Share2 className="h-4 w-4 mr-2" /> Share on WhatsApp
+                </Button>
+
                 <Button variant="outline" className="w-full" onClick={() => handleUseTemplate(active)}>
                   Use this template
                 </Button>
@@ -299,8 +354,36 @@ export default function CardTemplatesPreview() {
         <div className="mb-6">
           <h1 className="text-3xl font-bold">Invitation Card Templates</h1>
           <p className="text-muted-foreground mt-1">
-            Sorted by most popular. Preview as image, PDF, or offline card.
+            Offline-ready cards you can download as PDF or PNG and share on WhatsApp.
           </p>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground self-center mr-1">Theme:</span>
+          {(["all", "hindu_sikh", "christian_muslim", "modern_minimal", "royal_traditional"] as const).map((c) => (
+            <Button
+              key={c}
+              size="sm"
+              variant={themeFilter === c ? "default" : "outline"}
+              onClick={() => updateParam("theme", c)}
+            >
+              {c === "all" ? "All themes" : CATEGORY_LABELS[c as CardCategory]}
+            </Button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2 mb-6">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground self-center mr-1">Format:</span>
+          {(["all", "pdf", "image"] as const).map((f) => (
+            <Button
+              key={f}
+              size="sm"
+              variant={formatFilter === f ? "default" : "outline"}
+              onClick={() => updateParam("format", f)}
+            >
+              {f === "all" ? "All" : f === "pdf" ? (<><FileText className="h-3 w-3 mr-1" />PDF</>) : (<><ImageIcon className="h-3 w-3 mr-1" />Image (PNG)</>)}
+            </Button>
+          ))}
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -321,6 +404,14 @@ export default function CardTemplatesPreview() {
                     onClick={(e) => { e.stopPropagation(); toggleFavorite(tpl.slug); }}
                   >
                     <Heart className={`h-3.5 w-3.5 ${isFav ? "fill-red-500 text-red-500" : ""}`} />
+                  </Button>
+                  <Button
+                    size="icon" variant="ghost"
+                    className="absolute top-1 left-1 h-7 w-7 bg-[#25D366] hover:bg-[#1ebe5d] text-white"
+                    aria-label="Share on WhatsApp"
+                    onClick={(e) => { e.stopPropagation(); shareOnWhatsapp(tpl); }}
+                  >
+                    <Share2 className="h-3.5 w-3.5" />
                   </Button>
                   <div style={{ transform: "scale(0.4)", transformOrigin: "top center", height: 224 }}>
                     <InvitationCardArtwork data={SAMPLE} theme={theme} width={400} />
