@@ -81,7 +81,11 @@ export function buildWhatsappShareUrl(tpl: Pick<CardTemplateMeta, "slug" | "name
   return `https://wa.me/?text=${text}`;
 }
 
-function shareOnWhatsapp(tpl: CardTemplateMeta, format: ShareFormat = "all") {
+function shareOnWhatsapp(
+  tpl: CardTemplateMeta,
+  format: ShareFormat = "all",
+  extraMeta: Record<string, unknown> = {},
+) {
   const shareUrl = buildWhatsappShareUrl(tpl, format);
   trackTemplateEvent(tpl.slug, "share", {
     channel: "whatsapp",
@@ -92,6 +96,7 @@ function shareOnWhatsapp(tpl: CardTemplateMeta, format: ShareFormat = "all") {
     format,
     format_label: formatLabel(format),
     share_url: shareUrl,
+    ...extraMeta,
   });
   window.open(shareUrl, "_blank", "noopener,noreferrer");
 }
@@ -232,7 +237,8 @@ export default function CardTemplatesPreview() {
     const theme = CARD_THEMES[tpl.slug];
     if (!theme) return;
     setBusy(true);
-    trackTemplateEvent(tpl.slug, "render", { kind: "image" });
+    const qrMeta = currentQrMeta();
+    trackTemplateEvent(tpl.slug, "render", { kind: "image", ...qrMeta });
     const host = document.createElement("div");
     host.style.cssText = "position:fixed;left:-10000px;top:0;background:#fff;";
     document.body.appendChild(host);
@@ -253,7 +259,7 @@ export default function CardTemplatesPreview() {
       const canvas = await html2canvas(host, { backgroundColor: "#fff", scale: 2, useCORS: true, logging: false });
       downloadDataUrl(canvas.toDataURL("image/png"), `${tpl.slug}.png`);
       root.unmount();
-      trackTemplateEvent(tpl.slug, "download", { kind: "image" });
+      trackTemplateEvent(tpl.slug, "download", { kind: "image", ...qrMeta });
       toast.success("Image downloaded");
     } catch (e) {
       toast.error("Image export failed");
@@ -266,7 +272,8 @@ export default function CardTemplatesPreview() {
   async function handleDownloadPdf(tpl: CardTemplateMeta) {
     setBusy(true);
     try {
-      trackTemplateEvent(tpl.slug, "render", { kind: "pdf", paper, quality });
+      const qrMeta = currentQrMeta();
+      trackTemplateEvent(tpl.slug, "render", { kind: "pdf", paper, quality, ...qrMeta });
       await exportTemplateToPdf(
         {
           slug: tpl.slug, name: tpl.name, data: sampleFor(tpl),
@@ -278,7 +285,7 @@ export default function CardTemplatesPreview() {
         },
         "print", paper, quality,
       );
-      trackTemplateEvent(tpl.slug, "download", { kind: "pdf", paper, quality });
+      trackTemplateEvent(tpl.slug, "download", { kind: "pdf", paper, quality, ...qrMeta });
       toast.success("PDF downloaded");
     } catch {
       toast.error("PDF export failed");
@@ -298,6 +305,19 @@ export default function CardTemplatesPreview() {
       return <img src={qrImage} alt="QR" style={{ width: size, height: size, display: "block" }} />;
     }
     return null;
+  }
+
+  /** Snapshot of the active QR overlay state for analytics meta. */
+  function currentQrMeta(): Record<string, unknown> {
+    const active = qrMode !== "none" && (
+      (qrMode === "platform" && !!qrUrl) || (qrMode === "custom" && !!qrImage)
+    );
+    return {
+      qr_mode: qrMode,
+      qr_active: active,
+      qr_position: active ? qrPos : null,
+      qr_source: qrMode === "platform" ? "site_url" : qrMode === "custom" ? "uploaded" : "none",
+    };
   }
 
   function onCustomQrFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -479,6 +499,7 @@ export default function CardTemplatesPreview() {
                     shareOnWhatsapp(
                       active,
                       mode === "pdf" ? "pdf" : mode === "image" ? "image" : "all",
+                      currentQrMeta(),
                     )
                   }
                 >
@@ -597,7 +618,9 @@ export default function CardTemplatesPreview() {
                     aria-label={`Share ${tpl.name} on WhatsApp`}
                     onClick={(e) => {
                       e.stopPropagation();
-                      shareOnWhatsapp(tpl, formatFilter === "all" ? "all" : formatFilter);
+                      shareOnWhatsapp(tpl, formatFilter === "all" ? "all" : formatFilter, {
+                        qr_mode: "none", qr_active: false, qr_position: null, qr_source: "none",
+                      });
                     }}
                   >
                     <Share2 className="h-3.5 w-3.5" />
