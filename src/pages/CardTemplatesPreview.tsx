@@ -142,6 +142,16 @@ export default function CardTemplatesPreview() {
   );
   const [qrLabel, setQrLabel] = useState<string>("");
 
+  // Inline edits applied to whichever template is currently active.
+  const [edits, setEdits] = useState<Partial<CardData>>({});
+  useEffect(() => { setEdits({}); }, [active?.slug]);
+
+  function dataFor(tpl: CardTemplateMeta | null): CardData {
+    const base = sampleFor(tpl);
+    if (!tpl || tpl.slug !== active?.slug) return base;
+    return { ...base, ...Object.fromEntries(Object.entries(edits).filter(([, v]) => v !== undefined && v !== "")) } as CardData;
+  }
+
   const { favorites, toggle: toggleFavorite } = useTemplateFavorites();
   const { isPremium } = usePremiumStatus();
 
@@ -250,7 +260,7 @@ export default function CardTemplatesPreview() {
       await new Promise<void>((resolve) => {
         root.render(
           <InvitationCardArtwork
-            data={sampleFor(tpl)} theme={theme} width={1200}
+            data={dataFor(tpl)} theme={theme} width={1200}
             qrSlot={qrNode} qrPosition={qrPosition as any}
           />,
         );
@@ -276,7 +286,7 @@ export default function CardTemplatesPreview() {
       trackTemplateEvent(tpl.slug, "render", { kind: "pdf", paper, quality, ...qrMeta });
       await exportTemplateToPdf(
         {
-          slug: tpl.slug, name: tpl.name, data: sampleFor(tpl),
+          slug: tpl.slug, name: tpl.name, data: dataFor(tpl),
           qr: qrMode === "platform" && qrUrl
             ? { url: qrUrl, position: qrPos as any, size: 160 }
             : qrMode === "custom" && qrImage
@@ -352,7 +362,7 @@ export default function CardTemplatesPreview() {
             <div className="bg-muted/30 rounded-lg p-4 sm:p-8 flex justify-center overflow-auto">
               <div className="max-w-full">
                 <InvitationCardArtwork
-                  data={sampleFor(active)} theme={theme} width={previewW}
+                  data={dataFor(active)} theme={theme} width={previewW}
                   qrSlot={qrNode} qrPosition={(qrNode ? qrPos : "hidden") as any}
                 />
               </div>
