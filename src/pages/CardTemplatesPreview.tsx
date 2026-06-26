@@ -397,6 +397,69 @@ export default function CardTemplatesPreview() {
                   <p className="text-sm">{active.description}</p>
                 )}
 
+                {/* Editable card content */}
+                <div className="rounded-md border p-3 space-y-2">
+                  <div className="text-sm font-medium">Card details</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Partner 1</Label>
+                      <Input
+                        value={edits.partner1 ?? sampleFor(active).partner1}
+                        maxLength={60}
+                        onChange={(e) => setEdits((s) => ({ ...s, partner1: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Partner 2</Label>
+                      <Input
+                        value={edits.partner2 ?? sampleFor(active).partner2}
+                        maxLength={60}
+                        onChange={(e) => setEdits((s) => ({ ...s, partner2: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Date</Label>
+                    <Input
+                      value={edits.date ?? sampleFor(active).date}
+                      maxLength={80}
+                      onChange={(e) => setEdits((s) => ({ ...s, date: e.target.value }))}
+                      placeholder="Saturday, 12 December 2026"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Location / Venue</Label>
+                    <Input
+                      value={edits.venue ?? sampleFor(active).venue}
+                      maxLength={120}
+                      onChange={(e) => setEdits((s) => ({ ...s, venue: e.target.value }))}
+                      placeholder="The Leela Palace, Bengaluru"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Occasion / Invitation line</Label>
+                    <Input
+                      value={edits.invitationLine ?? sampleFor(active).invitationLine ?? ""}
+                      maxLength={120}
+                      onChange={(e) => setEdits((s) => ({ ...s, invitationLine: e.target.value }))}
+                      placeholder="Together with their families"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Message</Label>
+                    <Input
+                      value={edits.message ?? sampleFor(active).message ?? ""}
+                      maxLength={200}
+                      onChange={(e) => setEdits((s) => ({ ...s, message: e.target.value }))}
+                    />
+                  </div>
+                  {Object.keys(edits).length > 0 && (
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEdits({})}>
+                      Reset to sample
+                    </Button>
+                  )}
+                </div>
+
                 {/* QR options */}
                 <div className="rounded-md border p-3 space-y-2">
                   <div className="flex items-center gap-2 text-sm font-medium">
