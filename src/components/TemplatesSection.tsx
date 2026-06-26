@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, ChevronDown, FileText, ImageIcon, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Lightbox from "@/components/Lightbox";
-import { CARD_THEMES, FALLBACK_TEMPLATES, InvitationCardArtwork } from "@/lib/card-templates";
+import { CARD_THEMES, FALLBACK_TEMPLATES, InvitationCardArtwork, OCCASIONS, OCCASION_LABELS } from "@/lib/card-templates";
 
 export interface TemplateData {
   name: string;
@@ -1972,6 +1972,26 @@ const TemplatesSection = () => {
                   className="font-body"
                 >
                   {t.label} →
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Occasion subsections — Save the Date, Engagement, Wedding, … */}
+          <div className="mt-10">
+            <h3 className="text-center text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4 font-body">
+              Browse by occasion
+            </h3>
+            <div className="flex flex-wrap justify-center gap-2">
+              {OCCASIONS.map((o) => (
+                <Button
+                  key={o}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/card-templates-preview?occasion=${o}`)}
+                  className="font-body"
+                >
+                  {OCCASION_LABELS[o]}
                 </Button>
               ))}
             </div>
