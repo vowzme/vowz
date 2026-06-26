@@ -142,6 +142,16 @@ export default function CardTemplatesPreview() {
   );
   const [qrLabel, setQrLabel] = useState<string>("");
 
+  // Inline edits applied to whichever template is currently active.
+  const [edits, setEdits] = useState<Partial<CardData>>({});
+  useEffect(() => { setEdits({}); }, [active?.slug]);
+
+  function dataFor(tpl: CardTemplateMeta | null): CardData {
+    const base = sampleFor(tpl);
+    if (!tpl || tpl.slug !== active?.slug) return base;
+    return { ...base, ...Object.fromEntries(Object.entries(edits).filter(([, v]) => v !== undefined && v !== "")) } as CardData;
+  }
+
   const { favorites, toggle: toggleFavorite } = useTemplateFavorites();
   const { isPremium } = usePremiumStatus();
 
@@ -250,7 +260,7 @@ export default function CardTemplatesPreview() {
       await new Promise<void>((resolve) => {
         root.render(
           <InvitationCardArtwork
-            data={sampleFor(tpl)} theme={theme} width={1200}
+            data={dataFor(tpl)} theme={theme} width={1200}
             qrSlot={qrNode} qrPosition={qrPosition as any}
           />,
         );
@@ -276,7 +286,7 @@ export default function CardTemplatesPreview() {
       trackTemplateEvent(tpl.slug, "render", { kind: "pdf", paper, quality, ...qrMeta });
       await exportTemplateToPdf(
         {
-          slug: tpl.slug, name: tpl.name, data: sampleFor(tpl),
+          slug: tpl.slug, name: tpl.name, data: dataFor(tpl),
           qr: qrMode === "platform" && qrUrl
             ? { url: qrUrl, position: qrPos as any, size: 160 }
             : qrMode === "custom" && qrImage
@@ -352,7 +362,7 @@ export default function CardTemplatesPreview() {
             <div className="bg-muted/30 rounded-lg p-4 sm:p-8 flex justify-center overflow-auto">
               <div className="max-w-full">
                 <InvitationCardArtwork
-                  data={sampleFor(active)} theme={theme} width={previewW}
+                  data={dataFor(active)} theme={theme} width={previewW}
                   qrSlot={qrNode} qrPosition={(qrNode ? qrPos : "hidden") as any}
                 />
               </div>
@@ -386,6 +396,69 @@ export default function CardTemplatesPreview() {
                 {active.description && (
                   <p className="text-sm">{active.description}</p>
                 )}
+
+                {/* Editable card content */}
+                <div className="rounded-md border p-3 space-y-2">
+                  <div className="text-sm font-medium">Card details</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Partner 1</Label>
+                      <Input
+                        value={edits.partner1 ?? sampleFor(active).partner1}
+                        maxLength={60}
+                        onChange={(e) => setEdits((s) => ({ ...s, partner1: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Partner 2</Label>
+                      <Input
+                        value={edits.partner2 ?? sampleFor(active).partner2}
+                        maxLength={60}
+                        onChange={(e) => setEdits((s) => ({ ...s, partner2: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Date</Label>
+                    <Input
+                      value={edits.date ?? sampleFor(active).date}
+                      maxLength={80}
+                      onChange={(e) => setEdits((s) => ({ ...s, date: e.target.value }))}
+                      placeholder="Saturday, 12 December 2026"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Location / Venue</Label>
+                    <Input
+                      value={edits.venue ?? sampleFor(active).venue}
+                      maxLength={120}
+                      onChange={(e) => setEdits((s) => ({ ...s, venue: e.target.value }))}
+                      placeholder="The Leela Palace, Bengaluru"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Occasion / Invitation line</Label>
+                    <Input
+                      value={edits.invitationLine ?? sampleFor(active).invitationLine ?? ""}
+                      maxLength={120}
+                      onChange={(e) => setEdits((s) => ({ ...s, invitationLine: e.target.value }))}
+                      placeholder="Together with their families"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Message</Label>
+                    <Input
+                      value={edits.message ?? sampleFor(active).message ?? ""}
+                      maxLength={200}
+                      onChange={(e) => setEdits((s) => ({ ...s, message: e.target.value }))}
+                    />
+                  </div>
+                  {Object.keys(edits).length > 0 && (
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEdits({})}>
+                      Reset to sample
+                    </Button>
+                  )}
+                </div>
 
                 {/* QR options */}
                 <div className="rounded-md border p-3 space-y-2">
