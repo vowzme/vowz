@@ -9,7 +9,80 @@ export interface CardTemplateMeta {
   is_premium: boolean;
   is_enabled?: boolean;
   description?: string;
+  occasion?: Occasion;
 }
+
+// ─── Occasion taxonomy ─────────────────────────────────────────────
+// Covers the full wedding-journey. Each template can belong to one occasion
+// (defaults to "wedding" when not set). Occasion-specific templates are
+// generated below by combining base themes with occasion-tuned copy.
+export type Occasion =
+  | "save_the_date"
+  | "betrothal"
+  | "engagement"
+  | "mehendi_haldi"
+  | "sangeet"
+  | "nikah"
+  | "wedding"
+  | "reception"
+  | "anniversary";
+
+export const OCCASIONS: Occasion[] = [
+  "save_the_date",
+  "betrothal",
+  "engagement",
+  "mehendi_haldi",
+  "sangeet",
+  "nikah",
+  "wedding",
+  "reception",
+  "anniversary",
+];
+
+export const OCCASION_LABELS: Record<Occasion, string> = {
+  save_the_date: "Save the Date",
+  betrothal: "Betrothal / Roka",
+  engagement: "Engagement",
+  mehendi_haldi: "Mehendi & Haldi",
+  sangeet: "Sangeet",
+  nikah: "Nikah",
+  wedding: "Wedding",
+  reception: "Reception",
+  anniversary: "Anniversary",
+};
+
+export interface OccasionCopy {
+  invitationLine: string;
+  message: string;
+  headline: string; // small short label, e.g. "Save the Date"
+}
+export const OCCASION_COPY: Record<Occasion, OccasionCopy> = {
+  save_the_date: { headline: "Save the Date", invitationLine: "Mark your calendars", message: "We're getting married — full invitation to follow." },
+  betrothal:     { headline: "Roka · Betrothal", invitationLine: "With the blessings of our families", message: "Join us as we mark the beginning of our journey together." },
+  engagement:    { headline: "Engagement", invitationLine: "Together with their families", message: "Request the pleasure of your company at their ring ceremony." },
+  mehendi_haldi: { headline: "Mehendi · Haldi", invitationLine: "An afternoon of color & blessings", message: "Bring your laughter — and wear something bright." },
+  sangeet:       { headline: "Sangeet Night", invitationLine: "A night of music & dance", message: "Come celebrate with songs, dance and laughter." },
+  nikah:         { headline: "Nikah", invitationLine: "By the grace of the Almighty", message: "We invite you to witness our Nikah and share in our joy." },
+  wedding:       { headline: "Wedding", invitationLine: "Together with their families", message: "Request the pleasure of your company as they begin their forever." },
+  reception:     { headline: "Reception", invitationLine: "Join us in celebration", message: "Dinner, dance and a toast to the newlyweds." },
+  anniversary:   { headline: "Anniversary", invitationLine: "Celebrating another year of love", message: "Join us as we celebrate another beautiful chapter." },
+};
+
+// QR options for the card (used by CardTemplatesPreview and the editor).
+export type QrMode = "platform" | "custom" | "none";
+export interface QrOptions {
+  mode: QrMode;
+  url?: string;             // for "platform": couple/site URL
+  imageDataUrl?: string;    // for "custom": uploaded PNG/JPG
+  position: QrPosition;
+  size: number;             // px, render size on a 1200-px artwork
+  label?: string;
+}
+export const DEFAULT_QR: QrOptions = {
+  mode: "none",
+  position: "bottom-right",
+  size: 110,
+};
 
 export interface CardTheme {
   bg: string;
@@ -294,11 +367,115 @@ NEW_PREMIUM_TEMPLATES.forEach((t) => {
   FALLBACK_TEMPLATES.push({
     slug: t.slug, name: t.name, category: t.category,
     is_premium: true, is_enabled: true, description: t.description,
+    occasion: "wedding",
   });
 });
 ALL_TEMPLATE_TAGS = Array.from(
   new Set(Object.values(TEMPLATE_FACETS).flatMap((f) => f.tags))
 ).sort();
+
+// ─── Occasion templates ───────────────────────────────────────────
+// For every occasion, derive ≥10 templates by combining a curated set of
+// base themes (across religion categories) with occasion-tuned copy.
+// Slugs use the pattern `${occasion}__${baseSlug}` so existing CARD_THEMES
+// can be aliased and rendered without duplicating theme objects.
+const OCCASION_BASE_THEMES: Record<Occasion, string[]> = {
+  // 12 per occasion → ≥10 cards per occasion across religions / styles
+  save_the_date: [
+    "modern-typographic", "modern-noir", "paris-blanc", "scandi-mist", "tokyo-ink",
+    "monaco-marble", "atelier-sand", "copenhagen-rose", "lace-pearl", "sacred-dove",
+    "hindu-om-ivory", "crescent-ivory",
+  ],
+  betrothal: [
+    "hindu-ganesha-classic", "hindu-saffron-marigold", "hindu-jaipur-pink",
+    "hindu-kalash-cream", "hindu-mehendi-green", "sikh-anand-karaj",
+    "hindu-om-ivory", "rajputana-crimson", "chapel-rose", "lace-pearl",
+    "modern-typographic", "monaco-marble",
+  ],
+  engagement: [
+    "chapel-rose", "sacred-dove", "lace-pearl", "crescent-ivory", "copenhagen-rose",
+    "modern-typographic", "paris-blanc", "monaco-marble", "hindu-om-ivory",
+    "hindu-saffron-marigold", "modern-noir", "atelier-sand",
+  ],
+  mehendi_haldi: [
+    "hindu-saffron-marigold", "hindu-jaipur-pink", "hindu-mehendi-green",
+    "hindu-kalash-cream", "hindu-ganesha-classic", "hindu-banarasi-silk",
+    "hindu-sindoor-rose", "hindu-om-ivory", "sikh-anand-karaj",
+    "rajputana-crimson", "royal-peacock", "hyderabad-nawab",
+  ],
+  sangeet: [
+    "hindu-royal-mandala", "hindu-banarasi-silk", "hindu-sindoor-rose",
+    "royal-peacock", "royal-velvet", "venetian-rouge", "rajputana-crimson",
+    "hindu-jaipur-pink", "mughal-court", "baroque-emerald",
+    "hyderabad-nawab", "modern-noir",
+  ],
+  nikah: [
+    "muslim-emerald-arch", "mehrab-gold", "henna-noir", "crescent-ivory",
+    "lace-pearl", "sacred-dove", "mughal-court", "baroque-emerald",
+    "chapel-rose", "modern-noir", "atelier-sand", "scandi-mist",
+  ],
+  wedding: [
+    "hindu-ganesha-classic", "hindu-royal-mandala", "christian-floral-cross",
+    "muslim-emerald-arch", "modern-typographic", "modern-noir",
+    "royal-peacock", "royal-velvet", "mughal-court", "venetian-rouge",
+    "baroque-emerald", "rajputana-crimson",
+  ],
+  reception: [
+    "modern-noir", "monaco-marble", "paris-blanc", "tokyo-ink",
+    "venetian-rouge", "royal-velvet", "baroque-emerald", "mughal-court",
+    "hyderabad-nawab", "hindu-banarasi-silk", "atelier-sand", "henna-noir",
+  ],
+  anniversary: [
+    "monaco-marble", "paris-blanc", "lace-pearl", "sacred-dove",
+    "copenhagen-rose", "chapel-rose", "modern-typographic", "atelier-sand",
+    "scandi-mist", "hindu-om-ivory", "crescent-ivory", "modern-noir",
+  ],
+};
+
+function _titleCase(slug: string): string {
+  return slug.split("-").map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+}
+
+/** Returns the base theme slug for an occasion-aliased slug, or itself. */
+export function baseSlugOf(slug: string): string {
+  const idx = slug.indexOf("__");
+  return idx === -1 ? slug : slug.slice(idx + 2);
+}
+/** Returns the occasion encoded in the slug, if any. */
+export function occasionOf(slug: string): Occasion | undefined {
+  const idx = slug.indexOf("__");
+  if (idx === -1) return undefined;
+  const candidate = slug.slice(0, idx) as Occasion;
+  return OCCASIONS.includes(candidate) ? candidate : undefined;
+}
+
+(Object.keys(OCCASION_BASE_THEMES) as Occasion[]).forEach((occ) => {
+  const baseSlugs = OCCASION_BASE_THEMES[occ];
+  baseSlugs.forEach((baseSlug) => {
+    const baseMeta = FALLBACK_TEMPLATES.find((t) => t.slug === baseSlug);
+    const baseTheme = CARD_THEMES[baseSlug];
+    if (!baseMeta || !baseTheme) return;
+    const slug = `${occ}__${baseSlug}`;
+    if (CARD_THEMES[slug]) return; // already added
+    CARD_THEMES[slug] = baseTheme;
+    if (TEMPLATE_FACETS[baseSlug]) {
+      TEMPLATE_FACETS[slug] = {
+        ...TEMPLATE_FACETS[baseSlug],
+        tags: Array.from(new Set([...(TEMPLATE_FACETS[baseSlug].tags || []), occ])),
+      };
+    }
+    FALLBACK_TEMPLATES.push({
+      slug,
+      name: `${OCCASION_COPY[occ].headline} · ${baseMeta.name}`,
+      category: baseMeta.category,
+      // Free sampler per occasion = first base; rest premium.
+      is_premium: baseSlugs.indexOf(baseSlug) === 0 ? false : true,
+      is_enabled: true,
+      description: `${OCCASION_LABELS[occ]} card — ${baseMeta.description ?? ""}`.trim(),
+      occasion: occ,
+    });
+  });
+});
 
 // ─── SVG ornaments ────────────────────────────────────────────────
 function Ornament({ kind, color, size = 90 }: { kind: CardTheme["ornament"]; color: string; size?: number }) {

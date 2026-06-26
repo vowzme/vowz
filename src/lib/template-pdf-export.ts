@@ -2,7 +2,8 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
-import { InvitationCardArtwork, CARD_THEMES, type CardTheme } from "@/lib/card-templates";
+import { QRCodeSVG } from "qrcode.react";
+import { InvitationCardArtwork, CARD_THEMES, type CardTheme, type QrPosition } from "@/lib/card-templates";
 
 export type PdfMode = "phone" | "print";
 export type PdfPaper = "card" | "a4" | "letter";
@@ -13,6 +14,15 @@ export interface ExportInput {
   name: string;
   data: Parameters<typeof InvitationCardArtwork>[0]["data"];
   theme?: CardTheme;
+  /** Optional QR overlay rendered on the card. */
+  qr?: {
+    /** A URL for a generated QR, OR an image data URL to embed verbatim. */
+    url?: string;
+    imageDataUrl?: string;
+    position?: QrPosition;
+    /** Display size in artwork pixels (artwork is 1200px wide). */
+    size?: number;
+  };
 }
 
 /**
@@ -23,7 +33,7 @@ export interface ExportInput {
  * - print: 5×7 in with 0.25" bleed + corner crop marks
  */
 export async function exportTemplateToPdf({
-  slug, name, data, theme,
+  slug, name, data, theme, qr,
 }: ExportInput, mode: PdfMode = "print", paper: PdfPaper = "card", quality: PdfQuality = "high"): Promise<void> {
   const themeToUse = theme ?? CARD_THEMES[slug];
   if (!themeToUse) throw new Error("Template theme not found");
@@ -36,8 +46,19 @@ export async function exportTemplateToPdf({
   host.style.top = "0";
   host.style.width = `${ARTWORK_WIDTH}px`;
   host.style.background = "#ffffff";
+  const qrPosition: QrPosition = qr?.position ?? "bottom-right";
+  const qrSize = qr?.size ?? 110;
+  let qrSlot: ReturnType<typeof createElement> | undefined;
+  if (qr?.imageDataUrl) {
+    qrSlot = createElement("img", { src: qr.imageDataUrl, width: qrSize, height: qrSize, style: { display: "block" } });
+  } else if (qr?.url) {
+    qrSlot = createElement(QRCodeSVG as any, { value: qr.url, size: qrSize, level: "M", includeMargin: false });
+  }
   host.innerHTML = renderToStaticMarkup(
-    createElement(InvitationCardArtwork, { data, theme: themeToUse, width: ARTWORK_WIDTH }),
+    createElement(InvitationCardArtwork, {
+      data, theme: themeToUse, width: ARTWORK_WIDTH,
+      qrSlot, qrPosition: qrSlot ? qrPosition : "hidden",
+    }),
   );
   document.body.appendChild(host);
 
