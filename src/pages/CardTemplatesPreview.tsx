@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import html2canvas from "html2canvas";
+import { QRCodeSVG } from "qrcode.react";
 import {
   CARD_THEMES,
   CATEGORY_LABELS,
@@ -9,6 +10,12 @@ import {
   type CardData,
   type CardCategory,
   type CardTemplateMeta,
+  OCCASIONS,
+  OCCASION_LABELS,
+  OCCASION_COPY,
+  type Occasion,
+  type QrMode,
+  occasionOf,
 } from "@/lib/card-templates";
 import { exportTemplateToPdf, type PdfPaper, type PdfQuality } from "@/lib/template-pdf-export";
 import { trackTemplateEvent, fetchTemplatePopularity } from "@/lib/template-analytics";
@@ -20,11 +27,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, ImageIcon, FileText, Eye, ArrowLeft, Lock, Heart, Share2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Download, ImageIcon, FileText, Eye, ArrowLeft, Lock, Heart, Share2, QrCode, Upload } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 
-const SAMPLE: CardData = {
+const BASE_SAMPLE: CardData = {
   partner1: "Aanya",
   partner2: "Rohan",
   date: "Saturday, 12 December 2026",
@@ -34,11 +43,21 @@ const SAMPLE: CardData = {
   message: "Request the pleasure of your company as they begin their forever.",
 };
 
+function sampleFor(tpl: CardTemplateMeta | null): CardData {
+  const occ = tpl?.occasion ?? (tpl ? occasionOf(tpl.slug) : undefined);
+  if (!occ) return BASE_SAMPLE;
+  const copy = OCCASION_COPY[occ];
+  return { ...BASE_SAMPLE, invitationLine: copy.invitationLine, message: copy.message };
+}
+
 type PreviewMode = "image" | "pdf" | "offline";
 type FormatFilter = "all" | "pdf" | "image";
 const LS_MODE = "vowz.preview.mode";
 const LS_PAPER = "vowz.preview.paper";
 const LS_QUALITY = "vowz.preview.quality";
+const LS_QR_MODE = "vowz.preview.qrMode";
+const LS_QR_URL = "vowz.preview.qrUrl";
+const LS_QR_POS = "vowz.preview.qrPos";
 
 type ShareFormat = "pdf" | "image" | "all";
 
@@ -105,11 +124,25 @@ export default function CardTemplatesPreview() {
   const [upgradeTpl, setUpgradeTpl] = useState<CardTemplateMeta | null>(null);
   const [pendingAction, setPendingAction] = useState<"open" | "use" | null>(null);
 
+  // QR overlay state — persists across previews.
+  const [qrMode, setQrMode] = useState<QrMode>(
+    () => ((localStorage.getItem(LS_QR_MODE) as QrMode) || "none"),
+  );
+  const [qrUrl, setQrUrl] = useState<string>(
+    () => localStorage.getItem(LS_QR_URL) || (typeof window !== "undefined" ? window.location.origin : ""),
+  );
+  const [qrImage, setQrImage] = useState<string>("");
+  const [qrPos, setQrPos] = useState<"bottom" | "bottom-left" | "bottom-right" | "top-right">(
+    () => ((localStorage.getItem(LS_QR_POS) as any) || "bottom-right"),
+  );
+  const [qrLabel, setQrLabel] = useState<string>("");
+
   const { favorites, toggle: toggleFavorite } = useTemplateFavorites();
   const { isPremium } = usePremiumStatus();
 
   const themeFilter = (searchParams.get("theme") || "all") as CardCategory | "all";
   const formatFilter = (searchParams.get("format") || "all") as FormatFilter;
+  const occasionFilter = (searchParams.get("occasion") || "all") as Occasion | "all";
 
   function updateParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams);
@@ -121,16 +154,24 @@ export default function CardTemplatesPreview() {
   useEffect(() => { localStorage.setItem(LS_MODE, mode); }, [mode]);
   useEffect(() => { localStorage.setItem(LS_PAPER, paper); }, [paper]);
   useEffect(() => { localStorage.setItem(LS_QUALITY, quality); }, [quality]);
+  useEffect(() => { localStorage.setItem(LS_QR_MODE, qrMode); }, [qrMode]);
+  useEffect(() => { localStorage.setItem(LS_QR_URL, qrUrl); }, [qrUrl]);
+  useEffect(() => { localStorage.setItem(LS_QR_POS, qrPos); }, [qrPos]);
 
   useEffect(() => { fetchTemplatePopularity().then(setPopularity); }, []);
 
   const templates = useMemo(() => {
     const list = FALLBACK_TEMPLATES.filter((t) => CARD_THEMES[t.slug])
-      .filter((t) => themeFilter === "all" || t.category === themeFilter);
+      .filter((t) => themeFilter === "all" || t.category === themeFilter)
+      .filter((t) => {
+        if (occasionFilter === "all") return true;
+        const occ = t.occasion ?? occasionOf(t.slug) ?? "wedding";
+        return occ === occasionFilter;
+      });
     // All offline cards support both PDF and PNG, so the format filter
     // is informational (it surfaces WhatsApp-ready output type).
     return [...list].sort((a, b) => (popularity[b.slug] ?? 0) - (popularity[a.slug] ?? 0));
-  }, [popularity, themeFilter]);
+  }, [popularity, themeFilter, occasionFilter]);
 
   // Deep-link: open a specific template if ?slug=
   useEffect(() => {
@@ -198,9 +239,14 @@ export default function CardTemplatesPreview() {
     try {
       const { createRoot } = await import("react-dom/client");
       const root = createRoot(host);
+      const qrNode = qrSlotFor(1200);
+      const qrPosition = qrNode ? qrPos : "hidden";
       await new Promise<void>((resolve) => {
         root.render(
-          <InvitationCardArtwork data={SAMPLE} theme={theme} width={1200} />,
+          <InvitationCardArtwork
+            data={sampleFor(tpl)} theme={theme} width={1200}
+            qrSlot={qrNode} qrPosition={qrPosition as any}
+          />,
         );
         setTimeout(resolve, 120);
       });
@@ -222,10 +268,15 @@ export default function CardTemplatesPreview() {
     try {
       trackTemplateEvent(tpl.slug, "render", { kind: "pdf", paper, quality });
       await exportTemplateToPdf(
-        { slug: tpl.slug, name: tpl.name, data: SAMPLE },
-        "print",
-        paper,
-        quality,
+        {
+          slug: tpl.slug, name: tpl.name, data: sampleFor(tpl),
+          qr: qrMode === "platform" && qrUrl
+            ? { url: qrUrl, position: qrPos as any, size: 160 }
+            : qrMode === "custom" && qrImage
+            ? { imageDataUrl: qrImage, position: qrPos as any, size: 160 }
+            : undefined,
+        },
+        "print", paper, quality,
       );
       trackTemplateEvent(tpl.slug, "download", { kind: "pdf", paper, quality });
       toast.success("PDF downloaded");
@@ -236,9 +287,40 @@ export default function CardTemplatesPreview() {
     }
   }
 
+  // Build a QR ReactNode for live previews + PNG render.
+  function qrSlotFor(targetWidth: number) {
+    const scale = targetWidth / 1200;
+    const size = Math.round(110 * scale);
+    if (qrMode === "platform" && qrUrl) {
+      return <QRCodeSVG value={qrUrl} size={size} level="M" includeMargin={false} />;
+    }
+    if (qrMode === "custom" && qrImage) {
+      return <img src={qrImage} alt="QR" style={{ width: size, height: size, display: "block" }} />;
+    }
+    return null;
+  }
+
+  function onCustomQrFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 1024 * 1024) {
+      toast.error("QR image must be under 1 MB");
+      return;
+    }
+    if (!/^image\/(png|jpeg|jpg)$/i.test(file.type)) {
+      toast.error("Use a PNG or JPG image");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => { setQrImage(String(reader.result || "")); setQrMode("custom"); };
+    reader.readAsDataURL(file);
+  }
+
   if (active) {
     const theme = CARD_THEMES[active.slug];
     const isFav = favorites.includes(active.slug);
+    const previewW = Math.min(500, typeof window !== "undefined" ? window.innerWidth - 80 : 500);
+    const qrNode = qrSlotFor(previewW);
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
@@ -249,7 +331,10 @@ export default function CardTemplatesPreview() {
           <div className="grid lg:grid-cols-[1fr_320px] gap-6">
             <div className="bg-muted/30 rounded-lg p-4 sm:p-8 flex justify-center overflow-auto">
               <div className="max-w-full">
-                <InvitationCardArtwork data={SAMPLE} theme={theme} width={Math.min(500, window.innerWidth - 80)} />
+                <InvitationCardArtwork
+                  data={sampleFor(active)} theme={theme} width={previewW}
+                  qrSlot={qrNode} qrPosition={(qrNode ? qrPos : "hidden") as any}
+                />
               </div>
             </div>
 
@@ -271,11 +356,62 @@ export default function CardTemplatesPreview() {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">{CATEGORY_LABELS[active.category]}</p>
+                {(active.occasion || occasionOf(active.slug)) && (
+                  <Badge variant="outline" className="w-fit mt-1 text-xs">
+                    {OCCASION_LABELS[(active.occasion ?? occasionOf(active.slug)) as Occasion]}
+                  </Badge>
+                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 {active.description && (
                   <p className="text-sm">{active.description}</p>
                 )}
+
+                {/* QR options */}
+                <div className="rounded-md border p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <QrCode className="h-4 w-4" /> QR code
+                  </div>
+                  <div className="grid grid-cols-3 gap-1">
+                    {(["none", "platform", "custom"] as QrMode[]).map((m) => (
+                      <Button
+                        key={m} size="sm"
+                        variant={qrMode === m ? "default" : "outline"}
+                        onClick={() => setQrMode(m)}
+                      >
+                        {m === "none" ? "Off" : m === "platform" ? "Site URL" : "Upload"}
+                      </Button>
+                    ))}
+                  </div>
+                  {qrMode === "platform" && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">Wedding site URL</Label>
+                      <Input
+                        value={qrUrl}
+                        onChange={(e) => setQrUrl(e.target.value)}
+                        placeholder="https://vowz.me/site/your-slug"
+                      />
+                    </div>
+                  )}
+                  {qrMode === "custom" && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">Upload QR image (PNG/JPG, ≤ 1 MB)</Label>
+                      <Input type="file" accept="image/png,image/jpeg" onChange={onCustomQrFile} />
+                      {qrImage && <p className="text-xs text-muted-foreground">Image loaded ✓</p>}
+                    </div>
+                  )}
+                  {qrMode !== "none" && (
+                    <Select value={qrPos} onValueChange={(v) => setQrPos(v as any)}>
+                      <SelectTrigger className="h-9"><SelectValue placeholder="Position" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bottom-right">Bottom right</SelectItem>
+                        <SelectItem value="bottom-left">Bottom left</SelectItem>
+                        <SelectItem value="bottom">Bottom center</SelectItem>
+                        <SelectItem value="top-right">Top right</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
 
                 <Tabs
                   value={mode}
@@ -388,6 +524,26 @@ export default function CardTemplatesPreview() {
           </p>
         </div>
 
+        {/* Occasion filter */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground self-center mr-1">Occasion:</span>
+          <Button
+            size="sm"
+            variant={occasionFilter === "all" ? "default" : "outline"}
+            onClick={() => updateParam("occasion", "all")}
+          >All occasions</Button>
+          {OCCASIONS.map((o) => (
+            <Button
+              key={o}
+              size="sm"
+              variant={occasionFilter === o ? "default" : "outline"}
+              onClick={() => updateParam("occasion", o)}
+            >
+              {OCCASION_LABELS[o]}
+            </Button>
+          ))}
+        </div>
+
         {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="text-xs uppercase tracking-wider text-muted-foreground self-center mr-1">Theme:</span>
@@ -447,7 +603,7 @@ export default function CardTemplatesPreview() {
                     <Share2 className="h-3.5 w-3.5" />
                   </Button>
                   <div style={{ transform: "scale(0.4)", transformOrigin: "top center", height: 224 }}>
-                    <InvitationCardArtwork data={SAMPLE} theme={theme} width={400} />
+                    <InvitationCardArtwork data={sampleFor(tpl)} theme={theme} width={400} />
                   </div>
                 </div>
                 <CardContent className="p-3">
