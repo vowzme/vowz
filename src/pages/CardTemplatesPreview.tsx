@@ -616,6 +616,17 @@ export default function CardTemplatesPreview() {
           <p className="text-muted-foreground mt-1">
             Offline-ready cards you can download as PDF or PNG and share on WhatsApp.
           </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <Badge variant="secondary" aria-live="polite">
+              {templates.filter((t) => t.is_premium).length} premium
+              {" "}/ {templates.length} total
+            </Badge>
+            <span className="text-muted-foreground">
+              for {themeFilter === "all" ? "all categories" : CATEGORY_LABELS[themeFilter as CardCategory]}
+              {" • "}
+              {occasionFilter === "all" ? "all occasions" : OCCASION_LABELS[occasionFilter as Occasion]}
+            </span>
+          </div>
         </div>
 
         {/* Occasion filter */}
