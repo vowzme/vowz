@@ -637,8 +637,9 @@ export function occasionOf(slug: string): Occasion | undefined {
       slug,
       name: `${OCCASION_COPY[occ].headline} · ${baseMeta.name}`,
       category: baseMeta.category,
-      // Free sampler per occasion = first base; rest premium.
-      is_premium: baseSlugs.indexOf(baseSlug) === 0 ? false : true,
+      // All occasion variants are premium-standard so every (occasion)
+      // filter surfaces ≥20 premium templates.
+      is_premium: true,
       is_enabled: true,
       description: `${OCCASION_LABELS[occ]} card — ${baseMeta.description ?? ""}`.trim(),
       occasion: occ,
