@@ -530,55 +530,74 @@ ALL_TEMPLATE_TAGS = Array.from(
 // Slugs use the pattern `${occasion}__${baseSlug}` so existing CARD_THEMES
 // can be aliased and rendered without duplicating theme objects.
 const OCCASION_BASE_THEMES: Record<Occasion, string[]> = {
-  // 12 per occasion → ≥10 cards per occasion across religions / styles
+  // ≥20 per occasion, spread across all four religion / style categories
+  // (≥5 per category × 4 categories) so combined filters still surface results.
   save_the_date: [
+    // hindu_sikh
+    "hindu-om-ivory", "hindu-saffron-marigold", "hindu-lotus-pond", "hindu-tilak-gold", "hindu-rangoli-bloom",
+    // christian_muslim
+    "lace-pearl", "sacred-dove", "crescent-ivory", "vow-garden", "ivory-rosary",
+    // modern_minimal
     "modern-typographic", "modern-noir", "paris-blanc", "scandi-mist", "tokyo-ink",
-    "monaco-marble", "atelier-sand", "copenhagen-rose", "lace-pearl", "sacred-dove",
-    "hindu-om-ivory", "crescent-ivory",
+    "monaco-marble", "atelier-sand", "copenhagen-rose",
+    // royal_traditional
+    "agra-marble", "versailles-cream",
   ],
   betrothal: [
-    "hindu-ganesha-classic", "hindu-saffron-marigold", "hindu-jaipur-pink",
-    "hindu-kalash-cream", "hindu-mehendi-green", "sikh-anand-karaj",
-    "hindu-om-ivory", "rajputana-crimson", "chapel-rose", "lace-pearl",
-    "modern-typographic", "monaco-marble",
+    "hindu-ganesha-classic", "hindu-saffron-marigold", "hindu-jaipur-pink", "hindu-kalash-cream", "hindu-mehendi-green",
+    "sikh-anand-karaj", "hindu-om-ivory", "hindu-tilak-gold",
+    "chapel-rose", "lace-pearl", "crescent-ivory", "vow-garden", "ivory-rosary",
+    "modern-typographic", "monaco-marble", "copenhagen-rose", "modern-blush",
+    "rajputana-crimson", "kerala-temple", "bengal-jamdani",
   ],
   engagement: [
-    "chapel-rose", "sacred-dove", "lace-pearl", "crescent-ivory", "copenhagen-rose",
-    "modern-typographic", "paris-blanc", "monaco-marble", "hindu-om-ivory",
-    "hindu-saffron-marigold", "modern-noir", "atelier-sand",
+    "chapel-rose", "sacred-dove", "lace-pearl", "crescent-ivory", "vatican-cream",
+    "copenhagen-rose", "modern-typographic", "paris-blanc", "monaco-marble", "modern-blush",
+    "hindu-om-ivory", "hindu-saffron-marigold", "hindu-lotus-pond", "hindu-tilak-gold", "hindu-rangoli-bloom",
+    "versailles-cream", "agra-marble", "kerala-temple", "tuscany-villa", "bengal-jamdani",
   ],
   mehendi_haldi: [
-    "hindu-saffron-marigold", "hindu-jaipur-pink", "hindu-mehendi-green",
-    "hindu-kalash-cream", "hindu-ganesha-classic", "hindu-banarasi-silk",
-    "hindu-sindoor-rose", "hindu-om-ivory", "sikh-anand-karaj",
-    "rajputana-crimson", "royal-peacock", "hyderabad-nawab",
+    "hindu-saffron-marigold", "hindu-jaipur-pink", "hindu-mehendi-green", "hindu-kalash-cream",
+    "hindu-ganesha-classic", "hindu-banarasi-silk", "hindu-sindoor-rose", "hindu-haldi-sunshine",
+    "hindu-rangoli-bloom", "hindu-marigold-arch", "sikh-anand-karaj",
+    "marrakech-rose", "henna-noir", "tuscan-vine", "olive-grove",
+    "amalfi-citrus", "porto-terracotta", "sahara-dune",
+    "jodhpur-saffron", "rajputana-crimson",
   ],
   sangeet: [
-    "hindu-royal-mandala", "hindu-banarasi-silk", "hindu-sindoor-rose",
-    "royal-peacock", "royal-velvet", "venetian-rouge", "rajputana-crimson",
-    "hindu-jaipur-pink", "mughal-court", "baroque-emerald",
-    "hyderabad-nawab", "modern-noir",
+    "hindu-royal-mandala", "hindu-banarasi-silk", "hindu-sindoor-rose", "hindu-jaipur-pink",
+    "hindu-paisley-noir", "sikh-khanda-royal",
+    "midnight-chapel", "henna-noir", "alhambra-night", "marrakech-rose", "andalusia-arch",
+    "modern-noir", "berlin-graphite", "noir-monogram", "new-york-ink",
+    "royal-peacock", "royal-velvet", "venetian-rouge", "mughal-court", "baroque-emerald",
   ],
   nikah: [
-    "muslim-emerald-arch", "mehrab-gold", "henna-noir", "crescent-ivory",
-    "lace-pearl", "sacred-dove", "mughal-court", "baroque-emerald",
-    "chapel-rose", "modern-noir", "atelier-sand", "scandi-mist",
+    "muslim-emerald-arch", "mehrab-gold", "henna-noir", "crescent-ivory", "nikah-noor",
+    "alhambra-night", "marrakech-rose", "andalusia-arch", "midnight-chapel", "lace-pearl",
+    "mughal-court", "mughal-emerald", "ottoman-court", "persian-sapphire", "baroque-emerald",
+    "modern-noir", "atelier-sand", "scandi-mist", "monaco-marble",
+    "hindu-om-ivory",
   ],
   wedding: [
-    "hindu-ganesha-classic", "hindu-royal-mandala", "christian-floral-cross",
-    "muslim-emerald-arch", "modern-typographic", "modern-noir",
-    "royal-peacock", "royal-velvet", "mughal-court", "venetian-rouge",
-    "baroque-emerald", "rajputana-crimson",
+    "hindu-ganesha-classic", "hindu-royal-mandala", "hindu-banarasi-silk", "hindu-kanjivaram", "hindu-marigold-arch",
+    "christian-floral-cross", "muslim-emerald-arch", "cathedral-arch", "mehrab-gold", "nikah-noor",
+    "modern-typographic", "modern-noir", "monaco-marble", "noir-monogram", "milano-mono",
+    "royal-peacock", "royal-velvet", "mughal-court", "venetian-rouge", "baroque-emerald",
   ],
   reception: [
-    "modern-noir", "monaco-marble", "paris-blanc", "tokyo-ink",
-    "venetian-rouge", "royal-velvet", "baroque-emerald", "mughal-court",
-    "hyderabad-nawab", "hindu-banarasi-silk", "atelier-sand", "henna-noir",
+    "modern-noir", "monaco-marble", "paris-blanc", "tokyo-ink", "noir-monogram",
+    "milano-mono", "berlin-graphite", "new-york-ink", "linen-fold",
+    "venetian-rouge", "royal-velvet", "baroque-emerald", "mughal-court", "ottoman-court",
+    "hyderabad-nawab", "vienna-opera",
+    "hindu-banarasi-silk", "hindu-paisley-noir",
+    "henna-noir", "midnight-chapel",
   ],
   anniversary: [
-    "monaco-marble", "paris-blanc", "lace-pearl", "sacred-dove",
-    "copenhagen-rose", "chapel-rose", "modern-typographic", "atelier-sand",
-    "scandi-mist", "hindu-om-ivory", "crescent-ivory", "modern-noir",
+    "monaco-marble", "paris-blanc", "linen-fold", "modern-typographic", "atelier-sand",
+    "scandi-mist", "modern-blush", "copenhagen-rose", "amalfi-citrus",
+    "lace-pearl", "sacred-dove", "vow-garden", "ivory-rosary", "vatican-cream", "tuscan-vine",
+    "hindu-om-ivory", "hindu-lotus-pond", "hindu-tilak-gold",
+    "versailles-cream", "agra-marble",
   ],
 };
 
