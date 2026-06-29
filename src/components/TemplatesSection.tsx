@@ -2011,6 +2011,16 @@ const TemplatesSection = () => {
             >
               View All Offline Card Templates →
             </Button>
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate("/showcase")}
+                className="font-body"
+              >
+                See real-feel customer demos →
+              </Button>
+            </div>
           </motion.div>
         </div>
       </section>
