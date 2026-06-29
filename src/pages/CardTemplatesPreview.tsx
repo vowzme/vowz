@@ -698,8 +698,33 @@ export default function CardTemplatesPreview() {
           ))}
         </div>
 
+        {/* Sort + page size */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Sort:</Label>
+            <Select value={sort} onValueChange={(v) => updateParam("sort", v)}>
+              <SelectTrigger className="h-9 w-[170px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recommended">Recommended</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="premium">Premium first</SelectItem>
+                <SelectItem value="name">Name (A–Z)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Per page:</Label>
+            <Select value={String(pageSize)} onValueChange={(v) => { updateParam("pageSize", v); updateParam("page", "1"); }}>
+              <SelectTrigger className="h-9 w-[90px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[12, 24, 48, 96].map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {templates.filter((t) => t.is_premium).length === 0 ? null : templates.map((tpl) => {
+          {templates.filter((t) => t.is_premium).length === 0 ? null : pagedTemplates.map((tpl) => {
             const theme = CARD_THEMES[tpl.slug];
             const isFav = favorites.includes(tpl.slug);
             return (
@@ -749,6 +774,31 @@ export default function CardTemplatesPreview() {
             );
           })}
         </div>
+
+        {templates.length > 0 && (
+          <div className="flex items-center justify-between gap-3 mt-6">
+            <p className="text-sm text-muted-foreground">
+              Showing <strong>{(currentPage - 1) * pageSize + 1}</strong>–
+              <strong>{Math.min(currentPage * pageSize, templates.length)}</strong> of{" "}
+              <strong>{templates.length}</strong>
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline" size="sm"
+                disabled={currentPage <= 1}
+                onClick={() => updateParam("page", String(currentPage - 1))}
+              >Previous</Button>
+              <span className="text-sm" aria-live="polite">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline" size="sm"
+                disabled={currentPage >= totalPages}
+                onClick={() => updateParam("page", String(currentPage + 1))}
+              >Next</Button>
+            </div>
+          </div>
+        )}
         {templates.filter((t) => t.is_premium).length === 0 && (
           <Card className="mt-2 border-dashed">
             <CardContent className="p-8 text-center flex flex-col items-center gap-3">
