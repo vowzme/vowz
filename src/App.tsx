@@ -71,6 +71,7 @@ const AppRoutes = () => (
     <Route path="/site/:slug" element={<PublicSite />} />
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
+    <Route path="/showcase" element={<Showcase />} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<CardTemplatesPreview />} />
     <Route path="/domain-demo" element={<Layout><DomainWizardDemo /></Layout>} />
