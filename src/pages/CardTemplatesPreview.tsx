@@ -29,7 +29,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, ImageIcon, FileText, Eye, ArrowLeft, Lock, Heart, Share2, QrCode, Upload } from "lucide-react";
+import { Download, ImageIcon, FileText, Eye, ArrowLeft, Lock, Heart, Share2, QrCode, Upload, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 
@@ -638,10 +639,28 @@ export default function CardTemplatesPreview() {
             Offline-ready cards you can download as PDF or PNG and share on WhatsApp.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-            <Badge variant="secondary" aria-live="polite">
-              {templates.filter((t) => t.is_premium).length} premium
-              {" "}/ {templates.length} total
-            </Badge>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="secondary"
+                    aria-live="polite"
+                    className="cursor-help inline-flex items-center gap-1"
+                  >
+                    {templates.filter((t) => t.is_premium).length} premium
+                    {" "}/ {templates.length} total
+                    <Info className="h-3 w-3 opacity-70" aria-hidden />
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
+                  Counts the templates that match your current
+                  {" "}<strong>category</strong> ({themeFilter === "all" ? "all categories" : CATEGORY_LABELS[themeFilter as CardCategory]})
+                  {" "}and <strong>occasion</strong> ({occasionFilter === "all" ? "all occasions" : OCCASION_LABELS[occasionFilter as Occasion]}).
+                  {" "}<em>Premium</em> = designs marked premium in the catalogue; <em>total</em> includes free + premium.
+                  Format and sort don't change the count — only filtering does.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <span className="text-muted-foreground">
               for {themeFilter === "all" ? "all categories" : CATEGORY_LABELS[themeFilter as CardCategory]}
               {" • "}
