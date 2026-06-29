@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, MapPin, Heart, Sparkles, Users, Camera, Mail } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Heart, Sparkles, Users, Camera, Mail, X } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import venueGarden from "@/assets/showcase/venue-garden.jpg";
 type Demo = {
   slug: string;
   category: string;
+  style: string;
   bride: string;
   groom: string;
   date: string;
@@ -35,6 +36,7 @@ const DEMOS: Demo[] = [
   {
     slug: "aarav-priya",
     category: "Hindu Traditional",
+    style: "Traditional",
     bride: "Priya Menon",
     groom: "Aarav Sharma",
     date: "Saturday, 14 February 2026",
@@ -55,6 +57,7 @@ const DEMOS: Demo[] = [
   {
     slug: "ethan-sophia",
     category: "Christian Classic",
+    style: "Classic",
     bride: "Sophia Bennett",
     groom: "Ethan Caldwell",
     date: "Saturday, 27 June 2026",
@@ -74,6 +77,7 @@ const DEMOS: Demo[] = [
   {
     slug: "leo-mia",
     category: "Beach Destination",
+    style: "Destination",
     bride: "Mia Alvarez",
     groom: "Leo Hartmann",
     date: "Friday, 9 October 2026",
@@ -93,6 +97,7 @@ const DEMOS: Demo[] = [
   {
     slug: "noah-ava",
     category: "Modern Minimalist",
+    style: "Modern",
     bride: "Ava Lindgren",
     groom: "Noah Park",
     date: "Saturday, 21 March 2026",
@@ -111,6 +116,7 @@ const DEMOS: Demo[] = [
   {
     slug: "zayn-aisha",
     category: "Muslim Nikkah",
+    style: "Traditional",
     bride: "Aisha Rahman",
     groom: "Zayn Khan",
     date: "Sunday, 16 August 2026",
@@ -130,6 +136,7 @@ const DEMOS: Demo[] = [
   {
     slug: "samuel-grace",
     category: "Garden Romantic",
+    style: "Romantic",
     bride: "Grace Whitmore",
     groom: "Samuel Reed",
     date: "Saturday, 9 May 2026",
@@ -152,6 +159,40 @@ export default function Showcase() {
   const [params, setParams] = useSearchParams();
   const id = params.get("id");
   const demo = useMemo(() => DEMOS.find((d) => d.slug === id) ?? null, [id]);
+  const category = params.get("category") ?? "all";
+  const style = params.get("style") ?? "all";
+
+  const categories = useMemo(
+    () => Array.from(new Set(DEMOS.map((d) => d.category))).sort(),
+    [],
+  );
+  const styles = useMemo(
+    () => Array.from(new Set(DEMOS.map((d) => d.style))).sort(),
+    [],
+  );
+  const filtered = useMemo(
+    () =>
+      DEMOS.filter(
+        (d) =>
+          (category === "all" || d.category === category) &&
+          (style === "all" || d.style === style),
+      ),
+    [category, style],
+  );
+  const setFilter = (key: "category" | "style", value: string) => {
+    const next = new URLSearchParams(params);
+    if (value === "all") next.delete(key);
+    else next.set(key, value);
+    next.delete("id");
+    setParams(next, { replace: true });
+  };
+  const clearFilters = () => {
+    const next = new URLSearchParams(params);
+    next.delete("category");
+    next.delete("style");
+    setParams(next, { replace: true });
+  };
+  const hasFilters = category !== "all" || style !== "all";
 
   if (demo) {
     return (
@@ -198,8 +239,33 @@ export default function Showcase() {
       </section>
 
       <section className="container mx-auto px-4 pb-20">
+        <div className="mb-8 space-y-3">
+          <FilterRow
+            label="Category"
+            options={categories}
+            value={category}
+            onChange={(v) => setFilter("category", v)}
+          />
+          <FilterRow
+            label="Style"
+            options={styles}
+            value={style}
+            onChange={(v) => setFilter("style", v)}
+          />
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              Showing {filtered.length} of {DEMOS.length} demo{DEMOS.length === 1 ? "" : "s"}
+            </span>
+            {hasFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
+                <X className="h-3.5 w-3.5" /> Clear filters
+              </Button>
+            )}
+          </div>
+        </div>
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {DEMOS.map((d, i) => (
+          {filtered.map((d, i) => (
             <motion.div
               key={d.slug}
               initial={{ opacity: 0, y: 16 }}
@@ -236,6 +302,12 @@ export default function Showcase() {
             </motion.div>
           ))}
         </div>
+        {filtered.length === 0 && (
+          <div className="text-center py-16 text-muted-foreground">
+            <p className="mb-4">No demos match these filters yet.</p>
+            <Button variant="outline" onClick={clearFilters}>Clear filters</Button>
+          </div>
+        )}
 
         <div className="text-center mt-14">
           <p className="text-muted-foreground mb-4">Like what you see? Build yours in minutes.</p>
@@ -245,6 +317,59 @@ export default function Showcase() {
         </div>
       </section>
     </Layout>
+  );
+}
+
+function FilterRow({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs uppercase tracking-wider text-muted-foreground mr-1">
+        {label}
+      </span>
+      <FilterChip active={value === "all"} onClick={() => onChange("all")}>
+        All
+      </FilterChip>
+      {options.map((opt) => (
+        <FilterChip key={opt} active={value === opt} onClick={() => onChange(opt)}>
+          {opt}
+        </FilterChip>
+      ))}
+    </div>
+  );
+}
+
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+        active
+          ? "bg-primary text-primary-foreground border-primary"
+          : "bg-background hover:bg-muted border-border text-foreground"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
