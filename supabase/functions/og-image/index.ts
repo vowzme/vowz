@@ -45,6 +45,38 @@ function escapeXml(str: string): string {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
+// Restrict OG redirects to trusted image hosts to prevent open-redirect abuse.
+function isAllowedImageUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+
+    const r2Public = Deno.env.get("R2_PUBLIC_URL") || "";
+    let r2Host = "";
+    try { r2Host = new URL(r2Public).hostname.toLowerCase(); } catch { /* ignore */ }
+
+    const allowedHosts = new Set<string>([
+      "vowz.me",
+      "www.vowz.me",
+      "vowz.lovable.app",
+    ]);
+    if (r2Host) allowedHosts.add(r2Host);
+
+    const allowedSuffixes = [
+      ".supabase.co",
+      ".supabase.in",
+      ".r2.cloudflarestorage.com",
+      ".r2.dev",
+    ];
+
+    if (allowedHosts.has(host)) return true;
+    return allowedSuffixes.some((s) => host.endsWith(s));
+  } catch {
+    return false;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
