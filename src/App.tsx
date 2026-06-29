@@ -47,6 +47,7 @@ import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Showcase from "./pages/Showcase";
+import IconsDebug from "./pages/IconsDebug";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ const AppRoutes = () => (
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
     <Route path="/showcase" element={<Showcase />} />
+    <Route path="/debug/icons" element={<IconsDebug />} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<CardTemplatesPreview />} />
     <Route path="/domain-demo" element={<Layout><DomainWizardDemo /></Layout>} />
