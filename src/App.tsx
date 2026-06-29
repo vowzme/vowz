@@ -46,6 +46,7 @@ import FranchiseDashboard from "./pages/FranchiseDashboard";
 import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Showcase from "./pages/Showcase";
 
 const queryClient = new QueryClient();
 
