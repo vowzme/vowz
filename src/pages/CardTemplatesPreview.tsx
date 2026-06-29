@@ -650,6 +650,9 @@ export default function CardTemplatesPreview() {
                   <Badge
                     variant="secondary"
                     aria-live="polite"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${templates.filter((t) => t.is_premium).length} premium of ${templates.length} total templates. Activate for details.`}
                     className="cursor-help inline-flex items-center gap-1"
                   >
                     {templates.filter((t) => t.is_premium).length} premium
