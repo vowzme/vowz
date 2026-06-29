@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import html2canvas from "html2canvas";
 import { QRCodeSVG } from "qrcode.react";
@@ -205,7 +205,12 @@ export default function CardTemplatesPreview() {
   );
 
   // Reset to page 1 whenever filters or sort change.
+  const didMountFiltersRef = useRef(false);
   useEffect(() => {
+    if (!didMountFiltersRef.current) {
+      didMountFiltersRef.current = true;
+      return; // preserve ?page from URL on first mount (reload restore)
+    }
     if (page !== 1) updateParam("page", "1");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [themeFilter, occasionFilter, formatFilter, sort]);
