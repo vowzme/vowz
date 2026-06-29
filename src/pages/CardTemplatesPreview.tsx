@@ -158,6 +158,10 @@ export default function CardTemplatesPreview() {
   const themeFilter = (searchParams.get("theme") || "all") as CardCategory | "all";
   const formatFilter = (searchParams.get("format") || "all") as FormatFilter;
   const occasionFilter = (searchParams.get("occasion") || "all") as Occasion | "all";
+  const sort = (searchParams.get("sort") || "recommended") as
+    | "recommended" | "newest" | "name" | "premium";
+  const pageSize = Number(searchParams.get("pageSize") || 12);
+  const page = Math.max(1, Number(searchParams.get("page") || 1));
 
   function updateParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams);
@@ -183,10 +187,27 @@ export default function CardTemplatesPreview() {
         const occ = t.occasion ?? occasionOf(t.slug) ?? "wedding";
         return occ === occasionFilter;
       });
-    // All offline cards support both PDF and PNG, so the format filter
-    // is informational (it surfaces WhatsApp-ready output type).
-    return [...list].sort((a, b) => (popularity[b.slug] ?? 0) - (popularity[a.slug] ?? 0));
-  }, [popularity, themeFilter, occasionFilter]);
+    const sorted = [...list];
+    const idx = (slug: string) => FALLBACK_TEMPLATES.findIndex((t) => t.slug === slug);
+    if (sort === "newest") sorted.sort((a, b) => idx(b.slug) - idx(a.slug));
+    else if (sort === "name") sorted.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sort === "premium") sorted.sort((a, b) => Number(!!b.is_premium) - Number(!!a.is_premium));
+    else sorted.sort((a, b) => (popularity[b.slug] ?? 0) - (popularity[a.slug] ?? 0));
+    return sorted;
+  }, [popularity, themeFilter, occasionFilter, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(templates.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pagedTemplates = useMemo(
+    () => templates.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [templates, currentPage, pageSize],
+  );
+
+  // Reset to page 1 whenever filters or sort change.
+  useEffect(() => {
+    if (page !== 1) updateParam("page", "1");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [themeFilter, occasionFilter, formatFilter, sort]);
 
   // Deep-link: open a specific template if ?slug=
   useEffect(() => {
