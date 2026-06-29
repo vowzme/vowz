@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, MapPin, Heart, Sparkles, Users, Camera, Mail, X } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Heart, Sparkles, Users, Camera, Mail, X, Wand2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -198,7 +198,7 @@ export default function Showcase() {
     return (
       <Layout>
         <div className="bg-muted/30 border-b">
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
             <Button
               variant="ghost"
               size="sm"
@@ -207,12 +207,38 @@ export default function Showcase() {
             >
               <ArrowLeft className="h-4 w-4" /> Back to showcase
             </Button>
-            <Badge variant="secondary" className="gap-1">
-              <Sparkles className="h-3 w-3" /> Live demo · {demo.category}
-            </Badge>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="secondary" className="gap-1">
+                <Sparkles className="h-3 w-3" /> Live demo · {demo.category}
+              </Badge>
+              <Link
+                to={`/wizard?demo=${encodeURIComponent(demo.slug)}&category=${encodeURIComponent(demo.category)}&style=${encodeURIComponent(demo.style)}`}
+              >
+                <Button size="sm" className="gap-2">
+                  <Wand2 className="h-4 w-4" /> Start with this demo
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
         <DemoSite demo={demo} />
+        <div className="border-t bg-muted/30">
+          <div className="container mx-auto px-4 py-10 text-center">
+            <h3 className="font-display text-2xl font-semibold mb-2">
+              Love this {demo.category.toLowerCase()} look?
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Launch your own wedding site using the same template in minutes.
+            </p>
+            <Link
+              to={`/wizard?demo=${encodeURIComponent(demo.slug)}&category=${encodeURIComponent(demo.category)}&style=${encodeURIComponent(demo.style)}`}
+            >
+              <Button size="lg" className="gap-2">
+                <Wand2 className="h-4 w-4" /> Start with this demo
+              </Button>
+            </Link>
+          </div>
+        </div>
       </Layout>
     );
   }
