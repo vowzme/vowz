@@ -1,0 +1,55 @@
+{
+  "name": "Vowz — Where Vows Come Alive",
+  "short_name": "Vowz",
+  "description": "Create stunning, personalized wedding websites in minutes. RSVP, gallery, events — celebrate every moment beautifully.",
+  "start_url": "/",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F5DC",
+  "theme_color": "#001F3F",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["lifestyle", "social", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/dashboard",
+      "description": "Manage your wedding website"
+    },
+    {
+      "name": "Create site",
+      "short_name": "Create",
+      "url": "/wizard",
+      "description": "Start a new wedding website"
+    },
+    {
+      "name": "Templates",
+      "short_name": "Templates",
+      "url": "/templates",
+      "description": "Browse premium templates"
+    }
+  ]
+}
