@@ -8,6 +8,7 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const CRON_SECRET = Deno.env.get('CRON_SECRET') || ''
 
 interface SubRow {
   id: string
@@ -118,6 +119,20 @@ async function enqueueExpiryEmail(
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+
+  // Auth: require either the service-role key or a configured CRON_SECRET
+  // in the Authorization header. This function performs destructive admin
+  // operations and must never be callable anonymously.
+  const authHeader = req.headers.get('Authorization') || ''
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim()
+  const allowed = new Set<string>([SERVICE_KEY])
+  if (CRON_SECRET) allowed.add(CRON_SECRET)
+  if (!token || !allowed.has(token)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
 
   const admin = createClient(SUPABASE_URL, SERVICE_KEY)
   const summary = { processed: 0, sent_14d: 0, sent_3d: 0, expired: 0, sites_paused: 0, addons_expired: 0, errors: [] as string[] }

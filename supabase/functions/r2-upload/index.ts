@@ -27,6 +27,41 @@ const r2 = new AwsClient({
 
 const ENDPOINT = `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${R2_BUCKET_NAME}`;
 
+// Server-side MIME allowlist. Client-supplied file.type is never trusted —
+// the real type is determined from magic bytes and must match this list.
+const ALLOWED_MIME = new Set<string>([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+]);
+
+function sniffMime(bytes: Uint8Array): string | null {
+  if (bytes.length < 12) return null;
+  // JPEG: FF D8 FF
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 &&
+      bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) return "image/png";
+  // GIF: "GIF87a" or "GIF89a"
+  if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38 &&
+      (bytes[4] === 0x37 || bytes[4] === 0x39) && bytes[5] === 0x61) return "image/gif";
+  // RIFF....WEBP
+  if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+      bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return "image/webp";
+  // ISO BMFF: bytes 4..7 == "ftyp" — distinguish AVIF / HEIC / HEIF by brand
+  if (bytes[4] === 0x66 && bytes[5] === 0x74 && bytes[6] === 0x79 && bytes[7] === 0x70) {
+    const brand = String.fromCharCode(bytes[8], bytes[9], bytes[10], bytes[11]).toLowerCase();
+    if (brand === "avif" || brand === "avis") return "image/avif";
+    if (brand === "heic" || brand === "heix" || brand === "hevc" || brand === "hevx") return "image/heic";
+    if (brand === "mif1" || brand === "msf1" || brand === "heim" || brand === "heis") return "image/heif";
+  }
+  return null;
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -67,7 +102,16 @@ Deno.serve(async (req) => {
       if (!file) return json({ error: "No file provided" }, 400);
 
       const bytes = new Uint8Array(await file.arrayBuffer());
-      const contentType = file.type || "application/octet-stream";
+      // Determine the real MIME from magic bytes; ignore the client-supplied
+      // file.type so HTML/SVG/JS cannot be stored as renderable content.
+      const sniffed = sniffMime(bytes);
+      if (!sniffed || !ALLOWED_MIME.has(sniffed)) {
+        return json({
+          error: "Unsupported file type. Allowed: JPEG, PNG, WebP, GIF, AVIF, HEIC/HEIF.",
+          code: "INVALID_MIME",
+        }, 415);
+      }
+      const contentType = sniffed;
 
       // SHA-256 hash for deduplication
       const hashBuf = await crypto.subtle.digest("SHA-256", bytes);
