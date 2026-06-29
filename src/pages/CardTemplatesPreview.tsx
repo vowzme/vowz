@@ -678,7 +678,7 @@ export default function CardTemplatesPreview() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {templates.map((tpl) => {
+          {templates.filter((t) => t.is_premium).length === 0 ? null : templates.map((tpl) => {
             const theme = CARD_THEMES[tpl.slug];
             const isFav = favorites.includes(tpl.slug);
             return (
@@ -728,6 +728,40 @@ export default function CardTemplatesPreview() {
             );
           })}
         </div>
+        {templates.filter((t) => t.is_premium).length === 0 && (
+          <Card className="mt-2 border-dashed">
+            <CardContent className="p-8 text-center flex flex-col items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-gold/15 text-gold grid place-items-center">
+                <Lock className="h-6 w-6" />
+              </div>
+              <h3 className="font-display text-xl">No premium templates match these filters</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Try clearing a filter, or unlock the full premium gallery to access every design across
+                {" "}<strong>{themeFilter === "all" ? "all categories" : CATEGORY_LABELS[themeFilter as CardCategory]}</strong>{" "}
+                and{" "}
+                <strong>{occasionFilter === "all" ? "all occasions" : OCCASION_LABELS[occasionFilter as Occasion]}</strong>.
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center pt-1">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    updateParam("theme", "all");
+                    updateParam("occasion", "all");
+                    updateParam("format", "all");
+                  }}
+                >
+                  Clear filters
+                </Button>
+                <Button
+                  variant="gold"
+                  onClick={() => { setUpgradeTpl(null); setUpgradeOpen(true); }}
+                >
+                  <Lock className="h-4 w-4" /> Unlock premium templates
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         <UpgradeTemplateDialog
           open={upgradeOpen}
           onOpenChange={setUpgradeOpen}
