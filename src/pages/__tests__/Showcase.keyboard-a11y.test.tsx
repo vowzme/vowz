@@ -1,7 +1,20 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Showcase from "../Showcase";
+
+beforeAll(() => {
+  class IO {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+  // @ts-expect-error jsdom polyfill
+  globalThis.IntersectionObserver = globalThis.IntersectionObserver || IO;
+});
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, select, textarea';
@@ -14,9 +27,7 @@ const renderAt = (url: string) =>
   );
 
 const focusables = (root: HTMLElement) =>
-  Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-    (el) => el.offsetParent !== null || el.tagName === "A",
-  );
+  Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
 
 describe("Showcase — keyboard navigation & focus order", () => {
   describe("list page (no pagination)", () => {
