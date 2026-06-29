@@ -102,8 +102,11 @@ Deno.serve(async (req) => {
   const featuredImageUrl = heroSection?.data?.featuredImageUrl || heroSection?.data?.heroImageUrl || "";
 
   if (featuredImageUrl) {
-    // Redirect to the user's uploaded featured image
-    return Response.redirect(featuredImageUrl, 302);
+    // Redirect only to allowlisted image hosts to prevent open redirects
+    if (isAllowedImageUrl(featuredImageUrl)) {
+      return Response.redirect(featuredImageUrl, 302);
+    }
+    // Otherwise fall through and render the SVG fallback
   }
 
   const svg = generateSVG(
