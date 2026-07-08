@@ -18,6 +18,7 @@ import { LivestreamPublicSection } from "@/components/LivestreamSection";
 import BlessingWall from "@/components/BlessingWall";
 import { CurrencyDisplay } from "@/components/CurrencyConverter";
 import LanguageSelector from "@/components/LanguageSelector";
+import BackgroundMusicPlayer from "@/components/BackgroundMusicPlayer";
 import { DEFAULT_STORY } from "@/lib/default-story";
 import { demoWeddingSite } from "@/lib/demo-site";
 
