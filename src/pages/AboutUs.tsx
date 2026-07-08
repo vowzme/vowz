@@ -16,7 +16,25 @@ const AboutUs = () => (
       twitterCard="summary"
       canonical="https://vowz.me/about"
       robots="index, follow"
-    />
+    >
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "AXPIR Tech India LLP",
+          alternateName: "Vowz",
+          url: "https://vowz.me",
+          logo: "https://vowz.me/icons/icon-512.png",
+          founder: { "@type": "Person", name: "Anooj Xavier" },
+          email: "hello@vowz.me",
+          address: {
+            "@type": "PostalAddress",
+            addressCountry: "IN",
+          },
+          sameAs: ["https://vowz.me"],
+        })}
+      </script>
+    </SEOHead>
     <Navbar />
     <div className="max-w-3xl mx-auto px-4 pt-28 pb-16">
       <motion.div

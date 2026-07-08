@@ -20,8 +20,8 @@ interface SEOHeadProps {
   children?: React.ReactNode;
 }
 
-const DEFAULT_TITLE = "Vowz — Where Vows Come Alive | Create Beautiful Wedding Websites";
-const DEFAULT_DESCRIPTION = "Create stunning, personalized wedding websites in minutes. RSVP management, photo gallery, event schedules — celebrate every moment beautifully..";
+const DEFAULT_TITLE = "Vowz — Beautiful Wedding Websites & Invitations";
+const DEFAULT_DESCRIPTION = "Create beautiful wedding websites & digital invitations in minutes. RSVP, gallery, events — free to start.";
 const DEFAULT_OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bde9119f-2cda-415d-b811-ed72667bba8f/id-preview-ac2c9ed6--aa1d95d2-74a0-4055-a405-08cbdb8d38b0.lovable.app-1772842931475.png";
 
 export const SEOHead = ({
