@@ -1,4 +1,4 @@
-import { HardDrive, AlertTriangle } from "lucide-react";
+import { HardDrive, AlertTriangle, ImageIcon } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useStorageQuota, formatBytes } from "@/hooks/use-storage-quota";
 import BuyStorageAddonButton from "@/components/BuyStorageAddonButton";
@@ -22,6 +22,17 @@ const StorageUsageCard = ({ compact = false }: Props) => {
   }
 
   const barColor = isFull ? "bg-destructive" : isLow ? "bg-amber-500" : "bg-primary";
+
+  // Estimate remaining uploads: use user's actual average when we have data,
+  // otherwise assume ~2 MB per photo (typical compressed WebP/JPEG).
+  const DEFAULT_AVG_BYTES = 2 * 1024 * 1024;
+  const avgBytes =
+    quota.file_count > 0 && quota.used_bytes > 0
+      ? quota.used_bytes / quota.file_count
+      : DEFAULT_AVG_BYTES;
+  const remainingBytes = Math.max(0, quota.total_quota_bytes - quota.used_bytes);
+  const remainingUploads = Math.floor(remainingBytes / avgBytes);
+  const avgLabel = formatBytes(avgBytes);
 
   return (
     <Card className={`p-4 border-border/50 ${isFull ? "border-destructive/40 bg-destructive/5" : isLow ? "border-amber-400/40 bg-amber-50/40 dark:bg-amber-950/10" : ""}`}>
@@ -59,6 +70,16 @@ const StorageUsageCard = ({ compact = false }: Props) => {
         </div>
         {!compact && <BuyStorageAddonButton onPurchased={refresh} />}
       </div>
+
+      {!isFull && (
+        <div className="mt-2 flex items-center gap-1.5 text-xs font-body text-muted-foreground">
+          <ImageIcon className="w-3.5 h-3.5 text-primary/70" />
+          <span>
+            ~<span className="font-semibold text-foreground">{remainingUploads}</span> more upload{remainingUploads === 1 ? "" : "s"}
+            <span className="opacity-70"> (avg {avgLabel}/file)</span>
+          </span>
+        </div>
+      )}
 
       {(isLow || isFull) && (
         <div className={`mt-3 flex items-start gap-2 p-2 rounded text-xs ${isFull ? "bg-destructive/10 text-destructive" : "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"}`}>
