@@ -1726,6 +1726,20 @@ export type Database = {
       }
     }
     Functions: {
+      check_ai_rate_limit: {
+        Args: {
+          _function_name: string
+          _per_day?: number
+          _per_hour?: number
+          _user_id: string
+        }
+        Returns: {
+          allowed: boolean
+          day_count: number
+          hour_count: number
+          retry_after_seconds: number
+        }[]
+      }
       check_slug_available: {
         Args: { _exclude_site_id?: string; _slug: string }
         Returns: boolean
