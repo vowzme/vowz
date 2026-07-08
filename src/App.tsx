@@ -49,6 +49,7 @@ import BlogPost from "./pages/BlogPost";
 import Showcase from "./pages/Showcase";
 import IconsDebug from "./pages/IconsDebug";
 import { useAdmin } from "@/hooks/use-admin";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -121,7 +122,9 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
-              <AppRoutes />
+              <ErrorBoundary>
+                <AppRoutes />
+              </ErrorBoundary>
             </BrowserRouter>
           </AuthProvider>
         </PricingRegionProvider>
