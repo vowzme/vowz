@@ -19,3 +19,4 @@ User-agent: facebookexternalhit
 Allow: /
 
 Sitemap: https://vowz.me/sitemap.xml
+Sitemap: https://qkjuywqrncsbxjzwtlzm.supabase.co/functions/v1/sitemap
