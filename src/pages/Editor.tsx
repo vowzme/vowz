@@ -699,7 +699,7 @@ function SectionsPanel({
                 onClick={(e) => e.stopPropagation()}
                 className="scale-75"
               />
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry" || section.type === "couple_profiles") && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry" || section.type === "couple_profiles" || section.type === "music") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
@@ -727,6 +727,7 @@ function SectionsPanel({
               { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
               { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
               { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & Groom" },
+              { id: "music", label: "🎵 Background Music", desc: "Wedding soundtrack" },
             ].map((item) => (
               <button
                 key={item.id}
