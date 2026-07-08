@@ -1,6 +1,7 @@
-import { HardDrive, AlertTriangle, ImageIcon } from "lucide-react";
+import { HardDrive, AlertTriangle, Image as ImageIcon, Film, FileText } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useStorageQuota, formatBytes } from "@/hooks/use-storage-quota";
+import { useStorageAverages } from "@/hooks/use-storage-averages";
 import BuyStorageAddonButton from "@/components/BuyStorageAddonButton";
 import { Card } from "@/components/ui/card";
 
@@ -10,6 +11,7 @@ interface Props {
 
 const StorageUsageCard = ({ compact = false }: Props) => {
   const { quota, loading, usedPct, isLow, isFull, refresh } = useStorageQuota();
+  const { stats } = useStorageAverages();
 
   if (loading) {
     return (
@@ -23,16 +25,26 @@ const StorageUsageCard = ({ compact = false }: Props) => {
 
   const barColor = isFull ? "bg-destructive" : isLow ? "bg-amber-500" : "bg-primary";
 
-  // Estimate remaining uploads: use user's actual average when we have data,
-  // otherwise assume ~2 MB per photo (typical compressed WebP/JPEG).
-  const DEFAULT_AVG_BYTES = 2 * 1024 * 1024;
-  const avgBytes =
-    quota.file_count > 0 && quota.used_bytes > 0
-      ? quota.used_bytes / quota.file_count
-      : DEFAULT_AVG_BYTES;
+  // Estimate remaining uploads per file type. Uses the user's own average per
+  // category when they have data of that type; otherwise falls back to
+  // sensible defaults (2 MB photo, 20 MB video, 500 KB doc).
   const remainingBytes = Math.max(0, quota.total_quota_bytes - quota.used_bytes);
-  const remainingUploads = Math.floor(remainingBytes / avgBytes);
-  const avgLabel = formatBytes(avgBytes);
+  const remainingBy = {
+    photos: Math.floor(remainingBytes / stats.photos.avgBytes),
+    videos: Math.floor(remainingBytes / stats.videos.avgBytes),
+    documents: Math.floor(remainingBytes / stats.documents.avgBytes),
+  };
+
+  const rows: Array<{
+    key: keyof typeof remainingBy;
+    label: string;
+    Icon: typeof ImageIcon;
+    color: string;
+  }> = [
+    { key: "photos", label: "photos", Icon: ImageIcon, color: "text-primary/70" },
+    { key: "videos", label: "videos", Icon: Film, color: "text-gold" },
+    { key: "documents", label: "documents", Icon: FileText, color: "text-emerald-600" },
+  ];
 
   return (
     <Card className={`p-4 border-border/50 ${isFull ? "border-destructive/40 bg-destructive/5" : isLow ? "border-amber-400/40 bg-amber-50/40 dark:bg-amber-950/10" : ""}`}>
@@ -72,12 +84,28 @@ const StorageUsageCard = ({ compact = false }: Props) => {
       </div>
 
       {!isFull && (
-        <div className="mt-2 flex items-center gap-1.5 text-xs font-body text-muted-foreground">
-          <ImageIcon className="w-3.5 h-3.5 text-primary/70" />
-          <span>
-            ~<span className="font-semibold text-foreground">{remainingUploads}</span> more upload{remainingUploads === 1 ? "" : "s"}
-            <span className="opacity-70"> (avg {avgLabel}/file)</span>
-          </span>
+        <div className="mt-2 space-y-1">
+          <div className="text-[11px] uppercase tracking-wider font-body text-muted-foreground/80">
+            Estimated remaining
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {rows.map(({ key, label, Icon, color }) => {
+              const s = stats[key];
+              return (
+                <div
+                  key={key}
+                  className="flex items-center gap-1.5 text-xs font-body text-muted-foreground rounded-md bg-muted/40 px-2 py-1.5"
+                  title={`Avg ${formatBytes(s.avgBytes)}/file${s.usedDefault ? " (default)" : " (your average)"}`}
+                >
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${color}`} />
+                  <span className="truncate">
+                    <span className="font-semibold text-foreground">~{remainingBy[key]}</span>{" "}
+                    <span className="opacity-80">{label}</span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
