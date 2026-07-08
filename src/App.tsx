@@ -48,6 +48,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Showcase from "./pages/Showcase";
 import IconsDebug from "./pages/IconsDebug";
+import { useAdmin } from "@/hooks/use-admin";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" /></div>;
   if (!user) return <Navigate to="/auth" replace />;
+  return <>{children}</>;
+}
+
+function AdminOnlyRoute({ children }: { children: React.ReactNode }) {
+  const { isAdmin, loading } = useAdmin();
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" /></div>;
+  if (!isAdmin) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
@@ -73,7 +81,7 @@ const AppRoutes = () => (
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
     <Route path="/showcase" element={<Showcase />} />
-    <Route path="/debug/icons" element={<IconsDebug />} />
+    <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<CardTemplatesPreview />} />
     <Route path="/domain-demo" element={<Layout><DomainWizardDemo /></Layout>} />
