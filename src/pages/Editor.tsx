@@ -2360,6 +2360,113 @@ function SectionEditor({
           </div>
         </>
       )}
+
+      {type === "music" && (
+        <>
+          <div className="flex items-center justify-between rounded-lg border border-border/50 p-3">
+            <div>
+              <p className="font-body text-sm font-medium text-foreground">Enable background music</p>
+              <p className="font-body text-[11px] text-muted-foreground">Plays a soft soundtrack when guests visit your site.</p>
+            </div>
+            <Switch
+              checked={data.enabled !== false}
+              onCheckedChange={(v) => onUpdateData({ enabled: v })}
+            />
+          </div>
+
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Category</label>
+            <div className="grid grid-cols-2 gap-2">
+              {MUSIC_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => {
+                    const first = cat.tracks[0];
+                    onUpdateData({ category: cat.id, trackUrl: first.url, trackName: first.name });
+                  }}
+                  className={`text-left rounded-lg border p-2 transition-colors ${
+                    data.category === cat.id ? "border-gold bg-gold/10" : "border-border/50 hover:bg-muted"
+                  }`}
+                >
+                  <p className="font-body text-sm font-medium text-foreground">
+                    {cat.emoji} {cat.label}
+                  </p>
+                  <p className="font-body text-[10px] text-muted-foreground line-clamp-1">{cat.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Track</label>
+            <div className="space-y-1">
+              {(MUSIC_CATEGORIES.find((c) => c.id === data.category)?.tracks || MUSIC_CATEGORIES[0].tracks).map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => onUpdateData({ trackUrl: t.url, trackName: t.name })}
+                  className={`w-full flex items-center justify-between rounded-md border px-3 py-2 text-left transition-colors ${
+                    data.trackUrl === t.url ? "border-gold bg-gold/10" : "border-border/50 hover:bg-muted"
+                  }`}
+                >
+                  <span className="font-body text-sm text-foreground">🎵 {t.name}</span>
+                  <audio
+                    src={t.url}
+                    controls
+                    preload="none"
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-6 max-w-[140px]"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Or paste a custom track URL</label>
+            <Input
+              placeholder="https://…/song.mp3"
+              value={data.trackUrl || ""}
+              onChange={(e) => onUpdateData({ trackUrl: e.target.value, trackName: data.trackName || "Custom Track" })}
+              className="font-body text-sm"
+            />
+            <p className="text-[10px] text-muted-foreground font-body mt-1">
+              Direct link to an .mp3, .ogg or .m4a file. Make sure you have the rights to use it.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center justify-between rounded-lg border border-border/50 p-2">
+              <span className="font-body text-xs text-foreground">Autoplay</span>
+              <Switch checked={data.autoplay !== false} onCheckedChange={(v) => onUpdateData({ autoplay: v })} />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-border/50 p-2">
+              <span className="font-body text-xs text-foreground">Loop</span>
+              <Switch checked={data.loop !== false} onCheckedChange={(v) => onUpdateData({ loop: v })} />
+            </div>
+          </div>
+
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">
+              Volume: {Math.round((data.volume ?? 0.4) * 100)}%
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={data.volume ?? 0.4}
+              onChange={(e) => onUpdateData({ volume: parseFloat(e.target.value) })}
+              className="w-full accent-gold"
+            />
+          </div>
+
+          <p className="text-[11px] text-muted-foreground font-body p-2 bg-muted rounded-lg">
+            💡 Most browsers block autoplay with sound. Guests will see a small "Tap for music" prompt on the bottom-left until they interact.
+          </p>
+        </>
+      )}
     </div>
   );
 }
