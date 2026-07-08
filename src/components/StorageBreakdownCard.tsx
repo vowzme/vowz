@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBytes } from "@/hooks/use-storage-quota";
-import { Image as ImageIcon, Film, FileText, Files, Loader2 } from "lucide-react";
+import { Image as ImageIcon, Film, FileText, Files, Loader2, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 type Category = "images" | "videos" | "documents" | "other";
 
@@ -84,6 +86,41 @@ const StorageBreakdownCard = () => {
   const totalBytes = rows.reduce((s, r) => s + r.bytes, 0);
   const totalCount = rows.reduce((s, r) => s + r.count, 0);
 
+  const handleExportCSV = () => {
+    const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+    const header = ["Category", "File Count", "Total Bytes", "Total MB", "% of Storage"];
+    const body = rows
+      .slice()
+      .sort((a, b) => b.bytes - a.bytes)
+      .map((r) => [
+        CONFIG[r.cat].label,
+        r.count,
+        r.bytes,
+        (r.bytes / 1048576).toFixed(2),
+        totalBytes > 0 ? ((r.bytes / totalBytes) * 100).toFixed(1) + "%" : "0%",
+      ]);
+    body.push([
+      "Total",
+      totalCount,
+      totalBytes,
+      (totalBytes / 1048576).toFixed(2),
+      "100%",
+    ]);
+    const csv =
+      [header, ...body].map((r) => r.map(esc).join(",")).join("\n") +
+      `\n\n"Generated","${new Date().toISOString()}"\n`;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `vowz-storage-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast({ title: "Storage report downloaded" });
+  };
+
   return (
     <Card className="p-4 border-border/50">
       <div className="flex items-center justify-between mb-3">
@@ -93,9 +130,21 @@ const StorageBreakdownCard = () => {
             Storage Breakdown
           </span>
         </div>
-        <span className="font-body text-xs text-muted-foreground">
-          {totalCount} file{totalCount === 1 ? "" : "s"} · {formatBytes(totalBytes)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="font-body text-xs text-muted-foreground">
+            {totalCount} file{totalCount === 1 ? "" : "s"} · {formatBytes(totalBytes)}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={handleExportCSV}
+            disabled={loading || totalCount === 0}
+            aria-label="Download storage report as CSV"
+          >
+            <Download className="w-3.5 h-3.5 mr-1" /> CSV
+          </Button>
+        </div>
       </div>
 
       {loading ? (
