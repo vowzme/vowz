@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import StorageUsageCard from "@/components/StorageUsageCard";
+import FileBrowserPanel from "@/components/FileBrowserPanel";
 import { useStorageQuota, formatBytes } from "@/hooks/use-storage-quota";
 import type { WeddingSection } from "@/pages/Editor";
 
@@ -77,6 +78,8 @@ const MediaManagerPanel = ({ sections, siteData }: Props) => {
   return (
     <div className="space-y-4">
       <StorageUsageCard />
+
+      <FileBrowserPanel />
 
       <Card className="p-4 border-border/50">
         <div className="flex items-start gap-3 mb-3">
