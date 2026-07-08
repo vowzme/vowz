@@ -66,15 +66,19 @@ Rules:
   Interfaith: Mix from both traditions`;
 
 // Helper to log AI usage (fire-and-forget)
-function logUsage(functionName: string, model: string, status = "success") {
+function logUsage(functionName: string, model: string, userId?: string, status = "success") {
   try {
     const sb = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-    sb.from("ai_usage_log").insert({ function_name: functionName, model, status }).then();
+    sb.from("ai_usage_log").insert({ function_name: functionName, model, user_id: userId || null, status }).then();
   } catch { /* non-blocking */ }
 }
+
+// Per-user rate limits for the wizard (higher than content-gen; wizard is multi-turn)
+const RATE_PER_HOUR = 40;
+const RATE_PER_DAY = 200;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -100,6 +104,37 @@ serve(async (req) => {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+    const userId = userData.user.id;
+
+    // Rate limit check
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { data: rl } = await admin.rpc("check_ai_rate_limit", {
+      _user_id: userId,
+      _function_name: "wedding-wizard",
+      _per_hour: RATE_PER_HOUR,
+      _per_day: RATE_PER_DAY,
+    });
+    const row = Array.isArray(rl) ? rl[0] : rl;
+    if (row && row.allowed === false) {
+      return new Response(
+        JSON.stringify({
+          error: `Rate limit reached. Try again in ~${Math.ceil((row.retry_after_seconds ?? 60) / 60)} min.`,
+          code: "RATE_LIMITED",
+          retry_after_seconds: row.retry_after_seconds,
+        }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(row.retry_after_seconds ?? 60),
+          },
+        },
+      );
     }
 
     const { messages } = await req.json();
@@ -146,7 +181,7 @@ serve(async (req) => {
       );
     }
 
-    logUsage("wedding-wizard", "google/gemini-3-flash-preview");
+    logUsage("wedding-wizard", "google/gemini-3-flash-preview", userId);
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },

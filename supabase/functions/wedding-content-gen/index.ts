@@ -35,6 +35,10 @@ function logUsage(functionName: string, model: string, userId?: string, status =
   } catch { /* non-blocking */ }
 }
 
+// Per-user rate limits for this function
+const RATE_PER_HOUR = 20;
+const RATE_PER_DAY = 100;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -59,6 +63,37 @@ serve(async (req) => {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+    const userId = userData.user.id;
+
+    // Rate limit check (service-role RPC)
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { data: rl } = await admin.rpc("check_ai_rate_limit", {
+      _user_id: userId,
+      _function_name: "wedding-content-gen",
+      _per_hour: RATE_PER_HOUR,
+      _per_day: RATE_PER_DAY,
+    });
+    const row = Array.isArray(rl) ? rl[0] : rl;
+    if (row && row.allowed === false) {
+      return new Response(
+        JSON.stringify({
+          error: `Rate limit reached. Try again in ~${Math.ceil((row.retry_after_seconds ?? 60) / 60)} min.`,
+          code: "RATE_LIMITED",
+          retry_after_seconds: row.retry_after_seconds,
+        }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(row.retry_after_seconds ?? 60),
+          },
+        },
+      );
     }
 
     const { type, context } = await req.json();
@@ -138,7 +173,7 @@ Theme: ${context.theme || "traditional"}`;
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
 
-    logUsage("wedding-content-gen", "google/gemini-3-flash-preview");
+    logUsage("wedding-content-gen", "google/gemini-3-flash-preview", userId);
 
     return new Response(
       JSON.stringify({ content: content.trim() }),
