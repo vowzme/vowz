@@ -21,6 +21,10 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const E2E_RESET_SECRET = Deno.env.get("E2E_RESET_SECRET") ?? "";
+// Explicit opt-in required. In production this env var is unset, so the
+// function refuses every request regardless of the bearer secret. Set
+// ALLOW_E2E_RESET=true only in dedicated test environments.
+const ALLOW_E2E_RESET = (Deno.env.get("ALLOW_E2E_RESET") ?? "").toLowerCase() === "true";
 
 const DEFAULT_EMAIL = "e2e-test@vowz.me";
 const DEFAULT_PASSWORD = "E2E-Test-Passw0rd!";
@@ -81,6 +85,14 @@ async function wipeUserData(userId: string) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  // Hard kill-switch: without the explicit env var this endpoint is disabled.
+  if (!ALLOW_E2E_RESET) {
+    return new Response(JSON.stringify({ error: "disabled" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const auth = req.headers.get("authorization") ?? "";
   const token = auth.replace(/^Bearer\s+/i, "").trim();
   if (!E2E_RESET_SECRET || token !== E2E_RESET_SECRET) {
@@ -99,6 +111,22 @@ Deno.serve(async (req) => {
   const email = (body.email || DEFAULT_EMAIL).toLowerCase();
   const password = body.password || DEFAULT_PASSWORD;
   const action = body.action || "reset";
+
+  // Only the dedicated test account may ever be touched by this function —
+  // never accept an arbitrary email, even with a valid bearer secret.
+  if (email !== DEFAULT_EMAIL.toLowerCase()) {
+    return new Response(JSON.stringify({ error: "forbidden_email" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  if (action !== "reset" && action !== "teardown") {
+    return new Response(JSON.stringify({ error: "invalid_action" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   try {
     const existing = await findUserByEmail(email);
