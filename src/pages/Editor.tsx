@@ -30,7 +30,7 @@ import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS } from "@/li
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "music";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -336,6 +336,7 @@ const Editor = () => {
       blessings: { type: "blessings", title: "Guest Blessings", data: { heading: "Guest Blessings 💕", description: "Share your heartfelt blessings and wishes for the couple!" } },
       registry: { type: "registry", title: "Gift Registry", data: { heading: "Gift Registry 🎁", description: "Your presence is our greatest gift, but if you wish to bless us further:", links: [{ name: "", url: "", valueUSD: 0 }] } },
       couple_profiles: { type: "couple_profiles", title: "Couple Profiles", data: { heading: "Meet the Couple 💑", partner1Name: "", partner1Bio: "", partner1Photo: "", partner2Name: "", partner2Bio: "", partner2Photo: "" } },
+      music: { type: "music", title: "Background Music", data: { enabled: true, category: "romantic", trackUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", trackName: "First Dance", autoplay: true, loop: true, volume: 0.4 } },
     };
     const config = typeMap[sectionType || "custom"] || typeMap.custom;
     const newSection: WeddingSection = {
