@@ -1,4 +1,4 @@
-// Dynamic sitemap.xml — static routes + all published blog posts.
+// Dynamic sitemap.xml — static routes + all published blog posts + published wedding sites.
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -10,8 +10,10 @@ const STATIC: Array<{ path: string; changefreq: string; priority: string }> = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/pricing", changefreq: "monthly", priority: "0.8" },
   { path: "/templates", changefreq: "monthly", priority: "0.8" },
-  { path: "/card-gallery", changefreq: "monthly", priority: "0.7" },
   { path: "/showcase", changefreq: "monthly", priority: "0.6" },
+  { path: "/card-gallery", changefreq: "monthly", priority: "0.7" },
+  { path: "/card-templates-preview", changefreq: "monthly", priority: "0.6" },
+  { path: "/domain-demo", changefreq: "monthly", priority: "0.6" },
   { path: "/blog", changefreq: "weekly", priority: "0.7" },
   { path: "/about", changefreq: "monthly", priority: "0.5" },
   { path: "/contact", changefreq: "monthly", priority: "0.5" },
@@ -32,6 +34,13 @@ Deno.serve(async () => {
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
 
+  const { data: sites } = await admin
+    .from("wedding_sites")
+    .select("slug, updated_at")
+    .eq("is_published", true)
+    .eq("status", "active")
+    .not("slug", "is", null);
+
   const urls: string[] = [];
   for (const r of STATIC) {
     urls.push(
@@ -42,6 +51,13 @@ Deno.serve(async () => {
     const lastmod = (p.updated_at ?? p.published_at) as string | null;
     urls.push(
       `<url><loc>${BASE}/blog/${p.slug}</loc>${lastmod ? `<lastmod>${new Date(lastmod).toISOString()}</lastmod>` : ""}<changefreq>monthly</changefreq><priority>0.6</priority></url>`,
+    );
+  }
+  for (const s of sites ?? []) {
+    if (!s.slug) continue;
+    const lastmod = s.updated_at as string | null;
+    urls.push(
+      `<url><loc>${BASE}/site/${s.slug}</loc>${lastmod ? `<lastmod>${new Date(lastmod).toISOString()}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.8</priority></url>`,
     );
   }
 

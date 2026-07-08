@@ -1,5 +1,5 @@
 // Runs before `vite dev` and `vite build` (predev/prebuild hooks).
-// Writes public/sitemap.xml from static routes + published blog posts.
+// Writes public/sitemap.xml from static routes + published blog posts + published wedding sites.
 
 import { writeFileSync } from "fs";
 import { resolve } from "path";
@@ -21,6 +21,9 @@ const staticEntries: Entry[] = [
   { path: "/pricing", changefreq: "monthly", priority: "0.9" },
   { path: "/templates", changefreq: "weekly", priority: "0.9" },
   { path: "/showcase", changefreq: "weekly", priority: "0.8" },
+  { path: "/card-gallery", changefreq: "monthly", priority: "0.7" },
+  { path: "/card-templates-preview", changefreq: "monthly", priority: "0.6" },
+  { path: "/domain-demo", changefreq: "monthly", priority: "0.6" },
   { path: "/blog", changefreq: "weekly", priority: "0.8" },
   { path: "/about", changefreq: "monthly", priority: "0.6" },
   { path: "/contact", changefreq: "monthly", priority: "0.6" },
@@ -63,6 +66,39 @@ async function fetchBlogEntries(): Promise<Entry[]> {
   }
 }
 
+async function fetchPublishedSites(): Promise<Entry[]> {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/wedding_sites?select=slug,updated_at&is_published=eq.true&status=eq.active`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      },
+    );
+    if (!res.ok) {
+      console.warn(`[sitemap] sites fetch failed: ${res.status}`);
+      return [];
+    }
+    const rows = (await res.json()) as Array<{
+      slug: string | null;
+      updated_at: string | null;
+    }>;
+    return rows
+      .filter((r) => r.slug)
+      .map((r) => ({
+        path: `/site/${r.slug}`,
+        lastmod: r.updated_at ? r.updated_at.slice(0, 10) : undefined,
+        changefreq: "weekly",
+        priority: "0.8",
+      }));
+  } catch (err) {
+    console.warn(`[sitemap] sites fetch error:`, err);
+    return [];
+  }
+}
+
 function xml(entries: Entry[]) {
   const urls = entries
     .map((e) =>
@@ -82,8 +118,8 @@ function xml(entries: Entry[]) {
 }
 
 async function main() {
-  const blog = await fetchBlogEntries();
-  const entries = [...staticEntries, ...blog];
+  const [blog, sites] = await Promise.all([fetchBlogEntries(), fetchPublishedSites()]);
+  const entries = [...staticEntries, ...blog, ...sites];
   const seen = new Set<string>();
   const unique = entries.filter((e) => {
     if (seen.has(e.path)) return false;
