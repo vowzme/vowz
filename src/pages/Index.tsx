@@ -73,7 +73,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Vowz — Where Vows Come Alive | Create Beautiful Wedding Websites"
+        title="Vowz — Create Beautiful Wedding Websites & Invites"
         description="Create stunning, personalized wedding websites in minutes. RSVP management, photo gallery, event schedules — celebrate every moment beautifully."
         ogTitle="Vowz – Digital Wedding Invitations & Websites"
         ogDescription={`Create stunning wedding websites in minutes. Free 7-day trial, Premium from ${formatPrice(pricing, "premium")}/year. WhatsApp sharing, RSVP, custom domains.`}
