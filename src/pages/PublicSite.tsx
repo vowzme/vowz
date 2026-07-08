@@ -392,9 +392,24 @@ const PublicSite = () => {
         </div>
       )}
 
-      {sections.filter((s) => s.visible !== false).map((section) => (
+      {sections.filter((s) => s.visible !== false && s.type !== "music").map((section) => (
         <PublicSection key={section.id} section={section} site={site} bg={bg} accent={accent} light={light} trackEvent={trackEvent} t={t} />
       ))}
+      {(() => {
+        const music = sections.find((s) => s.type === "music" && s.visible !== false && s.data?.enabled !== false && s.data?.trackUrl);
+        if (!music) return null;
+        return (
+          <BackgroundMusicPlayer
+            trackUrl={music.data.trackUrl}
+            trackName={music.data.trackName}
+            autoplay={music.data.autoplay !== false}
+            loop={music.data.loop !== false}
+            volume={typeof music.data.volume === "number" ? music.data.volume : 0.4}
+            accent={accent}
+            light={light}
+          />
+        );
+      })()}
       {/* Floating share bar */}
       <motion.div
         initial={{ y: 80, opacity: 0 }}
