@@ -67,7 +67,36 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={`${post.title} | Vowz Blog`} description={post.excerpt} />
+      <SEOHead
+        title={`${post.title} | Vowz Blog`}
+        description={post.excerpt}
+        ogType="article"
+        ogUrl={`https://vowz.me/blog/${post.slug}`}
+        canonical={`https://vowz.me/blog/${post.slug}`}
+        ogImage={post.cover_image_url || undefined}
+      >
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: post.title,
+            description: post.excerpt,
+            image: post.cover_image_url || undefined,
+            author: { "@type": "Person", name: post.author_name },
+            datePublished: post.published_at,
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": `https://vowz.me/blog/${post.slug}`,
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "Vowz",
+              url: "https://vowz.me",
+            },
+            keywords: (post.tags || []).join(", "),
+          })}
+        </script>
+      </SEOHead>
       <article className="max-w-3xl mx-auto px-4 pt-28 pb-16">
         <Link to="/blog" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to blog
