@@ -26,11 +26,12 @@ import { StorageBadge } from "@/components/StorageBadge";
 import { DEFAULT_STORY, STORY_TEMPLATES } from "@/lib/default-story";
 import MediaManagerPanel from "@/components/MediaManagerPanel";
 import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS } from "@/lib/video-embed";
+import { MUSIC_CATEGORIES } from "@/lib/music-library";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "music";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -336,6 +337,7 @@ const Editor = () => {
       blessings: { type: "blessings", title: "Guest Blessings", data: { heading: "Guest Blessings 💕", description: "Share your heartfelt blessings and wishes for the couple!" } },
       registry: { type: "registry", title: "Gift Registry", data: { heading: "Gift Registry 🎁", description: "Your presence is our greatest gift, but if you wish to bless us further:", links: [{ name: "", url: "", valueUSD: 0 }] } },
       couple_profiles: { type: "couple_profiles", title: "Couple Profiles", data: { heading: "Meet the Couple 💑", partner1Name: "", partner1Bio: "", partner1Photo: "", partner2Name: "", partner2Bio: "", partner2Photo: "" } },
+      music: { type: "music", title: "Background Music", data: { enabled: true, category: "romantic", trackUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", trackName: "First Dance", autoplay: true, loop: true, volume: 0.4 } },
     };
     const config = typeMap[sectionType || "custom"] || typeMap.custom;
     const newSection: WeddingSection = {
@@ -698,7 +700,7 @@ function SectionsPanel({
                 onClick={(e) => e.stopPropagation()}
                 className="scale-75"
               />
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry" || section.type === "couple_profiles") && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry" || section.type === "couple_profiles" || section.type === "music") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
@@ -726,6 +728,7 @@ function SectionsPanel({
               { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
               { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
               { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & Groom" },
+              { id: "music", label: "🎵 Background Music", desc: "Wedding soundtrack" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -2355,6 +2358,113 @@ function SectionEditor({
               <Plus className="w-3 h-3 mr-1" /> Add Registry Link
             </Button>
           </div>
+        </>
+      )}
+
+      {type === "music" && (
+        <>
+          <div className="flex items-center justify-between rounded-lg border border-border/50 p-3">
+            <div>
+              <p className="font-body text-sm font-medium text-foreground">Enable background music</p>
+              <p className="font-body text-[11px] text-muted-foreground">Plays a soft soundtrack when guests visit your site.</p>
+            </div>
+            <Switch
+              checked={data.enabled !== false}
+              onCheckedChange={(v) => onUpdateData({ enabled: v })}
+            />
+          </div>
+
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Category</label>
+            <div className="grid grid-cols-2 gap-2">
+              {MUSIC_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => {
+                    const first = cat.tracks[0];
+                    onUpdateData({ category: cat.id, trackUrl: first.url, trackName: first.name });
+                  }}
+                  className={`text-left rounded-lg border p-2 transition-colors ${
+                    data.category === cat.id ? "border-gold bg-gold/10" : "border-border/50 hover:bg-muted"
+                  }`}
+                >
+                  <p className="font-body text-sm font-medium text-foreground">
+                    {cat.emoji} {cat.label}
+                  </p>
+                  <p className="font-body text-[10px] text-muted-foreground line-clamp-1">{cat.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Track</label>
+            <div className="space-y-1">
+              {(MUSIC_CATEGORIES.find((c) => c.id === data.category)?.tracks || MUSIC_CATEGORIES[0].tracks).map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => onUpdateData({ trackUrl: t.url, trackName: t.name })}
+                  className={`w-full flex items-center justify-between rounded-md border px-3 py-2 text-left transition-colors ${
+                    data.trackUrl === t.url ? "border-gold bg-gold/10" : "border-border/50 hover:bg-muted"
+                  }`}
+                >
+                  <span className="font-body text-sm text-foreground">🎵 {t.name}</span>
+                  <audio
+                    src={t.url}
+                    controls
+                    preload="none"
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-6 max-w-[140px]"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Or paste a custom track URL</label>
+            <Input
+              placeholder="https://…/song.mp3"
+              value={data.trackUrl || ""}
+              onChange={(e) => onUpdateData({ trackUrl: e.target.value, trackName: data.trackName || "Custom Track" })}
+              className="font-body text-sm"
+            />
+            <p className="text-[10px] text-muted-foreground font-body mt-1">
+              Direct link to an .mp3, .ogg or .m4a file. Make sure you have the rights to use it.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center justify-between rounded-lg border border-border/50 p-2">
+              <span className="font-body text-xs text-foreground">Autoplay</span>
+              <Switch checked={data.autoplay !== false} onCheckedChange={(v) => onUpdateData({ autoplay: v })} />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-border/50 p-2">
+              <span className="font-body text-xs text-foreground">Loop</span>
+              <Switch checked={data.loop !== false} onCheckedChange={(v) => onUpdateData({ loop: v })} />
+            </div>
+          </div>
+
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">
+              Volume: {Math.round((data.volume ?? 0.4) * 100)}%
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={data.volume ?? 0.4}
+              onChange={(e) => onUpdateData({ volume: parseFloat(e.target.value) })}
+              className="w-full accent-gold"
+            />
+          </div>
+
+          <p className="text-[11px] text-muted-foreground font-body p-2 bg-muted rounded-lg">
+            💡 Most browsers block autoplay with sound. Guests will see a small "Tap for music" prompt on the bottom-left until they interact.
+          </p>
         </>
       )}
     </div>
