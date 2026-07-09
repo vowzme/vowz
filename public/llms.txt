@@ -1,13 +1,13 @@
 # Vowz
 
-> Beautiful wedding websites and digital invitations — RSVP management, photo galleries, event schedules, and custom domains for couples in India and abroad.
+> Beautiful wedding websites and digital invitations — RSVP management, photo galleries, and event schedules for couples in India and abroad.
 
 Vowz (by AXPIR Tech India LLP) lets couples create fully-branded wedding sites in minutes. Templates cover traditional Indian, regional, fusion, modern glam, destination, and minimal styles. Free forever plan with optional premium upgrades.
 
 ## Pages
 
 - [Home](/): Product overview, hero, features, testimonials.
-- [Features](/features): Full list of features — RSVP, gallery, budget, checklist, guestbook, custom domains, multi-language.
+- [Features](/features): Full list of features — RSVP, gallery, budget, checklist, guestbook, multi-language.
 - [Templates](/templates): 25+ wedding invitation templates browsable by style, region, and vibe.
 - [Pricing](/pricing): Free plan, premium plans (monthly / 6-month / yearly), storage add-ons, regional INR/USD pricing.
 - [Blog](/blog): Wedding-planning guides, invitation etiquette, product updates.
