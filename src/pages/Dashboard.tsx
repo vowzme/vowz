@@ -2408,7 +2408,7 @@ function BlessingModerationCard({
   };
 
   return (
-    <div className="border border-border/50 rounded-xl p-4 bg-background">
+    <article aria-label={`Blessing from ${blessing.guest_name}, status ${blessing.status}`} className="border border-border/50 rounded-xl p-4 bg-background">
       <div className="flex items-start gap-3">
         {blessing.photo_url && (
           <img
@@ -2420,18 +2420,30 @@ function BlessingModerationCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-body text-sm font-semibold text-foreground">{blessing.guest_name}</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-body font-medium ${statusColors[blessing.status] || ""}`}>
+            <span
+              role="status"
+              aria-label={`Status: ${blessing.status}`}
+              className={`text-[10px] px-1.5 py-0.5 rounded-full border font-body font-medium ${statusColors[blessing.status] || ""}`}
+            >
               {blessing.status}
             </span>
             <span className="text-[10px] text-muted-foreground font-body ml-auto">
+              <span className="sr-only">Submitted on </span>
               {new Date(blessing.created_at).toLocaleDateString()}
             </span>
           </div>
-          <p className="font-body text-sm text-muted-foreground mt-1">{blessing.message}</p>
+          <p className="font-body text-sm text-muted-foreground mt-1">
+            <span className="sr-only">Message: </span>
+            {blessing.message}
+          </p>
 
           {blessing.owner_reply && !showReply && (
             <div className="mt-2 pl-3 border-l-2 border-gold/30">
-              <p className="font-body text-xs text-muted-foreground italic">💕 {blessing.owner_reply}</p>
+              <p className="font-body text-xs text-muted-foreground italic">
+                <span aria-hidden="true">💕 </span>
+                <span className="sr-only">Your reply: </span>
+                {blessing.owner_reply}
+              </p>
             </div>
           )}
         </div>
@@ -2440,16 +2452,35 @@ function BlessingModerationCard({
       <div className="flex items-center gap-2 mt-3 flex-wrap">
         {blessing.status === "pending" && (
           <>
-            <Button variant="outline" size="sm" className="font-body text-xs h-7" onClick={onApprove}>
-              <Check className="w-3 h-3 mr-1" /> Approve
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-body text-xs h-7"
+              onClick={onApprove}
+              aria-label={`Approve blessing from ${blessing.guest_name}`}
+            >
+              <Check className="w-3 h-3 mr-1" aria-hidden="true" /> Approve
             </Button>
-            <Button variant="outline" size="sm" className="font-body text-xs h-7 text-destructive hover:text-destructive" onClick={onReject}>
-              <X className="w-3 h-3 mr-1" /> Reject
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-body text-xs h-7 text-destructive hover:text-destructive"
+              onClick={onReject}
+              aria-label={`Reject blessing from ${blessing.guest_name}`}
+            >
+              <X className="w-3 h-3 mr-1" aria-hidden="true" /> Reject
             </Button>
           </>
         )}
-        <Button variant="ghost" size="sm" className="font-body text-xs h-7" onClick={() => setShowReply(!showReply)}>
-          <MessageSquare className="w-3 h-3 mr-1" /> {showReply ? "Cancel" : "Reply"}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="font-body text-xs h-7"
+          onClick={() => setShowReply(!showReply)}
+          aria-expanded={showReply}
+          aria-label={showReply ? `Cancel reply to ${blessing.guest_name}` : `Reply to blessing from ${blessing.guest_name}`}
+        >
+          <MessageSquare className="w-3 h-3 mr-1" aria-hidden="true" /> {showReply ? "Cancel" : "Reply"}
         </Button>
         <Button
           variant="ghost"
@@ -2458,7 +2489,7 @@ function BlessingModerationCard({
           onClick={onDelete}
           aria-label={`Delete blessing from ${blessing.guest_name}`}
         >
-          <Trash2 className="w-3 h-3" />
+          <Trash2 className="w-3 h-3" aria-hidden="true" />
         </Button>
       </div>
 
@@ -2482,7 +2513,7 @@ function BlessingModerationCard({
           </Button>
         </div>
       )}
-    </div>
+    </article>
   );
 }
 
