@@ -1490,12 +1490,15 @@ function ChecklistRow({
     <div className="px-4 py-3 flex items-start gap-3 group">
       <button
         onClick={onToggle}
+        role="checkbox"
+        aria-checked={item.is_completed}
+        aria-label={item.is_completed ? `Mark "${item.title}" as incomplete` : `Mark "${item.title}" as complete`}
         className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
           item.is_completed ? "border-transparent" : "border-border hover:border-foreground/50"
-        }`}
+        } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
         style={item.is_completed ? { backgroundColor: accent } : undefined}
       >
-        {item.is_completed && <Check className="w-3 h-3 text-white" />}
+        {item.is_completed && <Check className="w-3 h-3 text-primary-foreground" />}
       </button>
 
       {editing ? (
@@ -1537,11 +1540,16 @@ function ChecklistRow({
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
           <button
             onClick={() => { setEditTitle(item.title); setEditDate(item.due_date || ""); setEditing(true); }}
-            className="text-muted-foreground hover:text-foreground p-1"
+            aria-label={`Edit "${item.title}"`}
+            className="text-muted-foreground hover:text-foreground p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
-          <button onClick={onDelete} className="text-muted-foreground hover:text-destructive p-1">
+          <button
+            onClick={onDelete}
+            aria-label={`Delete "${item.title}"`}
+            className="text-muted-foreground hover:text-destructive p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+          >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
