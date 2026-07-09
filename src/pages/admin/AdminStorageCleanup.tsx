@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RefreshCw, Play, Eye } from "lucide-react";
+import { Loader2, RefreshCw, Eye } from "lucide-react";
 import { toast } from "sonner";
 import {
   Table,
@@ -53,7 +53,6 @@ function fmtBytes(n: number) {
 export default function AdminStorageCleanup() {
   const [runs, setRuns] = useState<Run[]>([]);
   const [loading, setLoading] = useState(true);
-  const [running, setRunning] = useState<"none" | "dry" | "live">("none");
 
   const load = async () => {
     setLoading(true);
@@ -70,22 +69,6 @@ export default function AdminStorageCleanup() {
   useEffect(() => {
     load();
   }, []);
-
-  const trigger = async (dryRun: boolean) => {
-    setRunning(dryRun ? "dry" : "live");
-    const { error } = await supabase.functions.invoke("r2-upload", {
-      body: { dry_run: dryRun },
-      // Admin bearer path — service_role invocation only works from cron.
-      // From the browser this runs as the admin user; the function requires
-      // service role for admin_cleanup, so we hit the per-user cleanup path
-      // instead by using a query flag the function recognises via URL.
-    });
-    // Because admin_cleanup requires service role, we surface guidance:
-    if (error) toast.error(`Manual trigger requires cron/service role. ${error.message}`);
-    else toast.success("Triggered");
-    setRunning("none");
-    await load();
-  };
 
   return (
     <div>
