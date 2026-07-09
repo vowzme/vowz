@@ -1,20 +1,27 @@
 import { test, expect } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
 import { configFor, envFloor, EXEMPT_ROLES } from "./tap-target-config";
 
 /**
  * Regression guard for WCAG 2.5.5 (Target Size). Thresholds are configured
  * per Playwright project and per control type in ./tap-target-config.ts —
  * edit that file (not this test) to tune sizes.
+ *
+ * On failure, this test writes a per-offender screenshot plus a JSON +
+ * text report to Playwright's output dir and attaches them via
+ * testInfo.attach(), so the html/blob reporter surfaces them as CI
+ * artifacts (visible in the Playwright HTML report and downloadable
+ * from GitHub Actions / any CI upload-artifact step).
  */
 test.describe("dashboard tap targets", () => {
-  test("all dashboard buttons & links meet 44x44 minimum", async ({ page }, testInfo) => {
+  test("all dashboard buttons & links meet configured minimum", async ({ page }, testInfo) => {
     const email = process.env.E2E_USER_EMAIL;
     const password = process.env.E2E_USER_PASSWORD;
     test.skip(!email || !password, "E2E account not provisioned");
 
     const cfg = configFor(testInfo.project.name);
     const floor = envFloor();
-    // Serializable payload for page.evaluate.
     const payload = {
       rules: cfg.rules.map((r) => ({
         selector: r.selector,
@@ -34,7 +41,6 @@ test.describe("dashboard tap targets", () => {
     test.skip(!/\/dashboard/.test(page.url()), "no wedding_site provisioned");
     await page.waitForLoadState("networkidle");
 
-    // Iterate every Tabs trigger so controls behind each tab get measured.
     const tabs = page.locator('[data-tour^="tab-"]');
     const tabCount = await tabs.count();
     const failures: Array<{
@@ -47,13 +53,14 @@ test.describe("dashboard tap targets", () => {
       minWidth: number;
       minHeight: number;
       selector: string;
+      screenshot?: string;
     }> = [];
 
     for (let i = 0; i < tabCount; i++) {
       const tab = tabs.nth(i);
       const tabName = (await tab.getAttribute("data-tour")) ?? `tab-${i}`;
       await tab.click();
-      await page.waitForTimeout(200); // let content mount
+      await page.waitForTimeout(200);
 
       const offenders = await page.evaluate((cfg) => {
         const results: Array<{
@@ -65,6 +72,7 @@ test.describe("dashboard tap targets", () => {
           minWidth: number;
           minHeight: number;
           selector: string;
+          marker: string;
         }> = [];
         const nodes = document.querySelectorAll<HTMLElement>(
           'button, a[href], [role="button"], [role="link"], [role="menuitem"], [role="tab"]',
@@ -73,18 +81,16 @@ test.describe("dashboard tap targets", () => {
           if (sel === "*") return true;
           try { return el.matches(sel); } catch { return false; }
         };
+        let n = 0;
         for (const el of Array.from(nodes)) {
           const rect = el.getBoundingClientRect();
-          if (rect.width === 0 || rect.height === 0) continue; // hidden
+          if (rect.width === 0 || rect.height === 0) continue;
           const style = getComputedStyle(el);
           if (style.visibility === "hidden" || style.display === "none") continue;
           const role = el.getAttribute("role");
           if (role && cfg.exemptRoles.includes(role)) continue;
           if (cfg.ignore.some((s) => matches(el, s))) continue;
-          // Inline text links inside paragraphs are exempt — WCAG 2.5.5 excludes
-          // inline text targets.
           if (el.tagName === "A" && el.closest("p, li, span")) continue;
-          // Find the first matching rule (specificity via ordering).
           const rule = cfg.rules.find((r) => matches(el, r.selector));
           if (!rule) continue;
           if (rect.width < rule.minWidth || rect.height < rule.minHeight) {
@@ -94,9 +100,14 @@ test.describe("dashboard tap targets", () => {
                 el.getAttribute("title") ||
                 "").replace(/\s+/g, " ");
             const idPart = el.id ? `#${el.id}` : "";
-            const cls = el.className && typeof el.className === "string"
-              ? "." + el.className.split(/\s+/).slice(0, 2).join(".")
-              : "";
+            const cls =
+              el.className && typeof el.className === "string"
+                ? "." + el.className.split(/\s+/).slice(0, 2).join(".")
+                : "";
+            const marker = `ttv-${n++}`;
+            el.setAttribute("data-ttv", marker);
+            (el as HTMLElement).style.outline = "3px solid #ff2d55";
+            (el as HTMLElement).style.outlineOffset = "2px";
             results.push({
               tag: el.tagName.toLowerCase(),
               role,
@@ -106,21 +117,61 @@ test.describe("dashboard tap targets", () => {
               minWidth: rule.minWidth,
               minHeight: rule.minHeight,
               selector: `${el.tagName.toLowerCase()}${idPart}${cls}`,
+              marker,
             });
           }
         }
         return results;
       }, payload);
 
-      for (const o of offenders) failures.push({ tab: tabName, ...o });
+      for (const o of offenders) {
+        const shotPath = testInfo.outputPath(`offender-${tabName}-${o.marker}.png`);
+        try {
+          await page.locator(`[data-ttv="${o.marker}"]`).screenshot({ path: shotPath });
+          await testInfo.attach(`${tabName} · ${o.selector}`, {
+            path: shotPath,
+            contentType: "image/png",
+          });
+          failures.push({ tab: tabName, ...o, screenshot: path.basename(shotPath) });
+        } catch {
+          failures.push({ tab: tabName, ...o });
+        }
+      }
     }
 
     const report = failures
       .map(
         (f) =>
-          `  [${f.tab}] ${f.selector} (${f.role ?? f.tag}) "${f.name}" — ${f.width}x${f.height}px (min ${f.minWidth}x${f.minHeight})`,
+          `  [${f.tab}] ${f.selector} (${f.role ?? f.tag}) "${f.name}" — ${f.width}x${f.height}px (min ${f.minWidth}x${f.minHeight})${f.screenshot ? ` → ${f.screenshot}` : ""}`,
       )
       .join("\n");
+
+    if (failures.length) {
+      const jsonPath = testInfo.outputPath("tap-target-violations.json");
+      fs.writeFileSync(
+        jsonPath,
+        JSON.stringify(
+          {
+            project: testInfo.project.name,
+            viewport: page.viewportSize(),
+            envFloor: floor,
+            generatedAt: new Date().toISOString(),
+            count: failures.length,
+            failures,
+          },
+          null,
+          2,
+        ),
+      );
+      await testInfo.attach("tap-target-violations.json", {
+        path: jsonPath,
+        contentType: "application/json",
+      });
+      await testInfo.attach("tap-target-violations.txt", {
+        body: report,
+        contentType: "text/plain",
+      });
+    }
 
     expect(
       failures,
