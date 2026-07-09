@@ -2360,16 +2360,20 @@ function BlessingModerationCard({
   const [showReply, setShowReply] = useState(false);
 
   const statusColors: Record<string, string> = {
-    pending: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
-    approved: "bg-green-500/10 text-green-600 border-green-500/30",
-    rejected: "bg-red-500/10 text-red-600 border-red-500/30",
+    pending: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30",
+    approved: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+    rejected: "bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/30",
   };
 
   return (
     <div className="border border-border/50 rounded-xl p-4 bg-background">
       <div className="flex items-start gap-3">
         {blessing.photo_url && (
-          <img src={blessing.photo_url} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+          <img
+            src={blessing.photo_url}
+            alt={`Photo from ${blessing.guest_name}`}
+            className="w-12 h-12 rounded-lg object-cover shrink-0"
+          />
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -2405,7 +2409,13 @@ function BlessingModerationCard({
         <Button variant="ghost" size="sm" className="font-body text-xs h-7" onClick={() => setShowReply(!showReply)}>
           <MessageSquare className="w-3 h-3 mr-1" /> {showReply ? "Cancel" : "Reply"}
         </Button>
-        <Button variant="ghost" size="sm" className="font-body text-xs h-7 text-destructive hover:text-destructive ml-auto" onClick={onDelete}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="font-body text-xs h-7 text-destructive hover:text-destructive ml-auto"
+          onClick={onDelete}
+          aria-label={`Delete blessing from ${blessing.guest_name}`}
+        >
           <Trash2 className="w-3 h-3" />
         </Button>
       </div>
