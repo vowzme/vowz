@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Routes, Route, Navigate } from "react-router-dom";
+import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { MemoryRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import userEvent from "@testing-library/user-event";
 import { ReactNode } from "react";
 
 // Mock the heavy Dashboard page — we only care that the ProtectedRoute
@@ -13,7 +14,7 @@ vi.mock("@/pages/Dashboard", () => ({
 vi.mock("@/pages/Index", () => ({
   default: () => (
     <div data-testid="home-root">
-      <a href="/dashboard">Go to dashboard</a>
+      <IndexLink />
     </div>
   ),
 }));
@@ -31,6 +32,10 @@ vi.mock("@/hooks/use-auth", () => ({
 import Dashboard from "@/pages/Dashboard";
 import Index from "@/pages/Index";
 import { useAuth } from "@/hooks/use-auth";
+
+function IndexLink() {
+  return <Link to="/dashboard">Go to dashboard</Link>;
+}
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth() as { user: unknown; loading: boolean };
@@ -65,30 +70,16 @@ describe("Dashboard routing regression", () => {
   });
 
   it("loads dashboard after navigating from the homepage", async () => {
-    const { rerender } = renderAt("/");
+    renderAt("/");
     expect(screen.getByTestId("home-root")).toBeInTheDocument();
 
-    // Simulate SPA navigation (click) by re-rendering at /dashboard within
-    // the same session — mirrors what BrowserRouter does on link click.
-    rerender(
-      <MemoryRouter initialEntries={["/", "/dashboard"]} initialIndex={1}>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </MemoryRouter>,
-    );
+    // Click the SPA link — Router should navigate to /dashboard without a reload.
+    await userEvent.click(screen.getByRole("link", { name: /go to dashboard/i }));
 
     await waitFor(() =>
       expect(screen.getByTestId("dashboard-root")).toBeInTheDocument(),
     );
+    expect(screen.queryByTestId("home-root")).not.toBeInTheDocument();
   });
 
   it("loads dashboard directly on hard refresh (deep-link entry)", async () => {
