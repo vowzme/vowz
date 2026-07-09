@@ -145,15 +145,6 @@ export const HELP: Record<string, HelpEntry> = {
       "Delete unused uploads from Media Manager",
     ],
   },
-  domain: {
-    title: "Custom domain",
-    what: "Use your own domain like rahulandsona.com (Premium).",
-    why: "A personal domain looks polished on printed invites and never expires with the platform.",
-    try: [
-      "Buy a domain from any registrar",
-      "Follow the DNS wizard — we verify automatically",
-    ],
-  },
 };
 
 export interface TourStep {
@@ -245,7 +236,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     selector: '[data-tour="tab-settings"]',
     title: "Settings",
-    html: popoverHtml("Slug, domain, password, family access.", HELP.settings),
+    html: popoverHtml("Slug, password, family access.", HELP.settings),
   },
   {
     selector: '[data-tour="tour-trigger"]',

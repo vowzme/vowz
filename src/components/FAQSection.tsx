@@ -20,10 +20,6 @@ const faqs = [
     a: "Premium users get an AI assistant built into the editor. It can suggest color palettes and themes based on your culture and venue, rewrite your love story or tagline, generate event descriptions, and offer wedding planning advice — all with one click to apply changes.",
   },
   {
-    q: "Can I use my own domain like ournames.com?",
-    a: "Yes! Premium users can connect a custom domain through our guided 4-step wizard. Search for available domains, purchase from popular registrars (GoDaddy, BigRock, Hostinger, Namecheap), follow our DNS setup guide, and verify — we handle SSL automatically.",
-  },
-  {
     q: "What types of weddings does Vowz support?",
     a: "Vowz supports all wedding styles — traditional Indian (Hindu, Muslim, Sikh, Christian), fusion, destination, eco-friendly, and more. The wizard adapts to your cultural background and includes relevant ceremony events like Mehendi, Sangeet, and Pheras.",
   },

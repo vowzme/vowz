@@ -296,7 +296,6 @@ export default function AdminSites() {
               <div className="flex justify-between"><span className="text-muted-foreground">Slug</span><span className="font-mono">{detailSite.slug || "—"}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Theme</span><Badge variant="secondary" className="capitalize">{detailSite.theme}</Badge></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Status</span>{getStatusBadge(detailSite)}</div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Domain</span><span>{detailSite.custom_domain || "—"}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Created</span><span>{format(new Date(detailSite.created_at), "MMM dd, yyyy")}</span></div>
               <div className="flex gap-2 pt-3">
                 <Button variant="outline" size="sm" onClick={() => { setDetailSite(null); handleEditOpen(detailSite); }}>

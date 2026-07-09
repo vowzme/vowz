@@ -59,11 +59,6 @@ const Index = () => {
       },
       {
         "@type": "Question",
-        name: "Can I use my own domain?",
-        acceptedAnswer: { "@type": "Answer", text: "Yes! Premium users can connect a custom domain like yournames.com with guided DNS setup and automatic SSL." },
-      },
-      {
-        "@type": "Question",
         name: "Is my wedding site mobile-friendly?",
         acceptedAnswer: { "@type": "Answer", text: "100%. Every Vowz site is fully responsive and optimized for phones, tablets, and desktops." },
       },
