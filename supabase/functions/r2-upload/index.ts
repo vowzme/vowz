@@ -315,6 +315,58 @@ Deno.serve(async (req) => {
       return json({ success: true, deleted: deletedCount, freed_bytes: freedBytes });
     }
 
+    // ── verify: recompute r2_storage_usage from r2_files and self-heal drift ──
+    if (action === "verify") {
+      const { data: files, error: fErr } = await admin
+        .from("r2_files")
+        .select("size_bytes")
+        .eq("user_id", user.id);
+      if (fErr) throw fErr;
+
+      const actualBytes = (files || []).reduce(
+        (sum, f) => sum + Math.max(0, Number(f.size_bytes || 0)),
+        0,
+      );
+      const actualCount = (files || []).length;
+
+      const { data: current } = await admin
+        .from("r2_storage_usage")
+        .select("used_bytes, file_count")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const prevBytes = current ? Number(current.used_bytes || 0) : 0;
+      const prevCount = current ? Number(current.file_count || 0) : 0;
+      const drift = prevBytes !== actualBytes || prevCount !== actualCount;
+
+      if (drift) {
+        await admin
+          .from("r2_storage_usage")
+          .upsert(
+            {
+              user_id: user.id,
+              used_bytes: actualBytes,
+              file_count: actualCount,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" },
+          );
+        console.log("r2-usage drift healed", {
+          user_id: user.id,
+          prev: { used_bytes: prevBytes, file_count: prevCount },
+          actual: { used_bytes: actualBytes, file_count: actualCount },
+        });
+      }
+
+      return json({
+        success: true,
+        drift,
+        previous: { used_bytes: prevBytes, file_count: prevCount },
+        actual: { used_bytes: actualBytes, file_count: actualCount },
+        healed: drift,
+      });
+    }
+
     return json({ error: "Unknown action" }, 400);
   } catch (err) {
     console.error("r2-upload error:", err);
