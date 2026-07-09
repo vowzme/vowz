@@ -15,15 +15,25 @@ const STORAGE_KEY = "vowz_dashboard_tour_seen";
  */
 const DashboardTour = () => {
   const runTour = useCallback(() => {
+    if (typeof document === "undefined") return;
     const steps = TOUR_STEPS
-      .filter((s) => typeof document !== "undefined" && document.querySelector(s.selector))
+      .filter((s) => document.querySelector(s.selector))
       .map((s) => ({
         element: s.selector,
         popover: {
           title: s.title,
-          description: s.description,
+          description: s.html,
           side: "bottom" as const,
           align: "start" as const,
+          onPopoverRender: () => {
+            // Switch to the relevant tab so the highlighted element is visible.
+            if (s.tab) {
+              const trigger = document.querySelector<HTMLElement>(
+                `[data-tour="tab-${s.tab}"]`,
+              );
+              trigger?.click();
+            }
+          },
         },
       }));
     if (!steps.length) return;
