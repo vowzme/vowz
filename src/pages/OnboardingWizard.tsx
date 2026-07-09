@@ -73,12 +73,24 @@ const OnboardingWizard = () => {
           // Derive selected events from the sections jsonb (events section) if present.
           const sections = Array.isArray((site as any).sections) ? (site as any).sections : [];
           const eventsSection = sections.find((s: any) => s?.type === "events" || s?.id === "events");
-          const evts = Array.isArray(eventsSection?.items)
-            ? eventsSection.items.map((i: any) => i?.name).filter(Boolean)
-            : Array.isArray(eventsSection?.events)
-              ? eventsSection.events.map((i: any) => (typeof i === "string" ? i : i?.name)).filter(Boolean)
-              : [];
-          if (evts.length) updateField("functions", evts as string[]);
+          const rawEvents: any[] = Array.isArray(eventsSection?.data?.events)
+            ? eventsSection.data.events
+            : Array.isArray(eventsSection?.items)
+              ? eventsSection.items
+              : Array.isArray(eventsSection?.events)
+                ? eventsSection.events
+                : [];
+          const evts = rawEvents
+            .map((i: any) => (typeof i === "string" ? i : i?.name))
+            .filter(Boolean) as string[];
+          if (evts.length) updateField("functions", evts);
+          const dateMap: Record<string, { date?: string; time?: string; venue?: string }> = {};
+          rawEvents.forEach((i: any) => {
+            if (i && typeof i === "object" && i.name && (i.date || i.time || i.venue)) {
+              dateMap[i.name] = { date: i.date || "", time: i.time || "", venue: i.venue || "" };
+            }
+          });
+          if (Object.keys(dateMap).length) updateField("eventDates", dateMap);
           if ((site as any).theme) updateField("theme", (site as any).theme);
           const cols = (site as any).suggested_colors;
           if (Array.isArray(cols) && cols.length >= 3) updateField("suggestedColors", cols as string[]);
