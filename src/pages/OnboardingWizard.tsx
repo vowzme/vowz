@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, Edit3, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { useWeddingWizard, CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES } fro
 import WizardPreview from "@/components/WizardPreview";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
@@ -34,12 +35,75 @@ const OnboardingWizard = () => {
   })();
 
   const {
-    step, wizardData, updateField, applyCulturalPreset,
+    step, setStep, wizardData, updateField, applyCulturalPreset,
     nextStep, prevStep, completeWizard, isComplete,
   } = useWeddingWizard();
   const { generate, loading: aiLoading } = useAIContentGen();
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
+  // Resume flow: when user clicks "Wedding Wizard" from the dashboard we pass
+  // ?resume=1. We hydrate wizardData from their existing site and show a
+  // summary screen so they can pick up where they left off.
+  const wantsResume = searchParams.get("resume") === "1";
+  const [resumeLoading, setResumeLoading] = useState<boolean>(wantsResume);
+  const [showResumeSummary, setShowResumeSummary] = useState<boolean>(false);
+  const [existingSiteId, setExistingSiteId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!wantsResume) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { if (!cancelled) setResumeLoading(false); return; }
+        const { data: site } = await supabase
+          .from("wedding_sites")
+          .select("id, partner1, partner2, tagline, how_we_met, theme, suggested_colors, cultural_background, sections")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        if (cancelled) return;
+        if (site) {
+          setExistingSiteId((site as any).id);
+          updateField("partner1", (site as any).partner1 || "");
+          updateField("partner2", (site as any).partner2 || "");
+          updateField("tagline", (site as any).tagline || "");
+          updateField("howWeMet", (site as any).how_we_met || "");
+          // Derive selected events from the sections jsonb (events section) if present.
+          const sections = Array.isArray((site as any).sections) ? (site as any).sections : [];
+          const eventsSection = sections.find((s: any) => s?.type === "events" || s?.id === "events");
+          const evts = Array.isArray(eventsSection?.items)
+            ? eventsSection.items.map((i: any) => i?.name).filter(Boolean)
+            : Array.isArray(eventsSection?.events)
+              ? eventsSection.events.map((i: any) => (typeof i === "string" ? i : i?.name)).filter(Boolean)
+              : [];
+          if (evts.length) updateField("functions", evts as string[]);
+          if ((site as any).theme) updateField("theme", (site as any).theme);
+          const cols = (site as any).suggested_colors;
+          if (Array.isArray(cols) && cols.length >= 3) updateField("suggestedColors", cols as string[]);
+          if ((site as any).cultural_background) updateField("culturalBackground", (site as any).cultural_background);
+          setShowResumeSummary(true);
+        }
+      } catch {
+        // fall through to normal wizard
+      } finally {
+        if (!cancelled) setResumeLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [wantsResume]);
+
+  // Which fields are still missing? Drives the summary UI + jump-to-step.
+  const completion = {
+    names: Boolean(wizardData.partner1.trim() && wizardData.partner2.trim()),
+    story: (wizardData.howWeMet || "").trim().length >= 10,
+    theme: (wizardData.suggestedColors || []).length >= 3 && Boolean(wizardData.theme),
+    events: (wizardData.functions || []).length > 0,
+    tagline: Boolean((wizardData.tagline || "").trim()),
+  } as const;
+  const firstMissing = (["names", "story", "theme", "events"] as const).find((k) => !completion[k]);
+
   // Apply template preset if navigated from templates
   useEffect(() => {
     if (templateState?.templateColors) {
@@ -53,6 +117,109 @@ const OnboardingWizard = () => {
 
   if (isComplete) {
     return <WizardPreview data={wizardData} />;
+  }
+
+  // Resume summary screen: shown once when user opens the wizard on top of
+  // an existing (possibly partial) site.
+  if (showResumeSummary) {
+    const rows: Array<{ key: keyof typeof completion; label: string; hint: string; step: typeof stepMeta[number]["key"] }> = [
+      { key: "names",   label: "Couple names",    hint: `${wizardData.partner1 || "—"} & ${wizardData.partner2 || "—"}`, step: "names" },
+      { key: "story",   label: "Your love story", hint: (wizardData.howWeMet || "").slice(0, 80) || "Not written yet", step: "story" },
+      { key: "theme",   label: "Theme & colors",  hint: `${wizardData.theme || "—"} · ${(wizardData.suggestedColors || []).length} colors`, step: "theme" },
+      { key: "events",  label: "Wedding events",  hint: (wizardData.functions || []).join(", ") || "None selected", step: "events" },
+      { key: "tagline", label: "Tagline",         hint: wizardData.tagline || "We'll auto-generate one", step: "story" },
+    ];
+    const completedCount = rows.filter((r) => completion[r.key]).length;
+    return (
+      <div className="min-h-dvh bg-background flex flex-col">
+        <SEOHead title="Continue Your Wedding Site – Vowz" description="Pick up where you left off." robots="noindex, nofollow" />
+        <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+          <div className="max-w-3xl mx-auto px-4 h-14 flex items-center gap-3">
+            <button onClick={() => navigate("/dashboard")} aria-label="Back to dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-gold" />
+              </div>
+              <div>
+                <p className="font-display text-sm font-semibold text-foreground">Continue where you left off</p>
+                <p className="text-xs text-muted-foreground font-body">{completedCount} of {rows.length} sections complete</p>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+            <div className="text-center">
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Welcome back 💍</h2>
+              <p className="text-muted-foreground font-body mt-2">
+                Here's what you've already added. Jump into any section to update it, or open the full editor for fine-grained control.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/50 bg-card divide-y divide-border/50">
+              {rows.map((row) => {
+                const done = completion[row.key];
+                return (
+                  <button
+                    key={row.key}
+                    onClick={() => { setStep(row.step); setShowResumeSummary(false); }}
+                    className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
+                    aria-label={`${done ? "Edit" : "Complete"} ${row.label}`}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-emerald-600/15 text-emerald-700 dark:text-emerald-300" : "bg-amber-500/15 text-amber-700 dark:text-amber-300"}`}>
+                      {done ? <Check className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-body text-sm font-semibold text-foreground">{row.label}</p>
+                      <p className="font-body text-xs text-muted-foreground truncate">{row.hint}</p>
+                    </div>
+                    <span className={`text-[10px] font-body uppercase tracking-wide shrink-0 ${done ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}>
+                      {done ? "Done" : "Missing"}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden="true" />
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                variant="gold"
+                size="lg"
+                className="flex-1 h-12"
+                onClick={() => {
+                  if (firstMissing) setStep(firstMissing);
+                  else setStep("preview");
+                  setShowResumeSummary(false);
+                }}
+              >
+                <Sparkles className="w-4 h-4 mr-1.5" />
+                {firstMissing ? `Continue: ${stepMeta.find(s => s.key === firstMissing)?.label}` : "Review & Finish"}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="flex-1 h-12"
+                onClick={() => navigate("/editor")}
+              >
+                <Edit3 className="w-4 h-4 mr-1.5" /> Edit manually
+              </Button>
+            </div>
+            <p className="text-xs text-center text-muted-foreground font-body">
+              Prefer full control? The manual editor lets you customize every field — hero, story, events, gallery, travel, RSVP, and more.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (resumeLoading) {
+    return (
+      <div className="min-h-dvh bg-background flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-gold animate-spin" aria-label="Loading your site details" />
+      </div>
+    );
   }
 
   const currentStepIdx = stepMeta.findIndex((s) => s.key === step);

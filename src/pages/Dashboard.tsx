@@ -577,6 +577,11 @@ const Dashboard = () => {
                         <Edit3 className="w-4 h-4 mr-1" /> Edit Site
                       </Link>
                     </Button>
+                    <Button variant="outline" size="sm" asChild aria-label="Open the wedding wizard to review or fill missing details">
+                      <Link to="/wizard?resume=1">
+                        <Sparkles className="w-4 h-4 mr-1" /> Wedding Wizard
+                      </Link>
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"

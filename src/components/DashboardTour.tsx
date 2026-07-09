@@ -6,9 +6,22 @@ import { HelpCircle, PlayCircle } from "lucide-react";
 import { TOUR_STEPS } from "@/lib/dashboard-help";
 import { supabase } from "@/integrations/supabase/client";
 
-const SEEN_KEY = "vowz_dashboard_tour_seen";
-const PROGRESS_KEY = "vowz_dashboard_tour_step";
-const DONT_SHOW_KEY = "vowz_dashboard_tour_disabled";
+// v2 = expanded tour covering every dashboard section. Bumping the version
+// forces the tour to auto-open once more so existing users see the full
+// walkthrough (their "already seen" flag from the v1 2-step tour is ignored).
+const TOUR_VERSION = "v2";
+const SEEN_KEY = `vowz_dashboard_tour_seen_${TOUR_VERSION}`;
+const PROGRESS_KEY = `vowz_dashboard_tour_step_${TOUR_VERSION}`;
+const DONT_SHOW_KEY = `vowz_dashboard_tour_disabled_${TOUR_VERSION}`;
+// Best-effort cleanup of the legacy keys so we don't leave localStorage
+// littered forever.
+if (typeof window !== "undefined") {
+  try {
+    ["vowz_dashboard_tour_seen", "vowz_dashboard_tour_step", "vowz_dashboard_tour_disabled"].forEach(
+      (k) => localStorage.removeItem(k),
+    );
+  } catch {}
+}
 
 // Cache the user's primary wedding site id for the session so we don't
 // re-query on every step transition.
@@ -76,6 +89,9 @@ function markDone() {
  */
 const DashboardTour = () => {
   const [resumeStep, setResumeStep] = useState<number>(() => readProgress());
+  // When true, clicking the trigger always starts from step 0 regardless of
+  // saved progress. Restart button flips this on for one click.
+  const restartRef = useRef(false);
   const liveRef = useRef<HTMLDivElement>(null);
 
   const announce = (msg: string) => {
@@ -232,10 +248,15 @@ const DashboardTour = () => {
 
   return (
     <>
+    <div className="flex items-center gap-1.5">
     <Button
       variant="gold"
       size="sm"
-      onClick={() => runTour(readProgress())}
+      onClick={() => {
+        const start = restartRef.current ? 0 : readProgress();
+        restartRef.current = false;
+        runTour(start);
+      }}
       data-tour="tour-trigger"
       aria-label={label}
       className="gap-1.5 min-h-11 shadow-gold animate-in fade-in"
@@ -253,6 +274,23 @@ const DashboardTour = () => {
         <span className="sm:hidden">{shortLabel}</span>
       </span>
     </Button>
+    {isResuming && (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          try { localStorage.removeItem(PROGRESS_KEY); } catch {}
+          setResumeStep(0);
+          restartRef.current = true;
+          runTour(0);
+        }}
+        aria-label="Restart tour from beginning"
+        className="text-xs h-9 px-2 text-muted-foreground hover:text-foreground"
+      >
+        Restart
+      </Button>
+    )}
+    </div>
     <div
       ref={liveRef}
       role="status"
