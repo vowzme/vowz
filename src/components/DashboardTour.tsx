@@ -65,14 +65,18 @@ const DashboardTour = () => {
 
   return (
     <Button
-      variant="outline"
+      variant="gold"
       size="sm"
       onClick={runTour}
       data-tour="tour-trigger"
-      className="gap-1.5"
+      aria-label="Start dashboard tour"
+      className="gap-1.5 min-h-11 shadow-gold animate-in fade-in"
     >
       <HelpCircle className="w-4 h-4" />
-      <span className="hidden sm:inline">Take a tour</span>
+      <span className="font-body font-medium">
+        <span className="hidden sm:inline">Start dashboard tour</span>
+        <span className="sm:hidden">Tour</span>
+      </span>
     </Button>
   );
 };
