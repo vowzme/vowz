@@ -159,3 +159,24 @@ html {
     box-shadow: var(--shadow-card);
   }
 }
+
+/* ── Driver.js dashboard tour: keep popovers on-screen on small viewports ── */
+.vowz-tour-popover.driver-popover {
+  max-width: min(92vw, 22rem);
+}
+.vowz-tour-popover .driver-popover-description ul {
+  padding-left: 1.1rem;
+}
+.vowz-tour-popover .driver-popover-title {
+  font-family: var(--font-display, "Playfair Display", serif);
+}
+@media (max-width: 480px) {
+  .vowz-tour-popover.driver-popover {
+    font-size: 0.85rem;
+    padding: 0.9rem;
+  }
+  .vowz-tour-popover .driver-popover-navigation-btns button {
+    min-height: 40px;
+    padding: 0 0.9rem;
+  }
+}

@@ -80,7 +80,7 @@ const DashboardMusicCard = ({ site, onUpdate }: DashboardMusicCardProps) => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/30 px-3 py-2.5 mb-3">
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-border/40 bg-muted/30 px-3 py-2.5 mb-3">
         <div className="flex items-center gap-2 min-w-0">
           {enabled ? (
             <Volume2 className="w-4 h-4 text-gold shrink-0" />
@@ -96,10 +96,15 @@ const DashboardMusicCard = ({ site, onUpdate }: DashboardMusicCardProps) => {
             </p>
           </div>
         </div>
-        <Switch checked={enabled} onCheckedChange={toggle} aria-label="Toggle background music" />
+        <Switch
+          checked={enabled}
+          onCheckedChange={toggle}
+          aria-label={enabled ? "Mute background music" : "Enable background music"}
+          className="shrink-0"
+        />
       </div>
 
-      <Button variant="outline" size="sm" asChild className="w-full sm:w-auto">
+      <Button variant="outline" size="sm" asChild className="w-full sm:w-auto min-h-11">
         <Link to={`/editor${site?.id ? `/${site.id}` : ""}#music`}>
           <Edit3 className="w-4 h-4 mr-1.5" /> Change music
         </Link>
