@@ -16,13 +16,10 @@ const MIN = 44;
 // their surrounding label provides a larger effective target.
 const EXEMPT_ROLES = new Set(["switch", "checkbox", "radio", "separator"]);
 
+// Runs on every viewport project (desktop chromium, tablet, mobile) so a
+// shrunken control fails CI no matter which breakpoint it regresses at.
 test.describe("dashboard tap targets", () => {
-  test.skip(
-    ({ }, testInfo) => testInfo.project.name !== "mobile",
-    "mobile viewport only",
-  );
-
-  test("all dashboard buttons & links meet 44x44 minimum", async ({ page }) => {
+  test("all dashboard buttons & links meet 44x44 minimum", async ({ page }, testInfo) => {
     const email = process.env.E2E_USER_EMAIL;
     const password = process.env.E2E_USER_PASSWORD;
     test.skip(!email || !password, "E2E account not provisioned");
@@ -113,7 +110,7 @@ test.describe("dashboard tap targets", () => {
 
     expect(
       failures,
-      `Tap targets below ${MIN}px on mobile dashboard:\n${report}`,
+      `Tap targets below ${MIN}px on ${testInfo.project.name} dashboard:\n${report}`,
     ).toEqual([]);
   });
 });
