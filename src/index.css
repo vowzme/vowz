@@ -180,3 +180,31 @@ html {
     padding: 0 0.9rem;
   }
 }
+
+/* ── Reduced-motion: honor the OS/browser accessibility setting ──
+   Disables the driver.js tour spotlight animation, background-music card
+   fade/scale transitions, and every Tailwind `animate-*` utility so
+   motion-sensitive users get instant state changes instead of movement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Driver.js: kill the stage/popover slide + overlay fade. */
+  .driver-popover,
+  .driver-overlay,
+  .driver-stage {
+    transition: none !important;
+    animation: none !important;
+  }
+  /* Music card + any element opting into reduced-motion. */
+  [data-reduce-motion="true"],
+  [data-reduce-motion="true"] * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
