@@ -34,6 +34,11 @@ const staticEntries: Entry[] = [
   { path: "/refund-policy", changefreq: "yearly", priority: "0.3" },
 ];
 
+const TODAY = new Date().toISOString().slice(0, 10);
+for (const e of staticEntries) {
+  if (!e.lastmod) e.lastmod = TODAY;
+}
+
 async function fetchBlogEntries(): Promise<Entry[]> {
   try {
     const res = await fetch(
