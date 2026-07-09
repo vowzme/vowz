@@ -39,7 +39,6 @@ const allFeatures = [
   { icon: IndianRupee, title: "Budget & Expense Tracker", desc: "Set a budget, log expenses across categories, and track spending" },
   { icon: ClipboardList, title: "Wedding Checklist", desc: "Pre-seeded task list to keep your wedding planning on track" },
   { icon: Vote, title: "Guest Polls", desc: "Gather guest feedback on music, food & more with interactive polls" },
-  { icon: Globe, title: "Custom Domain", desc: "Connect your own domain like arjunandmeera.com with guided DNS setup" },
   { icon: Bot, title: "AI Editor Assistant", desc: "AI-powered theme suggestions, content writing & cultural advice" },
   { icon: Video, title: "Video Embeds", desc: "Add pre-wedding shoots and ceremony videos from YouTube or Vimeo" },
   { icon: Lock, title: "Password Protection", desc: "Keep your site private with guest-only access" },
