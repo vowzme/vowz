@@ -8,6 +8,7 @@ export interface WeddingData {
   culturalBackground: string;
   howWeMet: string;
   functions: string[];
+  eventDates: Record<string, { date?: string; time?: string; venue?: string }>;
   theme: string;
   suggestedColors: string[];
   tagline: string;
@@ -96,13 +97,13 @@ export function useWeddingWizard() {
         const parsed = JSON.parse(saved);
         return parsed.data || {
           partner1: "", partner2: "", culturalBackground: "Hindu", howWeMet: "",
-          functions: [], theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"], tagline: "",
+          functions: [], eventDates: {}, theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"], tagline: "",
         };
       }
     } catch {}
     return {
       partner1: "", partner2: "", culturalBackground: "Hindu", howWeMet: "",
-      functions: [], theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"], tagline: "",
+      functions: [], eventDates: {}, theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"], tagline: "",
     };
   });
   const [isComplete, setIsComplete] = useState(false);
