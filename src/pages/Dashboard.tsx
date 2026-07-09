@@ -467,7 +467,7 @@ const Dashboard = () => {
               <div className="min-w-0">
                 <h3 className="font-display text-sm sm:text-base font-bold text-foreground">Upgrade to Premium</h3>
                 <p className="font-body text-xs sm:text-sm text-muted-foreground truncate">
-                  Custom domain, AI editor, 5GB storage, no watermarks & more
+                  AI editor, 5GB storage, no watermarks & more
                 </p>
               </div>
             </div>
@@ -975,10 +975,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Custom Domain — Premium Feature */}
-              <div className="lg:col-span-2 mt-4 sm:mt-6">
-                <CustomDomainPanel siteId={site.id} siteSlug={site.slug} siteName={`${site.partner1} & ${site.partner2}`} savedDomain={site.custom_domain} savedStatus={site.domain_status} onUpdate={(domain: string, status: string) => setSite({ ...site, custom_domain: domain, domain_status: status })} />
-              </div>
             </TabsContent>
           </Tabs>
           </>
