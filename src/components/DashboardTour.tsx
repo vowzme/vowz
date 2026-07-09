@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,11 @@ function markDone() {
  */
 const DashboardTour = () => {
   const [resumeStep, setResumeStep] = useState<number>(() => readProgress());
+  const liveRef = useRef<HTMLDivElement>(null);
+
+  const announce = (msg: string) => {
+    if (liveRef.current) liveRef.current.textContent = msg;
+  };
 
   const runTour = useCallback((startAt?: number) => {
     if (typeof document === "undefined") return;
@@ -97,6 +102,21 @@ const DashboardTour = () => {
           // Persist current step so we can resume later.
           saveProgress(idx);
           setResumeStep(idx);
+          // Announce step change for screen readers.
+          announce(`Step ${idx + 1} of ${totalSteps}: ${s.title}`);
+          // A11y: label the driver.js popover and move focus into it.
+          requestAnimationFrame(() => {
+            const popover = document.querySelector<HTMLElement>(".driver-popover");
+            if (!popover) return;
+            popover.setAttribute("role", "dialog");
+            popover.setAttribute("aria-modal", "true");
+            popover.setAttribute("aria-label", `${s.title} (step ${idx + 1} of ${totalSteps})`);
+            popover.setAttribute("tabindex", "-1");
+            const next = popover.querySelector<HTMLElement>(
+              ".driver-popover-next-btn, .driver-popover-done-btn",
+            );
+            (next ?? popover).focus({ preventScroll: true });
+          });
           if (!seenSteps.has(idx)) {
             seenSteps.add(idx);
             void logTourEvent("tour_step", {
@@ -113,12 +133,13 @@ const DashboardTour = () => {
     const d = driver({
       showProgress: true,
       allowClose: true,
+      allowKeyboardControl: true,
       overlayOpacity: 0.55,
       stagePadding: 6,
       stageRadius: 12,
-      nextBtnText: "Next →",
-      prevBtnText: "← Back",
-      doneBtnText: "Finish",
+      nextBtnText: "Next",
+      prevBtnText: "Back",
+      doneBtnText: "Finish tour",
       steps,
       onDestroyed: () => {
         const active = d.getActiveIndex?.();
@@ -128,17 +149,22 @@ const DashboardTour = () => {
         if (completed) {
           markDone();
           setResumeStep(0);
+          announce("Dashboard tour complete.");
           void logTourEvent("tour_complete", {
             total_steps: totalSteps,
             steps_viewed: seenSteps.size,
           });
         } else {
+          announce("Dashboard tour closed.");
           void logTourEvent("tour_dismiss", {
             last_step_index: typeof active === "number" ? active : null,
             total_steps: totalSteps,
             steps_viewed: seenSteps.size,
           });
         }
+        // Return focus to the trigger button.
+        const trigger = document.querySelector<HTMLElement>('[data-tour="tour-trigger"]');
+        trigger?.focus();
       },
     });
     const clamped = Math.min(Math.max(startAt ?? 0, 0), steps.length - 1);
@@ -167,6 +193,7 @@ const DashboardTour = () => {
   const shortLabel = isResuming ? "Resume" : "Tour";
 
   return (
+    <>
     <Button
       variant="gold"
       size="sm"
@@ -175,7 +202,11 @@ const DashboardTour = () => {
       aria-label={label}
       className="gap-1.5 min-h-11 shadow-gold animate-in fade-in"
     >
-      {isResuming ? <PlayCircle className="w-4 h-4" /> : <HelpCircle className="w-4 h-4" />}
+      {isResuming ? (
+        <PlayCircle className="w-4 h-4" aria-hidden="true" />
+      ) : (
+        <HelpCircle className="w-4 h-4" aria-hidden="true" />
+      )}
       <span className="font-body font-medium">
         <span className="hidden sm:inline">
           {label}
@@ -184,6 +215,14 @@ const DashboardTour = () => {
         <span className="sm:hidden">{shortLabel}</span>
       </span>
     </Button>
+    <div
+      ref={liveRef}
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      className="sr-only"
+    />
+    </>
   );
 };
 
