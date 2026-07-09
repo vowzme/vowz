@@ -1394,6 +1394,7 @@ function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input
               placeholder="Task name..."
+              aria-label="New task title"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               className="font-body text-sm"
@@ -1403,6 +1404,7 @@ function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) 
             <select
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
+              aria-label="Task category"
               className="h-9 rounded-md border border-input bg-background px-3 text-sm font-body"
             >
               {CATEGORY_OPTIONS.map((c) => (
@@ -1411,6 +1413,7 @@ function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) 
             </select>
             <Input
               type="date"
+              aria-label="Task due date"
               value={newDueDate}
               onChange={(e) => setNewDueDate(e.target.value)}
               className="font-body text-sm"
