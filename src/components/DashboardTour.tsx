@@ -145,17 +145,19 @@ const DashboardTour = () => {
         const active = d.getActiveIndex?.();
         const completed =
           typeof active !== "number" || active >= steps.length - 1;
-        // Finished the last step (or driver.js reports no active step after Finish)
+        // Whether the user finished or skipped, don't auto-open again.
+        // They can always relaunch from the header button.
+        markDone();
+        setResumeStep(0);
+        try { localStorage.setItem(SEEN_KEY, "1"); } catch {}
         if (completed) {
-          markDone();
-          setResumeStep(0);
           announce("Dashboard tour complete.");
           void logTourEvent("tour_complete", {
             total_steps: totalSteps,
             steps_viewed: seenSteps.size,
           });
         } else {
-          announce("Dashboard tour closed.");
+          announce("Dashboard tour skipped. You can restart it from the header.");
           void logTourEvent("tour_dismiss", {
             last_step_index: typeof active === "number" ? active : null,
             total_steps: totalSteps,
