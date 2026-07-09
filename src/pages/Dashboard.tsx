@@ -2439,6 +2439,7 @@ function BlessingModerationCard({
         <div className="mt-3 flex gap-2">
           <Input
             placeholder="Write a reply to this blessing..."
+            aria-label={`Reply to blessing from ${blessing.guest_name}`}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             className="font-body text-sm h-8 flex-1"
