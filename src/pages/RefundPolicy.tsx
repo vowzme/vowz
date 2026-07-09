@@ -18,7 +18,7 @@ const RefundPolicy = () => (
     <Navbar />
     <div className="max-w-3xl mx-auto px-4 pt-28 pb-16">
       <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-2">Refund &amp; Cancellation Policy</h1>
-      <p className="text-muted-foreground font-body text-sm mb-10">Last updated: March 12, 2026</p>
+      <p className="text-muted-foreground font-body text-sm mb-10">Last updated: July 9, 2026</p>
 
       {[
         {
