@@ -37,6 +37,11 @@ const ALLOWED_MIME = new Set<string>([
   "image/avif",
   "image/heic",
   "image/heif",
+  // Audio for background music uploads
+  "audio/mpeg",
+  "audio/mp4",
+  "audio/ogg",
+  "audio/wav",
 ]);
 
 function sniffMime(bytes: Uint8Array): string | null {
@@ -58,7 +63,18 @@ function sniffMime(bytes: Uint8Array): string | null {
     if (brand === "avif" || brand === "avis") return "image/avif";
     if (brand === "heic" || brand === "heix" || brand === "hevc" || brand === "hevx") return "image/heic";
     if (brand === "mif1" || brand === "msf1" || brand === "heim" || brand === "heis") return "image/heif";
+    // M4A / AAC in an MP4 container
+    if (brand === "m4a " || brand === "mp42" || brand === "mp41" || brand === "isom" || brand === "f4a " || brand === "m4b ") return "audio/mp4";
   }
+  // MP3 with ID3 tag: "ID3"
+  if (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) return "audio/mpeg";
+  // MP3 frame sync: 0xFF 0xEx / 0xFx (Fb, F3, F2, E3, etc.)
+  if (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0) return "audio/mpeg";
+  // OGG: "OggS"
+  if (bytes[0] === 0x4f && bytes[1] === 0x67 && bytes[2] === 0x67 && bytes[3] === 0x53) return "audio/ogg";
+  // WAV: "RIFF"...."WAVE"
+  if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+      bytes[8] === 0x57 && bytes[9] === 0x41 && bytes[10] === 0x56 && bytes[11] === 0x45) return "audio/wav";
   return null;
 }
 
@@ -107,7 +123,7 @@ Deno.serve(async (req) => {
       const sniffed = sniffMime(bytes);
       if (!sniffed || !ALLOWED_MIME.has(sniffed)) {
         return json({
-          error: "Unsupported file type. Allowed: JPEG, PNG, WebP, GIF, AVIF, HEIC/HEIF.",
+          error: "Unsupported file type. Allowed: images (JPEG, PNG, WebP, GIF, AVIF, HEIC/HEIF) and audio (MP3, M4A, OGG, WAV).",
           code: "INVALID_MIME",
         }, 415);
       }
