@@ -227,7 +227,7 @@ const OnboardingWizard = () => {
   const canProceed = () => {
     switch (step) {
       case "names": return wizardData.partner1.trim() && wizardData.partner2.trim();
-      case "story": return wizardData.howWeMet.trim().length >= 10;
+      case "story": return true;
       case "theme": return wizardData.suggestedColors.length >= 3;
       case "events": return wizardData.functions.length > 0;
       case "preview": return true;
@@ -704,6 +704,10 @@ const OnboardingWizard = () => {
             {step === "preview" ? (
               <>
                 <Sparkles className="w-4 h-4 mr-1" /> Create My Site
+              </>
+            ) : step === "story" && wizardData.howWeMet.trim().length < 10 ? (
+              <>
+                Skip <ArrowRight className="w-4 h-4 ml-1" />
               </>
             ) : (
               <>
