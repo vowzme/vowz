@@ -17,7 +17,7 @@ const HelpTip = ({ topic, className = "" }: HelpTipProps) => {
   const item = HELP[topic];
   if (!item) return null;
   return (
-    <span className={`inline-flex items-start relative ${className}`}>
+    <span className={`inline-flex items-start relative align-middle ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -28,11 +28,11 @@ const HelpTip = ({ topic, className = "" }: HelpTipProps) => {
         <HelpCircle className="w-4 h-4" />
       </button>
       {open && (
-        <span
+        <div
           role="dialog"
           className="absolute left-6 top-0 z-30 w-72 sm:w-80 bg-card border border-gold/40 rounded-lg shadow-elegant p-3 animate-fade-in"
         >
-          <span className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-2">
             <span className="font-display text-sm font-semibold text-foreground">
               {item.title}
             </span>
@@ -44,34 +44,34 @@ const HelpTip = ({ topic, className = "" }: HelpTipProps) => {
             >
               <X className="w-3.5 h-3.5" />
             </button>
-          </span>
-          <span className="block mt-2 font-body text-xs text-muted-foreground leading-relaxed">
-            <span className="block font-semibold text-foreground/80 uppercase tracking-wide text-[10px] mb-0.5">
+          </div>
+          <div className="mt-2 font-body text-xs text-muted-foreground leading-relaxed">
+            <div className="font-semibold text-foreground/80 uppercase tracking-wide text-[10px] mb-0.5">
               What this does
-            </span>
+            </div>
             {item.what}
-          </span>
+          </div>
           {item.why && (
-            <span className="block mt-2 font-body text-xs text-muted-foreground leading-relaxed">
-              <span className="block font-semibold text-foreground/80 uppercase tracking-wide text-[10px] mb-0.5">
+            <div className="mt-2 font-body text-xs text-muted-foreground leading-relaxed">
+              <div className="font-semibold text-foreground/80 uppercase tracking-wide text-[10px] mb-0.5">
                 Why it matters
-              </span>
+              </div>
               {item.why}
-            </span>
+            </div>
           )}
           {item.try && item.try.length > 0 && (
-            <span className="block mt-2 font-body text-xs text-muted-foreground leading-relaxed">
-              <span className="block font-semibold text-foreground/80 uppercase tracking-wide text-[10px] mb-0.5">
+            <div className="mt-2 font-body text-xs text-muted-foreground leading-relaxed">
+              <div className="font-semibold text-foreground/80 uppercase tracking-wide text-[10px] mb-0.5">
                 Try this
-              </span>
+              </div>
               <ul className="list-disc pl-4 space-y-0.5">
                 {item.try.map((t, i) => (
                   <li key={i}>{t}</li>
                 ))}
               </ul>
-            </span>
+            </div>
           )}
-        </span>
+        </div>
       )}
     </span>
   );
