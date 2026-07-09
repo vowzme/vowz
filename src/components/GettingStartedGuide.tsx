@@ -4,7 +4,6 @@ import {
   Sparkles,
   Edit3,
   Share2,
-  Globe,
   Users,
   Camera,
   CheckCircle2,
