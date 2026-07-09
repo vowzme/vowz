@@ -235,7 +235,7 @@ const DashboardTour = () => {
     <Button
       variant="gold"
       size="sm"
-      onClick={() => runTour(resumeStep)}
+      onClick={() => runTour(readProgress())}
       data-tour="tour-trigger"
       aria-label={label}
       className="gap-1.5 min-h-11 shadow-gold animate-in fade-in"
