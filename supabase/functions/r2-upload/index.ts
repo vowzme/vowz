@@ -263,28 +263,7 @@ Deno.serve(async (req) => {
         content_type: contentType,
       });
 
-      // Increment usage (UPSERT)
-      const { data: existing } = await admin
-        .from("r2_storage_usage")
-        .select("used_bytes, file_count")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (existing) {
-        await admin
-          .from("r2_storage_usage")
-          .update({
-            used_bytes: Number(existing.used_bytes) + bytes.byteLength,
-            file_count: (existing.file_count || 0) + 1,
-          })
-          .eq("user_id", user.id);
-      } else {
-        await admin.from("r2_storage_usage").insert({
-          user_id: user.id,
-          used_bytes: bytes.byteLength,
-          file_count: 1,
-        });
-      }
+      // r2_storage_usage is maintained by the trg_r2_files_sync_usage trigger.
 
       return json({
         success: true,
@@ -316,20 +295,7 @@ Deno.serve(async (req) => {
 
       if (delRes.ok && size > 0) {
         await admin.from("r2_files").delete().eq("user_id", user.id).eq("key", key);
-        const { data: existing } = await admin
-          .from("r2_storage_usage")
-          .select("used_bytes, file_count")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        if (existing) {
-          await admin
-            .from("r2_storage_usage")
-            .update({
-              used_bytes: Math.max(0, Number(existing.used_bytes) - size),
-              file_count: Math.max(0, (existing.file_count || 0) - 1),
-            })
-            .eq("user_id", user.id);
-        }
+        // Counter decrement handled by trg_r2_files_sync_usage.
       }
 
       return json({ success: delRes.ok });
@@ -360,22 +326,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      if (deletedCount > 0) {
-        const { data: existing } = await admin
-          .from("r2_storage_usage")
-          .select("used_bytes, file_count")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        if (existing) {
-          await admin
-            .from("r2_storage_usage")
-            .update({
-              used_bytes: Math.max(0, Number(existing.used_bytes) - freedBytes),
-              file_count: Math.max(0, (existing.file_count || 0) - deletedCount),
-            })
-            .eq("user_id", user.id);
-        }
-      }
+      // Counters updated by trg_r2_files_sync_usage on each r2_files delete.
 
       return json({ success: true, deleted: deletedCount, freed_bytes: freedBytes });
     }
