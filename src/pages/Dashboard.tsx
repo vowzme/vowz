@@ -2021,7 +2021,7 @@ function CustomDomainPanel({ siteId, siteSlug, siteName, savedDomain, savedStatu
               <div className="flex gap-2 max-w-md">
                 <div className="relative flex-1">
                   <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="e.g. arjunandmeera.com" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} className="pl-10 font-body font-mono text-sm" />
+                  <Input placeholder="e.g. arjunandmeera.com" aria-label="Custom domain" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} className="pl-10 font-body font-mono text-sm" />
                   {checkingCustom && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs animate-spin">⏳</span>}
                 </div>
                 <Button variant="gold" size="sm" className="font-body shrink-0" onClick={() => { setSelectedDomain(customDomain); setWizardStep(3); }} disabled={!customDomain.includes(".") || customDomain.length < 4}>
