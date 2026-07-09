@@ -1518,6 +1518,7 @@ function ChecklistRow({
         <div className="flex-1 space-y-2">
           <Input
             value={editTitle}
+            aria-label="Edit task title"
             onChange={(e) => setEditTitle(e.target.value)}
             className="font-body text-sm h-8"
             autoFocus
@@ -1525,6 +1526,7 @@ function ChecklistRow({
           />
           <Input
             type="date"
+            aria-label="Edit task due date"
             value={editDate}
             onChange={(e) => setEditDate(e.target.value)}
             className="font-body text-sm h-8 w-40"
