@@ -251,6 +251,36 @@ Deno.serve(async (req) => {
         }).eq("id", runId);
       }
 
+      // Anomaly alerting on successful runs.
+      if (!dryRun) {
+        const anomalies: string[] = [];
+        if (totalDeleted > ALERT_MAX_DELETED) {
+          anomalies.push(`Deleted ${totalDeleted} files (threshold ${ALERT_MAX_DELETED}).`);
+        }
+        if (totalFreed > ALERT_MAX_FREED_BYTES) {
+          anomalies.push(`Freed ${totalFreed} bytes (threshold ${ALERT_MAX_FREED_BYTES}).`);
+        }
+        if (userIds.length === 0) {
+          anomalies.push("Zero active users scanned — expected activity in last 30 days.");
+        }
+        if (anomalies.length > 0) {
+          await sendAdminAlert(
+            admin,
+            "[VowZ] R2 nightly cleanup anomaly",
+            [
+              `Run ID: ${runId}`,
+              `Started: ${startedAt}`,
+              `Users scanned: ${userIds.length}`,
+              `Deleted: ${totalDeleted}`,
+              `Freed bytes: ${totalFreed}`,
+              "",
+              "Anomalies:",
+              ...anomalies.map((a) => `• ${a}`),
+            ],
+          );
+        }
+      }
+
       return json({
         success: true,
         run_id: runId,
@@ -267,6 +297,17 @@ Deno.serve(async (req) => {
             error: (err as Error).message,
           }).eq("id", runId);
         }
+        await sendAdminAlert(
+          admin,
+          "[VowZ] R2 nightly cleanup FAILED",
+          [
+            `Run ID: ${runId ?? "(none)"}`,
+            `Started: ${startedAt}`,
+            `Error: ${(err as Error).message}`,
+            "",
+            "The nightly R2 orphan sweep threw an exception. Check /admin/storage-cleanup and the r2-upload edge function logs.",
+          ],
+        );
         throw err;
       }
     }
