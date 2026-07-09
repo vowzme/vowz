@@ -18,7 +18,7 @@ const PrivacyPolicy = () => (
     <Navbar />
     <div className="max-w-3xl mx-auto px-4 pt-28 pb-16">
       <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-2">Privacy Policy</h1>
-      <p className="text-muted-foreground font-body text-sm mb-10">Last updated: March 12, 2026</p>
+      <p className="text-muted-foreground font-body text-sm mb-10">Last updated: July 9, 2026</p>
 
       {[
         { title: "1. About Us", body: "VowZ (vowz.me) is a product of AXPIR Tech India LLP, owned by Anooj Xavier, registered at 1st Floor, CC 54,2593-5, Door No G-307, Bose Nagar Road, Elamkulam, Kochi, Ernakulam, Kerala - 682020, India." },
