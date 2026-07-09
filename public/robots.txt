@@ -6,6 +6,10 @@ Disallow: /editor
 Disallow: /wizard
 Disallow: /reset-password
 Disallow: /forgot-password
+Disallow: /admin
+Disallow: /franchise/dashboard
+Disallow: /invitation-card
+Disallow: /debug
 
 User-agent: Googlebot
 Allow: /
