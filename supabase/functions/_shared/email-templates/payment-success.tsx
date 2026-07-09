@@ -99,8 +99,8 @@ export const PaymentSuccessEmail = ({
         </Section>
 
         <Text style={text}>
-          You now have access to all premium features — custom domains, advanced
-          themes, and more. Head to your{' '}
+          You now have access to all premium features — advanced themes, AI
+          editor, and more. Head to your{' '}
           <Link href="https://vowz.me/dashboard" style={link}>
             dashboard
           </Link>{' '}
