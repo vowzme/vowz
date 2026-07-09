@@ -519,29 +519,29 @@ const Dashboard = () => {
           <Tabs defaultValue="overview" className="space-y-6">
             {/* Mobile: 2-row grid tabs */}
             <TabsList data-tour="tabs" className="bg-card border border-border/50 w-full h-auto flex-wrap gap-1 p-1.5 sm:p-1 sm:flex-nowrap sm:gap-0 sm:h-10 justify-center">
-              <TabsTrigger value="overview" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Overview</TabsTrigger>
-              <TabsTrigger value="guide" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+              <TabsTrigger value="overview" data-tour="tab-overview" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Overview</TabsTrigger>
+              <TabsTrigger value="guide" data-tour="tab-guide" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Guide <BookOpen className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="budget" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+              <TabsTrigger value="budget" data-tour="tab-budget" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Budget <IndianRupee className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="checklist" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+              <TabsTrigger value="checklist" data-tour="tab-checklist" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Checklist <ClipboardList className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+              <TabsTrigger value="analytics" data-tour="tab-analytics" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Analytics <BarChart3 className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="rsvps" data-tour="rsvps-tab" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+              <TabsTrigger value="rsvps" data-tour="tab-rsvps" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Guest List {rsvps.length > 0 && <span className="ml-0.5 sm:ml-1.5 bg-gold/20 text-gold text-[9px] sm:text-xs px-1 py-0.5 rounded-full">{rsvps.length}</span>}
               </TabsTrigger>
-              <TabsTrigger value="blessings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+              <TabsTrigger value="blessings" data-tour="tab-blessings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Blessings {blessings.length > 0 && <span className="ml-0.5 sm:ml-1.5 bg-gold/20 text-gold text-[9px] sm:text-xs px-1 py-0.5 rounded-full">{blessings.filter(b => b.status === "pending").length || blessings.length}</span>}
               </TabsTrigger>
-              <TabsTrigger value="billing" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+              <TabsTrigger value="billing" data-tour="tab-billing" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Billing <Receipt className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="settings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Settings</TabsTrigger>
+              <TabsTrigger value="settings" data-tour="tab-settings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Settings</TabsTrigger>
             </TabsList>
 
             {/* ─── Overview Tab ─── */}
