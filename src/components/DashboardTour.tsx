@@ -23,8 +23,8 @@ const DashboardTour = () => {
         popover: {
           title: s.title,
           description: s.html,
-          side: "bottom" as const,
-          align: "start" as const,
+          // Let driver.js pick the best side so popovers don't fall off-screen on mobile.
+          popoverClass: "vowz-tour-popover",
           onPopoverRender: () => {
             // Switch to the relevant tab so the highlighted element is visible.
             if (s.tab) {
