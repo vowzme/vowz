@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
       for (const uid of userIds) {
         const { data: sites } = await admin
           .from("wedding_sites")
-          .select("data,cover_image_url,logo_url")
+          .select("data,logo_url")
           .eq("user_id", uid);
         const haystack = JSON.stringify(sites || "");
 
