@@ -37,6 +37,7 @@ import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import DashboardTour from "@/components/DashboardTour";
 import DashboardMusicCard from "@/components/DashboardMusicCard";
 import HelpTip from "@/components/HelpTip";
+import { subscribeWithLogging } from "@/lib/realtime-logger";
 import {
   Tabs,
   TabsContent,
@@ -259,23 +260,26 @@ const Dashboard = () => {
   // ─── Real-time RSVP subscription ───────────────────────────────────
   useEffect(() => {
     if (!site?.id) return;
-    const channel = supabase
-      .channel(`rsvps-${site.id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "rsvps", filter: `wedding_site_id=eq.${site.id}` },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setRsvps((prev) => [payload.new as RsvpRow, ...prev]);
-            toast({ title: "New RSVP received! 🎉", description: `${(payload.new as any).guest_name} just responded.` });
-          } else if (payload.eventType === "DELETE") {
-            setRsvps((prev) => prev.filter((r) => r.id !== (payload.old as any).id));
-          } else if (payload.eventType === "UPDATE") {
-            setRsvps((prev) => prev.map((r) => r.id === (payload.new as any).id ? (payload.new as RsvpRow) : r));
+    const channelName = `rsvps-${site.id}`;
+    const channel = subscribeWithLogging(
+      supabase
+        .channel(channelName)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "rsvps", filter: `wedding_site_id=eq.${site.id}` },
+          (payload) => {
+            if (payload.eventType === "INSERT") {
+              setRsvps((prev) => [payload.new as RsvpRow, ...prev]);
+              toast({ title: "New RSVP received! 🎉", description: `${(payload.new as any).guest_name} just responded.` });
+            } else if (payload.eventType === "DELETE") {
+              setRsvps((prev) => prev.filter((r) => r.id !== (payload.old as any).id));
+            } else if (payload.eventType === "UPDATE") {
+              setRsvps((prev) => prev.map((r) => r.id === (payload.new as any).id ? (payload.new as RsvpRow) : r));
+            }
           }
-        }
-      )
-      .subscribe();
+        ),
+      { channel: channelName, callback: "rsvps:*", extra: { siteId: site.id } },
+    );
     return () => { supabase.removeChannel(channel); };
   }, [site?.id]);
 
