@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const SEEN_KEY = "vowz_dashboard_tour_seen";
 const PROGRESS_KEY = "vowz_dashboard_tour_step";
+const DONT_SHOW_KEY = "vowz_dashboard_tour_disabled";
 
 // Cache the user's primary wedding site id for the session so we don't
 // re-query on every step transition.
@@ -86,6 +87,8 @@ const DashboardTour = () => {
     const available = TOUR_STEPS.filter((s) => document.querySelector(s.selector));
     const totalSteps = available.length;
     const seenSteps = new Set<number>();
+    // Ref-in-closure: any popover's checkbox writes here; onDestroyed reads it.
+    const dontShowRef = { current: false };
     const steps = available.map((s, idx) => ({
       element: s.selector,
       popover: {
@@ -112,6 +115,27 @@ const DashboardTour = () => {
             popover.setAttribute("aria-modal", "true");
             popover.setAttribute("aria-label", `${s.title} (step ${idx + 1} of ${totalSteps})`);
             popover.setAttribute("tabindex", "-1");
+            // Inject "Don't show tour again" checkbox once per popover render.
+            const desc = popover.querySelector<HTMLElement>(".driver-popover-description");
+            if (desc && !desc.querySelector('[data-vowz-dont-show]')) {
+              const wrap = document.createElement("label");
+              wrap.setAttribute("data-vowz-dont-show", "");
+              wrap.className = "vowz-tour-dont-show";
+              wrap.style.cssText =
+                "display:flex;align-items:center;gap:.5rem;margin-top:.75rem;padding-top:.6rem;border-top:1px solid rgba(0,0,0,.08);font-size:.8rem;cursor:pointer;";
+              const cb = document.createElement("input");
+              cb.type = "checkbox";
+              cb.checked = dontShowRef.current;
+              cb.style.cssText = "width:16px;height:16px;cursor:pointer;";
+              cb.addEventListener("change", () => {
+                dontShowRef.current = cb.checked;
+              });
+              const txt = document.createElement("span");
+              txt.textContent = "Don't show this tour again";
+              wrap.appendChild(cb);
+              wrap.appendChild(txt);
+              desc.appendChild(wrap);
+            }
             const next = popover.querySelector<HTMLElement>(
               ".driver-popover-next-btn, .driver-popover-done-btn",
             );
@@ -145,11 +169,19 @@ const DashboardTour = () => {
         const active = d.getActiveIndex?.();
         const completed =
           typeof active !== "number" || active >= steps.length - 1;
-        // Whether the user finished or skipped, don't auto-open again.
-        // They can always relaunch from the header button.
-        markDone();
-        setResumeStep(0);
-        try { localStorage.setItem(SEEN_KEY, "1"); } catch {}
+        // Persist "don't auto-open" only when the user explicitly opts in
+        // via the checkbox — or when they finish the whole tour.
+        const suppress = dontShowRef.current || completed;
+        if (suppress) {
+          try {
+            localStorage.setItem(SEEN_KEY, "1");
+            if (dontShowRef.current) localStorage.setItem(DONT_SHOW_KEY, "1");
+          } catch {}
+          markDone();
+          setResumeStep(0);
+        }
+        // If not suppressed, leave SEEN_KEY / progress untouched so the
+        // tour auto-opens next visit and the button offers "Resume tour".
         if (completed) {
           announce("Dashboard tour complete.");
           void logTourEvent("tour_complete", {
@@ -157,11 +189,16 @@ const DashboardTour = () => {
             steps_viewed: seenSteps.size,
           });
         } else {
-          announce("Dashboard tour skipped. You can restart it from the header.");
+          announce(
+            dontShowRef.current
+              ? "Dashboard tour dismissed. Auto-open disabled."
+              : "Dashboard tour closed. It will reopen next visit.",
+          );
           void logTourEvent("tour_dismiss", {
             last_step_index: typeof active === "number" ? active : null,
             total_steps: totalSteps,
             steps_viewed: seenSteps.size,
+            dont_show_again: dontShowRef.current,
           });
         }
         // Return focus to the trigger button.
@@ -180,11 +217,10 @@ const DashboardTour = () => {
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(SEEN_KEY)) return;
+      if (localStorage.getItem(DONT_SHOW_KEY) || localStorage.getItem(SEEN_KEY)) return;
       // Delay so target elements are mounted
       const t = setTimeout(() => {
         runTour();
-        try { localStorage.setItem(SEEN_KEY, "1"); } catch {}
       }, 900);
       return () => clearTimeout(t);
     } catch {}
