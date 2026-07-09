@@ -212,8 +212,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
             <div className="bg-card border border-border/50 rounded-xl p-4 sm:p-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Expense Title *</label>
+                  <label htmlFor="bt-expense-title" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Expense Title *</label>
                   <Input
+                    id="bt-expense-title"
                     placeholder="e.g. Venue booking advance"
                     value={newExpense.title}
                     onChange={e => setNewExpense(p => ({ ...p, title: e.target.value }))}
@@ -221,8 +222,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                   />
                 </div>
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Amount (₹) *</label>
+                  <label htmlFor="bt-expense-amount" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Amount (₹) *</label>
                   <Input
+                    id="bt-expense-amount"
                     type="number"
                     placeholder="e.g. 50000"
                     value={newExpense.amount}
@@ -233,8 +235,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Category</label>
+                  <label htmlFor="bt-expense-category" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Category</label>
                   <select
+                    id="bt-expense-category"
                     value={newExpense.category}
                     onChange={e => setNewExpense(p => ({ ...p, category: e.target.value }))}
                     className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm font-body"
@@ -245,8 +248,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                   </select>
                 </div>
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Vendor</label>
+                  <label htmlFor="bt-expense-vendor" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Vendor</label>
                   <Input
+                    id="bt-expense-vendor"
                     placeholder="e.g. Taj Palace"
                     value={newExpense.vendor_name}
                     onChange={e => setNewExpense(p => ({ ...p, vendor_name: e.target.value }))}
@@ -254,8 +258,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                   />
                 </div>
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Due Date</label>
+                  <label htmlFor="bt-expense-due" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Due Date</label>
                   <Input
+                    id="bt-expense-due"
                     type="date"
                     value={newExpense.due_date}
                     onChange={e => setNewExpense(p => ({ ...p, due_date: e.target.value }))}
@@ -264,8 +269,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                 </div>
               </div>
               <div>
-                <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Notes</label>
+                <label htmlFor="bt-expense-notes" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Notes</label>
                 <Textarea
+                  id="bt-expense-notes"
                   placeholder="Any additional details..."
                   value={newExpense.notes}
                   onChange={e => setNewExpense(p => ({ ...p, notes: e.target.value }))}
