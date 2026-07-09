@@ -586,24 +586,75 @@ const OnboardingWizard = () => {
                   {wizardData.functions.length > 0 && (
                     <div>
                       <label className="text-sm font-body font-medium text-foreground mb-2 block">
-                        Ceremony Order <span className="text-muted-foreground font-normal">(drag to reorder)</span>
+                        Ceremony Order &amp; Schedule <span className="text-muted-foreground font-normal">(drag to reorder — date/time optional, edit later from the dashboard)</span>
                       </label>
                       <Reorder.Group
                         axis="y"
                         values={wizardData.functions}
                         onReorder={(newOrder) => updateField("functions", newOrder)}
-                        className="space-y-1.5"
+                        className="space-y-2"
                       >
                         {wizardData.functions.map((event, i) => (
                           <Reorder.Item key={event} value={event}>
-                            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-card border border-border/50 cursor-grab active:cursor-grabbing hover:border-gold/30 transition-colors">
-                              <GripVertical className="w-4 h-4 text-muted-foreground/50 shrink-0" />
-                              <span className="text-xs font-body text-muted-foreground w-5">{i + 1}.</span>
-                              <span className="font-body text-sm text-foreground flex-1">{event}</span>
+                            <div className="rounded-lg bg-card border border-border/50 hover:border-gold/30 transition-colors">
+                              <div className="flex items-center gap-2 px-3 py-2.5 cursor-grab active:cursor-grabbing">
+                                <GripVertical className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                                <span className="text-xs font-body text-muted-foreground w-5">{i + 1}.</span>
+                                <span className="font-body text-sm text-foreground flex-1">{event}</span>
+                                {(wizardData.eventDates?.[event]?.date || wizardData.eventDates?.[event]?.time) && (
+                                  <span className="text-[10px] font-body text-gold bg-gold/10 px-2 py-0.5 rounded-full">
+                                    {wizardData.eventDates[event].date || ""}{wizardData.eventDates[event].time ? ` · ${wizardData.eventDates[event].time}` : ""}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 px-3 pb-3 border-t border-border/30 pt-2.5">
+                                <div>
+                                  <label htmlFor={`event-date-${i}`} className="text-[10px] uppercase tracking-wide font-body text-muted-foreground mb-1 block">Date</label>
+                                  <Input
+                                    id={`event-date-${i}`}
+                                    type="date"
+                                    className="h-9 font-body text-xs"
+                                    value={wizardData.eventDates?.[event]?.date || ""}
+                                    onChange={(e) => updateField("eventDates", {
+                                      ...(wizardData.eventDates || {}),
+                                      [event]: { ...(wizardData.eventDates?.[event] || {}), date: e.target.value },
+                                    })}
+                                  />
+                                </div>
+                                <div>
+                                  <label htmlFor={`event-time-${i}`} className="text-[10px] uppercase tracking-wide font-body text-muted-foreground mb-1 block">Time</label>
+                                  <Input
+                                    id={`event-time-${i}`}
+                                    type="time"
+                                    className="h-9 font-body text-xs"
+                                    value={wizardData.eventDates?.[event]?.time || ""}
+                                    onChange={(e) => updateField("eventDates", {
+                                      ...(wizardData.eventDates || {}),
+                                      [event]: { ...(wizardData.eventDates?.[event] || {}), time: e.target.value },
+                                    })}
+                                  />
+                                </div>
+                                <div>
+                                  <label htmlFor={`event-venue-${i}`} className="text-[10px] uppercase tracking-wide font-body text-muted-foreground mb-1 block">Venue</label>
+                                  <Input
+                                    id={`event-venue-${i}`}
+                                    placeholder="Optional"
+                                    className="h-9 font-body text-xs"
+                                    value={wizardData.eventDates?.[event]?.venue || ""}
+                                    onChange={(e) => updateField("eventDates", {
+                                      ...(wizardData.eventDates || {}),
+                                      [event]: { ...(wizardData.eventDates?.[event] || {}), venue: e.target.value },
+                                    })}
+                                  />
+                                </div>
+                              </div>
                             </div>
                           </Reorder.Item>
                         ))}
                       </Reorder.Group>
+                      <p className="text-xs text-muted-foreground font-body mt-2">
+                        You can skip dates and times now and add or update them anytime from your dashboard editor.
+                      </p>
                     </div>
                   )}
 
