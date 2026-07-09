@@ -104,6 +104,15 @@ Deno.serve(async (req) => {
         return json({ error: "Forbidden" }, 403);
       }
 
+      // dry_run=true (query param or body) previews orphans without deleting.
+      const dryRunQ = url.searchParams.get("dry_run") === "true";
+      let dryRunB = false;
+      try {
+        const body = await req.json();
+        dryRunB = body?.dry_run === true;
+      } catch { /* empty body ok */ }
+      const dryRun = dryRunQ || dryRunB;
+
       const since = new Date(Date.now() - 30 * 86400_000).toISOString();
       const { data: activeUsers, error: uErr } = await admin
         .from("wedding_sites")
@@ -114,7 +123,12 @@ Deno.serve(async (req) => {
       const userIds = [...new Set((activeUsers || []).map((r) => r.user_id))];
       let totalDeleted = 0;
       let totalFreed = 0;
-      const perUser: Array<{ user_id: string; deleted: number; freed_bytes: number }> = [];
+      const perUser: Array<{
+        user_id: string;
+        deleted: number;
+        freed_bytes: number;
+        orphans?: Array<{ key: string; url: string; size_bytes: number; created_at: string }>;
+      }> = [];
 
       for (const uid of userIds) {
         const { data: sites } = await admin
@@ -139,24 +153,43 @@ Deno.serve(async (req) => {
 
         let deleted = 0;
         let freed = 0;
-        for (const o of orphans) {
-          const delRes = await r2.fetch(`${ENDPOINT}/${o.key}`, { method: "DELETE" });
-          if (delRes.ok) {
-            await admin.from("r2_files").delete().eq("user_id", uid).eq("key", o.key);
-            deleted++;
-            freed += Number(o.size_bytes || 0);
+        if (dryRun) {
+          deleted = orphans.length;
+          freed = orphans.reduce((s, o) => s + Number(o.size_bytes || 0), 0);
+          if (deleted > 0) {
+            perUser.push({
+              user_id: uid,
+              deleted,
+              freed_bytes: freed,
+              orphans: orphans.map((o) => ({
+                key: o.key,
+                url: o.url,
+                size_bytes: Number(o.size_bytes || 0),
+                created_at: o.created_at,
+              })),
+            });
           }
+        } else {
+          for (const o of orphans) {
+            const delRes = await r2.fetch(`${ENDPOINT}/${o.key}`, { method: "DELETE" });
+            if (delRes.ok) {
+              await admin.from("r2_files").delete().eq("user_id", uid).eq("key", o.key);
+              deleted++;
+              freed += Number(o.size_bytes || 0);
+            }
+          }
+          if (deleted > 0) perUser.push({ user_id: uid, deleted, freed_bytes: freed });
         }
-        if (deleted > 0) perUser.push({ user_id: uid, deleted, freed_bytes: freed });
         totalDeleted += deleted;
         totalFreed += freed;
       }
 
       return json({
         success: true,
+        dry_run: dryRun,
         users_scanned: userIds.length,
-        deleted: totalDeleted,
-        freed_bytes: totalFreed,
+        [dryRun ? "would_delete" : "deleted"]: totalDeleted,
+        [dryRun ? "would_free_bytes" : "freed_bytes"]: totalFreed,
         per_user: perUser,
       });
     }
@@ -306,14 +339,31 @@ Deno.serve(async (req) => {
       const body = await req.json();
       const referencedUrls: string[] = Array.isArray(body?.referenced_urls) ? body.referenced_urls : [];
       const refSet = new Set(referencedUrls.map((u) => String(u).trim()).filter(Boolean));
+      const dryRun = body?.dry_run === true || url.searchParams.get("dry_run") === "true";
 
       const { data: files, error: fErr } = await admin
         .from("r2_files")
-        .select("key, url, size_bytes")
+        .select("key, url, size_bytes, created_at")
         .eq("user_id", user.id);
       if (fErr) throw fErr;
 
       const orphans = (files || []).filter((f) => !refSet.has(f.url));
+
+      if (dryRun) {
+        return json({
+          success: true,
+          dry_run: true,
+          would_delete: orphans.length,
+          would_free_bytes: orphans.reduce((s, o) => s + Number(o.size_bytes || 0), 0),
+          orphans: orphans.map((o) => ({
+            key: o.key,
+            url: o.url,
+            size_bytes: Number(o.size_bytes || 0),
+            created_at: o.created_at,
+          })),
+        });
+      }
+
       let deletedCount = 0;
       let freedBytes = 0;
 
@@ -328,7 +378,7 @@ Deno.serve(async (req) => {
 
       // Counters updated by trg_r2_files_sync_usage on each r2_files delete.
 
-      return json({ success: true, deleted: deletedCount, freed_bytes: freedBytes });
+      return json({ success: true, dry_run: false, deleted: deletedCount, freed_bytes: freedBytes });
     }
 
     // ── verify: recompute r2_storage_usage from r2_files and self-heal drift ──
