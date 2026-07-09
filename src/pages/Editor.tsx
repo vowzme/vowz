@@ -7,9 +7,10 @@ import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
-  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail
+  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail, Download, CalendarPlus
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { buildGoogleCalendarUrl, buildOutlookCalendarUrl, downloadIcs, downloadAllEventsIcs, parseEventStart } from "@/lib/calendar-invite";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1891,6 +1892,20 @@ function SectionEditor({
             >
               <Plus className="w-3 h-3 mr-1" /> Add Event
             </Button>
+            {(() => {
+              const hasDated = (data.events || []).some((e: any) => !!parseEventStart(e?.date, e?.time));
+              if (!hasDated) return null;
+              return (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full font-body text-xs"
+                  onClick={() => downloadAllEventsIcs(data.events || [], data.heading)}
+                >
+                  <Download className="w-3 h-3 mr-1" /> Download all events (.ics)
+                </Button>
+              );
+            })()}
           </div>
         </>
       )}
@@ -2647,6 +2662,46 @@ function EventEditor({
               className="font-body text-sm"
             />
           </div>
+          {(() => {
+            const gcal = buildGoogleCalendarUrl(event);
+            const outlook = buildOutlookCalendarUrl(event);
+            if (!gcal) {
+              return (
+                <p className="font-body text-[11px] text-muted-foreground">
+                  Add a parseable date (e.g. <span className="font-mono">2026-03-25</span>) to generate calendar invites.
+                </p>
+              );
+            }
+            return (
+              <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border/30">
+                <a
+                  href={gcal}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-body px-2 py-1 rounded-full border border-border/50 text-foreground hover:bg-muted transition-colors"
+                >
+                  <CalendarPlus className="w-3 h-3" /> Google
+                </a>
+                {outlook && (
+                  <a
+                    href={outlook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-body px-2 py-1 rounded-full border border-border/50 text-foreground hover:bg-muted transition-colors"
+                  >
+                    <CalendarPlus className="w-3 h-3" /> Outlook
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => downloadIcs(event)}
+                  className="inline-flex items-center gap-1 text-[11px] font-body px-2 py-1 rounded-full border border-border/50 text-foreground hover:bg-muted transition-colors"
+                >
+                  <Download className="w-3 h-3" /> .ics
+                </button>
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>

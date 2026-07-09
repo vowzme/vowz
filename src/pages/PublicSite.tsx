@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { CoupleProfilesPublic } from "@/components/CoupleProfilesSection";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink } from "lucide-react";
+import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,6 +14,7 @@ import { useAnalyticsTracker } from "@/hooks/use-analytics";
 import { z } from "zod";
 import SEOHead from "@/components/SEOHead";
 import { TimezoneDisplay, TimezoneNotice } from "@/components/TimezoneDisplay";
+import { buildGoogleCalendarUrl, buildOutlookCalendarUrl, downloadIcs, downloadAllEventsIcs, parseEventStart } from "@/lib/calendar-invite";
 import { LivestreamPublicSection } from "@/components/LivestreamSection";
 import BlessingWall from "@/components/BlessingWall";
 import { CurrencyDisplay } from "@/components/CurrencyConverter";
@@ -716,6 +717,7 @@ function StorySection({ data, accent }: { data: any; accent: string }) {
 // ─── Events ───────────────────────────────────────────────────────────
 function EventsSection({ data, accent }: { data: any; accent: string }) {
   const events = data.events || [];
+  const hasAnyDated = events.some((e: any) => !!parseEventStart(e?.date, e?.time));
   return (
     <section
       aria-label={data.heading || "Wedding Events"}
@@ -726,6 +728,18 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
           {data.heading}
         </h2>
         <TimezoneNotice accent={accent} />
+        {hasAnyDated && (
+          <div className="flex justify-center mb-8">
+            <button
+              type="button"
+              onClick={() => downloadAllEventsIcs(events, data.heading)}
+              className="inline-flex items-center gap-1.5 text-xs font-body px-3 py-1.5 rounded-full border transition-colors hover:bg-card"
+              style={{ borderColor: `${accent}40`, color: accent }}
+            >
+              <Download className="w-3 h-3" /> Download full schedule (.ics)
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {events.map((event: any, i: number) => (
             <article
@@ -773,17 +787,43 @@ function EventsSection({ data, accent }: { data: any; accent: string }) {
                   <Navigation className="w-3 h-3" /> Get Directions
                 </a>
               )}
-              {event.date && (
-                <a
-                  href={`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.name)}&dates=${encodeURIComponent(event.date.replace(/[^0-9]/g, ""))}/${encodeURIComponent(event.date.replace(/[^0-9]/g, ""))}&details=${encodeURIComponent(`${event.name}${event.venue ? " at " + event.venue : ""}`)}&location=${encodeURIComponent(event.location || event.venue || "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-body mt-2 px-2.5 py-1 rounded-full border transition-colors hover:bg-card"
-                  style={{ borderColor: `${accent}40`, color: accent }}
-                >
-                  <CalendarPlus className="w-3 h-3" /> Add to Calendar
-                </a>
-              )}
+              {(() => {
+                const gcal = buildGoogleCalendarUrl(event);
+                const outlook = buildOutlookCalendarUrl(event);
+                if (!gcal) return null;
+                return (
+                  <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                    <a
+                      href={gcal}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-body px-2.5 py-1 rounded-full border transition-colors hover:bg-card"
+                      style={{ borderColor: `${accent}40`, color: accent }}
+                    >
+                      <CalendarPlus className="w-3 h-3" /> Google
+                    </a>
+                    {outlook && (
+                      <a
+                        href={outlook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-body px-2.5 py-1 rounded-full border transition-colors hover:bg-card"
+                        style={{ borderColor: `${accent}40`, color: accent }}
+                      >
+                        <CalendarPlus className="w-3 h-3" /> Outlook
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => downloadIcs(event)}
+                      className="inline-flex items-center gap-1 text-xs font-body px-2.5 py-1 rounded-full border transition-colors hover:bg-card"
+                      style={{ borderColor: `${accent}40`, color: accent }}
+                    >
+                      <Download className="w-3 h-3" /> .ics
+                    </button>
+                  </div>
+                );
+              })()}
               {!event.date && !event.time && (
                 <p className="text-sm text-muted-foreground font-body">Date & time TBD</p>
               )}
