@@ -1484,7 +1484,18 @@ function SettingsPanel({
               <input
                 type="checkbox"
                 checked={!!siteData.sitePassword}
-                onChange={(e) => onUpdate({ ...siteData, sitePassword: e.target.checked ? "wedding2026" : "" })}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    // Generate a random default so no two sites share a guessable password.
+                    const random = (typeof crypto !== "undefined" && "randomUUID" in crypto
+                      ? crypto.randomUUID().replace(/-/g, "")
+                      : Math.random().toString(36).slice(2)
+                    ).slice(0, 10);
+                    onUpdate({ ...siteData, sitePassword: random });
+                  } else {
+                    onUpdate({ ...siteData, sitePassword: "" });
+                  }
+                }}
                 className="rounded mt-0.5"
                 aria-label="Require password to view site"
               />
