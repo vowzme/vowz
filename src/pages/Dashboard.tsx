@@ -1140,11 +1140,11 @@ function GuestListPanel({ rsvps, rsvpLoading, onDelete, site, copyLink }: {
           <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length > 0 ? (
-        <div className="divide-y divide-border/30">
+        <ul role="list" aria-label={`${filtered.length} RSVP${filtered.length === 1 ? "" : "s"}`} className="divide-y divide-border/30 list-none p-0 m-0">
           {filtered.map((rsvp) => (
             <RsvpRow key={rsvp.id} rsvp={rsvp} onDelete={onDelete} />
           ))}
-        </div>
+        </ul>
       ) : rsvps.length > 0 ? (
         <div className="p-12 text-center">
           <Search className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
