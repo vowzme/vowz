@@ -1248,6 +1248,8 @@ function EditableField({
   onSave: (value: string) => void;
   icon: any;
 }) {
+  const reactId = useId();
+  const inputId = `editable-${reactId}`;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
 
@@ -1258,12 +1260,14 @@ function EditableField({
 
   return (
     <div>
-      <label className="font-body text-sm text-muted-foreground flex items-center gap-1.5 mb-1">
+      <label htmlFor={inputId} className="font-body text-sm text-muted-foreground flex items-center gap-1.5 mb-1">
         <Icon className="w-3.5 h-3.5" /> {label}
       </label>
       {editing ? (
         <div className="flex gap-2">
           <Input
+            id={inputId}
+            aria-label={label}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             className="font-body text-sm h-8"
