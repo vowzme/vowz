@@ -27,6 +27,54 @@ const r2 = new AwsClient({
 
 const ENDPOINT = `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${R2_BUCKET_NAME}`;
 
+// Anomaly thresholds — tune here without a redeploy loop.
+const ALERT_MAX_DELETED = Number(Deno.env.get("R2_ALERT_MAX_DELETED") ?? 500);
+const ALERT_MAX_FREED_BYTES = Number(Deno.env.get("R2_ALERT_MAX_FREED_BYTES") ?? 5 * 1024 * 1024 * 1024); // 5 GB
+
+async function sendAdminAlert(
+  admin: ReturnType<typeof createClient>,
+  subject: string,
+  bodyLines: string[],
+) {
+  try {
+    const { data: rows } = await admin.from("admin_emails").select("email");
+    const recipients = (rows ?? []).map((r: { email: string }) => r.email).filter(Boolean);
+    if (recipients.length === 0) {
+      console.warn("sendAdminAlert: no admin_emails configured");
+      return;
+    }
+    const html = `<p>${bodyLines.map((l) => l.replace(/&/g, "&amp;").replace(/</g, "&lt;")).join("</p><p>")}</p>`;
+    const text = bodyLines.join("\n");
+    for (const to of recipients) {
+      const messageId = `r2-alert-${crypto.randomUUID()}`;
+      await admin.from("email_send_log").insert({
+        message_id: messageId,
+        template_name: "r2_cleanup_alert",
+        recipient_email: to,
+        status: "pending",
+      });
+      await admin.rpc("enqueue_email", {
+        queue_name: "transactional_emails",
+        payload: {
+          message_id: messageId,
+          to,
+          from: "VowZ Alerts <noreply@vowz.me>",
+          sender_domain: "notify.vowz.me",
+          subject,
+          html,
+          text,
+          purpose: "transactional",
+          label: "r2_cleanup_alert",
+          queued_at: new Date().toISOString(),
+        },
+      });
+    }
+  } catch (e) {
+    // Never let alerting failures mask the underlying issue.
+    console.error("sendAdminAlert failed:", (e as Error).message);
+  }
+}
+
 // Server-side MIME allowlist. Client-supplied file.type is never trusted —
 // the real type is determined from magic bytes and must match this list.
 const ALLOWED_MIME = new Set<string>([
@@ -203,6 +251,36 @@ Deno.serve(async (req) => {
         }).eq("id", runId);
       }
 
+      // Anomaly alerting on successful runs.
+      if (!dryRun) {
+        const anomalies: string[] = [];
+        if (totalDeleted > ALERT_MAX_DELETED) {
+          anomalies.push(`Deleted ${totalDeleted} files (threshold ${ALERT_MAX_DELETED}).`);
+        }
+        if (totalFreed > ALERT_MAX_FREED_BYTES) {
+          anomalies.push(`Freed ${totalFreed} bytes (threshold ${ALERT_MAX_FREED_BYTES}).`);
+        }
+        if (userIds.length === 0) {
+          anomalies.push("Zero active users scanned — expected activity in last 30 days.");
+        }
+        if (anomalies.length > 0) {
+          await sendAdminAlert(
+            admin,
+            "[VowZ] R2 nightly cleanup anomaly",
+            [
+              `Run ID: ${runId}`,
+              `Started: ${startedAt}`,
+              `Users scanned: ${userIds.length}`,
+              `Deleted: ${totalDeleted}`,
+              `Freed bytes: ${totalFreed}`,
+              "",
+              "Anomalies:",
+              ...anomalies.map((a) => `• ${a}`),
+            ],
+          );
+        }
+      }
+
       return json({
         success: true,
         run_id: runId,
@@ -219,6 +297,17 @@ Deno.serve(async (req) => {
             error: (err as Error).message,
           }).eq("id", runId);
         }
+        await sendAdminAlert(
+          admin,
+          "[VowZ] R2 nightly cleanup FAILED",
+          [
+            `Run ID: ${runId ?? "(none)"}`,
+            `Started: ${startedAt}`,
+            `Error: ${(err as Error).message}`,
+            "",
+            "The nightly R2 orphan sweep threw an exception. Check /admin/storage-cleanup and the r2-upload edge function logs.",
+          ],
+        );
         throw err;
       }
     }
