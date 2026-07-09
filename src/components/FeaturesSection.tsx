@@ -18,6 +18,13 @@ import {
   Leaf,
   Bot,
   Palette,
+  Music,
+  Users,
+  Radio,
+  FileDown,
+  Gift,
+  Link2,
+  Clock,
 } from "lucide-react";
 
 const allFeatures = [
@@ -39,6 +46,13 @@ const allFeatures = [
   { icon: Languages, title: "Multilingual Support", desc: "Auto-translate your site into Hindi, Tamil, Spanish and more" },
   { icon: Palette, title: "35+ Beautiful Templates", desc: "Choose from elegant Indian, modern minimalist, and global wedding themes" },
   { icon: Leaf, title: "Eco Wedding Tips", desc: "Showcase your green wedding commitments with a dedicated section" },
+  { icon: Music, title: "Background Music", desc: "Curated romantic, cinematic & cultural tracks — pick a soundtrack guests hear when they open your site" },
+  { icon: Users, title: "Family Collaboration", desc: "Invite parents & siblings to help edit, or share a read-only preview link before you go live" },
+  { icon: Radio, title: "Livestream Embed", desc: "Broadcast your ceremony live for guests who can't attend — YouTube, Zoom or custom stream" },
+  { icon: FileDown, title: "Invitation Cards & PDF", desc: "Design digital invitation cards with 30+ templates and export high-res PDFs to share on WhatsApp" },
+  { icon: Gift, title: "Gift Registry", desc: "Share your wishlist, UPI ID or bank details so guests can send blessings your way" },
+  { icon: Link2, title: "Custom URL Slug", desc: "Pick a memorable link like vowz.me/site/rahul-sona — old links auto-redirect if you change it" },
+  { icon: Clock, title: "Timezone-Aware Events", desc: "Show event times in each guest's local timezone — no more confused overseas cousins" },
 ];
 
 const containerVariants = {
