@@ -7,8 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Search, Trash2, Edit3, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { Search, Trash2, Edit3, ChevronLeft, ChevronRight, Eye, Crown, ArrowDownCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Profile {
   id: string;
@@ -30,6 +37,9 @@ export default function AdminUsers() {
   const [editUser, setEditUser] = useState<Profile | null>(null);
   const [editForm, setEditForm] = useState({ full_name: "", email: "", partner_name: "", wedding_date: "" });
   const [detailUser, setDetailUser] = useState<Profile | null>(null);
+  const [planUser, setPlanUser] = useState<Profile | null>(null);
+  const [planForm, setPlanForm] = useState<{ plan: string; durationMonths: number }>({ plan: "premium_yearly", durationMonths: 12 });
+  const [planBusy, setPlanBusy] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -108,6 +118,45 @@ export default function AdminUsers() {
     }
   };
 
+  const openPlanDialog = (u: Profile) => {
+    setPlanUser(u);
+    setPlanForm({ plan: "premium_yearly", durationMonths: 12 });
+  };
+
+  const applyUpgrade = async () => {
+    if (!planUser) return;
+    setPlanBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-set-subscription", {
+        body: { userId: planUser.id, action: "upgrade", plan: planForm.plan, durationMonths: planForm.durationMonths },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setUsers((prev) => prev.map((u) => u.id === planUser.id ? { ...u, subscription_status: planForm.plan } : u));
+      toast({ title: "User upgraded", description: `${planUser.email} → ${planForm.plan}` });
+      setPlanUser(null);
+    } catch (err: any) {
+      toast({ title: "Upgrade failed", description: err.message, variant: "destructive" });
+    } finally {
+      setPlanBusy(false);
+    }
+  };
+
+  const applyDowngrade = async (u: Profile) => {
+    if (!confirm(`Downgrade "${u.full_name || u.email}" to Free? Any active premium subscription will be cancelled immediately.`)) return;
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-set-subscription", {
+        body: { userId: u.id, action: "downgrade" },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setUsers((prev) => prev.map((x) => x.id === u.id ? { ...x, subscription_status: "free" } : x));
+      toast({ title: "User downgraded to Free" });
+    } catch (err: any) {
+      toast({ title: "Downgrade failed", description: err.message, variant: "destructive" });
+    }
+  };
+
   const getSubBadge = (status?: string) => {
     if (status === "premium_yearly" || status === "premium_monthly") {
       return <Badge className="font-body text-xs bg-[hsl(var(--gold))]/20 text-[hsl(var(--gold-dark))] border-[hsl(var(--gold))]/30">Premium</Badge>;
@@ -167,6 +216,15 @@ export default function AdminUsers() {
                             <Button variant="ghost" size="sm" onClick={() => handleEdit(u)} title="Edit user">
                               <Edit3 className="w-3.5 h-3.5" />
                             </Button>
+                            {u.subscription_status === "free" ? (
+                              <Button variant="ghost" size="sm" onClick={() => openPlanDialog(u)} title="Upgrade to premium (free)">
+                                <Crown className="w-3.5 h-3.5 text-[hsl(var(--gold-dark))]" />
+                              </Button>
+                            ) : (
+                              <Button variant="ghost" size="sm" onClick={() => applyDowngrade(u)} title="Downgrade to free">
+                                <ArrowDownCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                              </Button>
+                            )}
                             <Button variant="ghost" size="sm" onClick={() => handleDelete(u.id, u.full_name)} title="Delete user">
                               <Trash2 className="w-3.5 h-3.5 text-destructive" />
                             </Button>
@@ -251,13 +309,67 @@ export default function AdminUsers() {
               <div className="flex justify-between"><span className="text-muted-foreground">Plan</span>{getSubBadge(detailUser.subscription_status)}</div>
               <div className="flex justify-between"><span className="text-muted-foreground">Wedding Date</span><span>{detailUser.wedding_date ? format(new Date(detailUser.wedding_date), "MMM dd, yyyy") : "—"}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Joined</span><span>{format(new Date(detailUser.created_at), "MMM dd, yyyy")}</span></div>
-              <div className="flex gap-2 pt-3">
+              <div className="flex flex-wrap gap-2 pt-3">
                 <Button variant="outline" size="sm" onClick={() => { setDetailUser(null); handleEdit(detailUser); }}>
                   <Edit3 className="w-4 h-4 mr-1" /> Edit
                 </Button>
+                {detailUser.subscription_status === "free" ? (
+                  <Button variant="gold" size="sm" onClick={() => { const u = detailUser; setDetailUser(null); openPlanDialog(u); }}>
+                    <Crown className="w-4 h-4 mr-1" /> Upgrade (free)
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => { const u = detailUser; setDetailUser(null); applyDowngrade(u); }}>
+                    <ArrowDownCircle className="w-4 h-4 mr-1" /> Downgrade
+                  </Button>
+                )}
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Upgrade Dialog */}
+      <Dialog open={!!planUser} onOpenChange={(v) => !v && setPlanUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display">Grant Premium (Free)</DialogTitle>
+            <DialogDescription className="font-body text-sm">
+              Comp a premium plan to {planUser?.full_name || planUser?.email}. No charge is made; any existing active plan is cancelled first.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="font-body text-sm font-medium block mb-1">Plan</label>
+              <Select
+                value={planForm.plan}
+                onValueChange={(v) => setPlanForm({ plan: v, durationMonths: v === "premium_yearly" ? 12 : v === "premium_6mo" ? 6 : 1 })}
+              >
+                <SelectTrigger className="font-body"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="premium">Premium (monthly)</SelectItem>
+                  <SelectItem value="premium_6mo">Premium 6 months</SelectItem>
+                  <SelectItem value="premium_yearly">Premium yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="font-body text-sm font-medium block mb-1">Duration (months)</label>
+              <Input
+                type="number"
+                min={1}
+                max={60}
+                value={planForm.durationMonths}
+                onChange={(e) => setPlanForm({ ...planForm, durationMonths: Math.max(1, Number(e.target.value) || 1) })}
+                className="font-body"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setPlanUser(null)} disabled={planBusy}>Cancel</Button>
+              <Button variant="gold" onClick={applyUpgrade} disabled={planBusy}>
+                {planBusy ? "Granting…" : "Grant Premium"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
