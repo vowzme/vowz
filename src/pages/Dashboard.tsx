@@ -869,7 +869,7 @@ const Dashboard = () => {
                     <p className="font-body text-xs text-muted-foreground mt-1">Add a "Blessings Wall" section in the editor to start receiving messages.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div role="list" aria-label={`${blessings.length} guest blessing${blessings.length === 1 ? "" : "s"}`} className="space-y-3">
                     {blessings.map((blessing) => (
                       <BlessingModerationCard
                         key={blessing.id}
@@ -1140,11 +1140,11 @@ function GuestListPanel({ rsvps, rsvpLoading, onDelete, site, copyLink }: {
           <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length > 0 ? (
-        <div className="divide-y divide-border/30">
+        <ul role="list" aria-label={`${filtered.length} RSVP${filtered.length === 1 ? "" : "s"}`} className="divide-y divide-border/30 list-none p-0 m-0">
           {filtered.map((rsvp) => (
             <RsvpRow key={rsvp.id} rsvp={rsvp} onDelete={onDelete} />
           ))}
-        </div>
+        </ul>
       ) : rsvps.length > 0 ? (
         <div className="p-12 text-center">
           <Search className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
@@ -1170,21 +1170,30 @@ function GuestListPanel({ rsvps, rsvpLoading, onDelete, site, copyLink }: {
 
 function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
+  const detailsId = useId();
+  const statusText = rsvp.attending ? "Attending" : "Declined";
+  const guestSuffix = rsvp.attending
+    ? `, ${rsvp.guest_count} guest${rsvp.guest_count > 1 ? "s" : ""}`
+    : "";
 
   return (
-    <div className="px-4 sm:px-6 py-4">
+    <li role="listitem" aria-label={`${rsvp.guest_name}, ${statusText}${guestSuffix}`} className="px-4 sm:px-6 py-4 list-none">
       <div className="flex items-start sm:items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
+        <div
+          role="img"
+          aria-label={statusText}
+          className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
           rsvp.attending ? "bg-emerald/10" : "bg-destructive/10"
         }`}>
           {rsvp.attending ? (
-            <Check className="w-4 h-4 text-emerald" />
+            <Check className="w-4 h-4 text-emerald" aria-hidden="true" />
           ) : (
-            <X className="w-4 h-4 text-destructive" />
+            <X className="w-4 h-4 text-destructive" aria-hidden="true" />
           )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-body text-sm font-medium text-foreground truncate">{rsvp.guest_name}</p>
+          <span className="sr-only">Status: {statusText}.</span>
           <p className="font-body text-xs text-muted-foreground truncate">{rsvp.guest_email}</p>
           <div className="flex items-center gap-2 mt-1 sm:hidden">
             {rsvp.attending && (
@@ -1193,6 +1202,7 @@ function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => 
               </span>
             )}
             <span className="font-body text-xs text-muted-foreground">
+              <span className="sr-only">Responded on </span>
               {new Date(rsvp.created_at).toLocaleDateString()}
             </span>
           </div>
@@ -1204,35 +1214,46 @@ function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => 
             </span>
           )}
           <span className="font-body text-xs text-muted-foreground hidden sm:inline">
+            <span className="sr-only">Responded on </span>
             {new Date(rsvp.created_at).toLocaleDateString()}
           </span>
-          <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground p-1">
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <button
+            onClick={() => setExpanded(!expanded)}
+            aria-expanded={expanded}
+            aria-controls={detailsId}
+            aria-label={expanded ? `Hide details for ${rsvp.guest_name}` : `Show details for ${rsvp.guest_name}`}
+            className="text-muted-foreground hover:text-foreground p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+          >
+            {expanded ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
           </button>
-          <button onClick={() => onDelete(rsvp.id)} className="text-muted-foreground hover:text-destructive p-1">
-            <Trash2 className="w-3.5 h-3.5" />
+          <button
+            onClick={() => onDelete(rsvp.id)}
+            aria-label={`Delete RSVP from ${rsvp.guest_name}`}
+            className="text-muted-foreground hover:text-destructive p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+          >
+            <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {expanded && (
-        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-3 ml-11 space-y-1.5">
+        <motion.div id={detailsId} initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-3 ml-11 space-y-1.5">
           {rsvp.meal_preference && (
             <p className="font-body text-xs text-muted-foreground flex items-center gap-1.5">
-              <Utensils className="w-3 h-3" /> Meal: <span className="capitalize">{rsvp.meal_preference}</span>
+              <Utensils className="w-3 h-3" aria-hidden="true" /> Meal: <span className="capitalize">{rsvp.meal_preference}</span>
             </p>
           )}
           {rsvp.selected_events && (rsvp.selected_events as any).length > 0 && (
             <p className="font-body text-xs text-muted-foreground flex items-center gap-1.5">
-              <PartyPopper className="w-3 h-3" /> Events: {(rsvp.selected_events as any).join(", ")}
+              <PartyPopper className="w-3 h-3" aria-hidden="true" /> Events: {(rsvp.selected_events as any).join(", ")}
             </p>
           )}
           {rsvp.message && (
-            <p className="font-body text-xs text-muted-foreground italic">"{rsvp.message}"</p>
+            <p className="font-body text-xs text-muted-foreground italic"><span className="sr-only">Message from guest: </span>"{rsvp.message}"</p>
           )}
         </motion.div>
       )}
-    </div>
+    </li>
   );
 }
 
@@ -1539,13 +1560,19 @@ function ChecklistRow({
       ) : (
         <div className="flex-1 min-w-0">
           <p className={`font-body text-sm ${item.is_completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
+            {item.is_completed && <span className="sr-only">Completed. </span>}
             {item.title}
           </p>
           {item.due_date && (
-            <p className={`font-body text-xs mt-0.5 flex items-center gap-1 ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}>
-              <CalendarDays className="w-3 h-3" />
-              {format(new Date(item.due_date + "T00:00:00"), "MMM d, yyyy")}
-              {isOverdue && " · Overdue"}
+            <p
+              className={`font-body text-xs mt-0.5 flex items-center gap-1 ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}
+              aria-label={`${isOverdue ? "Overdue. " : ""}Due ${format(new Date(item.due_date + "T00:00:00"), "MMMM d, yyyy")}`}
+            >
+              <CalendarDays className="w-3 h-3" aria-hidden="true" />
+              <span aria-hidden="true">
+                {format(new Date(item.due_date + "T00:00:00"), "MMM d, yyyy")}
+                {isOverdue && " · Overdue"}
+              </span>
             </p>
           )}
         </div>
@@ -2381,7 +2408,7 @@ function BlessingModerationCard({
   };
 
   return (
-    <div className="border border-border/50 rounded-xl p-4 bg-background">
+    <article role="listitem" aria-label={`Blessing from ${blessing.guest_name}, status ${blessing.status}`} className="border border-border/50 rounded-xl p-4 bg-background">
       <div className="flex items-start gap-3">
         {blessing.photo_url && (
           <img
@@ -2393,18 +2420,30 @@ function BlessingModerationCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-body text-sm font-semibold text-foreground">{blessing.guest_name}</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-body font-medium ${statusColors[blessing.status] || ""}`}>
+            <span
+              role="status"
+              aria-label={`Status: ${blessing.status}`}
+              className={`text-[10px] px-1.5 py-0.5 rounded-full border font-body font-medium ${statusColors[blessing.status] || ""}`}
+            >
               {blessing.status}
             </span>
             <span className="text-[10px] text-muted-foreground font-body ml-auto">
+              <span className="sr-only">Submitted on </span>
               {new Date(blessing.created_at).toLocaleDateString()}
             </span>
           </div>
-          <p className="font-body text-sm text-muted-foreground mt-1">{blessing.message}</p>
+          <p className="font-body text-sm text-muted-foreground mt-1">
+            <span className="sr-only">Message: </span>
+            {blessing.message}
+          </p>
 
           {blessing.owner_reply && !showReply && (
             <div className="mt-2 pl-3 border-l-2 border-gold/30">
-              <p className="font-body text-xs text-muted-foreground italic">💕 {blessing.owner_reply}</p>
+              <p className="font-body text-xs text-muted-foreground italic">
+                <span aria-hidden="true">💕 </span>
+                <span className="sr-only">Your reply: </span>
+                {blessing.owner_reply}
+              </p>
             </div>
           )}
         </div>
@@ -2413,16 +2452,35 @@ function BlessingModerationCard({
       <div className="flex items-center gap-2 mt-3 flex-wrap">
         {blessing.status === "pending" && (
           <>
-            <Button variant="outline" size="sm" className="font-body text-xs h-7" onClick={onApprove}>
-              <Check className="w-3 h-3 mr-1" /> Approve
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-body text-xs h-7"
+              onClick={onApprove}
+              aria-label={`Approve blessing from ${blessing.guest_name}`}
+            >
+              <Check className="w-3 h-3 mr-1" aria-hidden="true" /> Approve
             </Button>
-            <Button variant="outline" size="sm" className="font-body text-xs h-7 text-destructive hover:text-destructive" onClick={onReject}>
-              <X className="w-3 h-3 mr-1" /> Reject
+            <Button
+              variant="outline"
+              size="sm"
+              className="font-body text-xs h-7 text-destructive hover:text-destructive"
+              onClick={onReject}
+              aria-label={`Reject blessing from ${blessing.guest_name}`}
+            >
+              <X className="w-3 h-3 mr-1" aria-hidden="true" /> Reject
             </Button>
           </>
         )}
-        <Button variant="ghost" size="sm" className="font-body text-xs h-7" onClick={() => setShowReply(!showReply)}>
-          <MessageSquare className="w-3 h-3 mr-1" /> {showReply ? "Cancel" : "Reply"}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="font-body text-xs h-7"
+          onClick={() => setShowReply(!showReply)}
+          aria-expanded={showReply}
+          aria-label={showReply ? `Cancel reply to ${blessing.guest_name}` : `Reply to blessing from ${blessing.guest_name}`}
+        >
+          <MessageSquare className="w-3 h-3 mr-1" aria-hidden="true" /> {showReply ? "Cancel" : "Reply"}
         </Button>
         <Button
           variant="ghost"
@@ -2431,7 +2489,7 @@ function BlessingModerationCard({
           onClick={onDelete}
           aria-label={`Delete blessing from ${blessing.guest_name}`}
         >
-          <Trash2 className="w-3 h-3" />
+          <Trash2 className="w-3 h-3" aria-hidden="true" />
         </Button>
       </div>
 
@@ -2455,7 +2513,7 @@ function BlessingModerationCard({
           </Button>
         </div>
       )}
-    </div>
+    </article>
   );
 }
 
