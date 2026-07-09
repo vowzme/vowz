@@ -89,6 +89,9 @@ function markDone() {
  */
 const DashboardTour = () => {
   const [resumeStep, setResumeStep] = useState<number>(() => readProgress());
+  // When true, clicking the trigger always starts from step 0 regardless of
+  // saved progress. Restart button flips this on for one click.
+  const restartRef = useRef(false);
   const liveRef = useRef<HTMLDivElement>(null);
 
   const announce = (msg: string) => {
@@ -245,10 +248,15 @@ const DashboardTour = () => {
 
   return (
     <>
+    <div className="flex items-center gap-1.5">
     <Button
       variant="gold"
       size="sm"
-      onClick={() => runTour(readProgress())}
+      onClick={() => {
+        const start = restartRef.current ? 0 : readProgress();
+        restartRef.current = false;
+        runTour(start);
+      }}
       data-tour="tour-trigger"
       aria-label={label}
       className="gap-1.5 min-h-11 shadow-gold animate-in fade-in"
@@ -266,6 +274,23 @@ const DashboardTour = () => {
         <span className="sm:hidden">{shortLabel}</span>
       </span>
     </Button>
+    {isResuming && (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          try { localStorage.removeItem(PROGRESS_KEY); } catch {}
+          setResumeStep(0);
+          restartRef.current = true;
+          runTour(0);
+        }}
+        aria-label="Restart tour from beginning"
+        className="text-xs h-9 px-2 text-muted-foreground hover:text-foreground"
+      >
+        Restart
+      </Button>
+    )}
+    </div>
     <div
       ref={liveRef}
       role="status"
