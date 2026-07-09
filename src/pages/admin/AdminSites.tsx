@@ -18,7 +18,6 @@ interface Site {
   slug: string | null;
   theme: string;
   is_published: boolean;
-  custom_domain: string | null;
   created_at: string;
   status?: string;
   user_id: string;
@@ -39,7 +38,7 @@ export default function AdminSites() {
   const fetchSites = async () => {
     const { data } = await supabase
       .from("wedding_sites")
-      .select("id, partner1, partner2, slug, theme, is_published, custom_domain, created_at, status, user_id")
+      .select("id, partner1, partner2, slug, theme, is_published, created_at, status, user_id")
       .order("created_at", { ascending: false });
     setSites((data as any) ?? []);
     setLoading(false);

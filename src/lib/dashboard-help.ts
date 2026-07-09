@@ -114,13 +114,13 @@ export const HELP: Record<string, HelpEntry> = {
     why: "Manage Premium, download GST invoices, and renew from one place.",
     try: [
       "Download PDF invoices for your records",
-      "Upgrade to Premium for custom domain + more storage",
+      "Upgrade to Premium for more storage & advanced features",
     ],
   },
   settings: {
     title: "Settings tab",
     what: "Site-wide preferences and advanced options.",
-    why: "Change your slug, connect a domain, set a password, and manage family collaborators.",
+    why: "Change your slug, set a password, and manage family collaborators.",
     try: [
       "Set a password to keep the site private",
       "Invite family with read-only or edit access",

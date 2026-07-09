@@ -9,7 +9,7 @@ import {
 const faqs = [
   {
     q: "Is Vowz really free?",
-    a: "Yes! Start with a 7-day free trial that includes every feature — all templates, RSVP, gallery, budget tracker, AI assistant, custom domain, and more. No credit card required. After 7 days, upgrade to Premium (6-month subscription, ₹1,499 / $19) to keep your site live. Renew every 6 months to keep it live.",
+    a: "Yes! Start with a 7-day free trial that includes every feature — all templates, RSVP, gallery, budget tracker, AI assistant, and more. No credit card required. After 7 days, upgrade to Premium (6-month subscription, ₹1,499 / $19) to keep your site live. Renew every 6 months to keep it live.",
   },
   {
     q: "How does the Wedding Wizard work?",

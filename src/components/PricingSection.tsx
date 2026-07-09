@@ -21,7 +21,6 @@ const allFeatures = [
   "Video embeds",
   "AI editor assistant",
   "Multilingual auto-translation",
-  "Custom domain support",
   "Password-protected sites",
   "No watermarks, ad-free",
   "Mobile-responsive site",
