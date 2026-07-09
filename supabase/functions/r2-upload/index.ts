@@ -339,14 +339,31 @@ Deno.serve(async (req) => {
       const body = await req.json();
       const referencedUrls: string[] = Array.isArray(body?.referenced_urls) ? body.referenced_urls : [];
       const refSet = new Set(referencedUrls.map((u) => String(u).trim()).filter(Boolean));
+      const dryRun = body?.dry_run === true || url.searchParams.get("dry_run") === "true";
 
       const { data: files, error: fErr } = await admin
         .from("r2_files")
-        .select("key, url, size_bytes")
+        .select("key, url, size_bytes, created_at")
         .eq("user_id", user.id);
       if (fErr) throw fErr;
 
       const orphans = (files || []).filter((f) => !refSet.has(f.url));
+
+      if (dryRun) {
+        return json({
+          success: true,
+          dry_run: true,
+          would_delete: orphans.length,
+          would_free_bytes: orphans.reduce((s, o) => s + Number(o.size_bytes || 0), 0),
+          orphans: orphans.map((o) => ({
+            key: o.key,
+            url: o.url,
+            size_bytes: Number(o.size_bytes || 0),
+            created_at: o.created_at,
+          })),
+        });
+      }
+
       let deletedCount = 0;
       let freedBytes = 0;
 
@@ -361,7 +378,7 @@ Deno.serve(async (req) => {
 
       // Counters updated by trg_r2_files_sync_usage on each r2_files delete.
 
-      return json({ success: true, deleted: deletedCount, freed_bytes: freedBytes });
+      return json({ success: true, dry_run: false, deleted: deletedCount, freed_bytes: freedBytes });
     }
 
     // ── verify: recompute r2_storage_usage from r2_files and self-heal drift ──
