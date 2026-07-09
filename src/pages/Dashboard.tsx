@@ -1560,13 +1560,19 @@ function ChecklistRow({
       ) : (
         <div className="flex-1 min-w-0">
           <p className={`font-body text-sm ${item.is_completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
+            {item.is_completed && <span className="sr-only">Completed. </span>}
             {item.title}
           </p>
           {item.due_date && (
-            <p className={`font-body text-xs mt-0.5 flex items-center gap-1 ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}>
-              <CalendarDays className="w-3 h-3" />
-              {format(new Date(item.due_date + "T00:00:00"), "MMM d, yyyy")}
-              {isOverdue && " · Overdue"}
+            <p
+              className={`font-body text-xs mt-0.5 flex items-center gap-1 ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}
+              aria-label={`${isOverdue ? "Overdue. " : ""}Due ${format(new Date(item.due_date + "T00:00:00"), "MMMM d, yyyy")}`}
+            >
+              <CalendarDays className="w-3 h-3" aria-hidden="true" />
+              <span aria-hidden="true">
+                {format(new Date(item.due_date + "T00:00:00"), "MMM d, yyyy")}
+                {isOverdue && " · Overdue"}
+              </span>
             </p>
           )}
         </div>
