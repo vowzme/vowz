@@ -62,9 +62,12 @@ export function useStorageQuota() {
   // Real-time updates: refresh quota whenever this user's usage row changes.
   useEffect(() => {
     if (!user) return;
-    const channelId = `r2-usage-${user.id}-${Math.random().toString(36).slice(2, 10)}`;
-    const channel = supabase
-      .channel(channelId)
+    const suffix = Math.random().toString(36).slice(2, 10);
+    // Use one channel per table. Chaining multiple `postgres_changes` bindings
+    // on the same channel triggers "cannot add postgres_changes callbacks"
+    // once the channel has joined.
+    const usageChannel = supabase
+      .channel(`r2-usage-${user.id}-${suffix}`)
       .on(
         "postgres_changes",
         {
@@ -75,6 +78,9 @@ export function useStorageQuota() {
         },
         () => refresh(),
       )
+      .subscribe();
+    const filesChannel = supabase
+      .channel(`r2-files-${user.id}-${suffix}`)
       .on(
         "postgres_changes",
         {
@@ -87,7 +93,8 @@ export function useStorageQuota() {
       )
       .subscribe();
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(usageChannel);
+      supabase.removeChannel(filesChannel);
     };
   }, [user, refresh]);
 
