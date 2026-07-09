@@ -91,16 +91,81 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return json({ error: "Unauthorized" }, 401);
 
+    const url = new URL(req.url);
+    const action = url.searchParams.get("action") || "upload";
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // ── admin_cleanup: service-role invoked (pg_cron). Sweeps orphan R2 files
+    // for users active in the last 30 days by scanning wedding_sites JSON for
+    // referenced R2 URLs, then deleting anything in r2_files that isn't listed.
+    if (action === "admin_cleanup") {
+      const bearer = authHeader.replace(/^Bearer\s+/i, "").trim();
+      if (bearer !== SUPABASE_SERVICE_ROLE_KEY) {
+        return json({ error: "Forbidden" }, 403);
+      }
+
+      const since = new Date(Date.now() - 30 * 86400_000).toISOString();
+      const { data: activeUsers, error: uErr } = await admin
+        .from("wedding_sites")
+        .select("user_id, updated_at")
+        .gte("updated_at", since);
+      if (uErr) throw uErr;
+
+      const userIds = [...new Set((activeUsers || []).map((r) => r.user_id))];
+      let totalDeleted = 0;
+      let totalFreed = 0;
+      const perUser: Array<{ user_id: string; deleted: number; freed_bytes: number }> = [];
+
+      for (const uid of userIds) {
+        const { data: sites } = await admin
+          .from("wedding_sites")
+          .select("data,cover_image_url,logo_url")
+          .eq("user_id", uid);
+        const haystack = JSON.stringify(sites || "");
+
+        const { data: files } = await admin
+          .from("r2_files")
+          .select("key,url,size_bytes,created_at")
+          .eq("user_id", uid);
+
+        // Grace period: don't touch files newer than 24h (likely in-flight edits).
+        const cutoff = Date.now() - 86400_000;
+        const orphans = (files || []).filter(
+          (f) =>
+            new Date(f.created_at).getTime() < cutoff &&
+            !haystack.includes(f.url) &&
+            !haystack.includes(f.key),
+        );
+
+        let deleted = 0;
+        let freed = 0;
+        for (const o of orphans) {
+          const delRes = await r2.fetch(`${ENDPOINT}/${o.key}`, { method: "DELETE" });
+          if (delRes.ok) {
+            await admin.from("r2_files").delete().eq("user_id", uid).eq("key", o.key);
+            deleted++;
+            freed += Number(o.size_bytes || 0);
+          }
+        }
+        if (deleted > 0) perUser.push({ user_id: uid, deleted, freed_bytes: freed });
+        totalDeleted += deleted;
+        totalFreed += freed;
+      }
+
+      return json({
+        success: true,
+        users_scanned: userIds.length,
+        deleted: totalDeleted,
+        freed_bytes: totalFreed,
+        per_user: perUser,
+      });
+    }
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return json({ error: "Unauthorized" }, 401);
-
-    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
-    const url = new URL(req.url);
-    const action = url.searchParams.get("action") || "upload";
 
     // ── usage: return current quota ──
     if (action === "usage") {
