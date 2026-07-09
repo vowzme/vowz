@@ -27,6 +27,7 @@ import { DEFAULT_STORY, STORY_TEMPLATES } from "@/lib/default-story";
 import MediaManagerPanel from "@/components/MediaManagerPanel";
 import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS } from "@/lib/video-embed";
 import { MUSIC_CATEGORIES } from "@/lib/music-library";
+import { useR2Upload } from "@/hooks/use-r2-upload";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
@@ -1610,6 +1611,32 @@ function SectionEditor({
 }) {
   const { type, data } = section;
   const { generate, loading: aiLoading } = useAIContentGen();
+  const { uploadToR2 } = useR2Upload();
+  const [musicUploading, setMusicUploading] = useState(false);
+  const musicFileRef = useRef<HTMLInputElement | null>(null);
+
+  const handleMusicUpload = async (file: File) => {
+    if (!file) return;
+    // 15 MB soft cap for background tracks
+    if (file.size > 15 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an audio file under 15 MB.", variant: "destructive" as any });
+      return;
+    }
+    setMusicUploading(true);
+    try {
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-");
+      const result = await uploadToR2(file, `music/${Date.now()}-${safe}`);
+      if (!result?.url) throw new Error("Upload failed");
+      const cleanName = file.name.replace(/\.[^.]+$/, "");
+      onUpdateData({ trackUrl: result.url, trackName: cleanName || "My Track", category: "custom" });
+      toast({ title: "Track uploaded 🎵", description: cleanName });
+    } catch (err: any) {
+      toast({ title: "Couldn't upload track", description: err?.message || "Please try again.", variant: "destructive" as any });
+    } finally {
+      setMusicUploading(false);
+      if (musicFileRef.current) musicFileRef.current.value = "";
+    }
+  };
 
   const aiContext = {
     partner1: siteData.partner1,
@@ -2435,6 +2462,43 @@ function SectionEditor({
               Direct link to an .mp3, .ogg or .m4a file. Make sure you have the rights to use it.
             </p>
           </div>
+
+          <div className="rounded-lg border border-dashed border-border/60 p-3 space-y-2">
+            <label className="font-body text-sm font-medium text-foreground block">Upload your own track</label>
+            <input
+              ref={musicFileRef}
+              type="file"
+              accept="audio/mpeg,audio/mp4,audio/ogg,audio/wav,.mp3,.m4a,.ogg,.wav"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleMusicUpload(f);
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={musicUploading}
+              onClick={() => musicFileRef.current?.click()}
+              className="w-full"
+            >
+              {musicUploading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading…</>
+              ) : (
+                <><Upload className="w-4 h-4 mr-2" /> Upload audio (MP3, M4A, OGG, WAV)</>
+              )}
+            </Button>
+            <p className="text-[10px] text-muted-foreground font-body">Up to 15 MB. Stored securely in your gallery storage.</p>
+          </div>
+
+          {data.trackUrl && (
+            <div className="rounded-lg border border-gold/40 bg-gold/5 p-3">
+              <p className="font-body text-xs text-muted-foreground mb-1">Now playing on your site</p>
+              <p className="font-body text-sm font-medium text-foreground truncate mb-2">🎵 {data.trackName || "Untitled track"}</p>
+              <audio src={data.trackUrl} controls preload="none" className="w-full h-8" />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center justify-between rounded-lg border border-border/50 p-2">
