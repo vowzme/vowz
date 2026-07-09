@@ -260,7 +260,8 @@ const Dashboard = () => {
   // ─── Real-time RSVP subscription ───────────────────────────────────
   useEffect(() => {
     if (!site?.id) return;
-    const channelName = `rsvps-${site.id}`;
+    const suffix = Math.random().toString(36).slice(2, 10);
+    const channelName = `rsvps-${site.id}-${suffix}`;
     const channel = subscribeWithLogging(
       supabase
         .channel(channelName)
