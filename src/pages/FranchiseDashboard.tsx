@@ -401,11 +401,11 @@ export default function FranchiseDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="font-body text-xs font-medium text-foreground mb-1.5 block">🇮🇳 UPI ID / Google Pay</label>
-              <Input value={payoutUpi} onChange={(e) => setPayoutUpi(e.target.value)} placeholder="yourname@upi" className="h-10 text-sm" />
+              <Input value={payoutUpi} onChange={(e) => setPayoutUpi(e.target.value)} placeholder="yourname@upi" className="h-10 text-sm" aria-label="UPI ID or Google Pay number for payouts" />
             </div>
             <div>
               <label className="font-body text-xs font-medium text-foreground mb-1.5 block">🌍 PayPal Email</label>
-              <Input type="email" value={payoutPaypal} onChange={(e) => setPayoutPaypal(e.target.value)} placeholder="you@paypal.com" className="h-10 text-sm" />
+              <Input type="email" value={payoutPaypal} onChange={(e) => setPayoutPaypal(e.target.value)} placeholder="you@paypal.com" className="h-10 text-sm" aria-label="PayPal email for payouts" />
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={handleSavePayout} disabled={savingPayout}>
