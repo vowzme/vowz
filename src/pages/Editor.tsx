@@ -843,6 +843,7 @@ function TemplateSwitcherPanel({
           value={searchQuery}
           onChange={(e) => { setSearchQuery(e.target.value); setPreviewIdx(null); }}
           className="w-full pl-8 pr-3 py-1.5 rounded-md border border-border/50 bg-background text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+          aria-label="Search templates"
         />
       </div>
 
@@ -1255,6 +1256,7 @@ function StylePanel({
                     onColorChange(newColors);
                   }}
                   className="w-8 h-8 rounded border border-border/50 cursor-pointer"
+                  aria-label={`${label} color`}
                 />
                 <span className="font-body text-sm text-muted-foreground">{label}</span>
                 <span className="font-body text-xs text-muted-foreground/60 ml-auto">{colors[i]}</span>
@@ -1462,6 +1464,7 @@ function SettingsPanel({
               checked={siteData.memoryMode || false}
               onChange={(e) => onUpdate({ ...siteData, memoryMode: e.target.checked })}
               className="rounded mt-0.5"
+              aria-label="Enable Memory Mode"
             />
             <div>
               <p className="font-body text-sm text-foreground">Enable Memory Mode 📸</p>
@@ -1482,6 +1485,7 @@ function SettingsPanel({
                 checked={!!siteData.sitePassword}
                 onChange={(e) => onUpdate({ ...siteData, sitePassword: e.target.checked ? "wedding2026" : "" })}
                 className="rounded mt-0.5"
+                aria-label="Require password to view site"
               />
               <div className="flex-1">
                 <p className="font-body text-sm text-foreground">Require password to view site</p>
@@ -1508,6 +1512,7 @@ function SettingsPanel({
             value={siteData.siteLanguage || "en"}
             onChange={(e) => onUpdate({ ...siteData, siteLanguage: e.target.value })}
             className="w-full rounded-md border border-border bg-background px-3 py-2 font-body text-sm text-foreground"
+            aria-label="Site language"
           >
             {LANG_OPTIONS.map((l) => (
               <option key={l.code} value={l.code}>{l.label}</option>
@@ -1531,6 +1536,7 @@ function SettingsPanel({
               id="add-lang-select"
               className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 font-body text-xs text-foreground"
               defaultValue=""
+              aria-label="Add a translation language"
             >
               <option value="" disabled>Add a language…</option>
               {LANG_OPTIONS.filter((l) => l.code !== "en" && !(siteData.availableLanguages || []).includes(l.code)).map((l) => (
