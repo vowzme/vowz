@@ -1,11 +1,31 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { Button } from "@/components/ui/button";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, PlayCircle } from "lucide-react";
 import { TOUR_STEPS } from "@/lib/dashboard-help";
 
-const STORAGE_KEY = "vowz_dashboard_tour_seen";
+const SEEN_KEY = "vowz_dashboard_tour_seen";
+const PROGRESS_KEY = "vowz_dashboard_tour_step";
+
+function readProgress(): number {
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    if (!raw || raw === "done") return 0;
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function saveProgress(step: number) {
+  try { localStorage.setItem(PROGRESS_KEY, String(step)); } catch {}
+}
+
+function markDone() {
+  try { localStorage.setItem(PROGRESS_KEY, "done"); } catch {}
+}
 
 /**
  * Interactive spotlight tour for the customer dashboard. Uses driver.js
@@ -14,28 +34,30 @@ const STORAGE_KEY = "vowz_dashboard_tour_seen";
  * from the header button rendered by this component.
  */
 const DashboardTour = () => {
-  const runTour = useCallback(() => {
+  const [resumeStep, setResumeStep] = useState<number>(() => readProgress());
+
+  const runTour = useCallback((startAt?: number) => {
     if (typeof document === "undefined") return;
-    const steps = TOUR_STEPS
-      .filter((s) => document.querySelector(s.selector))
-      .map((s) => ({
-        element: s.selector,
-        popover: {
-          title: s.title,
-          description: s.html,
-          // Let driver.js pick the best side so popovers don't fall off-screen on mobile.
-          popoverClass: "vowz-tour-popover",
-          onPopoverRender: () => {
-            // Switch to the relevant tab so the highlighted element is visible.
-            if (s.tab) {
-              const trigger = document.querySelector<HTMLElement>(
-                `[data-tour="tab-${s.tab}"]`,
-              );
-              trigger?.click();
-            }
-          },
+    const available = TOUR_STEPS.filter((s) => document.querySelector(s.selector));
+    const steps = available.map((s, idx) => ({
+      element: s.selector,
+      popover: {
+        title: s.title,
+        description: s.html,
+        popoverClass: "vowz-tour-popover",
+        onPopoverRender: () => {
+          if (s.tab) {
+            const trigger = document.querySelector<HTMLElement>(
+              `[data-tour="tab-${s.tab}"]`,
+            );
+            trigger?.click();
+          }
+          // Persist current step so we can resume later.
+          saveProgress(idx);
+          setResumeStep(idx);
         },
-      }));
+      },
+    }));
     if (!steps.length) return;
     const d = driver({
       showProgress: true,
@@ -47,35 +69,51 @@ const DashboardTour = () => {
       prevBtnText: "← Back",
       doneBtnText: "Finish",
       steps,
+      onDestroyed: () => {
+        const active = d.getActiveIndex?.();
+        // Finished the last step (or driver.js reports no active step after Finish)
+        if (typeof active !== "number" || active >= steps.length - 1) {
+          markDone();
+          setResumeStep(0);
+        }
+      },
     });
-    d.drive();
+    const clamped = Math.min(Math.max(startAt ?? 0, 0), steps.length - 1);
+    d.drive(clamped);
   }, []);
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(STORAGE_KEY)) return;
+      if (localStorage.getItem(SEEN_KEY)) return;
       // Delay so target elements are mounted
       const t = setTimeout(() => {
         runTour();
-        try { localStorage.setItem(STORAGE_KEY, "1"); } catch {}
+        try { localStorage.setItem(SEEN_KEY, "1"); } catch {}
       }, 900);
       return () => clearTimeout(t);
     } catch {}
   }, [runTour]);
 
+  const isResuming = resumeStep > 0;
+  const label = isResuming ? "Resume tour" : "Start dashboard tour";
+  const shortLabel = isResuming ? "Resume" : "Tour";
+
   return (
     <Button
       variant="gold"
       size="sm"
-      onClick={runTour}
+      onClick={() => runTour(resumeStep)}
       data-tour="tour-trigger"
-      aria-label="Start dashboard tour"
+      aria-label={label}
       className="gap-1.5 min-h-11 shadow-gold animate-in fade-in"
     >
-      <HelpCircle className="w-4 h-4" />
+      {isResuming ? <PlayCircle className="w-4 h-4" /> : <HelpCircle className="w-4 h-4" />}
       <span className="font-body font-medium">
-        <span className="hidden sm:inline">Start dashboard tour</span>
-        <span className="sm:hidden">Tour</span>
+        <span className="hidden sm:inline">
+          {label}
+          {isResuming ? ` (step ${resumeStep + 1})` : ""}
+        </span>
+        <span className="sm:hidden">{shortLabel}</span>
       </span>
     </Button>
   );
