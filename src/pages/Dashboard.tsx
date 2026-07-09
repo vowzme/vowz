@@ -1112,6 +1112,7 @@ function GuestListPanel({ rsvps, rsvpLoading, onDelete, site, copyLink }: {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name or email..."
+                aria-label="Search RSVPs by guest name or email"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 h-9 font-body text-sm"
