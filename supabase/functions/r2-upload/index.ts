@@ -333,6 +333,13 @@ Deno.serve(async (req) => {
       let fileName = (formData.get("fileName") as string) || file?.name || `file-${Date.now()}`;
       if (!file) return json({ error: "No file provided" }, 400);
 
+      // Sanitize filename to prevent path traversal into other users' prefixes.
+      // Strip any directory components and reject empty/dot-only names.
+      fileName = fileName.replace(/\\/g, "/").split("/").pop() || "";
+      if (!fileName || fileName === "." || fileName === ".." || fileName.includes("\0")) {
+        return json({ error: "Invalid filename" }, 400);
+      }
+
       const bytes = new Uint8Array(await file.arrayBuffer());
       // Determine the real MIME from magic bytes; ignore the client-supplied
       // file.type so HTML/SVG/JS cannot be stored as renderable content.
@@ -427,7 +434,20 @@ Deno.serve(async (req) => {
     // ── delete ──
     if (action === "delete") {
       const { key } = await req.json();
-      if (!key || !key.startsWith(`${user.id}/`)) return json({ error: "Invalid key" }, 400);
+      // Reject path traversal or absolute segments before prefix check —
+      // otherwise `${user.id}/../VICTIM/file` passes startsWith but URL
+      // normalisation resolves to VICTIM/file on the R2 request.
+      if (
+        !key ||
+        typeof key !== "string" ||
+        key.includes("..") ||
+        key.includes("\0") ||
+        key.includes("\\") ||
+        key.startsWith("/") ||
+        !key.startsWith(`${user.id}/`)
+      ) {
+        return json({ error: "Invalid key" }, 400);
+      }
 
       // Prefer tracked size; fall back to HEAD
       const { data: tracked } = await admin
