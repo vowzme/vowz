@@ -1892,6 +1892,20 @@ function SectionEditor({
             >
               <Plus className="w-3 h-3 mr-1" /> Add Event
             </Button>
+            {(() => {
+              const hasDated = (data.events || []).some((e: any) => !!parseEventStart(e?.date, e?.time));
+              if (!hasDated) return null;
+              return (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full font-body text-xs"
+                  onClick={() => downloadAllEventsIcs(data.events || [], data.heading)}
+                >
+                  <Download className="w-3 h-3 mr-1" /> Download all events (.ics)
+                </Button>
+              );
+            })()}
           </div>
         </>
       )}
