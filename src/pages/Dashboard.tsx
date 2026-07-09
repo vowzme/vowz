@@ -566,7 +566,7 @@ const Dashboard = () => {
                     </p>
                   </div>
 
-                  <div className="p-4 sm:p-6 flex flex-wrap gap-2 sm:gap-3">
+                  <div className="p-4 sm:p-6 flex flex-wrap gap-2 sm:gap-3 [&_button]:min-h-11 [&_a]:min-h-11">
                     <Button variant="gold" size="sm" asChild>
                       <Link to="/editor">
                         <Edit3 className="w-4 h-4 mr-1" /> Edit Site
@@ -578,6 +578,7 @@ const Dashboard = () => {
                       onClick={handleTogglePublish}
                       disabled={saving}
                       data-tour="publish"
+                      aria-label={site.is_published ? "Unpublish site" : "Publish site"}
                     >
                       {site.is_published ? (
                         <><GlobeLock className="w-4 h-4 mr-1" /> Unpublish</>
