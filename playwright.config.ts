@@ -5,7 +5,12 @@ export default defineConfig({
   timeout: 30_000,
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
-  reporter: [["list"]],
+  reporter: [
+    ["list"],
+    // HTML report bundles per-test attachments (screenshots, JSON, text)
+    // — upload `playwright-report/` from CI to expose them for debugging.
+    ["html", { outputFolder: "playwright-report", open: "never" }],
+  ],
   globalSetup: "./e2e/global-setup.ts",
   globalTeardown: "./e2e/global-teardown.ts",
   use: {
