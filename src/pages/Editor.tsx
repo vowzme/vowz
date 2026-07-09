@@ -27,6 +27,7 @@ import { DEFAULT_STORY, STORY_TEMPLATES } from "@/lib/default-story";
 import MediaManagerPanel from "@/components/MediaManagerPanel";
 import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS } from "@/lib/video-embed";
 import { MUSIC_CATEGORIES } from "@/lib/music-library";
+import { useR2Upload } from "@/hooks/use-r2-upload";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
