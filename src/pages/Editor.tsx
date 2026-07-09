@@ -2662,6 +2662,46 @@ function EventEditor({
               className="font-body text-sm"
             />
           </div>
+          {(() => {
+            const gcal = buildGoogleCalendarUrl(event);
+            const outlook = buildOutlookCalendarUrl(event);
+            if (!gcal) {
+              return (
+                <p className="font-body text-[11px] text-muted-foreground">
+                  Add a parseable date (e.g. <span className="font-mono">2026-03-25</span>) to generate calendar invites.
+                </p>
+              );
+            }
+            return (
+              <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border/30">
+                <a
+                  href={gcal}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-body px-2 py-1 rounded-full border border-border/50 text-foreground hover:bg-muted transition-colors"
+                >
+                  <CalendarPlus className="w-3 h-3" /> Google
+                </a>
+                {outlook && (
+                  <a
+                    href={outlook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-body px-2 py-1 rounded-full border border-border/50 text-foreground hover:bg-muted transition-colors"
+                  >
+                    <CalendarPlus className="w-3 h-3" /> Outlook
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => downloadIcs(event)}
+                  className="inline-flex items-center gap-1 text-[11px] font-body px-2 py-1 rounded-full border border-border/50 text-foreground hover:bg-muted transition-colors"
+                >
+                  <Download className="w-3 h-3" /> .ics
+                </button>
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
