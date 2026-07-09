@@ -114,13 +114,13 @@ export const HELP: Record<string, HelpEntry> = {
     why: "Manage Premium, download GST invoices, and renew from one place.",
     try: [
       "Download PDF invoices for your records",
-      "Upgrade to Premium for custom domain + more storage",
+      "Upgrade to Premium for more storage & advanced features",
     ],
   },
   settings: {
     title: "Settings tab",
     what: "Site-wide preferences and advanced options.",
-    why: "Change your slug, connect a domain, set a password, and manage family collaborators.",
+    why: "Change your slug, set a password, and manage family collaborators.",
     try: [
       "Set a password to keep the site private",
       "Invite family with read-only or edit access",
@@ -143,15 +143,6 @@ export const HELP: Record<string, HelpEntry> = {
     try: [
       "Compress large photos before uploading",
       "Delete unused uploads from Media Manager",
-    ],
-  },
-  domain: {
-    title: "Custom domain",
-    what: "Use your own domain like rahulandsona.com (Premium).",
-    why: "A personal domain looks polished on printed invites and never expires with the platform.",
-    try: [
-      "Buy a domain from any registrar",
-      "Follow the DNS wizard — we verify automatically",
     ],
   },
 };
@@ -245,7 +236,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     selector: '[data-tour="tab-settings"]',
     title: "Settings",
-    html: popoverHtml("Slug, domain, password, family access.", HELP.settings),
+    html: popoverHtml("Slug, password, family access.", HELP.settings),
   },
   {
     selector: '[data-tour="tour-trigger"]',

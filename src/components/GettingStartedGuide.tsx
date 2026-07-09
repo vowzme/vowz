@@ -4,7 +4,6 @@ import {
   Sparkles,
   Edit3,
   Share2,
-  Globe,
   Users,
   Camera,
   CheckCircle2,
@@ -69,17 +68,7 @@ const steps: GuideStep[] = [
       "Generate QR codes for physical invites",
       "Your site works beautifully on every device",
     ],
-  },
-  {
-    icon: Globe,
-    title: "6. Connect Custom Domain (Premium)",
-    description: "Make it truly yours with a custom domain like arjunandmeera.com.",
-    tips: [
-      "Search and check domain availability from the dashboard",
-      "Follow the DNS setup guide — we handle SSL automatically",
-      "Both yourname.com and www.yourname.com will work",
-    ],
-  },
+  }
 ];
 
 const GettingStartedGuide = () => {

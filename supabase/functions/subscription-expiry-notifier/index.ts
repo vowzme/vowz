@@ -55,7 +55,7 @@ function renderEmail(name: string, daysLeft: number, expiresAt: string): { html:
   const ctaLabel = isExpired ? 'Reactivate Premium' : 'Renew Now'
   const muted = isExpired
     ? 'Your wedding site has been paused but is fully preserved. Reactivate to make it live again — all your photos, RSVPs, and guest blessings remain safe.'
-    : 'Renewing keeps your custom domain, all premium features, and uninterrupted access for your guests.'
+    : 'Renewing keeps all premium features and uninterrupted access for your guests.'
 
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"/><title>${escape(subject)}</title></head>

@@ -9,7 +9,7 @@ import {
 const faqs = [
   {
     q: "Is Vowz really free?",
-    a: "Yes! Start with a 7-day free trial that includes every feature — all templates, RSVP, gallery, budget tracker, AI assistant, custom domain, and more. No credit card required. After 7 days, upgrade to Premium (6-month subscription, ₹1,499 / $19) to keep your site live. Renew every 6 months to keep it live.",
+    a: "Yes! Start with a 7-day free trial that includes every feature — all templates, RSVP, gallery, budget tracker, AI assistant, and more. No credit card required. After 7 days, upgrade to Premium (6-month subscription, ₹1,499 / $19) to keep your site live. Renew every 6 months to keep it live.",
   },
   {
     q: "How does the Wedding Wizard work?",
@@ -18,10 +18,6 @@ const faqs = [
   {
     q: "What AI features does Vowz offer?",
     a: "Premium users get an AI assistant built into the editor. It can suggest color palettes and themes based on your culture and venue, rewrite your love story or tagline, generate event descriptions, and offer wedding planning advice — all with one click to apply changes.",
-  },
-  {
-    q: "Can I use my own domain like ournames.com?",
-    a: "Yes! Premium users can connect a custom domain through our guided 4-step wizard. Search for available domains, purchase from popular registrars (GoDaddy, BigRock, Hostinger, Namecheap), follow our DNS setup guide, and verify — we handle SSL automatically.",
   },
   {
     q: "What types of weddings does Vowz support?",

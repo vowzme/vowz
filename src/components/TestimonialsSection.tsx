@@ -23,7 +23,7 @@ const testimonials = [
   {
     name: "Aisha & Omar",
     location: "Dubai, UAE",
-    text: "Custom domain, password protection, and beautiful templates — everything we needed for our intimate wedding. Worth every penny!",
+    text: "Password protection, multilingual support, and beautiful templates — everything we needed for our intimate wedding. Worth every penny!",
     rating: 5,
   },
 ];

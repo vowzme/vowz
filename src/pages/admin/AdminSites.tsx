@@ -18,7 +18,6 @@ interface Site {
   slug: string | null;
   theme: string;
   is_published: boolean;
-  custom_domain: string | null;
   created_at: string;
   status?: string;
   user_id: string;
@@ -39,7 +38,7 @@ export default function AdminSites() {
   const fetchSites = async () => {
     const { data } = await supabase
       .from("wedding_sites")
-      .select("id, partner1, partner2, slug, theme, is_published, custom_domain, created_at, status, user_id")
+      .select("id, partner1, partner2, slug, theme, is_published, created_at, status, user_id")
       .order("created_at", { ascending: false });
     setSites((data as any) ?? []);
     setLoading(false);
@@ -297,7 +296,6 @@ export default function AdminSites() {
               <div className="flex justify-between"><span className="text-muted-foreground">Slug</span><span className="font-mono">{detailSite.slug || "—"}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Theme</span><Badge variant="secondary" className="capitalize">{detailSite.theme}</Badge></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Status</span>{getStatusBadge(detailSite)}</div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Domain</span><span>{detailSite.custom_domain || "—"}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Created</span><span>{format(new Date(detailSite.created_at), "MMM dd, yyyy")}</span></div>
               <div className="flex gap-2 pt-3">
                 <Button variant="outline" size="sm" onClick={() => { setDetailSite(null); handleEditOpen(detailSite); }}>
