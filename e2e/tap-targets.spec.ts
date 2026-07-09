@@ -1,28 +1,29 @@
 import { test, expect } from "@playwright/test";
+import { configFor, envFloor, EXEMPT_ROLES } from "./tap-target-config";
 
 /**
- * Regression guard for WCAG 2.5.5 (Target Size) on the customer dashboard.
- * Measures every visible <button> and <a> at the Pixel 7 viewport and
- * fails if any drops below the 44 x 44 px minimum after a UI change.
- *
- * Runs only under the `mobile` Playwright project. Skips cleanly when
- * the E2E account isn't provisioned.
+ * Regression guard for WCAG 2.5.5 (Target Size). Thresholds are configured
+ * per Playwright project and per control type in ./tap-target-config.ts —
+ * edit that file (not this test) to tune sizes.
  */
-
-const MIN = 44;
-
-// Roles that are intentionally small by design (inline toggles, checkbox
-// dots, etc.) and are documented exemptions from the 44px rule because
-// their surrounding label provides a larger effective target.
-const EXEMPT_ROLES = new Set(["switch", "checkbox", "radio", "separator"]);
-
-// Runs on every viewport project (desktop chromium, tablet, mobile) so a
-// shrunken control fails CI no matter which breakpoint it regresses at.
 test.describe("dashboard tap targets", () => {
   test("all dashboard buttons & links meet 44x44 minimum", async ({ page }, testInfo) => {
     const email = process.env.E2E_USER_EMAIL;
     const password = process.env.E2E_USER_PASSWORD;
     test.skip(!email || !password, "E2E account not provisioned");
+
+    const cfg = configFor(testInfo.project.name);
+    const floor = envFloor();
+    // Serializable payload for page.evaluate.
+    const payload = {
+      rules: cfg.rules.map((r) => ({
+        selector: r.selector,
+        minWidth: floor ? Math.max(r.minWidth, floor) : r.minWidth,
+        minHeight: floor ? Math.max(r.minHeight, floor) : r.minHeight,
+      })),
+      ignore: cfg.ignore,
+      exemptRoles: EXEMPT_ROLES,
+    };
 
     await page.goto("/auth");
     await page.getByRole("button", { name: /log in/i }).click();
@@ -43,6 +44,8 @@ test.describe("dashboard tap targets", () => {
       name: string;
       width: number;
       height: number;
+      minWidth: number;
+      minHeight: number;
       selector: string;
     }> = [];
 
@@ -52,30 +55,39 @@ test.describe("dashboard tap targets", () => {
       await tab.click();
       await page.waitForTimeout(200); // let content mount
 
-      const offenders = await page.evaluate((min) => {
+      const offenders = await page.evaluate((cfg) => {
         const results: Array<{
           tag: string;
           role: string | null;
           name: string;
           width: number;
           height: number;
+          minWidth: number;
+          minHeight: number;
           selector: string;
         }> = [];
         const nodes = document.querySelectorAll<HTMLElement>(
           'button, a[href], [role="button"], [role="link"], [role="menuitem"], [role="tab"]',
         );
+        const matches = (el: Element, sel: string) => {
+          if (sel === "*") return true;
+          try { return el.matches(sel); } catch { return false; }
+        };
         for (const el of Array.from(nodes)) {
           const rect = el.getBoundingClientRect();
           if (rect.width === 0 || rect.height === 0) continue; // hidden
           const style = getComputedStyle(el);
           if (style.visibility === "hidden" || style.display === "none") continue;
           const role = el.getAttribute("role");
-          if (role && ["switch", "checkbox", "radio", "separator"].includes(role))
-            continue;
+          if (role && cfg.exemptRoles.includes(role)) continue;
+          if (cfg.ignore.some((s) => matches(el, s))) continue;
           // Inline text links inside paragraphs are exempt — WCAG 2.5.5 excludes
           // inline text targets.
           if (el.tagName === "A" && el.closest("p, li, span")) continue;
-          if (rect.width < min || rect.height < min) {
+          // Find the first matching rule (specificity via ordering).
+          const rule = cfg.rules.find((r) => matches(el, r.selector));
+          if (!rule) continue;
+          if (rect.width < rule.minWidth || rect.height < rule.minHeight) {
             const name =
               (el.getAttribute("aria-label") ||
                 el.textContent?.trim().slice(0, 60) ||
@@ -91,12 +103,14 @@ test.describe("dashboard tap targets", () => {
               name,
               width: Math.round(rect.width),
               height: Math.round(rect.height),
+              minWidth: rule.minWidth,
+              minHeight: rule.minHeight,
               selector: `${el.tagName.toLowerCase()}${idPart}${cls}`,
             });
           }
         }
         return results;
-      }, MIN);
+      }, payload);
 
       for (const o of offenders) failures.push({ tab: tabName, ...o });
     }
@@ -104,13 +118,13 @@ test.describe("dashboard tap targets", () => {
     const report = failures
       .map(
         (f) =>
-          `  [${f.tab}] ${f.selector} (${f.role ?? f.tag}) "${f.name}" — ${f.width}x${f.height}px`,
+          `  [${f.tab}] ${f.selector} (${f.role ?? f.tag}) "${f.name}" — ${f.width}x${f.height}px (min ${f.minWidth}x${f.minHeight})`,
       )
       .join("\n");
 
     expect(
       failures,
-      `Tap targets below ${MIN}px on ${testInfo.project.name} dashboard:\n${report}`,
+      `Tap targets below configured minimum on ${testInfo.project.name} dashboard:\n${report}`,
     ).toEqual([]);
   });
 });
