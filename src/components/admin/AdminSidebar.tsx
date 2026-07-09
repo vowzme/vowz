@@ -11,6 +11,7 @@ import {
   BarChart3,
   Network,
   Mail,
+  HardDrive,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -38,6 +39,7 @@ const items = [
   { title: "Card Templates", url: "/admin/card-templates", icon: Mail },
   { title: "Card Analytics", url: "/admin/card-analytics", icon: BarChart3 },
   { title: "Blog", url: "/admin/blog", icon: FileText },
+  { title: "Storage Cleanup", url: "/admin/storage-cleanup", icon: HardDrive },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 

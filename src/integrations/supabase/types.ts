@@ -845,6 +845,45 @@ export type Database = {
         }
         Relationships: []
       }
+      r2_cleanup_runs: {
+        Row: {
+          created_at: string
+          dry_run: boolean
+          error: string | null
+          finished_at: string | null
+          id: string
+          per_user: Json
+          started_at: string
+          total_deleted: number
+          total_freed_bytes: number
+          users_scanned: number
+        }
+        Insert: {
+          created_at?: string
+          dry_run?: boolean
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          per_user?: Json
+          started_at?: string
+          total_deleted?: number
+          total_freed_bytes?: number
+          users_scanned?: number
+        }
+        Update: {
+          created_at?: string
+          dry_run?: boolean
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          per_user?: Json
+          started_at?: string
+          total_deleted?: number
+          total_freed_bytes?: number
+          users_scanned?: number
+        }
+        Relationships: []
+      }
       r2_files: {
         Row: {
           content_type: string | null
