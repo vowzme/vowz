@@ -2408,7 +2408,7 @@ function BlessingModerationCard({
   };
 
   return (
-    <article aria-label={`Blessing from ${blessing.guest_name}, status ${blessing.status}`} className="border border-border/50 rounded-xl p-4 bg-background">
+    <article role="listitem" aria-label={`Blessing from ${blessing.guest_name}, status ${blessing.status}`} className="border border-border/50 rounded-xl p-4 bg-background">
       <div className="flex items-start gap-3">
         {blessing.photo_url && (
           <img
