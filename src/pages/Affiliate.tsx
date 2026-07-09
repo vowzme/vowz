@@ -784,6 +784,7 @@ const Affiliate = () => {
                     onChange={(e) => setPayoutUpi(e.target.value)}
                     placeholder="yourname@upi or 9876543210"
                     className="h-10 text-sm"
+                    aria-label="UPI ID or Google Pay number for payouts"
                   />
                 </div>
                 <div>
@@ -794,6 +795,7 @@ const Affiliate = () => {
                     onChange={(e) => setPayoutPaypal(e.target.value)}
                     placeholder="you@paypal.com"
                     className="h-10 text-sm"
+                    aria-label="PayPal email for payouts"
                   />
                 </div>
               </div>

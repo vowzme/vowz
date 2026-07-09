@@ -102,28 +102,31 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                 className="h-8 text-sm font-body"
                 autoFocus
                 onKeyDown={e => e.key === "Enter" && handleSetBudget()}
+                aria-label="Total wedding budget"
               />
-              <Button size="sm" variant="ghost" onClick={handleSetBudget} className="h-8 w-8 p-0">
+              <Button size="sm" variant="ghost" onClick={handleSetBudget} className="h-8 w-8 p-0" aria-label="Save budget">
                 <Check className="w-4 h-4 text-green-500" />
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => setEditingBudget(false)} className="h-8 w-8 p-0">
+              <Button size="sm" variant="ghost" onClick={() => setEditingBudget(false)} className="h-8 w-8 p-0" aria-label="Cancel budget edit">
                 <X className="w-4 h-4" />
               </Button>
             </div>
           ) : (
-            <div
-              className="font-display text-xl sm:text-2xl font-bold text-foreground cursor-pointer hover:text-gold transition-colors"
+            <button
+              type="button"
+              className="font-display text-xl sm:text-2xl font-bold text-foreground cursor-pointer hover:text-gold transition-colors text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               onClick={() => {
                 setBudgetInput(String(budget?.total_budget || ""));
                 setEditingBudget(true);
               }}
+              aria-label={budget ? `Edit total budget, currently ${formatCurrency(budget.total_budget)}` : "Set total budget"}
             >
               {budget ? formatCurrency(budget.total_budget) : (
-                <button onClick={() => setEditingBudget(true)} className="text-sm text-gold font-body font-normal">
+                <span className="text-sm text-gold font-body font-normal">
                   + Set Budget
-                </button>
+                </span>
               )}
-            </div>
+            </button>
           )}
         </motion.div>
 
@@ -209,8 +212,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
             <div className="bg-card border border-border/50 rounded-xl p-4 sm:p-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Expense Title *</label>
+                  <label htmlFor="bt-expense-title" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Expense Title *</label>
                   <Input
+                    id="bt-expense-title"
                     placeholder="e.g. Venue booking advance"
                     value={newExpense.title}
                     onChange={e => setNewExpense(p => ({ ...p, title: e.target.value }))}
@@ -218,8 +222,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                   />
                 </div>
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Amount (₹) *</label>
+                  <label htmlFor="bt-expense-amount" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Amount (₹) *</label>
                   <Input
+                    id="bt-expense-amount"
                     type="number"
                     placeholder="e.g. 50000"
                     value={newExpense.amount}
@@ -230,8 +235,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Category</label>
+                  <label htmlFor="bt-expense-category" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Category</label>
                   <select
+                    id="bt-expense-category"
                     value={newExpense.category}
                     onChange={e => setNewExpense(p => ({ ...p, category: e.target.value }))}
                     className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm font-body"
@@ -242,8 +248,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                   </select>
                 </div>
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Vendor</label>
+                  <label htmlFor="bt-expense-vendor" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Vendor</label>
                   <Input
+                    id="bt-expense-vendor"
                     placeholder="e.g. Taj Palace"
                     value={newExpense.vendor_name}
                     onChange={e => setNewExpense(p => ({ ...p, vendor_name: e.target.value }))}
@@ -251,8 +258,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                   />
                 </div>
                 <div>
-                  <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Due Date</label>
+                  <label htmlFor="bt-expense-due" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Due Date</label>
                   <Input
+                    id="bt-expense-due"
                     type="date"
                     value={newExpense.due_date}
                     onChange={e => setNewExpense(p => ({ ...p, due_date: e.target.value }))}
@@ -261,8 +269,9 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                 </div>
               </div>
               <div>
-                <label className="font-body text-xs font-medium text-muted-foreground mb-1 block">Notes</label>
+                <label htmlFor="bt-expense-notes" className="font-body text-xs font-medium text-muted-foreground mb-1 block">Notes</label>
                 <Textarea
+                  id="bt-expense-notes"
                   placeholder="Any additional details..."
                   value={newExpense.notes}
                   onChange={e => setNewExpense(p => ({ ...p, notes: e.target.value }))}
@@ -348,6 +357,8 @@ function ExpenseRow({ expense, formatCurrency, onTogglePaid, onDelete }: {
         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
           expense.paid ? "bg-green-500 border-green-500 text-white" : "border-border hover:border-gold"
         }`}
+        aria-label={expense.paid ? `Mark ${expense.title} as unpaid` : `Mark ${expense.title} as paid`}
+        aria-pressed={expense.paid}
       >
         {expense.paid && <Check className="w-3.5 h-3.5" />}
       </button>
@@ -372,6 +383,7 @@ function ExpenseRow({ expense, formatCurrency, onTogglePaid, onDelete }: {
       <button
         onClick={onDelete}
         className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all p-1"
+        aria-label={`Delete expense ${expense.title}`}
       >
         <Trash2 className="w-3.5 h-3.5" />
       </button>
