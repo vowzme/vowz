@@ -34,6 +34,9 @@ import StorageBreakdownCard from "@/components/StorageBreakdownCard";
 import StorageQuotaBanner from "@/components/StorageQuotaBanner";
 import FeatureSuggestionDialog from "@/components/FeatureSuggestionDialog";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
+import DashboardTour from "@/components/DashboardTour";
+import DashboardMusicCard from "@/components/DashboardMusicCard";
+import HelpTip from "@/components/HelpTip";
 import {
   Tabs,
   TabsContent,
@@ -398,6 +401,7 @@ const Dashboard = () => {
             <VowzLogo iconSize="h-6" textSize="text-lg" />
           </Link>
           <div className="flex-1" />
+          <DashboardTour />
           <FeatureSuggestionDialog />
           <Button variant="outline" size="sm" onClick={handleSignOut}>
             <LogOut className="w-4 h-4 mr-1" /> Sign Out
@@ -415,7 +419,7 @@ const Dashboard = () => {
         )}
 
         {/* Welcome */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-6 sm:mb-8" data-tour="welcome">
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
             Welcome{profileData?.full_name ? `, ${profileData.full_name}` : ""}! 💍
           </h1>
@@ -514,7 +518,7 @@ const Dashboard = () => {
             )}
           <Tabs defaultValue="overview" className="space-y-6">
             {/* Mobile: 2-row grid tabs */}
-            <TabsList className="bg-card border border-border/50 w-full h-auto flex-wrap gap-1 p-1.5 sm:p-1 sm:flex-nowrap sm:gap-0 sm:h-10 justify-center">
+            <TabsList data-tour="tabs" className="bg-card border border-border/50 w-full h-auto flex-wrap gap-1 p-1.5 sm:p-1 sm:flex-nowrap sm:gap-0 sm:h-10 justify-center">
               <TabsTrigger value="overview" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Overview</TabsTrigger>
               <TabsTrigger value="guide" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Guide <BookOpen className="w-3 h-3 ml-0.5 hidden sm:inline" />
@@ -528,7 +532,7 @@ const Dashboard = () => {
               <TabsTrigger value="analytics" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Analytics <BarChart3 className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
-              <TabsTrigger value="rsvps" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+              <TabsTrigger value="rsvps" data-tour="rsvps-tab" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Guest List {rsvps.length > 0 && <span className="ml-0.5 sm:ml-1.5 bg-gold/20 text-gold text-[9px] sm:text-xs px-1 py-0.5 rounded-full">{rsvps.length}</span>}
               </TabsTrigger>
               <TabsTrigger value="blessings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
@@ -544,7 +548,7 @@ const Dashboard = () => {
             <TabsContent value="overview">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Site card */}
-                <div className="lg:col-span-2 bg-card border border-border/50 rounded-2xl overflow-hidden">
+                <div data-tour="site-card" className="lg:col-span-2 bg-card border border-border/50 rounded-2xl overflow-hidden">
                   {/* Mini hero preview */}
                   <div
                     className="relative py-12 px-6 text-center"
@@ -572,6 +576,7 @@ const Dashboard = () => {
                       size="sm"
                       onClick={handleTogglePublish}
                       disabled={saving}
+                      data-tour="publish"
                     >
                       {site.is_published ? (
                         <><GlobeLock className="w-4 h-4 mr-1" /> Unpublish</>
@@ -871,9 +876,15 @@ const Dashboard = () => {
             {/* ─── Settings Tab ─── */}
             <TabsContent value="settings">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                {/* Background Music quick controls */}
+                <div className="lg:col-span-2">
+                  <DashboardMusicCard site={site} onUpdate={(next) => setSite(next)} />
+                </div>
                 {/* Profile settings */}
                 <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
-                  <h2 className="font-display text-xl font-bold text-foreground mb-4">Profile</h2>
+                  <h2 className="font-display text-xl font-bold text-foreground mb-4 flex items-center gap-1.5">
+                    Profile
+                  </h2>
                   <div className="space-y-4">
                     <EditableField
                       label="Full Name"

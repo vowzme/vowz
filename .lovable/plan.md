@@ -1,87 +1,53 @@
-## Goal
-Expand the invitation card system to cover the full wedding journey across religions, with at least 10 premium-quality cards per occasion, full editing, and a QR code slot (platform-generated link to the couple's wedding site OR custom upload).
+# Dashboard Guide + Music Access + Features Refresh
 
-## Scope
+## 1. Audit existing wedding sites
+Only 3 sites exist (1 published: `rahul-sona-mr9clre9`, 2 drafts). Actions:
+- Load `/site/rahul-sona-mr9clre9` via headless browser, capture screenshot, check console for errors, verify RSVP/blessings/music sections render.
+- Run automated smoke test against each site's public route (200 OK, no JS errors, all sections present).
+- Report findings; only fix if real bugs are found (no speculative rewrites).
 
-### 1. Occasion taxonomy (new dimension alongside religion)
-Add an `occasion` field to template metadata:
-- `save_the_date`
-- `betrothal` (Roka / Nichayam / Mangni)
-- `engagement` (Ring ceremony)
-- `mehendi_haldi` (Hindu/Sikh pre-wedding)
-- `sangeet` (Hindu/Sikh musical night)
-- `nikah` (Muslim wedding)
-- `wedding` (main ceremony — all religions)
-- `reception`
-- `anniversary`
+## 2. Verify background music is exposed in the customer dashboard
+Currently `BackgroundMusicPlayer` and `src/lib/music-library.ts` exist and the Editor uses them, but Dashboard has no direct music toggle.
+- Add a compact "Background Music" card in Dashboard's Site Settings tab showing: current selection, enable/disable switch, "Change music" button linking to Editor's music section (`/editor/:id#music`).
+- In the Editor, ensure the music section has `id="music"` so deep links scroll to it.
+- No new tables or backend needed — reuse existing `wedding_sites.background_music` field.
 
-Religion buckets stay as today: `hindu_sikh`, `christian_muslim`, `modern_minimal`, `royal_traditional`.
+## 3. Interactive spotlight tour + collapsible in-panel tips (hybrid)
+- Install `driver.js` (small, ~10 KB, no deps).
+- New component `src/components/DashboardTour.tsx`:
+  - Steps highlight: Welcome banner → Site card → RSVP tab → Guest Blessings → Budget → Music card → Publish toggle → QR/Share → Premium.
+  - Trigger: auto-open on first visit (stored in `localStorage.vowz_tour_seen`), plus a persistent "Take a tour" button in the header.
+- New reusable `src/components/HelpTip.tsx`: small `?` icon that expands an inline `<Collapsible>` with 2–3 sentences of contextual help.
+- Attach `<HelpTip>` next to key section headings in Dashboard (RSVPs, Blessings, Budget, Music, Publish, Custom Slug, Storage).
+- Content lives in one file `src/lib/dashboard-help.ts` so copy is easy to edit.
 
-Target: ≥10 templates per occasion (≈90 total), distributed across religion categories so each (religion, occasion) pair has at least 2–3 designs where culturally relevant.
+## 4. Refresh Features section on landing page
+Audit `src/components/FeaturesSection.tsx` against actual capabilities. Confirmed features to surface:
+- Background music library (new)
+- Custom URL slug
+- Custom domain
+- Family collaboration (view / edit access links)
+- Guest blessings wall
+- RSVP with meal preference & multi-event
+- Budget & expense tracker
+- Wedding checklist & reminders
+- Livestream embed
+- Photo/video gallery on R2
+- Multi-language + timezone + currency
+- Invitation card templates + PDF export
+- QR code, analytics
+- Blog/story sections
+Update icons/copy; keep design tokens (Deep Navy / Soft Gold / Ivory, Playfair + Inter). No layout rewrite — content refresh only.
 
-### 2. Template generation strategy
-Rather than hand-authoring 90 unique components, extend `src/lib/card-templates.tsx`:
-- Define a `OccasionPreset` (palette + decorative motif set + headline copy + ornament SVG bundle) per (occasion × style).
-- Keep a single parameterised `InvitationCardArtwork` renderer (already exists) but drive borders/medallions/copy from the preset.
-- Generate the catalog programmatically: `for each occasion × stylePreset (≥3 per occasion) × variant (3–4 color/typography combos)` → ≥10 cards per occasion. All entries get `is_premium: true` (premium-standard), with one free sampler per occasion.
+## Technical notes
+- All changes stay in frontend/presentation code.
+- No schema changes, no new edge functions.
+- `driver.js` is added via `bun add driver.js`; tour styles imported once in `main.tsx`.
+- Playwright audit script lives in `/tmp/browser/` (not committed).
 
-### 3. QR code on the card
-Add a `qrSlot` to `CardData`:
-```ts
-qr?: {
-  mode: "platform" | "custom" | "none";
-  url?: string;        // for platform mode: couple's wedding site URL
-  imageDataUrl?: string; // for custom upload
-  label?: string;      // e.g. "Scan for our website"
-  position: "bottom-right" | "bottom-left" | "bottom-center";
-  size: number;        // 60–160 px
-};
-```
-- Use `qrcode` npm package (already used in `QRCodeGenerator.tsx`) to render platform QR client-side from the site URL.
-- Custom upload: file → dataURL, validated PNG/JPG ≤ 1 MB.
-- Renders inside `InvitationCardArtwork`; included in both PNG (html2canvas) and PDF (template-pdf-export) outputs.
-
-### 4. Editor UX
-In `CardTemplatesPreview` and `InvitationCard` editor:
-- Add an **Occasion** filter row beside the existing Theme/Format chips.
-- Detail view: new "QR Code" tab — toggle mode, pick position/size, upload image, optional label, live preview.
-- All existing text fields stay editable (partners, date, venue, message).
-
-### 5. Homepage / discovery
-- Update `TemplatesSection` to expose occasion sub-tabs ("Save the Date", "Engagement", "Wedding", "Reception"…) that deep-link to `/card-templates-preview?occasion=...`.
-- Update `CardGallery` filters to include occasion.
-
-### 6. Data + admin
-- Migration: `ALTER TABLE public.card_templates ADD COLUMN occasion text NOT NULL DEFAULT 'wedding';` + index. Seed via upsert from `FALLBACK_TEMPLATES`.
-- `AdminCardTemplates` shows occasion badge + filter.
-- `invitation_card_variants.data` already JSONB — stores the new `qr` block without schema change.
-
-### 7. Analytics
-Extend `trackTemplateEvent` meta with `occasion` for open/preview/use/share so `AdminCardAnalytics` can break down by occasion.
-
-## Technical details
-
-Files to add/modify:
-- `src/lib/card-templates.tsx` — add `Occasion` type, `OCCASION_LABELS`, preset builder, expanded `FALLBACK_TEMPLATES` (≥90), QR rendering inside `InvitationCardArtwork`.
-- `src/lib/card-qr.ts` (new) — helper to generate QR dataURL via `qrcode` and validate uploads.
-- `src/pages/CardTemplatesPreview.tsx` — occasion filter chips, deep-link `?occasion=`, QR controls in detail panel, pass QR into exports.
-- `src/pages/InvitationCard.tsx` — QR tab in editor.
-- `src/components/TemplatesSection.tsx` — occasion sub-section chips.
-- `src/pages/CardGallery.tsx` — occasion filter.
-- `src/pages/admin/AdminCardTemplates.tsx` — occasion column + filter.
-- `supabase/migrations/*` — add `occasion` column, GRANTs unchanged, backfill.
-- `src/lib/template-pdf-export.ts` — ensure QR renders (it already snapshots the artwork DOM, so no change beyond confirming).
-
-No new npm deps required (`qrcode` already in use).
-
-## Out of scope (will not change)
-- Existing card slugs and saved user variants — preserved.
-- Premium gating logic (`enforce_premium_card_template` trigger) — unchanged; new cards mostly premium.
-- Pricing / subscription tiers.
-
-## Acceptance
-- `/card-templates-preview` shows Occasion filter with ≥10 cards per occasion.
-- Each card has a QR tab: platform mode (auto-fills couple's site URL), custom mode (upload), none.
-- QR appears in live preview, PNG download, and PDF export at the chosen position/size.
-- Homepage Templates section has occasion sub-tabs that deep-link correctly.
-- Admin can filter templates by occasion.
+## Order of execution
+1. Site audit (Playwright) — read-only, informs any fixes.
+2. Music card in Dashboard + Editor anchor.
+3. `HelpTip` + `DashboardTour` (hybrid guide).
+4. FeaturesSection refresh.
+5. Report back with screenshots + summary.
