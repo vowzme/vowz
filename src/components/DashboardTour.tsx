@@ -4,9 +4,49 @@ import "driver.js/dist/driver.css";
 import { Button } from "@/components/ui/button";
 import { HelpCircle, PlayCircle } from "lucide-react";
 import { TOUR_STEPS } from "@/lib/dashboard-help";
+import { supabase } from "@/integrations/supabase/client";
 
 const SEEN_KEY = "vowz_dashboard_tour_seen";
 const PROGRESS_KEY = "vowz_dashboard_tour_step";
+
+// Cache the user's primary wedding site id for the session so we don't
+// re-query on every step transition.
+let cachedSiteId: string | null | undefined;
+async function getPrimarySiteId(): Promise<string | null> {
+  if (cachedSiteId !== undefined) return cachedSiteId;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { cachedSiteId = null; return null; }
+    const { data } = await supabase
+      .from("wedding_sites")
+      .select("id")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    cachedSiteId = (data?.id as string) ?? null;
+  } catch {
+    cachedSiteId = null;
+  }
+  return cachedSiteId;
+}
+
+async function logTourEvent(
+  eventType: "tour_start" | "tour_step" | "tour_complete" | "tour_dismiss",
+  metadata: Record<string, any>,
+) {
+  try {
+    const siteId = await getPrimarySiteId();
+    if (!siteId) return;
+    await supabase.from("site_analytics" as any).insert({
+      wedding_site_id: siteId,
+      event_type: eventType,
+      metadata,
+    });
+  } catch {
+    // never break the tour on analytics failure
+  }
+}
 
 function readProgress(): number {
   try {
@@ -39,6 +79,8 @@ const DashboardTour = () => {
   const runTour = useCallback((startAt?: number) => {
     if (typeof document === "undefined") return;
     const available = TOUR_STEPS.filter((s) => document.querySelector(s.selector));
+    const totalSteps = available.length;
+    const seenSteps = new Set<number>();
     const steps = available.map((s, idx) => ({
       element: s.selector,
       popover: {
@@ -55,6 +97,15 @@ const DashboardTour = () => {
           // Persist current step so we can resume later.
           saveProgress(idx);
           setResumeStep(idx);
+          if (!seenSteps.has(idx)) {
+            seenSteps.add(idx);
+            void logTourEvent("tour_step", {
+              step_index: idx,
+              step_title: s.title,
+              step_selector: s.selector,
+              total_steps: totalSteps,
+            });
+          }
         },
       },
     }));
@@ -71,14 +122,31 @@ const DashboardTour = () => {
       steps,
       onDestroyed: () => {
         const active = d.getActiveIndex?.();
+        const completed =
+          typeof active !== "number" || active >= steps.length - 1;
         // Finished the last step (or driver.js reports no active step after Finish)
-        if (typeof active !== "number" || active >= steps.length - 1) {
+        if (completed) {
           markDone();
           setResumeStep(0);
+          void logTourEvent("tour_complete", {
+            total_steps: totalSteps,
+            steps_viewed: seenSteps.size,
+          });
+        } else {
+          void logTourEvent("tour_dismiss", {
+            last_step_index: typeof active === "number" ? active : null,
+            total_steps: totalSteps,
+            steps_viewed: seenSteps.size,
+          });
         }
       },
     });
     const clamped = Math.min(Math.max(startAt ?? 0, 0), steps.length - 1);
+    void logTourEvent("tour_start", {
+      start_index: clamped,
+      total_steps: totalSteps,
+      resumed: (startAt ?? 0) > 0,
+    });
     d.drive(clamped);
   }, []);
 
