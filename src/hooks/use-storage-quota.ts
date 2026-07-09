@@ -62,8 +62,9 @@ export function useStorageQuota() {
   // Real-time updates: refresh quota whenever this user's usage row changes.
   useEffect(() => {
     if (!user) return;
+    const channelId = `r2-usage-${user.id}-${Math.random().toString(36).slice(2, 10)}`;
     const channel = supabase
-      .channel(`r2-usage-${user.id}`)
+      .channel(channelId)
       .on(
         "postgres_changes",
         {
