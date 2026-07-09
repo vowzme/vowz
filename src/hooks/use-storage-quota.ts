@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { subscribeWithLogging } from "@/lib/realtime-logger";
 
 export interface StorageQuota {
   used_bytes: number;
@@ -66,32 +67,38 @@ export function useStorageQuota() {
     // Use one channel per table. Chaining multiple `postgres_changes` bindings
     // on the same channel triggers "cannot add postgres_changes callbacks"
     // once the channel has joined.
-    const usageChannel = supabase
-      .channel(`r2-usage-${user.id}-${suffix}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "r2_storage_usage",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => refresh(),
-      )
-      .subscribe();
-    const filesChannel = supabase
-      .channel(`r2-files-${user.id}-${suffix}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "r2_files",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => refresh(),
-      )
-      .subscribe();
+    const usageName = `r2-usage-${user.id}-${suffix}`;
+    const usageChannel = subscribeWithLogging(
+      supabase
+        .channel(usageName)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "r2_storage_usage",
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => refresh(),
+        ),
+      { channel: usageName, callback: "r2_storage_usage:*", userId: user.id },
+    );
+    const filesName = `r2-files-${user.id}-${suffix}`;
+    const filesChannel = subscribeWithLogging(
+      supabase
+        .channel(filesName)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "r2_files",
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => refresh(),
+        ),
+      { channel: filesName, callback: "r2_files:*", userId: user.id },
+    );
     return () => {
       supabase.removeChannel(usageChannel);
       supabase.removeChannel(filesChannel);
