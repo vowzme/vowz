@@ -869,7 +869,7 @@ const Dashboard = () => {
                     <p className="font-body text-xs text-muted-foreground mt-1">Add a "Blessings Wall" section in the editor to start receiving messages.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div role="list" aria-label={`${blessings.length} guest blessing${blessings.length === 1 ? "" : "s"}`} className="space-y-3">
                     {blessings.map((blessing) => (
                       <BlessingModerationCard
                         key={blessing.id}
