@@ -38,8 +38,17 @@ Deno.serve(async (req) => {
     )
   }
 
-  // Auth: verify_jwt = true in config.toml — Supabase gateway validates the
-  // service role JWT from the pg_cron Authorization header before this runs.
+  // Auth: require the service-role key (invoked only from pg_cron or admin).
+  // The default `verify_jwt = true` still accepts the public anon JWT, so we
+  // must explicitly check for the service role here.
+  const authHeader = req.headers.get('Authorization') || ''
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim()
+  if (!token || token !== supabaseServiceKey) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
