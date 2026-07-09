@@ -58,7 +58,7 @@ const OnboardingWizard = () => {
         if (!user) { if (!cancelled) setResumeLoading(false); return; }
         const { data: site } = await supabase
           .from("wedding_sites")
-          .select("id, partner1, partner2, tagline, how_we_met, functions, theme, suggested_colors, cultural_background, welcome_message")
+          .select("id, partner1, partner2, tagline, how_we_met, theme, suggested_colors, cultural_background, sections")
           .eq("user_id", user.id)
           .order("created_at", { ascending: true })
           .limit(1)
@@ -70,13 +70,19 @@ const OnboardingWizard = () => {
           updateField("partner2", (site as any).partner2 || "");
           updateField("tagline", (site as any).tagline || "");
           updateField("howWeMet", (site as any).how_we_met || "");
-          const fns = (site as any).functions;
-          if (Array.isArray(fns)) updateField("functions", fns as string[]);
+          // Derive selected events from the sections jsonb (events section) if present.
+          const sections = Array.isArray((site as any).sections) ? (site as any).sections : [];
+          const eventsSection = sections.find((s: any) => s?.type === "events" || s?.id === "events");
+          const evts = Array.isArray(eventsSection?.items)
+            ? eventsSection.items.map((i: any) => i?.name).filter(Boolean)
+            : Array.isArray(eventsSection?.events)
+              ? eventsSection.events.map((i: any) => (typeof i === "string" ? i : i?.name)).filter(Boolean)
+              : [];
+          if (evts.length) updateField("functions", evts as string[]);
           if ((site as any).theme) updateField("theme", (site as any).theme);
           const cols = (site as any).suggested_colors;
           if (Array.isArray(cols) && cols.length >= 3) updateField("suggestedColors", cols as string[]);
           if ((site as any).cultural_background) updateField("culturalBackground", (site as any).cultural_background);
-          if ((site as any).welcome_message) updateField("welcomeMessage", (site as any).welcome_message);
           setShowResumeSummary(true);
         }
       } catch {
