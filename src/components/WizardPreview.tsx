@@ -51,9 +51,9 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
           heading: "Wedding Events",
           events: data.functions.map((f) => ({
             name: f,
-            date: "",
-            time: "",
-            venue: "",
+            date: data.eventDates?.[f]?.date || "",
+            time: data.eventDates?.[f]?.time || "",
+            venue: data.eventDates?.[f]?.venue || "",
             location: "",
           })),
         },
