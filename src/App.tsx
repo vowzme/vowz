@@ -18,7 +18,6 @@ import Editor from "./pages/Editor";
 import PublicSite from "./pages/PublicSite";
 import Templates from "./pages/Templates";
 import NotFound from "./pages/NotFound";
-import DomainWizardDemo from "./pages/DomainWizardDemo";
 import Pricing from "./pages/Pricing";
 import Affiliate from "./pages/Affiliate";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -86,7 +85,6 @@ const AppRoutes = () => (
     <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<CardTemplatesPreview />} />
-    <Route path="/domain-demo" element={<Layout><DomainWizardDemo /></Layout>} />
     <Route path="/affiliate" element={<Layout><Affiliate /></Layout>} />
     <Route path="/franchise" element={<Layout><FranchiseLanding /></Layout>} />
     <Route path="/franchise/dashboard" element={<FranchiseDashboard />} />
