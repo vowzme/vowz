@@ -102,28 +102,31 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
                 className="h-8 text-sm font-body"
                 autoFocus
                 onKeyDown={e => e.key === "Enter" && handleSetBudget()}
+                aria-label="Total wedding budget"
               />
-              <Button size="sm" variant="ghost" onClick={handleSetBudget} className="h-8 w-8 p-0">
+              <Button size="sm" variant="ghost" onClick={handleSetBudget} className="h-8 w-8 p-0" aria-label="Save budget">
                 <Check className="w-4 h-4 text-green-500" />
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => setEditingBudget(false)} className="h-8 w-8 p-0">
+              <Button size="sm" variant="ghost" onClick={() => setEditingBudget(false)} className="h-8 w-8 p-0" aria-label="Cancel budget edit">
                 <X className="w-4 h-4" />
               </Button>
             </div>
           ) : (
-            <div
-              className="font-display text-xl sm:text-2xl font-bold text-foreground cursor-pointer hover:text-gold transition-colors"
+            <button
+              type="button"
+              className="font-display text-xl sm:text-2xl font-bold text-foreground cursor-pointer hover:text-gold transition-colors text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               onClick={() => {
                 setBudgetInput(String(budget?.total_budget || ""));
                 setEditingBudget(true);
               }}
+              aria-label={budget ? `Edit total budget, currently ${formatCurrency(budget.total_budget)}` : "Set total budget"}
             >
               {budget ? formatCurrency(budget.total_budget) : (
-                <button onClick={() => setEditingBudget(true)} className="text-sm text-gold font-body font-normal">
+                <span className="text-sm text-gold font-body font-normal">
                   + Set Budget
-                </button>
+                </span>
               )}
-            </div>
+            </button>
           )}
         </motion.div>
 
@@ -348,6 +351,8 @@ function ExpenseRow({ expense, formatCurrency, onTogglePaid, onDelete }: {
         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
           expense.paid ? "bg-green-500 border-green-500 text-white" : "border-border hover:border-gold"
         }`}
+        aria-label={expense.paid ? `Mark ${expense.title} as unpaid` : `Mark ${expense.title} as paid`}
+        aria-pressed={expense.paid}
       >
         {expense.paid && <Check className="w-3.5 h-3.5" />}
       </button>
@@ -372,6 +377,7 @@ function ExpenseRow({ expense, formatCurrency, onTogglePaid, onDelete }: {
       <button
         onClick={onDelete}
         className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all p-1"
+        aria-label={`Delete expense ${expense.title}`}
       >
         <Trash2 className="w-3.5 h-3.5" />
       </button>
