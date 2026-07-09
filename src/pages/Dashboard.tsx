@@ -392,19 +392,20 @@ const Dashboard = () => {
   const totalGuests = rsvps.filter((r) => r.attending).reduce((sum, r) => sum + r.guest_count, 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <SEOHead title="Dashboard – Vowz" description="Manage your wedding website, RSVPs, and settings." robots="noindex, nofollow" />
       {/* Header */}
       <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link to="/" className="flex items-center">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center gap-2 sm:gap-3">
+          <Link to="/" className="flex items-center shrink-0" aria-label="Vowz home">
             <VowzLogo iconSize="h-6" textSize="text-lg" />
           </Link>
           <div className="flex-1" />
           <DashboardTour />
           <FeatureSuggestionDialog />
-          <Button variant="outline" size="sm" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4 mr-1" /> Sign Out
+          <Button variant="outline" size="sm" onClick={handleSignOut} aria-label="Sign out">
+            <LogOut className="w-4 h-4 sm:mr-1" />
+            <span className="hidden sm:inline">Sign Out</span>
           </Button>
         </div>
       </header>
