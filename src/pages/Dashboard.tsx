@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -1112,6 +1112,7 @@ function GuestListPanel({ rsvps, rsvpLoading, onDelete, site, copyLink }: {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name or email..."
+                aria-label="Search RSVPs by guest name or email"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 h-9 font-body text-sm"
@@ -1247,6 +1248,8 @@ function EditableField({
   onSave: (value: string) => void;
   icon: any;
 }) {
+  const reactId = useId();
+  const inputId = `editable-${reactId}`;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
 
@@ -1257,12 +1260,14 @@ function EditableField({
 
   return (
     <div>
-      <label className="font-body text-sm text-muted-foreground flex items-center gap-1.5 mb-1">
+      <label htmlFor={inputId} className="font-body text-sm text-muted-foreground flex items-center gap-1.5 mb-1">
         <Icon className="w-3.5 h-3.5" /> {label}
       </label>
       {editing ? (
         <div className="flex gap-2">
           <Input
+            id={inputId}
+            aria-label={label}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             className="font-body text-sm h-8"
@@ -1389,6 +1394,7 @@ function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input
               placeholder="Task name..."
+              aria-label="New task title"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               className="font-body text-sm"
@@ -1398,6 +1404,7 @@ function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) 
             <select
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
+              aria-label="Task category"
               className="h-9 rounded-md border border-input bg-background px-3 text-sm font-body"
             >
               {CATEGORY_OPTIONS.map((c) => (
@@ -1406,6 +1413,7 @@ function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) 
             </select>
             <Input
               type="date"
+              aria-label="Task due date"
               value={newDueDate}
               onChange={(e) => setNewDueDate(e.target.value)}
               className="font-body text-sm"
@@ -1510,6 +1518,7 @@ function ChecklistRow({
         <div className="flex-1 space-y-2">
           <Input
             value={editTitle}
+            aria-label="Edit task title"
             onChange={(e) => setEditTitle(e.target.value)}
             className="font-body text-sm h-8"
             autoFocus
@@ -1517,6 +1526,7 @@ function ChecklistRow({
           />
           <Input
             type="date"
+            aria-label="Edit task due date"
             value={editDate}
             onChange={(e) => setEditDate(e.target.value)}
             className="font-body text-sm h-8 w-40"
@@ -2011,7 +2021,7 @@ function CustomDomainPanel({ siteId, siteSlug, siteName, savedDomain, savedStatu
               <div className="flex gap-2 max-w-md">
                 <div className="relative flex-1">
                   <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="e.g. arjunandmeera.com" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} className="pl-10 font-body font-mono text-sm" />
+                  <Input placeholder="e.g. arjunandmeera.com" aria-label="Custom domain" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} className="pl-10 font-body font-mono text-sm" />
                   {checkingCustom && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs animate-spin">⏳</span>}
                 </div>
                 <Button variant="gold" size="sm" className="font-body shrink-0" onClick={() => { setSelectedDomain(customDomain); setWizardStep(3); }} disabled={!customDomain.includes(".") || customDomain.length < 4}>
@@ -2429,6 +2439,7 @@ function BlessingModerationCard({
         <div className="mt-3 flex gap-2">
           <Input
             placeholder="Write a reply to this blessing..."
+            aria-label={`Reply to blessing from ${blessing.guest_name}`}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             className="font-body text-sm h-8 flex-1"
