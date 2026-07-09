@@ -385,7 +385,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-dvh bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -947,7 +947,11 @@ const Dashboard = () => {
                           <code className="font-body text-xs text-foreground bg-muted px-2 py-1 rounded">
                             /site/{site.slug}
                           </code>
-                          <button onClick={copyLink} className="text-muted-foreground hover:text-foreground">
+                          <button
+                            onClick={copyLink}
+                            aria-label="Copy site link"
+                            className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1"
+                          >
                             <Copy className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -1260,10 +1264,10 @@ function EditableField({
             autoFocus
             onKeyDown={(e) => e.key === "Enter" && handleSave()}
           />
-          <Button variant="gold" size="sm" className="h-8 px-2" onClick={handleSave}>
+          <Button variant="gold" size="sm" className="h-8 px-2" onClick={handleSave} aria-label="Save">
             <Check className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => { setDraft(value); setEditing(false); }}>
+          <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => { setDraft(value); setEditing(false); }} aria-label="Cancel">
             <X className="w-3.5 h-3.5" />
           </Button>
         </div>
@@ -1272,7 +1276,8 @@ function EditableField({
           <p className="font-body text-sm text-foreground">{value || <span className="text-muted-foreground italic">Not set</span>}</p>
           <button
             onClick={() => { setDraft(value); setEditing(true); }}
-            className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Edit"
+            className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
@@ -1485,12 +1490,15 @@ function ChecklistRow({
     <div className="px-4 py-3 flex items-start gap-3 group">
       <button
         onClick={onToggle}
+        role="checkbox"
+        aria-checked={item.is_completed}
+        aria-label={item.is_completed ? `Mark "${item.title}" as incomplete` : `Mark "${item.title}" as complete`}
         className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
           item.is_completed ? "border-transparent" : "border-border hover:border-foreground/50"
-        }`}
+        } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
         style={item.is_completed ? { backgroundColor: accent } : undefined}
       >
-        {item.is_completed && <Check className="w-3 h-3 text-white" />}
+        {item.is_completed && <Check className="w-3 h-3 text-primary-foreground" />}
       </button>
 
       {editing ? (
@@ -1532,11 +1540,16 @@ function ChecklistRow({
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
           <button
             onClick={() => { setEditTitle(item.title); setEditDate(item.due_date || ""); setEditing(true); }}
-            className="text-muted-foreground hover:text-foreground p-1"
+            aria-label={`Edit "${item.title}"`}
+            className="text-muted-foreground hover:text-foreground p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
-          <button onClick={onDelete} className="text-muted-foreground hover:text-destructive p-1">
+          <button
+            onClick={onDelete}
+            aria-label={`Delete "${item.title}"`}
+            className="text-muted-foreground hover:text-destructive p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+          >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -2347,16 +2360,20 @@ function BlessingModerationCard({
   const [showReply, setShowReply] = useState(false);
 
   const statusColors: Record<string, string> = {
-    pending: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30",
-    approved: "bg-green-500/10 text-green-600 border-green-500/30",
-    rejected: "bg-red-500/10 text-red-600 border-red-500/30",
+    pending: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30",
+    approved: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+    rejected: "bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/30",
   };
 
   return (
     <div className="border border-border/50 rounded-xl p-4 bg-background">
       <div className="flex items-start gap-3">
         {blessing.photo_url && (
-          <img src={blessing.photo_url} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+          <img
+            src={blessing.photo_url}
+            alt={`Photo from ${blessing.guest_name}`}
+            className="w-12 h-12 rounded-lg object-cover shrink-0"
+          />
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -2392,7 +2409,13 @@ function BlessingModerationCard({
         <Button variant="ghost" size="sm" className="font-body text-xs h-7" onClick={() => setShowReply(!showReply)}>
           <MessageSquare className="w-3 h-3 mr-1" /> {showReply ? "Cancel" : "Reply"}
         </Button>
-        <Button variant="ghost" size="sm" className="font-body text-xs h-7 text-destructive hover:text-destructive ml-auto" onClick={onDelete}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="font-body text-xs h-7 text-destructive hover:text-destructive ml-auto"
+          onClick={onDelete}
+          aria-label={`Delete blessing from ${blessing.guest_name}`}
+        >
           <Trash2 className="w-3 h-3" />
         </Button>
       </div>
