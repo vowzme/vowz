@@ -2463,6 +2463,43 @@ function SectionEditor({
             </p>
           </div>
 
+          <div className="rounded-lg border border-dashed border-border/60 p-3 space-y-2">
+            <label className="font-body text-sm font-medium text-foreground block">Upload your own track</label>
+            <input
+              ref={musicFileRef}
+              type="file"
+              accept="audio/mpeg,audio/mp4,audio/ogg,audio/wav,.mp3,.m4a,.ogg,.wav"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleMusicUpload(f);
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={musicUploading}
+              onClick={() => musicFileRef.current?.click()}
+              className="w-full"
+            >
+              {musicUploading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading…</>
+              ) : (
+                <><Upload className="w-4 h-4 mr-2" /> Upload audio (MP3, M4A, OGG, WAV)</>
+              )}
+            </Button>
+            <p className="text-[10px] text-muted-foreground font-body">Up to 15 MB. Stored securely in your gallery storage.</p>
+          </div>
+
+          {data.trackUrl && (
+            <div className="rounded-lg border border-gold/40 bg-gold/5 p-3">
+              <p className="font-body text-xs text-muted-foreground mb-1">Now playing on your site</p>
+              <p className="font-body text-sm font-medium text-foreground truncate mb-2">🎵 {data.trackName || "Untitled track"}</p>
+              <audio src={data.trackUrl} controls preload="none" className="w-full h-8" />
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center justify-between rounded-lg border border-border/50 p-2">
               <span className="font-body text-xs text-foreground">Autoplay</span>
