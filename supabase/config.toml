@@ -5,3 +5,5 @@ project_id = "qkjuywqrncsbxjzwtlzm"
     verify_jwt = false
   [functions.e2e-reset]
     verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
