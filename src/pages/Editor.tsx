@@ -10,6 +10,7 @@ import {
   MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail, Download, CalendarPlus
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { buildGoogleCalendarUrl, buildOutlookCalendarUrl, downloadIcs, downloadAllEventsIcs, parseEventStart } from "@/lib/calendar-invite";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
