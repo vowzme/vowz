@@ -323,8 +323,9 @@ const OnboardingWizard = () => {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-body font-medium text-foreground mb-1 block">Partner 1</label>
+                      <label htmlFor="wiz-partner1" className="text-sm font-body font-medium text-foreground mb-1 block">Partner 1</label>
                       <Input
+                        id="wiz-partner1"
                         placeholder="e.g. Priya"
                         value={wizardData.partner1}
                         onChange={(e) => updateField("partner1", e.target.value)}
@@ -332,8 +333,9 @@ const OnboardingWizard = () => {
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-body font-medium text-foreground mb-1 block">Partner 2</label>
+                      <label htmlFor="wiz-partner2" className="text-sm font-body font-medium text-foreground mb-1 block">Partner 2</label>
                       <Input
+                        id="wiz-partner2"
                         placeholder="e.g. Rahul"
                         value={wizardData.partner2}
                         onChange={(e) => updateField("partner2", e.target.value)}
@@ -377,8 +379,9 @@ const OnboardingWizard = () => {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="text-xs font-body font-medium text-muted-foreground mb-1 block">Where did you meet?</label>
+                        <label htmlFor="wiz-where" className="text-xs font-body font-medium text-muted-foreground mb-1 block">Where did you meet?</label>
                         <Input
+                          id="wiz-where"
                           placeholder="e.g. at a café in Mumbai"
                           value={storyPrompts.where}
                           onChange={(e) => setStoryPrompts({ ...storyPrompts, where: e.target.value })}
@@ -386,8 +389,9 @@ const OnboardingWizard = () => {
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-body font-medium text-muted-foreground mb-1 block">When was it?</label>
+                        <label htmlFor="wiz-when" className="text-xs font-body font-medium text-muted-foreground mb-1 block">When was it?</label>
                         <Input
+                          id="wiz-when"
                           placeholder="e.g. college days, 2019"
                           value={storyPrompts.when}
                           onChange={(e) => setStoryPrompts({ ...storyPrompts, when: e.target.value })}
@@ -395,8 +399,9 @@ const OnboardingWizard = () => {
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-body font-medium text-muted-foreground mb-1 block">First impression?</label>
+                        <label htmlFor="wiz-first" className="text-xs font-body font-medium text-muted-foreground mb-1 block">First impression?</label>
                         <Input
+                          id="wiz-first"
                           placeholder="e.g. love at first sight"
                           value={storyPrompts.firstImpression}
                           onChange={(e) => setStoryPrompts({ ...storyPrompts, firstImpression: e.target.value })}
@@ -441,6 +446,7 @@ const OnboardingWizard = () => {
                   </div>
 
                   <Textarea
+                    aria-label="Your love story"
                     placeholder="We met at a coffee shop in Mumbai when we accidentally grabbed each other's orders. One wrong cup led to a thousand right moments together..."
                     value={wizardData.howWeMet}
                     onChange={(e) => updateField("howWeMet", e.target.value)}
@@ -448,7 +454,7 @@ const OnboardingWizard = () => {
                   />
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="text-sm font-body font-medium text-foreground">Custom Tagline (optional)</label>
+                      <label htmlFor="wiz-tagline" className="text-sm font-body font-medium text-foreground">Custom Tagline (optional)</label>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -476,6 +482,7 @@ const OnboardingWizard = () => {
                       </Button>
                     </div>
                     <Input
+                      id="wiz-tagline"
                       placeholder="e.g. Two hearts, one beautiful journey"
                       value={wizardData.tagline}
                       onChange={(e) => updateField("tagline", e.target.value)}
@@ -602,9 +609,10 @@ const OnboardingWizard = () => {
 
                   {/* Custom event input */}
                   <div>
-                    <label className="text-sm font-body font-medium text-foreground mb-1 block">Add a custom event</label>
+                    <label htmlFor="wiz-custom-event" className="text-sm font-body font-medium text-foreground mb-1 block">Add a custom event</label>
                     <div className="flex gap-2">
                       <Input
+                        id="wiz-custom-event"
                         placeholder="e.g. Cocktail Night"
                         className="h-10 font-body"
                         value={customEvent}
