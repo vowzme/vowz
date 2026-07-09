@@ -947,7 +947,11 @@ const Dashboard = () => {
                           <code className="font-body text-xs text-foreground bg-muted px-2 py-1 rounded">
                             /site/{site.slug}
                           </code>
-                          <button onClick={copyLink} className="text-muted-foreground hover:text-foreground">
+                          <button
+                            onClick={copyLink}
+                            aria-label="Copy site link"
+                            className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1"
+                          >
                             <Copy className="w-3.5 h-3.5" />
                           </button>
                         </div>
