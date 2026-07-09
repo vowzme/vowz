@@ -1170,21 +1170,30 @@ function GuestListPanel({ rsvps, rsvpLoading, onDelete, site, copyLink }: {
 
 function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
+  const detailsId = useId();
+  const statusText = rsvp.attending ? "Attending" : "Declined";
+  const guestSuffix = rsvp.attending
+    ? `, ${rsvp.guest_count} guest${rsvp.guest_count > 1 ? "s" : ""}`
+    : "";
 
   return (
-    <div className="px-4 sm:px-6 py-4">
+    <li role="listitem" aria-label={`${rsvp.guest_name}, ${statusText}${guestSuffix}`} className="px-4 sm:px-6 py-4 list-none">
       <div className="flex items-start sm:items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
+        <div
+          role="img"
+          aria-label={statusText}
+          className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
           rsvp.attending ? "bg-emerald/10" : "bg-destructive/10"
         }`}>
           {rsvp.attending ? (
-            <Check className="w-4 h-4 text-emerald" />
+            <Check className="w-4 h-4 text-emerald" aria-hidden="true" />
           ) : (
-            <X className="w-4 h-4 text-destructive" />
+            <X className="w-4 h-4 text-destructive" aria-hidden="true" />
           )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-body text-sm font-medium text-foreground truncate">{rsvp.guest_name}</p>
+          <span className="sr-only">Status: {statusText}.</span>
           <p className="font-body text-xs text-muted-foreground truncate">{rsvp.guest_email}</p>
           <div className="flex items-center gap-2 mt-1 sm:hidden">
             {rsvp.attending && (
@@ -1193,6 +1202,7 @@ function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => 
               </span>
             )}
             <span className="font-body text-xs text-muted-foreground">
+              <span className="sr-only">Responded on </span>
               {new Date(rsvp.created_at).toLocaleDateString()}
             </span>
           </div>
@@ -1204,35 +1214,46 @@ function RsvpRow({ rsvp, onDelete }: { rsvp: RsvpRow; onDelete: (id: string) => 
             </span>
           )}
           <span className="font-body text-xs text-muted-foreground hidden sm:inline">
+            <span className="sr-only">Responded on </span>
             {new Date(rsvp.created_at).toLocaleDateString()}
           </span>
-          <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground p-1">
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <button
+            onClick={() => setExpanded(!expanded)}
+            aria-expanded={expanded}
+            aria-controls={detailsId}
+            aria-label={expanded ? `Hide details for ${rsvp.guest_name}` : `Show details for ${rsvp.guest_name}`}
+            className="text-muted-foreground hover:text-foreground p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+          >
+            {expanded ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
           </button>
-          <button onClick={() => onDelete(rsvp.id)} className="text-muted-foreground hover:text-destructive p-1">
-            <Trash2 className="w-3.5 h-3.5" />
+          <button
+            onClick={() => onDelete(rsvp.id)}
+            aria-label={`Delete RSVP from ${rsvp.guest_name}`}
+            className="text-muted-foreground hover:text-destructive p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+          >
+            <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {expanded && (
-        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-3 ml-11 space-y-1.5">
+        <motion.div id={detailsId} initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-3 ml-11 space-y-1.5">
           {rsvp.meal_preference && (
             <p className="font-body text-xs text-muted-foreground flex items-center gap-1.5">
-              <Utensils className="w-3 h-3" /> Meal: <span className="capitalize">{rsvp.meal_preference}</span>
+              <Utensils className="w-3 h-3" aria-hidden="true" /> Meal: <span className="capitalize">{rsvp.meal_preference}</span>
             </p>
           )}
           {rsvp.selected_events && (rsvp.selected_events as any).length > 0 && (
             <p className="font-body text-xs text-muted-foreground flex items-center gap-1.5">
-              <PartyPopper className="w-3 h-3" /> Events: {(rsvp.selected_events as any).join(", ")}
+              <PartyPopper className="w-3 h-3" aria-hidden="true" /> Events: {(rsvp.selected_events as any).join(", ")}
             </p>
           )}
           {rsvp.message && (
-            <p className="font-body text-xs text-muted-foreground italic">"{rsvp.message}"</p>
+            <p className="font-body text-xs text-muted-foreground italic"><span className="sr-only">Message from guest: </span>"{rsvp.message}"</p>
           )}
         </motion.div>
       )}
-    </div>
+    </li>
   );
 }
 
