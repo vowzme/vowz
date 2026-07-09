@@ -110,7 +110,7 @@ test.describe("dashboard tap targets", () => {
 
     expect(
       failures,
-      `Tap targets below ${MIN}px on mobile dashboard:\n${report}`,
+      `Tap targets below ${MIN}px on ${testInfo.project.name} dashboard:\n${report}`,
     ).toEqual([]);
   });
 });
