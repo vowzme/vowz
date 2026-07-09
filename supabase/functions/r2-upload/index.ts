@@ -113,6 +113,15 @@ Deno.serve(async (req) => {
       } catch { /* empty body ok */ }
       const dryRun = dryRunQ || dryRunB;
 
+      const startedAt = new Date().toISOString();
+      const { data: runRow } = await admin
+        .from("r2_cleanup_runs")
+        .insert({ started_at: startedAt, dry_run: dryRun })
+        .select("id")
+        .single();
+      const runId = runRow?.id;
+
+      try {
       const since = new Date(Date.now() - 30 * 86400_000).toISOString();
       const { data: activeUsers, error: uErr } = await admin
         .from("wedding_sites")
@@ -184,14 +193,34 @@ Deno.serve(async (req) => {
         totalFreed += freed;
       }
 
+      if (runId) {
+        await admin.from("r2_cleanup_runs").update({
+          finished_at: new Date().toISOString(),
+          users_scanned: userIds.length,
+          total_deleted: totalDeleted,
+          total_freed_bytes: totalFreed,
+          per_user: perUser,
+        }).eq("id", runId);
+      }
+
       return json({
         success: true,
+        run_id: runId,
         dry_run: dryRun,
         users_scanned: userIds.length,
         [dryRun ? "would_delete" : "deleted"]: totalDeleted,
         [dryRun ? "would_free_bytes" : "freed_bytes"]: totalFreed,
         per_user: perUser,
       });
+      } catch (err) {
+        if (runId) {
+          await admin.from("r2_cleanup_runs").update({
+            finished_at: new Date().toISOString(),
+            error: (err as Error).message,
+          }).eq("id", runId);
+        }
+        throw err;
+      }
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
