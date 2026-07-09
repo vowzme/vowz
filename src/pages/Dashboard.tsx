@@ -1264,10 +1264,10 @@ function EditableField({
             autoFocus
             onKeyDown={(e) => e.key === "Enter" && handleSave()}
           />
-          <Button variant="gold" size="sm" className="h-8 px-2" onClick={handleSave}>
+          <Button variant="gold" size="sm" className="h-8 px-2" onClick={handleSave} aria-label="Save">
             <Check className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => { setDraft(value); setEditing(false); }}>
+          <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => { setDraft(value); setEditing(false); }} aria-label="Cancel">
             <X className="w-3.5 h-3.5" />
           </Button>
         </div>
@@ -1276,7 +1276,8 @@ function EditableField({
           <p className="font-body text-sm text-foreground">{value || <span className="text-muted-foreground italic">Not set</span>}</p>
           <button
             onClick={() => { setDraft(value); setEditing(true); }}
-            className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Edit"
+            className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
