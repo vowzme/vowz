@@ -1611,6 +1611,32 @@ function SectionEditor({
 }) {
   const { type, data } = section;
   const { generate, loading: aiLoading } = useAIContentGen();
+  const { uploadToR2 } = useR2Upload();
+  const [musicUploading, setMusicUploading] = useState(false);
+  const musicFileRef = useRef<HTMLInputElement | null>(null);
+
+  const handleMusicUpload = async (file: File) => {
+    if (!file) return;
+    // 15 MB soft cap for background tracks
+    if (file.size > 15 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an audio file under 15 MB.", variant: "destructive" as any });
+      return;
+    }
+    setMusicUploading(true);
+    try {
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-");
+      const result = await uploadToR2(file, `music/${Date.now()}-${safe}`);
+      if (!result?.url) throw new Error("Upload failed");
+      const cleanName = file.name.replace(/\.[^.]+$/, "");
+      onUpdateData({ trackUrl: result.url, trackName: cleanName || "My Track", category: "custom" });
+      toast({ title: "Track uploaded 🎵", description: cleanName });
+    } catch (err: any) {
+      toast({ title: "Couldn't upload track", description: err?.message || "Please try again.", variant: "destructive" as any });
+    } finally {
+      setMusicUploading(false);
+      if (musicFileRef.current) musicFileRef.current.value = "";
+    }
+  };
 
   const aiContext = {
     partner1: siteData.partner1,
