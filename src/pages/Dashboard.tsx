@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -9,8 +9,9 @@ import {
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
   IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon,
-  Pause, Play
+  Pause, Play, QrCode
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
 import { Button } from "@/components/ui/button";
@@ -208,6 +209,30 @@ const Dashboard = () => {
   const [site, setSite] = useState<any>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
+  const headerQrRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadHeaderQR = () => {
+    const svg = headerQrRef.current?.querySelector("svg");
+    if (!svg) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, 1024, 1024);
+    const data = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, 1024, 1024);
+      const a = document.createElement("a");
+      a.download = `${(site?.slug || "wedding")}-qr.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+      toast({ title: "QR downloaded 📥" });
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data)));
+  };
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
@@ -492,6 +517,23 @@ const Dashboard = () => {
                   <ExternalLink className="w-4 h-4 mr-1" /> Preview Site
                 </a>
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadHeaderQR}
+                aria-label="Download QR code as PNG"
+              >
+                <QrCode className="w-4 h-4 mr-1" /> Download QR
+              </Button>
+              <div ref={headerQrRef} className="hidden" aria-hidden="true">
+                <QRCodeSVG
+                  value={`${window.location.origin}/site/${site.slug}`}
+                  size={512}
+                  level="H"
+                  bgColor="#FFFFFF"
+                  fgColor="#001F3F"
+                />
+              </div>
             </div>
           )}
         </div>
