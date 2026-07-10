@@ -1820,6 +1820,7 @@ function AnalyticsPanel({ siteId, accent }: { siteId: string; accent: string }) 
         </div>
       )}
 
+      <SharePlatformsPanel siteId={siteId} accent={accent} />
       <ShareAttributionPanel siteId={siteId} accent={accent} />
     </div>
   );
