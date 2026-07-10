@@ -367,6 +367,9 @@ const Dashboard = () => {
           ? "Your wedding site is now live!"
           : "Your site is no longer publicly accessible.",
       });
+      if (newStatus && site.slug) {
+        window.open(`/site/${site.slug}`, "_blank", "noopener,noreferrer");
+      }
     }
   };
 
