@@ -49,6 +49,7 @@ import FranchiseLanding from "./pages/FranchiseLanding";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Showcase from "./pages/Showcase";
+import SharePreview from "./pages/SharePreview";
 import IconsDebug from "./pages/IconsDebug";
 import Unsubscribe from "./pages/Unsubscribe";
 import { useAdmin } from "@/hooks/use-admin";
@@ -85,6 +86,7 @@ const AppRoutes = () => (
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
     <Route path="/showcase" element={<Showcase />} />
+    <Route path="/share-preview" element={<Layout><SharePreview /></Layout>} />
     <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<CardTemplatesPreview />} />
