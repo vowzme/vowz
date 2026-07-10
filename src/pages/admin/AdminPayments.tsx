@@ -10,8 +10,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, IndianRupee, Wallet, Receipt, TrendingUp, Users, Search, Webhook, CheckCircle2, XCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { CreditCard, IndianRupee, Wallet, Receipt, TrendingUp, Users, Search, Webhook, CheckCircle2, XCircle, AlertTriangle, RefreshCw, Undo2 } from "lucide-react";
 import { format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface PaymentProvider {
   id: string;
@@ -49,6 +58,23 @@ interface WebhookEvent {
   status_code: number;
   error: string | null;
   payload: any;
+}
+
+interface RefundRecord {
+  id: string;
+  created_at: string;
+  razorpay_refund_id: string | null;
+  razorpay_payment_id: string;
+  razorpay_order_id: string | null;
+  amount: number;
+  currency: string;
+  status: string;
+  speed: string | null;
+  reason: string | null;
+  error_code: string | null;
+  error_description: string | null;
+  processed_at: string | null;
+  user_id: string | null;
 }
 
 const providerMeta: Record<string, { label: string; icon: React.ElementType; fields: { key: string; label: string; type?: string }[] }> = {
@@ -106,6 +132,92 @@ export default function AdminPayments() {
   const [webhookEvents, setWebhookEvents] = useState<WebhookEvent[]>([]);
   const [webhookLoading, setWebhookLoading] = useState(true);
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
+
+  // Refunds state
+  const [refunds, setRefunds] = useState<RefundRecord[]>([]);
+  const [refundsLoading, setRefundsLoading] = useState(true);
+  const [refundTarget, setRefundTarget] = useState<PaymentRecord | null>(null);
+  const [refundAmount, setRefundAmount] = useState<string>("");
+  const [refundReason, setRefundReason] = useState<string>("");
+  const [refundSpeed, setRefundSpeed] = useState<string>("normal");
+  const [refundSubmitting, setRefundSubmitting] = useState(false);
+
+  const fetchRefunds = async () => {
+    setRefundsLoading(true);
+    const { data } = await supabase
+      .from("razorpay_refunds" as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    setRefunds((data as any) ?? []);
+    setRefundsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchRefunds();
+  }, []);
+
+  const refundsByPayment = useMemo(() => {
+    const m = new Map<string, RefundRecord[]>();
+    for (const r of refunds) {
+      const arr = m.get(r.razorpay_payment_id) || [];
+      arr.push(r);
+      m.set(r.razorpay_payment_id, arr);
+    }
+    return m;
+  }, [refunds]);
+
+  const openRefundDialog = (p: PaymentRecord) => {
+    setRefundTarget(p);
+    setRefundAmount(String(p.amount_paid || ""));
+    setRefundReason("");
+    setRefundSpeed("normal");
+  };
+
+  const submitRefund = async () => {
+    if (!refundTarget?.payment_id) return;
+    const amt = Number(refundAmount);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      toast({ title: "Invalid amount", description: "Enter a positive amount.", variant: "destructive" });
+      return;
+    }
+    if (amt > Number(refundTarget.amount_paid)) {
+      toast({ title: "Amount too high", description: "Refund cannot exceed the paid amount.", variant: "destructive" });
+      return;
+    }
+    setRefundSubmitting(true);
+    const { data, error } = await supabase.functions.invoke("razorpay-refund", {
+      body: {
+        payment_id: refundTarget.payment_id,
+        amount: amt,
+        speed: refundSpeed,
+        reason: refundReason,
+      },
+    });
+    setRefundSubmitting(false);
+    if (error || (data as any)?.error) {
+      toast({
+        title: "Refund failed",
+        description: (data as any)?.error || error?.message || "Unable to create refund",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({ title: "Refund initiated", description: `Status: ${(data as any)?.refund?.status || "pending"}` });
+    setRefundTarget(null);
+    await Promise.all([fetchRefunds()]);
+  };
+
+  const refundStats = useMemo(() => {
+    const total = refunds.length;
+    const processed = refunds.filter((r) => r.status === "processed").length;
+    const pending = refunds.filter((r) => r.status === "pending").length;
+    const failed = refunds.filter((r) => r.status === "failed").length;
+    const totalRefunded = refunds
+      .filter((r) => r.status === "processed")
+      .reduce((s, r) => s + Number(r.amount || 0), 0);
+    return { total, processed, pending, failed, totalRefunded };
+  }, [refunds]);
 
   const fetchWebhookEvents = async () => {
     setWebhookLoading(true);
