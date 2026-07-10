@@ -1820,6 +1820,7 @@ function AnalyticsPanel({ siteId, accent }: { siteId: string; accent: string }) 
         </div>
       )}
 
+      <SharePlatformsPanel siteId={siteId} accent={accent} />
       <ShareAttributionPanel siteId={siteId} accent={accent} />
     </div>
   );
@@ -2065,6 +2066,156 @@ function BlessingModerationCard({
 }
 
 export default Dashboard;
+
+// ─── Shares By Platform Panel ─────────────────────────────────────────
+// Complete per-platform breakdown of share activity: raw click count,
+// unique visitors it drove to the site, and RSVP/guestbook sign-ups
+// attributed by matching visitor_id back to the earliest UTM page view.
+const PLATFORM_META: Record<string, { label: string; color: string }> = {
+  whatsapp:  { label: "WhatsApp",  color: "#25D366" },
+  instagram: { label: "Instagram", color: "#DD2A7B" },
+  facebook:  { label: "Facebook",  color: "#1877F2" },
+  twitter:   { label: "X",         color: "#000000" },
+  telegram:  { label: "Telegram",  color: "#26A5E4" },
+  linkedin:  { label: "LinkedIn",  color: "#0A66C2" },
+  email:     { label: "Email",     color: "#6B7280" },
+  copy_url:  { label: "Copy URL",  color: "#D4AF37" },
+  native:    { label: "Native",    color: "#6B7280" },
+};
+
+function SharePlatformsPanel({ siteId, accent }: { siteId: string; accent: string }) {
+  const [platforms, setPlatforms] = useState<
+    Array<{ key: string; clicks: number; visitors: number; signups: number }>
+  >([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!siteId) return;
+      setLoading(true);
+      const { data } = await supabase
+        .from("site_analytics" as any)
+        .select("event_type, metadata, visitor_id, created_at")
+        .eq("wedding_site_id", siteId)
+        .order("created_at", { ascending: true })
+        .limit(5000);
+      if (cancelled) return;
+
+      const rows = (data as any[]) || [];
+      const clicks: Record<string, number> = {};
+      const visitorSource = new Map<string, string>(); // earliest utm_source per visitor
+      const visitorsByKey: Record<string, Set<string>> = {};
+      const signups: Record<string, number> = {};
+
+      const readSource = (meta: any): string | undefined => {
+        try {
+          if (meta?.url) {
+            const u = new URL(meta.url);
+            const s = u.searchParams.get("utm_source");
+            if (s) return s;
+          }
+        } catch { /* ignore */ }
+        return meta?.utm_source || meta?.channel || meta?.platform;
+      };
+
+      for (const ev of rows) {
+        if (ev.event_type === "share_click") {
+          const key = ev.metadata?.channel || ev.metadata?.platform || "other";
+          clicks[key] = (clicks[key] || 0) + 1;
+        } else if (ev.event_type === "page_view" && ev.visitor_id) {
+          if (visitorSource.has(ev.visitor_id)) continue;
+          const src = readSource(ev.metadata);
+          if (!src) continue;
+          visitorSource.set(ev.visitor_id, src);
+          (visitorsByKey[src] ||= new Set()).add(ev.visitor_id);
+        }
+      }
+      for (const ev of rows) {
+        if (ev.event_type !== "rsvp_submit" && ev.event_type !== "guestbook_post") continue;
+        const src = visitorSource.get(ev.visitor_id);
+        if (!src) continue;
+        signups[src] = (signups[src] || 0) + 1;
+      }
+
+      const keys = new Set<string>([
+        ...Object.keys(clicks),
+        ...Object.keys(signups),
+        ...Object.keys(visitorsByKey),
+      ]);
+      const list = Array.from(keys)
+        .map((key) => ({
+          key,
+          clicks: clicks[key] || 0,
+          visitors: visitorsByKey[key]?.size || 0,
+          signups: signups[key] || 0,
+        }))
+        .sort((a, b) => (b.clicks + b.signups * 5) - (a.clicks + a.signups * 5));
+      setPlatforms(list);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [siteId]);
+
+  const totalClicks = platforms.reduce((a, b) => a + b.clicks, 0);
+
+  return (
+    <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-border/30 flex items-end justify-between gap-2">
+        <div>
+          <h3 className="font-display text-lg font-semibold text-foreground">Shares by platform</h3>
+          <p className="font-body text-xs text-muted-foreground">
+            Complete breakdown of clicks, visitors and sign-ups driven by each social platform.
+          </p>
+        </div>
+        <span className="text-xs font-body text-muted-foreground">
+          Total clicks: <span className="font-mono text-foreground">{totalClicks}</span>
+        </span>
+      </div>
+      {loading ? (
+        <div className="p-8 text-center">
+          <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
+        </div>
+      ) : platforms.length === 0 ? (
+        <div className="p-8 text-center text-xs text-muted-foreground font-body">
+          No shares recorded yet. Use the Share buttons to start tracking activity.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 p-4 sm:p-6">
+          {platforms.map((p) => {
+            const meta = PLATFORM_META[p.key] || { label: p.key, color: accent };
+            const conv = p.visitors > 0 ? ((p.signups / p.visitors) * 100).toFixed(0) + "%" : "—";
+            return (
+              <div key={p.key} className="rounded-xl border border-border/40 bg-background/50 p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: meta.color }} />
+                  <span className="font-body text-sm text-foreground">{meta.label}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1 text-center">
+                  <Stat n={p.clicks} label="Clicks" />
+                  <Stat n={p.visitors} label="Visitors" />
+                  <Stat n={p.signups} label="Sign-ups" />
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground font-body text-center">
+                  Conv. <span className="font-mono text-foreground">{conv}</span>
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Stat({ n, label }: { n: number; label: string }) {
+  return (
+    <div>
+      <p className="font-display text-base font-bold text-foreground leading-none">{n}</p>
+      <p className="text-[10px] text-muted-foreground font-body">{label}</p>
+    </div>
+  );
+}
 
 // ─── Share Attribution Panel ──────────────────────────────────────────
 // Summarizes share clicks by utm_source / utm_campaign and correlates
