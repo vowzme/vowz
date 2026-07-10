@@ -48,6 +48,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Showcase from "./pages/Showcase";
 import IconsDebug from "./pages/IconsDebug";
+import Unsubscribe from "./pages/Unsubscribe";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
