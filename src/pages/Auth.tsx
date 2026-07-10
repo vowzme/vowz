@@ -140,6 +140,50 @@ const Auth = () => {
             </div>
 
             <motion.div key={isLogin ? "login" : "signup"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+              {pendingVerificationEmail ? (
+                <div className="space-y-6">
+                  <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-accent" />
+                  </div>
+                  <div>
+                    <h1 className="font-display text-3xl font-bold text-foreground mb-2">
+                      Verify your email
+                    </h1>
+                    <p className="text-muted-foreground font-body">
+                      We sent a verification link to{" "}
+                      <span className="font-medium text-foreground">
+                        {pendingVerificationEmail}
+                      </span>
+                      . Click it to activate your VowZ account and sign in.
+                    </p>
+                  </div>
+                  <div className="text-sm text-muted-foreground font-body space-y-2">
+                    <p>Didn't get it? Check your spam folder, or resend below.</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={resendVerification}
+                      disabled={resending}
+                      className="font-body"
+                    >
+                      {resending ? "Resending…" : "Resend verification email"}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPendingVerificationEmail(null);
+                        setIsLogin(true);
+                      }}
+                      className="text-sm text-accent font-medium hover:underline font-body mt-2"
+                    >
+                      Back to sign in
+                    </button>
+                  </div>
+                </div>
+              ) : (
+              <>
               <h1 className="font-display text-3xl font-bold text-foreground mb-1">
                 {isLogin ? "Welcome back" : "Create your account"}
               </h1>
@@ -225,6 +269,8 @@ const Auth = () => {
                   {isLogin ? "Sign up" : "Log in"}
                 </button>
               </p>
+              </>
+              )}
             </motion.div>
           </div>
         </div>
