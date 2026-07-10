@@ -500,10 +500,12 @@ function ShareRow({
   url,
   slug,
   trackEvent,
+  caption,
 }: {
   url: string;
   slug: string;
   trackEvent: (event: string, metadata?: Record<string, any>) => void;
+  caption?: string;
 }) {
   const handleShare = async (c: ShareChannel) => {
     const u = new URL(url);
@@ -519,11 +521,12 @@ function ShareRow({
       return;
     }
     // Instagram / no-endpoint fallback
-    try { await navigator.clipboard.writeText(trackedUrl); } catch {}
+    const shareText = caption ? `${caption}\n${trackedUrl}` : trackedUrl;
+    try { await navigator.clipboard.writeText(shareText); } catch {}
     if (navigator.share) {
-      try { await navigator.share({ title: "Our wedding site", url: trackedUrl }); return; } catch {}
+      try { await navigator.share({ title: "Our wedding site", text: caption, url: trackedUrl }); return; } catch {}
     }
-    toast({ title: "Link copied 📋", description: `Paste it into ${c.label}.` });
+    toast({ title: c.key === "instagram" ? "Caption + link copied 📋" : "Link copied 📋", description: `Paste it into ${c.label}.` });
     if (c.key === "instagram") window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
   };
 
