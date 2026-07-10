@@ -425,13 +425,37 @@ const Dashboard = () => {
         )}
 
         {/* Welcome */}
-        <div className="mb-6 sm:mb-8" data-tour="welcome">
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
-            Welcome{profileData?.full_name ? `, ${profileData.full_name}` : ""}! 💍
-          </h1>
-          <p className="text-muted-foreground font-body mt-1 text-sm sm:text-base">
-            Manage your wedding site, view RSVPs, and customize settings.
-          </p>
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" data-tour="welcome">
+          <div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
+              Welcome{profileData?.full_name ? `, ${profileData.full_name}` : ""}! 💍
+            </h1>
+            <p className="text-muted-foreground font-body mt-1 text-sm sm:text-base">
+              Manage your wedding site, view RSVPs, and customize settings.
+            </p>
+          </div>
+          {site && site.slug && (
+            <div className="flex flex-wrap gap-2 shrink-0">
+              <Button
+                variant={site.is_published ? "outline" : "gold"}
+                size="sm"
+                onClick={handleTogglePublish}
+                disabled={saving}
+                aria-label={site.is_published ? "Unpublish site" : "Publish site"}
+              >
+                {site.is_published ? (
+                  <><GlobeLock className="w-4 h-4 mr-1" /> Unpublish</>
+                ) : (
+                  <><Globe className="w-4 h-4 mr-1" /> Publish</>
+                )}
+              </Button>
+              <Button variant="outline" size="sm" asChild aria-label="Preview site in a new tab">
+                <a href={`/site/${site.slug}`} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="w-4 h-4 mr-1" /> Preview Site
+                </a>
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Pending invitation-card template chosen from the public gallery */}
