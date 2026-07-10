@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
+import QRCodeGenerator from "@/components/QRCodeGenerator";
 
 interface CustomSlugEditorProps {
   siteId: string;
@@ -162,6 +163,33 @@ export default function CustomSlugEditor({
   const hasChanged = slug !== currentSlug;
   const canSave = hasChanged && availability === "available" && !validationError;
 
+  // Live preview URL: use the in-progress slug if it passes basic validation,
+  // otherwise fall back to the saved slug so the preview is always visible.
+  const previewSlug =
+    slug && !validateSlug(slug) ? slug : currentSlug;
+  const previewUrl = `${baseUrl}${previewSlug}`;
+  const coupleNames = `${partner1}-${partner2}`;
+
+  const LivePreview = (
+    <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-medium text-foreground font-body">Live preview</p>
+        {hasChanged && previewSlug === slug && (
+          <Badge variant="outline" className="text-[10px] h-5">Unsaved</Badge>
+        )}
+      </div>
+      <a
+        href={previewUrl}
+        target="_blank"
+        rel="noopener"
+        className="block text-sm font-mono text-[hsl(var(--gold))] break-all hover:underline"
+      >
+        {previewUrl}
+      </a>
+      <QRCodeGenerator url={previewUrl} coupleNames={coupleNames} isPremium={isPremium} />
+    </div>
+  );
+
   // Disabled state for free users
   if (!isPremium) {
     return (
@@ -180,6 +208,8 @@ export default function CustomSlugEditor({
             </Button>
           </div>
         </div>
+
+        {LivePreview}
 
         <div className="bg-muted/30 border border-border/50 rounded-xl p-4 text-center space-y-3 opacity-80">
           <Crown className="w-8 h-8 text-[hsl(var(--gold))] mx-auto" />
@@ -284,6 +314,8 @@ export default function CustomSlugEditor({
           {slug.length}/{MAX_LEN} characters · lowercase letters, numbers, and hyphens only
         </p>
       </div>
+
+      {LivePreview}
     </div>
   );
 }
