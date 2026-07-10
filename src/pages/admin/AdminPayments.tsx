@@ -745,6 +745,13 @@ export default function AdminPayments() {
 
         {/* ─── Gateways Tab ─── */}
         <TabsContent value="gateways">
+
+        </TabsContent>
+
+        {/* ─── Refunds Tab (placeholder marker — real content inserted below) ─── */}
+        <TabsContent value="__refunds_marker__">
+        </TabsContent>
+        <TabsContent value="gateways-real">
           <div className="grid gap-6">
             {providers.map((p) => {
               const meta = providerMeta[p.provider];
