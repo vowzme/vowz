@@ -142,6 +142,28 @@ const PremiumUpgradeButton = ({
             if (verifyError) throw new Error(verifyError.message || "Payment verification failed.");
             if (!verifyData?.success) throw new Error(verifyData?.error || "Payment verification failed.");
 
+            // Confirm the premium entitlement is actually active in the backend
+            // before celebrating — protects against a verified payment that
+            // failed to persist the subscription row for any reason.
+            let entitled = false;
+            for (let attempt = 0; attempt < 5 && !entitled; attempt++) {
+              const { data: rpcData, error: rpcErr } = await supabase.rpc("user_has_premium", {
+                _user_id: user!.id,
+              });
+              if (!rpcErr && rpcData === true) {
+                entitled = true;
+                break;
+              }
+              // brief backoff to allow the webhook / verify handler to finish writing
+              await new Promise((r) => setTimeout(r, 600));
+            }
+
+            if (!entitled) {
+              throw new Error(
+                "Payment received but premium is not active yet. It may take a minute — refresh your dashboard, or contact support if it doesn't appear."
+              );
+            }
+
             toast({ title: "Payment successful 🎉", description: "Premium has been activated. Redirecting to your dashboard…" });
             onUpgraded?.();
             setCheckoutOpen(false);
