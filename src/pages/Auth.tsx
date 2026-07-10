@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 import SEOHead from "@/components/SEOHead";
 import VowzLogo from "@/components/VowzLogo";
@@ -19,6 +20,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
   const redirectParam = searchParams.get("redirect");
   const redirectTarget = redirectParam && redirectParam.startsWith("/") ? redirectParam : "/dashboard";
 
@@ -46,9 +49,17 @@ const Auth = () => {
           toast({ title: "Password must be at least 6 characters", variant: "destructive" });
           return;
         }
-        const { error } = await signUp(form.email, form.password, form.name);
+        const { error, needsVerification } = await signUp(form.email, form.password, form.name);
         if (error) throw error;
-        toast({ title: "Welcome to Vowz! 💍", description: "Your account has been created. Please verify your email." });
+        if (needsVerification) {
+          setPendingVerificationEmail(form.email);
+          toast({
+            title: "Check your email 📬",
+            description: `We sent a verification link to ${form.email}. Click it to activate your account.`,
+          });
+          return;
+        }
+        toast({ title: "Welcome to Vowz! 💍" });
         const pending = sessionStorage.getItem("pendingTemplate");
         navigate(pending ? "/wizard" : redirectTarget);
       }
@@ -57,6 +68,22 @@ const Auth = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const resendVerification = async () => {
+    if (!pendingVerificationEmail) return;
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: pendingVerificationEmail,
+      options: { emailRedirectTo: `${window.location.origin}/auth` },
+    });
+    setResending(false);
+    toast({
+      title: error ? "Couldn't resend" : "Verification email resent",
+      description: error ? error.message : `New link sent to ${pendingVerificationEmail}.`,
+      variant: error ? "destructive" : "default",
+    });
   };
 
   return (
@@ -113,6 +140,50 @@ const Auth = () => {
             </div>
 
             <motion.div key={isLogin ? "login" : "signup"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+              {pendingVerificationEmail ? (
+                <div className="space-y-6">
+                  <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-accent" />
+                  </div>
+                  <div>
+                    <h1 className="font-display text-3xl font-bold text-foreground mb-2">
+                      Verify your email
+                    </h1>
+                    <p className="text-muted-foreground font-body">
+                      We sent a verification link to{" "}
+                      <span className="font-medium text-foreground">
+                        {pendingVerificationEmail}
+                      </span>
+                      . Click it to activate your VowZ account and sign in.
+                    </p>
+                  </div>
+                  <div className="text-sm text-muted-foreground font-body space-y-2">
+                    <p>Didn't get it? Check your spam folder, or resend below.</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={resendVerification}
+                      disabled={resending}
+                      className="font-body"
+                    >
+                      {resending ? "Resending…" : "Resend verification email"}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPendingVerificationEmail(null);
+                        setIsLogin(true);
+                      }}
+                      className="text-sm text-accent font-medium hover:underline font-body mt-2"
+                    >
+                      Back to sign in
+                    </button>
+                  </div>
+                </div>
+              ) : (
+              <>
               <h1 className="font-display text-3xl font-bold text-foreground mb-1">
                 {isLogin ? "Welcome back" : "Create your account"}
               </h1>
@@ -198,6 +269,8 @@ const Auth = () => {
                   {isLogin ? "Sign up" : "Log in"}
                 </button>
               </p>
+              </>
+              )}
             </motion.div>
           </div>
         </div>
