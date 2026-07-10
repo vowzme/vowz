@@ -1174,7 +1174,8 @@ export default function AdminPayments() {
             </div>
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Status</span>
-              <Badge
+              <div className="flex items-center gap-2">
+                <Badge
                 variant="secondary"
                 className={`font-body text-[10px] ${
                   existingRefundInfo?.status === "processed"
@@ -1183,9 +1184,16 @@ export default function AdminPayments() {
                     ? "bg-destructive/15 text-destructive border-destructive/30"
                     : "bg-gold/15 text-gold border-gold/30"
                 }`}
-              >
-                {existingRefundInfo?.status || "unknown"}
-              </Badge>
+                >
+                  {existingRefundInfo?.status || "unknown"}
+                </Badge>
+                {existingRefundPolling && (
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+                    live
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Speed</span>
