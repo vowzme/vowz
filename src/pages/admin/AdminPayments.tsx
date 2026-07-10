@@ -166,6 +166,45 @@ export default function AdminPayments() {
     fetchRefunds();
   }, []);
 
+  // Live-refresh the "existing refund" dialog until the webhook lands a terminal status.
+  useEffect(() => {
+    if (!existingRefundInfo) return;
+    const status = existingRefundInfo.status;
+    if (status === "processed" || status === "failed") {
+      setExistingRefundPolling(false);
+      return;
+    }
+    setExistingRefundPolling(true);
+    let cancelled = false;
+
+    const poll = async () => {
+      const key = existingRefundInfo.razorpay_refund_id;
+      const paymentId = existingRefundInfo.razorpay_payment_id;
+      let query = supabase.from("razorpay_refunds" as any).select("*").limit(1);
+      query = key
+        ? query.eq("razorpay_refund_id", key)
+        : query.eq("razorpay_payment_id", paymentId!).neq("status", "failed").order("created_at", { ascending: false });
+      const { data } = await query;
+      if (cancelled) return;
+      const row = (data as any)?.[0] as RefundRecord | undefined;
+      if (row && row.status !== existingRefundInfo.status) {
+        setExistingRefundInfo((prev) => (prev ? { ...prev, ...row } : prev));
+        // Also refresh the main list so table/stats stay in sync
+        fetchRefunds();
+      }
+    };
+
+    const interval = setInterval(poll, 4000);
+    poll();
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      setExistingRefundPolling(false);
+    };
+    // Only react to identity of the open refund, not every field change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingRefundInfo?.razorpay_refund_id, existingRefundInfo?.razorpay_payment_id, existingRefundInfo?.status]);
+
   const refundsByPayment = useMemo(() => {
     const m = new Map<string, RefundRecord[]>();
     for (const r of refunds) {
