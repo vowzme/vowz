@@ -228,8 +228,21 @@ export default function CustomSlugEditor({
         variant="outline"
         className="w-full gap-2 text-[#25D366] hover:text-[#25D366] hover:bg-[#25D366]/10 border-[#25D366]/30"
         onClick={() => {
-          const shareText = encodeURIComponent(previewUrl);
-          window.open(`https://wa.me/?text=${shareText}`, "_blank", "noopener,noreferrer");
+          const u = new URL(previewUrl);
+          u.searchParams.set("utm_source", "whatsapp");
+          u.searchParams.set("utm_medium", "share");
+          u.searchParams.set("utm_campaign", "live_preview");
+          const trackedUrl = u.toString();
+          trackEvent("share_click", {
+            channel: "whatsapp",
+            url: trackedUrl,
+            slug: previewSlug,
+          });
+          window.open(
+            `https://wa.me/?text=${encodeURIComponent(trackedUrl)}`,
+            "_blank",
+            "noopener,noreferrer"
+          );
         }}
         aria-label="Share on WhatsApp"
       >
