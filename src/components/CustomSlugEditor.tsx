@@ -84,6 +84,7 @@ export default function CustomSlugEditor({
   const [availability, setAvailability] = useState<AvailabilityState>("idle");
   const [saving, setSaving] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const { trackEvent } = useAnalyticsTracker(siteId);
 
   const baseUrl = `${window.location.origin}/site/`;
 
