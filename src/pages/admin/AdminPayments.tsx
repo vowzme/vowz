@@ -498,6 +498,7 @@ export default function AdminPayments() {
                         <TableHead className="font-body text-xs">Provider</TableHead>
                         <TableHead className="font-body text-xs">Date</TableHead>
                         <TableHead className="font-body text-xs">Expires</TableHead>
+                        <TableHead className="font-body text-xs text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -548,6 +549,24 @@ export default function AdminPayments() {
                           </TableCell>
                           <TableCell className="font-body text-xs text-muted-foreground">
                             {p.expires_at ? format(new Date(p.expires_at), "dd MMM yyyy") : "—"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {p.payment_id && p.provider === "razorpay" && p.amount_paid > 0 && p.status !== "refunded" ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="font-body text-xs h-7"
+                                onClick={() => openRefundDialog(p)}
+                              >
+                                <Undo2 className="w-3 h-3 mr-1" /> Refund
+                              </Button>
+                            ) : refundsByPayment.get(p.payment_id || "")?.length ? (
+                              <span className="font-body text-[10px] text-muted-foreground">
+                                {refundsByPayment.get(p.payment_id || "")?.[0]?.status}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground/40">—</span>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
