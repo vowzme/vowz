@@ -1023,6 +1023,29 @@ const Dashboard = () => {
           </>
         )}
       </div>
+      <AlertDialog open={publishConfirmOpen} onOpenChange={setPublishConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Publish your wedding site?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your site will become <strong>publicly visible</strong> to anyone with the link
+              {site?.slug ? ` (vowz.me/${site.slug})` : ""}. Search engines and guests may see
+              names, dates, photos and event details. You can unpublish at any time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                setPublishConfirmOpen(false);
+                await doTogglePublish(true);
+              }}
+            >
+              Yes, make it public
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
