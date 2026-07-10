@@ -3,7 +3,7 @@
 ## Core
 - Deep Navy #001F3F, Soft Gold #D4AF37, Ivory #F5F5DC. Playfair Display headings, Inter body.
 - All user media stored on Cloudflare R2 via `useMediaUpload` → `r2-upload` edge function. Google Drive integration fully removed.
-- `auto_confirm_email` enabled; unverified users can still access core features.
+- `auto_confirm_email` disabled; sign-up sends VowZ-branded verification email via notify.vowz.me before the user can sign in.
 - 7-day trial enforced by account creation date. Full feature access during trial.
 - Admin secured by `admin_emails` whitelist (anoojxavier008@gmail.com).
 
