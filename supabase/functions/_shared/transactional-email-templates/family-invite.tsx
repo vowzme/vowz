@@ -2,6 +2,7 @@
 import * as React from 'npm:react@18.3.1'
 import { Body, Button, Container, Head, Heading, Hr, Html, Img, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import { resolveBrand, type EmailBrand } from './brand.ts'
 
 interface Props {
   inviteeName?: string
@@ -10,31 +11,35 @@ interface Props {
   role?: string
   canEdit?: boolean
   inviteUrl?: string
+  _brand?: Partial<EmailBrand>
 }
 
-const FamilyInviteEmail = ({ inviteeName, inviterName, coupleNames, role, canEdit, inviteUrl }: Props) => (
+const FamilyInviteEmail = ({ inviteeName, inviterName, coupleNames, role, canEdit, inviteUrl, _brand }: Props) => {
+  const b = resolveBrand(_brand)
+  return (
   <Html lang="en" dir="ltr">
     <Head />
     <Preview>You've been invited to help with {coupleNames || 'a wedding'} on VowZ</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://qkjuywqrncsbxjzwtlzm.supabase.co/storage/v1/object/public/email-assets/vowz-logo.png" width="120" height="40" alt="VowZ" style={logo} />
-        <Heading style={h1}>You're invited 💌</Heading>
+        <Img src={b.logoUrl} width="120" height="40" alt={b.fromName} style={logo} />
+        <Heading style={{ ...h1, color: b.primaryColor }}>You're invited 💌</Heading>
         <Text style={text}>Hi {inviteeName?.trim() || 'there'},</Text>
         <Text style={text}>
           {inviterName || 'A family member'} has invited you to {canEdit ? 'help edit' : 'view'} the wedding site for
           {' '}<strong>{coupleNames || 'their wedding'}</strong>{role ? ` as ${role}` : ''}.
         </Text>
         <Section style={{ textAlign: 'center', margin: '28px 0' }}>
-          <Button style={button} href={inviteUrl || 'https://vowz.me'}>{canEdit ? 'Open & edit' : 'View wedding site'}</Button>
+          <Button style={{ ...button, backgroundColor: b.primaryColor, color: b.buttonTextColor }} href={inviteUrl || 'https://vowz.me'}>{canEdit ? 'Open & edit' : 'View wedding site'}</Button>
         </Section>
         <Text style={hint}>This link is personal to you — please don't share it.</Text>
         <Hr style={divider} />
-        <Text style={footer}>Sent with love via VowZ · beautiful wedding websites.</Text>
+        <Text style={footer}>{b.footerText}</Text>
       </Container>
     </Body>
   </Html>
-)
+  )
+}
 
 export const template = {
   component: FamilyInviteEmail,
