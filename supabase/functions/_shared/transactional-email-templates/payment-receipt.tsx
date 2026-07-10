@@ -2,6 +2,7 @@
 import * as React from 'npm:react@18.3.1'
 import { Body, Button, Container, Head, Heading, Hr, Html, Img, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import { resolveBrand, type EmailBrand } from './brand.ts'
 
 interface Props {
   name?: string
@@ -12,34 +13,38 @@ interface Props {
   paidOn?: string
   expiresOn?: string
   dashboardUrl?: string
+  _brand?: Partial<EmailBrand>
 }
 
-const PaymentReceiptEmail = ({ name, plan, amount, currency, paymentId, paidOn, expiresOn, dashboardUrl }: Props) => (
+const PaymentReceiptEmail = ({ name, plan, amount, currency, paymentId, paidOn, expiresOn, dashboardUrl, _brand }: Props) => {
+  const b = resolveBrand(_brand)
+  return (
   <Html lang="en" dir="ltr">
     <Head />
     <Preview>Payment received — your VowZ premium is active</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://qkjuywqrncsbxjzwtlzm.supabase.co/storage/v1/object/public/email-assets/vowz-logo.png" width="120" height="40" alt="VowZ" style={logo} />
-        <Heading style={h1}>Payment received ✨</Heading>
+        <Img src={b.logoUrl} width="120" height="40" alt={b.fromName} style={logo} />
+        <Heading style={{ ...h1, color: b.primaryColor }}>Payment received ✨</Heading>
         <Text style={text}>Hi {name?.trim() || 'there'},</Text>
         <Text style={text}>Thanks for upgrading — your VowZ premium is now active.</Text>
         <Section style={card}>
-          {plan && <Text style={cardRow}><span style={label}>Plan</span><span style={value}>{plan}</span></Text>}
-          {amount && <Text style={cardRow}><span style={label}>Amount</span><span style={value}>{currency || ''} {amount}</span></Text>}
-          {paidOn && <Text style={cardRow}><span style={label}>Paid on</span><span style={value}>{paidOn}</span></Text>}
-          {expiresOn && <Text style={cardRow}><span style={label}>Renews / expires</span><span style={value}>{expiresOn}</span></Text>}
-          {paymentId && <Text style={cardRow}><span style={label}>Payment ID</span><span style={value}>{paymentId}</span></Text>}
+          {plan && <Text style={cardRow}><span style={{ ...label, color: b.accentColor }}>Plan</span><span style={{ ...value, color: b.primaryColor }}>{plan}</span></Text>}
+          {amount && <Text style={cardRow}><span style={{ ...label, color: b.accentColor }}>Amount</span><span style={{ ...value, color: b.primaryColor }}>{currency || ''} {amount}</span></Text>}
+          {paidOn && <Text style={cardRow}><span style={{ ...label, color: b.accentColor }}>Paid on</span><span style={{ ...value, color: b.primaryColor }}>{paidOn}</span></Text>}
+          {expiresOn && <Text style={cardRow}><span style={{ ...label, color: b.accentColor }}>Renews / expires</span><span style={{ ...value, color: b.primaryColor }}>{expiresOn}</span></Text>}
+          {paymentId && <Text style={cardRow}><span style={{ ...label, color: b.accentColor }}>Payment ID</span><span style={{ ...value, color: b.primaryColor }}>{paymentId}</span></Text>}
         </Section>
         <Section style={{ textAlign: 'center', margin: '28px 0' }}>
-          <Button style={button} href={dashboardUrl || 'https://vowz.me/dashboard'}>Go to dashboard</Button>
+          <Button style={{ ...button, backgroundColor: b.primaryColor, color: b.buttonTextColor }} href={dashboardUrl || 'https://vowz.me/dashboard'}>Go to dashboard</Button>
         </Section>
         <Hr style={divider} />
-        <Text style={footer}>Sent with love via VowZ · beautiful wedding websites.</Text>
+        <Text style={footer}>{b.footerText}</Text>
       </Container>
     </Body>
   </Html>
-)
+  )
+}
 
 export const template = {
   component: PaymentReceiptEmail,

@@ -2,6 +2,8 @@ import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
+import { createClient } from 'npm:@supabase/supabase-js@2'
+import { DEFAULT_BRAND } from '../_shared/transactional-email-templates/brand.ts'
 
 // Renders all registered templates with their previewData.
 // Gated by LOVABLE_API_KEY — only the Go API calls this.
@@ -33,6 +35,28 @@ Deno.serve(async (req) => {
   }
 
   const templateNames = Object.keys(TEMPLATES)
+
+  // Load branding for accurate preview
+  let brand = DEFAULT_BRAND
+  try {
+    const url = Deno.env.get('SUPABASE_URL')
+    const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (url && key) {
+      const supabase = createClient(url, key)
+      const { data } = await supabase.from('email_branding').select('*').eq('id', 1).maybeSingle()
+      if (data) {
+        brand = {
+          logoUrl: data.logo_url || brand.logoUrl,
+          primaryColor: data.primary_color || brand.primaryColor,
+          accentColor: data.accent_color || brand.accentColor,
+          buttonTextColor: data.button_text_color || brand.buttonTextColor,
+          fromName: data.from_name || brand.fromName,
+          footerText: data.footer_text || brand.footerText,
+        }
+      }
+    }
+  } catch (e) { console.warn('preview: loadBranding failed', e) }
+
   const results: Array<{
     templateName: string
     displayName: string
@@ -59,7 +83,7 @@ Deno.serve(async (req) => {
 
     try {
       const html = await renderAsync(
-        React.createElement(entry.component, entry.previewData)
+        React.createElement(entry.component, { ...entry.previewData, _brand: brand })
       )
       const resolvedSubject =
         typeof entry.subject === 'function'

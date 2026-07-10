@@ -14,6 +14,7 @@ import {
   Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import { resolveBrand, type EmailBrand } from './brand.ts'
 
 interface Props {
   guestName?: string
@@ -23,6 +24,7 @@ interface Props {
   attending?: boolean
   guestCount?: number
   siteUrl?: string
+  _brand?: Partial<EmailBrand>
 }
 
 const RsvpConfirmationEmail = ({
@@ -33,10 +35,12 @@ const RsvpConfirmationEmail = ({
   attending,
   guestCount,
   siteUrl,
+  _brand,
 }: Props) => {
   const name = guestName?.trim() || 'there'
   const couple = coupleNames?.trim() || 'the happy couple'
   const isAttending = attending !== false
+  const b = resolveBrand(_brand)
 
   return (
     <Html lang="en" dir="ltr">
@@ -49,13 +53,13 @@ const RsvpConfirmationEmail = ({
       <Body style={main}>
         <Container style={container}>
           <Img
-            src="https://qkjuywqrncsbxjzwtlzm.supabase.co/storage/v1/object/public/email-assets/vowz-logo.png"
+            src={b.logoUrl}
             width="120"
             height="40"
-            alt="VowZ"
+            alt={b.fromName}
             style={logo}
           />
-          <Heading style={h1}>
+          <Heading style={{ ...h1, color: b.primaryColor }}>
             {isAttending ? 'Your RSVP is confirmed 💍' : "Thanks for letting us know"}
           </Heading>
           <Text style={text}>Hi {name},</Text>
@@ -68,27 +72,27 @@ const RsvpConfirmationEmail = ({
           <Section style={card}>
             {weddingDate && (
               <Text style={cardRow}>
-                <span style={label}>Date</span>
-                <span style={value}>{weddingDate}</span>
+                <span style={{ ...label, color: b.accentColor }}>Date</span>
+                <span style={{ ...value, color: b.primaryColor }}>{weddingDate}</span>
               </Text>
             )}
             {venue && (
               <Text style={cardRow}>
-                <span style={label}>Venue</span>
-                <span style={value}>{venue}</span>
+                <span style={{ ...label, color: b.accentColor }}>Venue</span>
+                <span style={{ ...value, color: b.primaryColor }}>{venue}</span>
               </Text>
             )}
             {isAttending && guestCount && guestCount > 0 && (
               <Text style={cardRow}>
-                <span style={label}>Guests</span>
-                <span style={value}>{guestCount}</span>
+                <span style={{ ...label, color: b.accentColor }}>Guests</span>
+                <span style={{ ...value, color: b.primaryColor }}>{guestCount}</span>
               </Text>
             )}
           </Section>
 
           {siteUrl && (
             <Section style={{ textAlign: 'center', margin: '28px 0' }}>
-              <Button style={button} href={siteUrl}>
+              <Button style={{ ...button, backgroundColor: b.primaryColor, color: b.buttonTextColor }} href={siteUrl}>
                 View wedding site
               </Button>
             </Section>
@@ -96,7 +100,7 @@ const RsvpConfirmationEmail = ({
 
           <Hr style={divider} />
           <Text style={footer}>
-            Sent with love via VowZ · beautiful wedding websites.
+            {b.footerText}
           </Text>
         </Container>
       </Body>
