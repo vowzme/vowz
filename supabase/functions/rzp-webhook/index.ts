@@ -74,8 +74,22 @@ Deno.serve(async (req) => {
       case "payment.captured":
       case "order.paid": {
         const payment = event?.payload?.payment?.entity;
+        console.log("[rzp-webhook] payment.captured/order.paid payload", {
+          eventId,
+          event: event?.event,
+          razorpay_payment_id: payment?.id,
+          razorpay_order_id: payment?.order_id,
+          amount: payment?.amount,
+          currency: payment?.currency,
+          method: payment?.method,
+          status: payment?.status,
+          email: payment?.email,
+          contact: payment?.contact,
+          notes: payment?.notes,
+          created_at: payment?.created_at,
+        });
         if (payment?.order_id) {
-          await supabase
+          const { data, error } = await supabase
             .from("razorpay_payments")
             .update({
               status: "captured",
@@ -85,14 +99,46 @@ Deno.serve(async (req) => {
               method: payment.method,
               captured_at: new Date().toISOString(),
             })
-            .eq("razorpay_order_id", payment.order_id);
+            .eq("razorpay_order_id", payment.order_id)
+            .select("id, razorpay_order_id, razorpay_payment_id, status, amount, currency");
+          if (error) {
+            console.error("[rzp-webhook] DB update failed for captured payment", {
+              razorpay_order_id: payment.order_id,
+              error: error.message,
+            });
+          } else if (!data || data.length === 0) {
+            console.warn("[rzp-webhook] No matching razorpay_payments row for order", {
+              razorpay_order_id: payment.order_id,
+              razorpay_payment_id: payment.id,
+            });
+          } else {
+            console.log("[rzp-webhook] Marked payment captured", { rows: data });
+          }
+        } else {
+          console.warn("[rzp-webhook] Missing order_id on payment entity", { eventId });
         }
         break;
       }
       case "payment.failed": {
         const payment = event?.payload?.payment?.entity;
+        console.log("[rzp-webhook] payment.failed payload", {
+          eventId,
+          razorpay_payment_id: payment?.id,
+          razorpay_order_id: payment?.order_id,
+          amount: payment?.amount,
+          currency: payment?.currency,
+          method: payment?.method,
+          error_code: payment?.error_code,
+          error_description: payment?.error_description,
+          error_source: payment?.error_source,
+          error_step: payment?.error_step,
+          error_reason: payment?.error_reason,
+          email: payment?.email,
+          contact: payment?.contact,
+          notes: payment?.notes,
+        });
         if (payment?.order_id) {
-          await supabase
+          const { data, error } = await supabase
             .from("razorpay_payments")
             .update({
               status: "failed",
@@ -100,7 +146,23 @@ Deno.serve(async (req) => {
               error_code: payment.error_code,
               error_description: payment.error_description,
             })
-            .eq("razorpay_order_id", payment.order_id);
+            .eq("razorpay_order_id", payment.order_id)
+            .select("id, razorpay_order_id, razorpay_payment_id, status");
+          if (error) {
+            console.error("[rzp-webhook] DB update failed for failed payment", {
+              razorpay_order_id: payment.order_id,
+              error: error.message,
+            });
+          } else if (!data || data.length === 0) {
+            console.warn("[rzp-webhook] No matching razorpay_payments row for failed order", {
+              razorpay_order_id: payment.order_id,
+              razorpay_payment_id: payment.id,
+            });
+          } else {
+            console.log("[rzp-webhook] Marked payment failed", { rows: data });
+          }
+        } else {
+          console.warn("[rzp-webhook] payment.failed missing order_id", { eventId });
         }
         break;
       }
