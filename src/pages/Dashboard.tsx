@@ -2065,3 +2065,180 @@ function BlessingModerationCard({
 }
 
 export default Dashboard;
+
+// ─── Share Attribution Panel ──────────────────────────────────────────
+// Summarizes share clicks by utm_source / utm_campaign and correlates
+// them with sign-ups (RSVP + guestbook posts) for the current site slug,
+// attributing each conversion to the utm_source of the visitor's most
+// recent page_view that carried a utm_source.
+function ShareAttributionPanel({ siteId, accent }: { siteId: string; accent: string }) {
+  const [rows, setRows] = useState<
+    Array<{ source: string; campaign: string; clicks: number; visitors: number; signups: number; rate: string }>
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [totals, setTotals] = useState({ clicks: 0, signups: 0, attributed: 0 });
+  const [slug, setSlug] = useState<string>("");
+
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      if (!siteId) return;
+      setLoading(true);
+
+      const [{ data: siteRow }, { data: events }] = await Promise.all([
+        supabase.from("wedding_sites").select("slug").eq("id", siteId).maybeSingle(),
+        supabase
+          .from("site_analytics" as any)
+          .select("event_type, metadata, visitor_id, created_at")
+          .eq("wedding_site_id", siteId)
+          .order("created_at", { ascending: true })
+          .limit(5000),
+      ]);
+      if (cancelled) return;
+      setSlug((siteRow as any)?.slug || "");
+
+      const list = (events as any[]) || [];
+
+      // Read utm_* from event.metadata.url when present, else metadata directly.
+      const parseUtm = (meta: any): { source?: string; campaign?: string } => {
+        try {
+          if (meta?.url) {
+            const u = new URL(meta.url);
+            return {
+              source: u.searchParams.get("utm_source") || meta?.channel || meta?.platform || undefined,
+              campaign: u.searchParams.get("utm_campaign") || undefined,
+            };
+          }
+        } catch { /* ignore */ }
+        return {
+          source: meta?.utm_source || meta?.channel || meta?.platform,
+          campaign: meta?.utm_campaign,
+        };
+      };
+
+      // 1) Click counts per (source, campaign)
+      const buckets = new Map<
+        string,
+        { source: string; campaign: string; clicks: number; visitors: Set<string>; signups: number }
+      >();
+      const key = (s: string, c: string) => `${s}||${c}`;
+
+      for (const ev of list) {
+        if (ev.event_type !== "share_click") continue;
+        const { source = "(direct)", campaign = "(none)" } = parseUtm(ev.metadata);
+        const k = key(source, campaign);
+        if (!buckets.has(k)) buckets.set(k, { source, campaign, clicks: 0, visitors: new Set(), signups: 0 });
+        buckets.get(k)!.clicks++;
+      }
+
+      // 2) Map each visitor to their earliest utm_source/campaign from page_views
+      const visitorAttribution = new Map<string, { source: string; campaign: string }>();
+      for (const ev of list) {
+        if (ev.event_type !== "page_view" || !ev.visitor_id) continue;
+        if (visitorAttribution.has(ev.visitor_id)) continue; // keep earliest
+        const { source, campaign } = parseUtm(ev.metadata);
+        if (!source) continue;
+        visitorAttribution.set(ev.visitor_id, { source, campaign: campaign || "(none)" });
+      }
+
+      // 3) Attribute sign-ups (rsvp_submit + guestbook_post) to that visitor's source
+      let totalSignups = 0;
+      let attributedSignups = 0;
+      for (const ev of list) {
+        if (ev.event_type !== "rsvp_submit" && ev.event_type !== "guestbook_post") continue;
+        totalSignups++;
+        const attr = visitorAttribution.get(ev.visitor_id);
+        if (!attr) continue;
+        attributedSignups++;
+        const k = key(attr.source, attr.campaign);
+        if (!buckets.has(k)) buckets.set(k, { source: attr.source, campaign: attr.campaign, clicks: 0, visitors: new Set(), signups: 0 });
+        buckets.get(k)!.signups++;
+      }
+
+      // 4) Count unique attributed visitors per bucket
+      for (const [visitorId, attr] of visitorAttribution) {
+        const k = key(attr.source, attr.campaign);
+        if (!buckets.has(k)) buckets.set(k, { source: attr.source, campaign: attr.campaign, clicks: 0, visitors: new Set(), signups: 0 });
+        buckets.get(k)!.visitors.add(visitorId);
+      }
+
+      const totalClicks = Array.from(buckets.values()).reduce((a, b) => a + b.clicks, 0);
+      const result = Array.from(buckets.values())
+        .map((b) => ({
+          source: b.source,
+          campaign: b.campaign,
+          clicks: b.clicks,
+          visitors: b.visitors.size,
+          signups: b.signups,
+          rate: b.visitors.size > 0 ? ((b.signups / b.visitors.size) * 100).toFixed(1) + "%" : "—",
+        }))
+        .sort((a, b) => (b.clicks + b.signups) - (a.clicks + a.signups));
+
+      setRows(result);
+      setTotals({ clicks: totalClicks, signups: totalSignups, attributed: attributedSignups });
+      setLoading(false);
+    }
+    run();
+    return () => { cancelled = true; };
+  }, [siteId]);
+
+  return (
+    <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-border/30 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+        <div>
+          <h3 className="font-display text-lg font-semibold text-foreground">Share attribution</h3>
+          <p className="font-body text-xs text-muted-foreground">
+            Share clicks by UTM source/campaign correlated with sign-ups
+            {slug ? <> for <span className="font-mono text-foreground">/site/{slug}</span></> : null}.
+          </p>
+        </div>
+        <div className="flex gap-4 text-xs font-body">
+          <span><span className="text-muted-foreground">Clicks:</span> <span className="font-mono text-foreground">{totals.clicks}</span></span>
+          <span><span className="text-muted-foreground">Sign-ups:</span> <span className="font-mono text-foreground">{totals.signups}</span></span>
+          <span><span className="text-muted-foreground">Attributed:</span> <span className="font-mono text-foreground">{totals.attributed}</span></span>
+        </div>
+      </div>
+      {loading ? (
+        <div className="p-8 text-center">
+          <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="p-8 text-center text-xs text-muted-foreground font-body">
+          No share clicks yet. Share your site to start attributing sign-ups.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs font-body">
+            <thead>
+              <tr className="text-muted-foreground border-b border-border/30">
+                <th className="text-left px-4 sm:px-6 py-2 font-medium">Source</th>
+                <th className="text-left px-3 py-2 font-medium">Campaign</th>
+                <th className="text-right px-3 py-2 font-medium">Clicks</th>
+                <th className="text-right px-3 py-2 font-medium">Visitors</th>
+                <th className="text-right px-3 py-2 font-medium">Sign-ups</th>
+                <th className="text-right px-4 sm:px-6 py-2 font-medium">Conv.</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/30">
+              {rows.map((r) => (
+                <tr key={`${r.source}-${r.campaign}`} className="hover:bg-muted/20">
+                  <td className="px-4 sm:px-6 py-2">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
+                      <span className="font-mono text-foreground">{r.source}</span>
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-muted-foreground">{r.campaign}</td>
+                  <td className="px-3 py-2 text-right font-mono text-foreground">{r.clicks}</td>
+                  <td className="px-3 py-2 text-right font-mono text-muted-foreground">{r.visitors}</td>
+                  <td className="px-3 py-2 text-right font-mono text-foreground">{r.signups}</td>
+                  <td className="px-4 sm:px-6 py-2 text-right font-mono" style={{ color: r.signups > 0 ? accent : undefined }}>{r.rate}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
