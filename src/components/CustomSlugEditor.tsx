@@ -13,6 +13,7 @@ import {
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
+import { useAnalyticsTracker } from "@/hooks/use-analytics";
 
 interface CustomSlugEditorProps {
   siteId: string;
