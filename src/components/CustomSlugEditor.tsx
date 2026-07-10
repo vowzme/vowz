@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   Link2, Check, X, Loader2, RefreshCw, Copy, Crown, ExternalLink,
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip, TooltipContent, TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -87,6 +88,30 @@ export default function CustomSlugEditor({
   const { trackEvent } = useAnalyticsTracker(siteId);
 
   const baseUrl = `${window.location.origin}/site/`;
+
+  // Default Instagram caption from couple names + wedding date.
+  const defaultCaption = (() => {
+    const p1 = partner1?.trim() || "We";
+    const p2 = partner2?.trim() || "";
+    let dateStr = "";
+    if (weddingDate) {
+      try {
+        dateStr = new Date(weddingDate).toLocaleDateString(undefined, {
+          month: "long", day: "numeric", year: "numeric",
+        });
+      } catch { /* ignore */ }
+    }
+    const couple = p2 ? `${p1} & ${p2}` : p1;
+    return `${couple} are getting married${dateStr ? ` on ${dateStr}` : ""}! 💍✨\n\nVisit our wedding site for all the details 👇\n\n#Wedding #SaveTheDate`;
+  })();
+  const [caption, setCaption] = useState(defaultCaption);
+  const [captionEdited, setCaptionEdited] = useState(false);
+
+  // Keep caption in sync with partner/date changes until the user edits it.
+  useEffect(() => {
+    if (!captionEdited) setCaption(defaultCaption);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [partner1, partner2, weddingDate]);
 
   const checkAvailability = useCallback(async (s: string) => {
     const err = validateSlug(s);
@@ -227,7 +252,41 @@ export default function CustomSlugEditor({
         url={previewUrl}
         slug={previewSlug}
         trackEvent={trackEvent}
+        caption={caption}
       />
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-medium text-foreground font-body">Instagram caption</label>
+          <button
+            type="button"
+            onClick={() => { setCaption(defaultCaption); setCaptionEdited(false); }}
+            className="text-[11px] text-muted-foreground hover:text-foreground underline decoration-dotted"
+          >
+            Reset
+          </button>
+        </div>
+        <Textarea
+          value={caption}
+          onChange={(e) => { setCaption(e.target.value); setCaptionEdited(true); }}
+          rows={4}
+          maxLength={2200}
+          placeholder="Write a caption for Instagram…"
+          className="text-sm font-body"
+        />
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] text-muted-foreground">{caption.length}/2200</p>
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(`${caption}\n${previewUrl}`);
+              toast({ title: "Caption copied 📋", description: "Paste it into Instagram." });
+            }}
+            className="text-[11px] text-[hsl(var(--gold))] hover:underline"
+          >
+            Copy caption + link
+          </button>
+        </div>
+      </div>
       <QRCodeGenerator url={previewUrl} coupleNames={coupleNames} isPremium={isPremium} />
     </div>
   );
