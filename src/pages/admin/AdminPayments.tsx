@@ -141,6 +141,7 @@ export default function AdminPayments() {
   const [refundReason, setRefundReason] = useState<string>("");
   const [refundSpeed, setRefundSpeed] = useState<string>("normal");
   const [refundSubmitting, setRefundSubmitting] = useState(false);
+  const [existingRefundInfo, setExistingRefundInfo] = useState<Partial<RefundRecord> | null>(null);
 
   // Refund filters
   const [refundStatusFilter, setRefundStatusFilter] = useState<string>("all");
@@ -229,10 +230,33 @@ export default function AdminPayments() {
       },
     });
     setRefundSubmitting(false);
+
+    // Handle 409 Conflict — a refund already exists for this payment.
+    let errBody: any = data;
+    let status = 200;
+    if (error && (error as any).context instanceof Response) {
+      status = (error as any).context.status;
+      try { errBody = await (error as any).context.clone().json(); } catch { /* ignore */ }
+    }
+    if (status === 409 || (errBody && errBody.existing_refund)) {
+      const existing = errBody?.existing_refund;
+      // Prefer the fresh copy from the refunds list if available
+      const local = existing?.razorpay_refund_id
+        ? refunds.find((r) => r.razorpay_refund_id === existing.razorpay_refund_id)
+        : refunds.find((r) => r.razorpay_payment_id === refundTarget!.payment_id && r.status !== "failed");
+      setExistingRefundInfo({
+        ...(existing || {}),
+        ...(local || {}),
+        razorpay_payment_id: refundTarget!.payment_id!,
+      });
+      setRefundTarget(null);
+      await fetchRefunds();
+      return;
+    }
     if (error || (data as any)?.error) {
       toast({
         title: "Refund failed",
-        description: (data as any)?.error || error?.message || "Unable to create refund",
+        description: (data as any)?.error || (error as any)?.message || "Unable to create refund",
         variant: "destructive",
       });
       return;
