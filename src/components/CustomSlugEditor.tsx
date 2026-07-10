@@ -16,6 +16,7 @@ import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
 import { useAnalyticsTracker } from "@/hooks/use-analytics";
+import { buildWhatsAppShareUrl } from "@/lib/share-url";
 
 interface CustomSlugEditorProps {
   siteId: string;
@@ -454,7 +455,7 @@ const CHANNELS: ShareChannel[] = [
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M20.52 3.48A11.94 11.94 0 0012.06 0C5.51 0 .18 5.33.18 11.88c0 2.09.55 4.13 1.6 5.93L0 24l6.34-1.66a11.86 11.86 0 005.72 1.46h.01c6.55 0 11.88-5.33 11.88-11.88 0-3.17-1.24-6.16-3.43-8.44zM12.07 21.7h-.01a9.83 9.83 0 01-5.01-1.37l-.36-.21-3.76.99 1-3.66-.24-.38a9.83 9.83 0 01-1.5-5.19c0-5.44 4.43-9.87 9.88-9.87 2.64 0 5.12 1.03 6.99 2.9a9.82 9.82 0 012.89 6.98c0 5.44-4.43 9.87-9.88 9.87zm5.42-7.39c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48c0 1.46 1.07 2.87 1.22 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.5 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35z"/></svg>
     ),
-    build: (u) => `https://wa.me/?text=${encodeURIComponent(u)}`,
+    build: (u) => buildWhatsAppShareUrl(u),
   },
   {
     key: "facebook",
