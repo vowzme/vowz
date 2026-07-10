@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ExternalLink, Search, AlertCircle, Check } from "lucide-react";
+import { Loader2, Search, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 type PreviewResult = {
