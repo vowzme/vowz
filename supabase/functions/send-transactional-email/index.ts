@@ -3,6 +3,7 @@ import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
+import { DEFAULT_BRAND } from '../_shared/transactional-email-templates/brand.ts'
 
 // Configuration baked in at scaffold time — do NOT change these manually.
 // To update, re-run the email domain setup flow.
@@ -15,6 +16,29 @@ const SENDER_DOMAIN = "notify.vowz.me"
 // When display_from_root is enabled, this can be the root domain for cleaner branding,
 // even though actual sending uses the subdomain above.
 const FROM_DOMAIN = "vowz.me"
+
+// Fetch admin-configurable branding row (single-row table with id=1).
+async function loadBranding(supabase: any) {
+  try {
+    const { data } = await supabase
+      .from('email_branding')
+      .select('logo_url, primary_color, accent_color, button_text_color, from_name, footer_text')
+      .eq('id', 1)
+      .maybeSingle()
+    if (!data) return DEFAULT_BRAND
+    return {
+      logoUrl: data.logo_url || DEFAULT_BRAND.logoUrl,
+      primaryColor: data.primary_color || DEFAULT_BRAND.primaryColor,
+      accentColor: data.accent_color || DEFAULT_BRAND.accentColor,
+      buttonTextColor: data.button_text_color || DEFAULT_BRAND.buttonTextColor,
+      fromName: data.from_name || DEFAULT_BRAND.fromName,
+      footerText: data.footer_text || DEFAULT_BRAND.footerText,
+    }
+  } catch (e) {
+    console.warn('loadBranding failed — using defaults', e)
+    return DEFAULT_BRAND
+  }
+}
 
 // Generate a cryptographically random 32-byte hex token
 function generateToken(): string {
@@ -278,11 +302,13 @@ Deno.serve(async (req) => {
   }
 
   // 4. Render React Email template to HTML and plain text
+  const brand = await loadBranding(supabase)
+  const renderData = { ...templateData, _brand: brand }
   const html = await renderAsync(
-    React.createElement(template.component, templateData)
+    React.createElement(template.component, renderData)
   )
   const plainText = await renderAsync(
-    React.createElement(template.component, templateData),
+    React.createElement(template.component, renderData),
     { plainText: true }
   )
 
@@ -308,7 +334,7 @@ Deno.serve(async (req) => {
     payload: {
       message_id: messageId,
       to: effectiveRecipient,
-      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+      from: `${brand.fromName || SITE_NAME} <noreply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
       subject: resolvedSubject,
       html,

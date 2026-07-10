@@ -2,32 +2,36 @@
 import * as React from 'npm:react@18.3.1'
 import { Body, Button, Container, Head, Heading, Hr, Html, Img, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import { resolveBrand, type EmailBrand } from './brand.ts'
 
-interface Props { name?: string; siteUrl?: string; coupleNames?: string }
+interface Props { name?: string; siteUrl?: string; coupleNames?: string; _brand?: Partial<EmailBrand> }
 
-const SitePublishedEmail = ({ name, siteUrl, coupleNames }: Props) => (
+const SitePublishedEmail = ({ name, siteUrl, coupleNames, _brand }: Props) => {
+  const b = resolveBrand(_brand)
+  return (
   <Html lang="en" dir="ltr">
     <Head />
     <Preview>Your wedding site is live 🎉</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://qkjuywqrncsbxjzwtlzm.supabase.co/storage/v1/object/public/email-assets/vowz-logo.png" width="120" height="40" alt="VowZ" style={logo} />
-        <Heading style={h1}>Your wedding site is live 🎉</Heading>
+        <Img src={b.logoUrl} width="120" height="40" alt={b.fromName} style={logo} />
+        <Heading style={{ ...h1, color: b.primaryColor }}>Your wedding site is live 🎉</Heading>
         <Text style={text}>Hi {name?.trim() || 'there'},</Text>
         <Text style={text}>
           Congratulations! {coupleNames ? `${coupleNames}'s` : 'Your'} wedding site is now published and ready to share with your loved ones.
         </Text>
         {siteUrl && (
           <Section style={{ textAlign: 'center', margin: '28px 0' }}>
-            <Button style={button} href={siteUrl}>Open my site</Button>
+            <Button style={{ ...button, backgroundColor: b.primaryColor, color: b.buttonTextColor }} href={siteUrl}>Open my site</Button>
           </Section>
         )}
         <Hr style={divider} />
-        <Text style={footer}>Sent with love via VowZ · beautiful wedding websites.</Text>
+        <Text style={footer}>{b.footerText}</Text>
       </Container>
     </Body>
   </Html>
-)
+  )
+}
 
 export const template = {
   component: SitePublishedEmail,
