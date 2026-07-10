@@ -1190,6 +1190,37 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
       setSubmitted(true);
       toast({ title: "RSVP submitted! 🎉" });
       trackEvent("rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
+
+      // Fire-and-forget confirmation email (non-blocking, non-fatal on failure).
+      try {
+        const firstEvent = eventsSection?.data?.events?.[0];
+        const weddingDate = firstEvent?.date
+          ? new Date(firstEvent.date).toLocaleDateString(undefined, {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : undefined;
+        void supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "rsvp-confirmation",
+            recipientEmail: validated.guest_email,
+            idempotencyKey: `rsvp-${site.id}-${validated.guest_email.toLowerCase()}-${Date.now()}`,
+            templateData: {
+              guestName: validated.guest_name,
+              coupleNames: `${site.partner1} & ${site.partner2}`,
+              weddingDate,
+              venue: firstEvent?.venue || undefined,
+              attending: validated.attending,
+              guestCount: validated.guest_count,
+              siteUrl: `${window.location.origin}/site/${site.slug}`,
+            },
+          },
+        });
+      } catch {
+        // Ignore — RSVP was saved; email is a nice-to-have.
+      }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         toast({ title: "Please check your details", description: err.errors[0]?.message, variant: "destructive" });

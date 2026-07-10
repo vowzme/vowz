@@ -48,6 +48,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Showcase from "./pages/Showcase";
 import IconsDebug from "./pages/IconsDebug";
+import Unsubscribe from "./pages/Unsubscribe";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -108,6 +109,7 @@ const AppRoutes = () => (
     <Route path="/admin/storage-cleanup" element={<AdminLayout><AdminStorageCleanup /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
+    <Route path="/unsubscribe" element={<Unsubscribe />} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>
 );
