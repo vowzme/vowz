@@ -209,6 +209,30 @@ const Dashboard = () => {
   const [site, setSite] = useState<any>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
+  const headerQrRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadHeaderQR = () => {
+    const svg = headerQrRef.current?.querySelector("svg");
+    if (!svg) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, 1024, 1024);
+    const data = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, 1024, 1024);
+      const a = document.createElement("a");
+      a.download = `${(site?.slug || "wedding")}-qr.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+      toast({ title: "QR downloaded 📥" });
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data)));
+  };
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
