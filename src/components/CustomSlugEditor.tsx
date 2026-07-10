@@ -180,11 +180,30 @@ export default function CustomSlugEditor({
     setSaving(false);
   };
 
-  const copyUrl = () => {
-    navigator.clipboard.writeText(`${baseUrl}${slug || currentSlug}`);
-    trackEvent("share_click", { channel: "copy_url", url: `${baseUrl}${slug || currentSlug}` });
-    toast({ title: "URL copied! 📋" });
+  const buildTrackedUrl = (raw: string) => {
+    try {
+      const u = new URL(raw);
+      u.searchParams.set("utm_source", "copy_url");
+      u.searchParams.set("utm_medium", "share");
+      u.searchParams.set("utm_campaign", "live_preview");
+      return u.toString();
+    } catch { return raw; }
   };
+
+  const copyTrackedUrl = async (raw: string, toastTitle = "URL copied! 📋") => {
+    const tracked = buildTrackedUrl(raw);
+    try { await navigator.clipboard.writeText(tracked); } catch {}
+    trackEvent("share_click", {
+      channel: "copy_url",
+      url: tracked,
+      utm_source: "copy_url",
+      utm_medium: "share",
+      utm_campaign: "live_preview",
+    });
+    toast({ title: toastTitle, description: tracked });
+  };
+
+  const copyUrl = () => copyTrackedUrl(`${baseUrl}${slug || currentSlug}`);
 
   // Cleanup debounce
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
@@ -220,11 +239,7 @@ export default function CustomSlugEditor({
           size="icon"
           variant="ghost"
           className="shrink-0 h-8 w-8"
-          onClick={() => {
-            navigator.clipboard.writeText(previewUrl);
-            trackEvent("share_click", { channel: "copy_url", url: previewUrl });
-            toast({ title: "Preview URL copied! 📋" });
-          }}
+          onClick={() => copyTrackedUrl(previewUrl, "Preview URL copied! 📋")}
           aria-label="Copy preview URL"
         >
           <Copy className="w-3.5 h-3.5" />
@@ -235,11 +250,7 @@ export default function CustomSlugEditor({
           size="sm"
           variant="gold"
           className="w-full gap-2"
-          onClick={() => {
-            navigator.clipboard.writeText(previewUrl);
-            trackEvent("share_click", { channel: "copy_url", url: previewUrl });
-            toast({ title: "Preview URL copied! 📋", description: previewUrl });
-          }}
+          onClick={() => copyTrackedUrl(previewUrl, "Preview URL copied! 📋")}
           aria-label="Copy preview URL to clipboard"
         >
           <Copy className="w-3.5 h-3.5" />
