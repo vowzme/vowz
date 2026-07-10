@@ -178,14 +178,28 @@ export default function CustomSlugEditor({
           <Badge variant="outline" className="text-[10px] h-5">Unsaved</Badge>
         )}
       </div>
-      <a
-        href={previewUrl}
-        target="_blank"
-        rel="noopener"
-        className="block text-sm font-mono text-[hsl(var(--gold))] break-all hover:underline"
-      >
-        {previewUrl}
-      </a>
+      <div className="flex items-center gap-2 bg-background/50 rounded-md px-3 py-2">
+        <a
+          href={previewUrl}
+          target="_blank"
+          rel="noopener"
+          className="flex-1 text-sm font-mono text-[hsl(var(--gold))] break-all hover:underline"
+        >
+          {previewUrl}
+        </a>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="shrink-0 h-8 w-8"
+          onClick={() => {
+            navigator.clipboard.writeText(previewUrl);
+            toast({ title: "Preview URL copied! 📋" });
+          }}
+          aria-label="Copy preview URL"
+        >
+          <Copy className="w-3.5 h-3.5" />
+        </Button>
+      </div>
       <QRCodeGenerator url={previewUrl} coupleNames={coupleNames} isPremium={isPremium} />
     </div>
   );
