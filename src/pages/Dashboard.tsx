@@ -1819,6 +1819,8 @@ function AnalyticsPanel({ siteId, accent }: { siteId: string; accent: string }) 
           </div>
         </div>
       )}
+
+      <ShareAttributionPanel siteId={siteId} accent={accent} />
     </div>
   );
 }
