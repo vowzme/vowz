@@ -834,8 +834,52 @@ export default function AdminPayments() {
               </CardContent>
             </Card>
           </div>
-          <div className="flex justify-end mb-3">
-            <Button size="sm" variant="outline" className="font-body text-xs" onClick={fetchRefunds}>
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className="relative flex-1 min-w-[220px]">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <Input
+                value={refundSearch}
+                onChange={(e) => setRefundSearch(e.target.value)}
+                placeholder="Search refund/payment/order ID, reason, error…"
+                className="pl-8 h-9 font-body text-xs"
+              />
+            </div>
+            <Select value={refundStatusFilter} onValueChange={setRefundStatusFilter}>
+              <SelectTrigger className="h-9 w-[140px] font-body text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="processed">Processed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={refundSpeedFilter} onValueChange={setRefundSpeedFilter}>
+              <SelectTrigger className="h-9 w-[130px] font-body text-xs"><SelectValue placeholder="Speed" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All speeds</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="optimum">Optimum</SelectItem>
+                <SelectItem value="instant">Instant</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={refundSubFilter} onValueChange={setRefundSubFilter}>
+              <SelectTrigger className="h-9 w-[160px] font-body text-xs"><SelectValue placeholder="Subscription" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All refunds</SelectItem>
+                <SelectItem value="with">Linked to subscription</SelectItem>
+                <SelectItem value="without">Orphaned</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={refundDateRange} onValueChange={(v) => setRefundDateRange(v as DateRange)}>
+              <SelectTrigger className="h-9 w-[130px] font-body text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+                <SelectItem value="all">All time</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button size="sm" variant="outline" className="font-body text-xs h-9" onClick={fetchRefunds}>
               <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh
             </Button>
           </div>
@@ -845,11 +889,13 @@ export default function AdminPayments() {
                 <div className="flex justify-center py-12">
                   <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
                 </div>
-              ) : refunds.length === 0 ? (
+              ) : filteredRefunds.length === 0 ? (
                 <div className="text-center py-12">
                   <Undo2 className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
                   <p className="font-body text-sm text-muted-foreground">
-                    No refunds yet. Trigger one from the Payment History tab.
+                    {refunds.length === 0
+                      ? "No refunds yet. Trigger one from the Payment History tab."
+                      : "No refunds match the current filters."}
                   </p>
                 </div>
               ) : (
@@ -867,7 +913,7 @@ export default function AdminPayments() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {refunds.map((r) => (
+                      {filteredRefunds.map((r) => (
                         <TableRow key={r.id}>
                           <TableCell className="font-body text-xs text-muted-foreground whitespace-nowrap">
                             {format(new Date(r.created_at), "dd MMM HH:mm")}
