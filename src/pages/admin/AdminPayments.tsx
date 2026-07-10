@@ -142,6 +142,13 @@ export default function AdminPayments() {
   const [refundSpeed, setRefundSpeed] = useState<string>("normal");
   const [refundSubmitting, setRefundSubmitting] = useState(false);
 
+  // Refund filters
+  const [refundStatusFilter, setRefundStatusFilter] = useState<string>("all");
+  const [refundSpeedFilter, setRefundSpeedFilter] = useState<string>("all");
+  const [refundSubFilter, setRefundSubFilter] = useState<string>("all");
+  const [refundDateRange, setRefundDateRange] = useState<DateRange>("30d");
+  const [refundSearch, setRefundSearch] = useState("");
+
   const fetchRefunds = async () => {
     setRefundsLoading(true);
     const { data } = await supabase
@@ -166,6 +173,33 @@ export default function AdminPayments() {
     }
     return m;
   }, [refunds]);
+
+  const filteredRefunds = useMemo(() => {
+    const startISO = getDateRangeStart(refundDateRange);
+    const q = refundSearch.trim().toLowerCase();
+    return refunds.filter((r) => {
+      if (refundStatusFilter !== "all" && r.status !== refundStatusFilter) return false;
+      if (refundSpeedFilter !== "all" && (r.speed || "") !== refundSpeedFilter) return false;
+      if (refundSubFilter === "with" && !r.user_id) return false;
+      if (refundSubFilter === "without" && r.user_id) return false;
+      if (startISO && r.created_at < startISO) return false;
+      if (q) {
+        const hay = [
+          r.razorpay_refund_id,
+          r.razorpay_payment_id,
+          r.razorpay_order_id,
+          r.reason,
+          r.error_description,
+          r.error_code,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [refunds, refundStatusFilter, refundSpeedFilter, refundSubFilter, refundDateRange, refundSearch]);
 
   const openRefundDialog = (p: PaymentRecord) => {
     setRefundTarget(p);
