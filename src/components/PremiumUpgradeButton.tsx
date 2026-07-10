@@ -145,8 +145,9 @@ const PremiumUpgradeButton = ({
             // Confirm the premium entitlement is actually active in the backend
             // before celebrating — protects against a verified payment that
             // failed to persist the subscription row for any reason.
+            // Poll up to ~20s to cover webhook latency before redirecting.
             let entitled = false;
-            for (let attempt = 0; attempt < 5 && !entitled; attempt++) {
+            for (let attempt = 0; attempt < 10 && !entitled; attempt++) {
               const { data: rpcData, error: rpcErr } = await supabase.rpc("user_has_premium", {
                 _user_id: user!.id,
               });
@@ -154,8 +155,7 @@ const PremiumUpgradeButton = ({
                 entitled = true;
                 break;
               }
-              // brief backoff to allow the webhook / verify handler to finish writing
-              await new Promise((r) => setTimeout(r, 600));
+              await new Promise((r) => setTimeout(r, 2000));
             }
 
             if (!entitled) {
