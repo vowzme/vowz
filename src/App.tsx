@@ -109,6 +109,7 @@ const AppRoutes = () => (
     <Route path="/admin/storage-cleanup" element={<AdminLayout><AdminStorageCleanup /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
+    <Route path="/unsubscribe" element={<Unsubscribe />} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>
 );
