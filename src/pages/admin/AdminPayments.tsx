@@ -141,6 +141,7 @@ export default function AdminPayments() {
   const [refundReason, setRefundReason] = useState<string>("");
   const [refundSpeed, setRefundSpeed] = useState<string>("normal");
   const [refundSubmitting, setRefundSubmitting] = useState(false);
+  const [existingRefundInfo, setExistingRefundInfo] = useState<Partial<RefundRecord> | null>(null);
 
   // Refund filters
   const [refundStatusFilter, setRefundStatusFilter] = useState<string>("all");
@@ -229,10 +230,33 @@ export default function AdminPayments() {
       },
     });
     setRefundSubmitting(false);
+
+    // Handle 409 Conflict — a refund already exists for this payment.
+    let errBody: any = data;
+    let status = 200;
+    if (error && (error as any).context instanceof Response) {
+      status = (error as any).context.status;
+      try { errBody = await (error as any).context.clone().json(); } catch { /* ignore */ }
+    }
+    if (status === 409 || (errBody && errBody.existing_refund)) {
+      const existing = errBody?.existing_refund;
+      // Prefer the fresh copy from the refunds list if available
+      const local = existing?.razorpay_refund_id
+        ? refunds.find((r) => r.razorpay_refund_id === existing.razorpay_refund_id)
+        : refunds.find((r) => r.razorpay_payment_id === refundTarget!.payment_id && r.status !== "failed");
+      setExistingRefundInfo({
+        ...(existing || {}),
+        ...(local || {}),
+        razorpay_payment_id: refundTarget!.payment_id!,
+      });
+      setRefundTarget(null);
+      await fetchRefunds();
+      return;
+    }
     if (error || (data as any)?.error) {
       toast({
         title: "Refund failed",
-        description: (data as any)?.error || error?.message || "Unable to create refund",
+        description: (data as any)?.error || (error as any)?.message || "Unable to create refund",
         variant: "destructive",
       });
       return;
@@ -1078,6 +1102,64 @@ export default function AdminPayments() {
             <Button variant="gold" onClick={submitRefund} disabled={refundSubmitting}>
               {refundSubmitting ? "Processing..." : "Refund"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Existing refund conflict (HTTP 409) */}
+      <Dialog open={!!existingRefundInfo} onOpenChange={(open) => !open && setExistingRefundInfo(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Refund already exists</DialogTitle>
+            <DialogDescription className="font-body text-sm">
+              A refund for this payment is already in progress or has been completed. No new refund was created.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 font-body text-sm">
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Payment ID</span>
+              <span className="font-mono text-xs text-foreground truncate">{existingRefundInfo?.razorpay_payment_id || "—"}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Refund ID</span>
+              <span className="font-mono text-xs text-foreground truncate">{existingRefundInfo?.razorpay_refund_id || "—"}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Amount</span>
+              <span className="text-foreground">
+                {existingRefundInfo?.amount != null
+                  ? `${existingRefundInfo?.currency === "INR" ? "₹" : (existingRefundInfo?.currency || "") + " "}${Number(existingRefundInfo.amount).toLocaleString()}`
+                  : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Status</span>
+              <Badge
+                variant="secondary"
+                className={`font-body text-[10px] ${
+                  existingRefundInfo?.status === "processed"
+                    ? "bg-emerald/15 text-emerald border-emerald/30"
+                    : existingRefundInfo?.status === "failed"
+                    ? "bg-destructive/15 text-destructive border-destructive/30"
+                    : "bg-gold/15 text-gold border-gold/30"
+                }`}
+              >
+                {existingRefundInfo?.status || "unknown"}
+              </Badge>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Speed</span>
+              <span className="text-foreground">{existingRefundInfo?.speed || "—"}</span>
+            </div>
+            {existingRefundInfo?.created_at && (
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">Created</span>
+                <span className="text-foreground">{format(new Date(existingRefundInfo.created_at), "dd MMM yyyy HH:mm")}</span>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExistingRefundInfo(null)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
