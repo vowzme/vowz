@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -9,8 +9,9 @@ import {
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
   IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon,
-  Pause, Play
+  Pause, Play, QrCode
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
 import { Button } from "@/components/ui/button";
