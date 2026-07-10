@@ -196,13 +196,73 @@ Deno.serve(async (req) => {
         break;
       }
       case "refund.created":
+      case "refund.failed":
       case "refund.processed": {
         const refund = event?.payload?.refund?.entity;
-        if (refund?.payment_id) {
-          await supabase
-            .from("razorpay_payments")
-            .update({ status: "refunded", refunded_at: new Date().toISOString() })
-            .eq("razorpay_payment_id", refund.payment_id);
+        console.log("[rzp-webhook] refund event", {
+          eventId,
+          event: event?.event,
+          refund_id: refund?.id,
+          payment_id: refund?.payment_id,
+          amount: refund?.amount,
+          currency: refund?.currency,
+          status: refund?.status,
+          speed_processed: refund?.speed_processed,
+          error_code: refund?.error_code,
+          error_description: refund?.error_description,
+        });
+
+        if (refund?.id && refund?.payment_id) {
+          const nowISO = new Date().toISOString();
+          // Determine final status from Razorpay's own status field (safer than event name)
+          const finalStatus =
+            refund.status === "processed" || event?.event === "refund.processed"
+              ? "processed"
+              : refund.status === "failed" || event?.event === "refund.failed"
+              ? "failed"
+              : "pending";
+
+          // Find owning subscription so we can backfill on webhook-only refunds
+          const { data: sub } = await supabase
+            .from("user_subscriptions")
+            .select("id, user_id, payment_order_id, currency")
+            .eq("payment_id", refund.payment_id)
+            .maybeSingle();
+
+          const { error: upsertErr } = await supabase
+            .from("razorpay_refunds")
+            .upsert(
+              {
+                subscription_id: sub?.id || null,
+                user_id: sub?.user_id || null,
+                razorpay_refund_id: refund.id,
+                razorpay_payment_id: refund.payment_id,
+                razorpay_order_id: sub?.payment_order_id || null,
+                amount: Number(refund.amount || 0) / 100,
+                currency: refund.currency || sub?.currency || "INR",
+                status: finalStatus,
+                speed: refund.speed_processed || refund.speed_requested || null,
+                error_code: refund.error_code || null,
+                error_description: refund.error_description || null,
+                processed_at: finalStatus === "processed" ? nowISO : null,
+                notes: refund.notes || {},
+              },
+              { onConflict: "razorpay_refund_id" }
+            );
+          if (upsertErr) {
+            console.error("[rzp-webhook] refund upsert failed", upsertErr);
+          }
+
+          if (sub?.id) {
+            await supabase
+              .from("user_subscriptions")
+              .update({
+                status: finalStatus === "processed" ? "refunded" : finalStatus === "failed" ? "active" : "refund_pending",
+              })
+              .eq("id", sub.id);
+          }
+        } else {
+          console.warn("[rzp-webhook] refund event missing id or payment_id", { eventId });
         }
         break;
       }
