@@ -669,7 +669,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Custom URL Editor */}
-                {site.is_published && site.slug && (
+                {site.slug && (
                   <div className="lg:col-span-2">
                     <CustomSlugEditor
                       siteId={site.id}
