@@ -10,6 +10,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ApplePayVerificationChecklist from "@/components/admin/ApplePayVerificationChecklist";
 
 interface AdminEmail {
   id: string;
@@ -99,6 +100,10 @@ export default function AdminSettings() {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold text-foreground mb-6">Admin Settings</h1>
+
+      <div className="mb-6">
+        <ApplePayVerificationChecklist />
+      </div>
 
       <Card className="border-border/50 max-w-2xl">
         <CardHeader>
