@@ -16,6 +16,7 @@ import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
 import { useAnalyticsTracker } from "@/hooks/use-analytics";
+import { buildWhatsAppShareUrl } from "@/lib/share-url";
 
 interface CustomSlugEditorProps {
   siteId: string;
