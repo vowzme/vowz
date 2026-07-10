@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, IndianRupee, Wallet, Receipt, TrendingUp, Users, Search } from "lucide-react";
+import { CreditCard, IndianRupee, Wallet, Receipt, TrendingUp, Users, Search, Webhook, CheckCircle2, XCircle, AlertTriangle, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 
 interface PaymentProvider {
@@ -35,6 +35,20 @@ interface PaymentRecord {
   created_at: string;
   user_email?: string;
   user_name?: string;
+}
+
+interface WebhookEvent {
+  id: string;
+  received_at: string;
+  event_type: string | null;
+  razorpay_event_id: string | null;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  signature_valid: boolean;
+  processed: boolean;
+  status_code: number;
+  error: string | null;
+  payload: any;
 }
 
 const providerMeta: Record<string, { label: string; icon: React.ElementType; fields: { key: string; label: string; type?: string }[] }> = {
@@ -87,6 +101,35 @@ export default function AdminPayments() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange>("30d");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Webhook events state
+  const [webhookEvents, setWebhookEvents] = useState<WebhookEvent[]>([]);
+  const [webhookLoading, setWebhookLoading] = useState(true);
+  const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
+
+  const fetchWebhookEvents = async () => {
+    setWebhookLoading(true);
+    const { data } = await supabase
+      .from("razorpay_webhook_events" as any)
+      .select("*")
+      .order("received_at", { ascending: false })
+      .limit(100);
+    setWebhookEvents((data as any) ?? []);
+    setWebhookLoading(false);
+  };
+
+  useEffect(() => {
+    fetchWebhookEvents();
+  }, []);
+
+  const webhookStats = useMemo(() => {
+    const total = webhookEvents.length;
+    const sigFail = webhookEvents.filter((e) => !e.signature_valid).length;
+    const procFail = webhookEvents.filter((e) => e.signature_valid && !e.processed).length;
+    const ok = webhookEvents.filter((e) => e.signature_valid && e.processed).length;
+    const last = webhookEvents[0];
+    return { total, sigFail, procFail, ok, last };
+  }, [webhookEvents]);
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -227,6 +270,9 @@ export default function AdminPayments() {
         <TabsList className="bg-card border border-border/50">
           <TabsTrigger value="history" className="font-body text-sm">
             <Receipt className="w-4 h-4 mr-1.5" /> Payment History
+          </TabsTrigger>
+          <TabsTrigger value="webhooks" className="font-body text-sm">
+            <Webhook className="w-4 h-4 mr-1.5" /> Webhooks
           </TabsTrigger>
           <TabsTrigger value="gateways" className="font-body text-sm">
             <CreditCard className="w-4 h-4 mr-1.5" /> Gateways
@@ -393,6 +439,168 @@ export default function AdminPayments() {
                           </TableCell>
                         </TableRow>
                       ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ─── Webhooks Tab ─── */}
+        <TabsContent value="webhooks">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Webhook className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-body text-xs text-muted-foreground">Total (last 100)</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{webhookStats.total}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <CheckCircle2 className="w-4 h-4 text-emerald" />
+                  <span className="font-body text-xs text-muted-foreground">Delivered OK</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{webhookStats.ok}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <XCircle className="w-4 h-4 text-destructive" />
+                  <span className="font-body text-xs text-muted-foreground">Signature failed</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{webhookStats.sigFail}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertTriangle className="w-4 h-4 text-gold" />
+                  <span className="font-body text-xs text-muted-foreground">Processing errors</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{webhookStats.procFail}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {webhookStats.last && (
+            <Card className="border-border/50 mb-4">
+              <CardContent className="p-4 flex flex-wrap items-center gap-4">
+                <div>
+                  <p className="font-body text-xs text-muted-foreground">Last event</p>
+                  <p className="font-body text-sm text-foreground">
+                    {webhookStats.last.event_type || "unknown"} · {format(new Date(webhookStats.last.received_at), "dd MMM yyyy HH:mm:ss")}
+                  </p>
+                </div>
+                <Badge
+                  className={`font-body text-[10px] ${
+                    !webhookStats.last.signature_valid
+                      ? "bg-destructive/15 text-destructive border-destructive/30"
+                      : webhookStats.last.processed
+                      ? "bg-emerald/15 text-emerald border-emerald/30"
+                      : "bg-gold/15 text-gold border-gold/30"
+                  }`}
+                >
+                  {!webhookStats.last.signature_valid
+                    ? "Signature invalid"
+                    : webhookStats.last.processed
+                    ? "Processed"
+                    : "Processing error"}
+                </Badge>
+                <Button size="sm" variant="outline" className="ml-auto font-body text-xs" onClick={fetchWebhookEvents}>
+                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card className="border-border/50">
+            <CardContent className="p-0">
+              {webhookLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : webhookEvents.length === 0 ? (
+                <div className="text-center py-12">
+                  <Webhook className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="font-body text-sm text-muted-foreground">
+                    No webhook events received yet. Trigger a test payment or send a test event from Razorpay to verify delivery.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-body text-xs">Received</TableHead>
+                        <TableHead className="font-body text-xs">Event</TableHead>
+                        <TableHead className="font-body text-xs">Order / Payment</TableHead>
+                        <TableHead className="font-body text-xs">Signature</TableHead>
+                        <TableHead className="font-body text-xs">Processed</TableHead>
+                        <TableHead className="font-body text-xs">Details</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {webhookEvents.map((e) => {
+                        const isOpen = expandedEvent === e.id;
+                        return (
+                          <>
+                            <TableRow key={e.id} className="cursor-pointer" onClick={() => setExpandedEvent(isOpen ? null : e.id)}>
+                              <TableCell className="font-body text-xs text-muted-foreground whitespace-nowrap">
+                                {format(new Date(e.received_at), "dd MMM HH:mm:ss")}
+                              </TableCell>
+                              <TableCell className="font-mono text-[11px]">{e.event_type || "—"}</TableCell>
+                              <TableCell className="font-mono text-[11px] text-muted-foreground">
+                                <div>{e.razorpay_order_id ? e.razorpay_order_id.slice(-14) : "—"}</div>
+                                <div className="text-[10px]">{e.razorpay_payment_id ? e.razorpay_payment_id.slice(-14) : ""}</div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  variant="secondary"
+                                  className={`font-body text-[10px] ${
+                                    e.signature_valid
+                                      ? "bg-emerald/15 text-emerald border-emerald/30"
+                                      : "bg-destructive/15 text-destructive border-destructive/30"
+                                  }`}
+                                >
+                                  {e.signature_valid ? "valid" : "invalid"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  variant="secondary"
+                                  className={`font-body text-[10px] ${
+                                    !e.signature_valid
+                                      ? "bg-muted text-muted-foreground"
+                                      : e.processed
+                                      ? "bg-emerald/15 text-emerald border-emerald/30"
+                                      : "bg-gold/15 text-gold border-gold/30"
+                                  }`}
+                                >
+                                  {!e.signature_valid ? "—" : e.processed ? "yes" : "error"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="font-body text-xs text-muted-foreground max-w-[280px] truncate">
+                                {e.error || (isOpen ? "Hide payload" : "View payload")}
+                              </TableCell>
+                            </TableRow>
+                            {isOpen && (
+                              <TableRow key={`${e.id}-payload`}>
+                                <TableCell colSpan={6} className="bg-muted/30">
+                                  <pre className="font-mono text-[11px] whitespace-pre-wrap break-all max-h-72 overflow-auto p-2">
+                                    {JSON.stringify(e.payload, null, 2)}
+                                  </pre>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>

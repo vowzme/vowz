@@ -38,19 +38,48 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const logEvent = async (row: {
+    event_type?: string | null;
+    razorpay_event_id?: string | null;
+    razorpay_order_id?: string | null;
+    razorpay_payment_id?: string | null;
+    signature_valid: boolean;
+    processed: boolean;
+    status_code: number;
+    error?: string | null;
+    payload?: unknown;
+  }) => {
+    try {
+      await supabaseAdmin.from("razorpay_webhook_events").insert(row as any);
+    } catch (e) {
+      console.error("Failed to log webhook event", e);
+    }
+  };
+
   const secret = Deno.env.get("RAZORPAY_WEBHOOK_SECRET");
   if (!secret) {
     console.error("RAZORPAY_WEBHOOK_SECRET is not configured");
+    await logEvent({ signature_valid: false, processed: false, status_code: 500, error: "RAZORPAY_WEBHOOK_SECRET not configured" });
     return json({ error: "Webhook not configured" }, 500);
   }
 
   const signature = req.headers.get("x-razorpay-signature");
-  if (!signature) return json({ error: "Missing signature" }, 400);
+  const eventIdHeader = req.headers.get("x-razorpay-event-id");
+  if (!signature) {
+    await logEvent({ razorpay_event_id: eventIdHeader, signature_valid: false, processed: false, status_code: 400, error: "Missing X-Razorpay-Signature header" });
+    return json({ error: "Missing signature" }, 400);
+  }
 
   const rawBody = await req.text();
   const expected = await hmacSha256Hex(secret, rawBody);
   if (!timingSafeEqual(signature, expected)) {
     console.warn("Razorpay webhook signature mismatch");
+    await logEvent({ razorpay_event_id: eventIdHeader, signature_valid: false, processed: false, status_code: 401, error: "Signature mismatch" });
     return json({ error: "Invalid signature" }, 401);
   }
 
@@ -58,16 +87,16 @@ Deno.serve(async (req) => {
   try {
     event = JSON.parse(rawBody);
   } catch {
+    await logEvent({ razorpay_event_id: eventIdHeader, signature_valid: true, processed: false, status_code: 400, error: "Invalid JSON body" });
     return json({ error: "Invalid JSON" }, 400);
   }
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
+  const supabase = supabaseAdmin;
 
-  const eventId = req.headers.get("x-razorpay-event-id") || event?.id || null;
+  const eventId = eventIdHeader || event?.id || null;
   console.log("Razorpay webhook received", { event: event?.event, eventId });
+  const entity = event?.payload?.payment?.entity || event?.payload?.refund?.entity || event?.payload?.order?.entity;
+  let processError: string | null = null;
 
   try {
     switch (event?.event) {
@@ -183,8 +212,21 @@ Deno.serve(async (req) => {
     }
   } catch (err) {
     console.error("Webhook processing error", err);
+    processError = err instanceof Error ? err.message : String(err);
     // Return 200 anyway to avoid Razorpay retry storms; log for investigation.
   }
+
+  await logEvent({
+    event_type: event?.event ?? null,
+    razorpay_event_id: eventId,
+    razorpay_order_id: entity?.order_id ?? null,
+    razorpay_payment_id: entity?.id ?? entity?.payment_id ?? null,
+    signature_valid: true,
+    processed: !processError,
+    status_code: 200,
+    error: processError,
+    payload: event,
+  });
 
   return json({ received: true });
 });
