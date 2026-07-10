@@ -243,15 +243,16 @@ export default function AdminPayments() {
   };
 
   const refundStats = useMemo(() => {
-    const total = refunds.length;
-    const processed = refunds.filter((r) => r.status === "processed").length;
-    const pending = refunds.filter((r) => r.status === "pending").length;
-    const failed = refunds.filter((r) => r.status === "failed").length;
-    const totalRefunded = refunds
+    const src = filteredRefunds;
+    const total = src.length;
+    const processed = src.filter((r) => r.status === "processed").length;
+    const pending = src.filter((r) => r.status === "pending").length;
+    const failed = src.filter((r) => r.status === "failed").length;
+    const totalRefunded = src
       .filter((r) => r.status === "processed")
       .reduce((s, r) => s + Number(r.amount || 0), 0);
     return { total, processed, pending, failed, totalRefunded };
-  }, [refunds]);
+  }, [filteredRefunds]);
 
   const fetchWebhookEvents = async () => {
     setWebhookLoading(true);
