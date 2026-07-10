@@ -938,6 +938,48 @@ export type Database = {
         }
         Relationships: []
       }
+      razorpay_webhook_events: {
+        Row: {
+          error: string | null
+          event_type: string | null
+          id: string
+          payload: Json | null
+          processed: boolean
+          razorpay_event_id: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          received_at: string
+          signature_valid: boolean
+          status_code: number
+        }
+        Insert: {
+          error?: string | null
+          event_type?: string | null
+          id?: string
+          payload?: Json | null
+          processed?: boolean
+          razorpay_event_id?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          received_at?: string
+          signature_valid: boolean
+          status_code: number
+        }
+        Update: {
+          error?: string | null
+          event_type?: string | null
+          id?: string
+          payload?: Json | null
+          processed?: boolean
+          razorpay_event_id?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          received_at?: string
+          signature_valid?: boolean
+          status_code?: number
+        }
+        Relationships: []
+      }
       rsvps: {
         Row: {
           attending: boolean
