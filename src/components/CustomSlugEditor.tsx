@@ -223,61 +223,11 @@ export default function CustomSlugEditor({
           </a>
         </Button>
       </div>
-      <Button
-        size="sm"
-        variant="outline"
-        className="w-full gap-2 text-[#25D366] hover:text-[#25D366] hover:bg-[#25D366]/10 border-[#25D366]/30"
-        onClick={() => {
-          const u = new URL(previewUrl);
-          u.searchParams.set("utm_source", "whatsapp");
-          u.searchParams.set("utm_medium", "share");
-          u.searchParams.set("utm_campaign", "live_preview");
-          const trackedUrl = u.toString();
-          trackEvent("share_click", {
-            channel: "whatsapp",
-            url: trackedUrl,
-            slug: previewSlug,
-          });
-          window.open(
-            `https://wa.me/?text=${encodeURIComponent(trackedUrl)}`,
-            "_blank",
-            "noopener,noreferrer"
-          );
-        }}
-        aria-label="Share on WhatsApp"
-      >
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.759-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.2.05-.374-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-        Share on WhatsApp
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        className="w-full gap-2 text-white border-transparent bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:opacity-90"
-        onClick={async () => {
-          try {
-            await navigator.clipboard.writeText(previewUrl);
-          } catch {}
-          if (navigator.share) {
-            try {
-              await navigator.share({ title: "Our wedding site", url: previewUrl });
-              return;
-            } catch {}
-          }
-          toast({
-            title: "Link copied 📋",
-            description: "Paste it into your Instagram story, bio, or DM.",
-          });
-          window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
-        }}
-        aria-label="Share on Instagram"
-      >
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.975.975 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.975.975-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.975-.975-1.246-2.242-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608C4.516 2.567 5.783 2.295 7.15 2.233 8.416 2.175 8.796 2.163 12 2.163zm0 1.837c-3.148 0-3.515.012-4.756.069-1.017.046-1.57.215-1.937.357-.487.19-.835.417-1.2.782-.365.365-.592.713-.782 1.2-.142.367-.311.92-.357 1.937C3.011 8.485 3 8.852 3 12s.012 3.515.069 4.756c.046 1.017.215 1.57.357 1.937.19.487.417.835.782 1.2.365.365.713.592 1.2.782.367.142.92.311 1.937.357C8.485 20.989 8.852 21 12 21s3.515-.012 4.756-.069c1.017-.046 1.57-.215 1.937-.357.487-.19.835-.417 1.2-.782.365-.365.592-.713.782-1.2.142-.367.311-.92.357-1.937.058-1.241.069-1.608.069-4.756s-.012-3.515-.069-4.756c-.046-1.017-.215-1.57-.357-1.937a3.098 3.098 0 00-.782-1.2 3.098 3.098 0 00-1.2-.782c-.367-.142-.92-.311-1.937-.357C15.515 4.012 15.148 4 12 4zm0 3.838a4.162 4.162 0 110 8.324 4.162 4.162 0 010-8.324zm0 6.87a2.708 2.708 0 100-5.416 2.708 2.708 0 000 5.416zm5.29-7.05a.97.97 0 11-1.94 0 .97.97 0 011.94 0z"/>
-        </svg>
-        Share on Instagram
-      </Button>
+      <ShareRow
+        url={previewUrl}
+        slug={previewSlug}
+        trackEvent={trackEvent}
+      />
       <QRCodeGenerator url={previewUrl} coupleNames={coupleNames} isPremium={isPremium} />
     </div>
   );
@@ -408,6 +358,154 @@ export default function CustomSlugEditor({
       </div>
 
       {LivePreview}
+    </div>
+  );
+}
+
+// ─── Social share row ────────────────────────────────────────────────
+type ShareChannel = {
+  key: string;
+  label: string;
+  color: string;
+  icon: JSX.Element;
+  build: (url: string) => string | null; // null → use native/copy fallback
+};
+
+const CHANNELS: ShareChannel[] = [
+  {
+    key: "whatsapp",
+    label: "WhatsApp",
+    color: "#25D366",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M20.52 3.48A11.94 11.94 0 0012.06 0C5.51 0 .18 5.33.18 11.88c0 2.09.55 4.13 1.6 5.93L0 24l6.34-1.66a11.86 11.86 0 005.72 1.46h.01c6.55 0 11.88-5.33 11.88-11.88 0-3.17-1.24-6.16-3.43-8.44zM12.07 21.7h-.01a9.83 9.83 0 01-5.01-1.37l-.36-.21-3.76.99 1-3.66-.24-.38a9.83 9.83 0 01-1.5-5.19c0-5.44 4.43-9.87 9.88-9.87 2.64 0 5.12 1.03 6.99 2.9a9.82 9.82 0 012.89 6.98c0 5.44-4.43 9.87-9.88 9.87zm5.42-7.39c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48c0 1.46 1.07 2.87 1.22 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.5 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35z"/></svg>
+    ),
+    build: (u) => `https://wa.me/?text=${encodeURIComponent(u)}`,
+  },
+  {
+    key: "facebook",
+    label: "Facebook",
+    color: "#1877F2",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.99 3.66 9.13 8.44 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99C18.34 21.13 22 16.99 22 12z"/></svg>
+    ),
+    build: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}`,
+  },
+  {
+    key: "twitter",
+    label: "X",
+    color: "#000000",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M18.244 2H21l-6.52 7.45L22 22h-6.813l-4.77-6.24L4.8 22H2l7.02-8.02L2 2h6.914l4.31 5.7L18.244 2zm-1.194 18h1.83L7.05 4H5.1l11.95 16z"/></svg>
+    ),
+    build: (u) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent("Our wedding site")}`,
+  },
+  {
+    key: "telegram",
+    label: "Telegram",
+    color: "#26A5E4",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M9.78 15.72 9.6 19.4c.34 0 .49-.15.67-.32l1.6-1.53 3.32 2.43c.61.34 1.05.16 1.22-.56l2.21-10.36c.2-.9-.32-1.25-.92-1.03L4.35 12.53c-.88.34-.87.83-.15 1.05l3.8 1.19 8.82-5.56c.42-.27.8-.12.49.15z"/></svg>
+    ),
+    build: (u) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent("Our wedding site")}`,
+  },
+  {
+    key: "linkedin",
+    label: "LinkedIn",
+    color: "#0A66C2",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.35V9h3.42v1.56h.05c.48-.9 1.65-1.85 3.39-1.85 3.63 0 4.3 2.39 4.3 5.5v6.24zM5.34 7.43a2.06 2.06 0 110-4.13 2.06 2.06 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+    ),
+    build: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}`,
+  },
+  {
+    key: "email",
+    label: "Email",
+    color: "#6B7280",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    ),
+    build: (u) => `mailto:?subject=${encodeURIComponent("Our wedding site")}&body=${encodeURIComponent(u)}`,
+  },
+  {
+    key: "instagram",
+    label: "Instagram",
+    color: "#DD2A7B",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.37.06 2.63.33 3.6 1.3.98.98 1.25 2.24 1.31 3.61.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.06 1.37-.33 2.63-1.3 3.6-.98.98-2.24 1.25-3.61 1.31-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.37-.06-2.63-.33-3.6-1.3-.98-.98-1.25-2.24-1.31-3.61C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.06-1.37.33-2.63 1.3-3.6.98-.98 2.24-1.25 3.61-1.31C8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.5.42 3.4 1.52 2.3 2.62 2 3.9 1.94 5.17 1.88 6.45 1.87 6.86 1.87 12s.01 5.55.07 6.83c.06 1.27.36 2.55 1.46 3.65 1.1 1.1 2.38 1.4 3.65 1.46 1.28.06 1.69.07 6.95.07s5.67-.01 6.95-.07c1.27-.06 2.55-.36 3.65-1.46 1.1-1.1 1.4-2.38 1.46-3.65.06-1.28.07-1.69.07-6.95s-.01-5.67-.07-6.95c-.06-1.27-.36-2.55-1.46-3.65C21.5.42 20.22.13 18.95.07 17.67.01 17.26 0 12 0zm0 5.84A6.16 6.16 0 105.84 12 6.16 6.16 0 0012 5.84zm0 10.16A4 4 0 1116 12a4 4 0 01-4 4zm6.4-11.85a1.44 1.44 0 11-1.44 1.44 1.44 1.44 0 011.44-1.44z"/></svg>
+    ),
+    build: () => null, // no web share endpoint — native/copy fallback
+  },
+];
+
+function ShareRow({
+  url,
+  slug,
+  trackEvent,
+}: {
+  url: string;
+  slug: string;
+  trackEvent: (event: string, metadata?: Record<string, any>) => void;
+}) {
+  const handleShare = async (c: ShareChannel) => {
+    const u = new URL(url);
+    u.searchParams.set("utm_source", c.key);
+    u.searchParams.set("utm_medium", "share");
+    u.searchParams.set("utm_campaign", "live_preview");
+    const trackedUrl = u.toString();
+    trackEvent("share_click", { channel: c.key, url: trackedUrl, slug });
+
+    const target = c.build(trackedUrl);
+    if (target) {
+      window.open(target, "_blank", "noopener,noreferrer");
+      return;
+    }
+    // Instagram / no-endpoint fallback
+    try { await navigator.clipboard.writeText(trackedUrl); } catch {}
+    if (navigator.share) {
+      try { await navigator.share({ title: "Our wedding site", url: trackedUrl }); return; } catch {}
+    }
+    toast({ title: "Link copied 📋", description: `Paste it into ${c.label}.` });
+    if (c.key === "instagram") window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+  };
+
+  const nativeShare = async () => {
+    trackEvent("share_click", { channel: "native", url, slug });
+    if (navigator.share) {
+      try { await navigator.share({ title: "Our wedding site", url }); return; } catch {}
+    }
+    try { await navigator.clipboard.writeText(url); } catch {}
+    toast({ title: "Link copied 📋" });
+  };
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-medium text-foreground font-body">Share</p>
+      <div className="flex flex-wrap gap-2">
+        {CHANNELS.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            onClick={() => handleShare(c)}
+            aria-label={`Share on ${c.label}`}
+            title={`Share on ${c.label}`}
+            className="w-9 h-9 inline-flex items-center justify-center rounded-full border border-border/50 bg-background/50 hover:opacity-80 transition"
+            style={{ color: c.color }}
+          >
+            {c.icon}
+          </button>
+        ))}
+        {typeof navigator !== "undefined" && "share" in navigator && (
+          <button
+            type="button"
+            onClick={nativeShare}
+            aria-label="More share options"
+            title="More"
+            className="w-9 h-9 inline-flex items-center justify-center rounded-full border border-border/50 bg-background/50 hover:opacity-80 transition text-foreground"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M18 8a3 3 0 10-2.83-4H15L8.83 8.17A3 3 0 106 12a3 3 0 002.83-1.83L15 6l.17.17A3 3 0 0018 8zM6 20a3 3 0 100-6 3 3 0 000 6zm12 0a3 3 0 100-6 3 3 0 000 6zm-3-3.17L8.83 12.83A2.99 2.99 0 019 12l6.17 4.17c-.11.26-.17.54-.17.83z"/></svg>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
