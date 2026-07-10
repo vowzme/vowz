@@ -142,6 +142,13 @@ export default function AdminPayments() {
   const [refundSpeed, setRefundSpeed] = useState<string>("normal");
   const [refundSubmitting, setRefundSubmitting] = useState(false);
 
+  // Refund filters
+  const [refundStatusFilter, setRefundStatusFilter] = useState<string>("all");
+  const [refundSpeedFilter, setRefundSpeedFilter] = useState<string>("all");
+  const [refundSubFilter, setRefundSubFilter] = useState<string>("all");
+  const [refundDateRange, setRefundDateRange] = useState<DateRange>("30d");
+  const [refundSearch, setRefundSearch] = useState("");
+
   const fetchRefunds = async () => {
     setRefundsLoading(true);
     const { data } = await supabase
@@ -166,6 +173,33 @@ export default function AdminPayments() {
     }
     return m;
   }, [refunds]);
+
+  const filteredRefunds = useMemo(() => {
+    const startISO = getDateRangeStart(refundDateRange);
+    const q = refundSearch.trim().toLowerCase();
+    return refunds.filter((r) => {
+      if (refundStatusFilter !== "all" && r.status !== refundStatusFilter) return false;
+      if (refundSpeedFilter !== "all" && (r.speed || "") !== refundSpeedFilter) return false;
+      if (refundSubFilter === "with" && !r.user_id) return false;
+      if (refundSubFilter === "without" && r.user_id) return false;
+      if (startISO && r.created_at < startISO) return false;
+      if (q) {
+        const hay = [
+          r.razorpay_refund_id,
+          r.razorpay_payment_id,
+          r.razorpay_order_id,
+          r.reason,
+          r.error_description,
+          r.error_code,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [refunds, refundStatusFilter, refundSpeedFilter, refundSubFilter, refundDateRange, refundSearch]);
 
   const openRefundDialog = (p: PaymentRecord) => {
     setRefundTarget(p);
@@ -209,15 +243,16 @@ export default function AdminPayments() {
   };
 
   const refundStats = useMemo(() => {
-    const total = refunds.length;
-    const processed = refunds.filter((r) => r.status === "processed").length;
-    const pending = refunds.filter((r) => r.status === "pending").length;
-    const failed = refunds.filter((r) => r.status === "failed").length;
-    const totalRefunded = refunds
+    const src = filteredRefunds;
+    const total = src.length;
+    const processed = src.filter((r) => r.status === "processed").length;
+    const pending = src.filter((r) => r.status === "pending").length;
+    const failed = src.filter((r) => r.status === "failed").length;
+    const totalRefunded = src
       .filter((r) => r.status === "processed")
       .reduce((s, r) => s + Number(r.amount || 0), 0);
     return { total, processed, pending, failed, totalRefunded };
-  }, [refunds]);
+  }, [filteredRefunds]);
 
   const fetchWebhookEvents = async () => {
     setWebhookLoading(true);
@@ -799,8 +834,52 @@ export default function AdminPayments() {
               </CardContent>
             </Card>
           </div>
-          <div className="flex justify-end mb-3">
-            <Button size="sm" variant="outline" className="font-body text-xs" onClick={fetchRefunds}>
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className="relative flex-1 min-w-[220px]">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <Input
+                value={refundSearch}
+                onChange={(e) => setRefundSearch(e.target.value)}
+                placeholder="Search refund/payment/order ID, reason, error…"
+                className="pl-8 h-9 font-body text-xs"
+              />
+            </div>
+            <Select value={refundStatusFilter} onValueChange={setRefundStatusFilter}>
+              <SelectTrigger className="h-9 w-[140px] font-body text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="processed">Processed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={refundSpeedFilter} onValueChange={setRefundSpeedFilter}>
+              <SelectTrigger className="h-9 w-[130px] font-body text-xs"><SelectValue placeholder="Speed" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All speeds</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="optimum">Optimum</SelectItem>
+                <SelectItem value="instant">Instant</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={refundSubFilter} onValueChange={setRefundSubFilter}>
+              <SelectTrigger className="h-9 w-[160px] font-body text-xs"><SelectValue placeholder="Subscription" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All refunds</SelectItem>
+                <SelectItem value="with">Linked to subscription</SelectItem>
+                <SelectItem value="without">Orphaned</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={refundDateRange} onValueChange={(v) => setRefundDateRange(v as DateRange)}>
+              <SelectTrigger className="h-9 w-[130px] font-body text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+                <SelectItem value="all">All time</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button size="sm" variant="outline" className="font-body text-xs h-9" onClick={fetchRefunds}>
               <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh
             </Button>
           </div>
@@ -810,11 +889,13 @@ export default function AdminPayments() {
                 <div className="flex justify-center py-12">
                   <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
                 </div>
-              ) : refunds.length === 0 ? (
+              ) : filteredRefunds.length === 0 ? (
                 <div className="text-center py-12">
                   <Undo2 className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
                   <p className="font-body text-sm text-muted-foreground">
-                    No refunds yet. Trigger one from the Payment History tab.
+                    {refunds.length === 0
+                      ? "No refunds yet. Trigger one from the Payment History tab."
+                      : "No refunds match the current filters."}
                   </p>
                 </div>
               ) : (
@@ -832,7 +913,7 @@ export default function AdminPayments() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {refunds.map((r) => (
+                      {filteredRefunds.map((r) => (
                         <TableRow key={r.id}>
                           <TableCell className="font-body text-xs text-muted-foreground whitespace-nowrap">
                             {format(new Date(r.created_at), "dd MMM HH:mm")}
