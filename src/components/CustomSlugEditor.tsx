@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   Link2, Check, X, Loader2, RefreshCw, Copy, Crown, ExternalLink,
 } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip, TooltipContent, TooltipTrigger,
@@ -181,6 +182,7 @@ export default function CustomSlugEditor({
 
   const copyUrl = () => {
     navigator.clipboard.writeText(`${baseUrl}${slug || currentSlug}`);
+    trackEvent("share_click", { channel: "copy_url", url: `${baseUrl}${slug || currentSlug}` });
     toast({ title: "URL copied! 📋" });
   };
 
@@ -220,6 +222,7 @@ export default function CustomSlugEditor({
           className="shrink-0 h-8 w-8"
           onClick={() => {
             navigator.clipboard.writeText(previewUrl);
+            trackEvent("share_click", { channel: "copy_url", url: previewUrl });
             toast({ title: "Preview URL copied! 📋" });
           }}
           aria-label="Copy preview URL"
@@ -234,6 +237,7 @@ export default function CustomSlugEditor({
           className="w-full gap-2"
           onClick={() => {
             navigator.clipboard.writeText(previewUrl);
+            trackEvent("share_click", { channel: "copy_url", url: previewUrl });
             toast({ title: "Preview URL copied! 📋", description: previewUrl });
           }}
           aria-label="Copy preview URL to clipboard"
@@ -254,6 +258,7 @@ export default function CustomSlugEditor({
         trackEvent={trackEvent}
         caption={caption}
       />
+      <ShareAnalytics siteId={siteId} />
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-medium text-foreground font-body">Instagram caption</label>
