@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Download, QrCode } from "lucide-react";
+import { Download, QrCode, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 interface QRCodeGeneratorProps {
   url: string;
@@ -46,6 +47,35 @@ export default function QRCodeGenerator({ url, coupleNames, isPremium, accent = 
     a.click();
   };
 
+  const copyImage = async () => {
+    const svg = svgRef.current?.querySelector("svg");
+    if (!svg) return;
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, 1024, 1024);
+      const data = new XMLSerializer().serializeToString(svg);
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+        img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data)));
+      });
+      ctx.drawImage(img, 0, 0, 1024, 1024);
+      const blob: Blob = await new Promise((resolve) =>
+        canvas.toBlob((b) => resolve(b as Blob), "image/png")
+      );
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      toast({ title: "QR image copied! 📋", description: "Paste it into any app or chat." });
+    } catch {
+      toast({ title: "Copy not supported", description: "Use Download PNG instead.", variant: "destructive" });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-2">
@@ -83,6 +113,9 @@ export default function QRCodeGenerator({ url, coupleNames, isPremium, accent = 
       )}
 
       <div className="flex gap-2 justify-center">
+        <Button variant="outline" size="sm" className="font-body text-xs" onClick={copyImage}>
+          <Copy className="w-3.5 h-3.5 mr-1" /> Copy
+        </Button>
         <Button variant="outline" size="sm" className="font-body text-xs" onClick={downloadPNG}>
           <Download className="w-3.5 h-3.5 mr-1" /> PNG
         </Button>
