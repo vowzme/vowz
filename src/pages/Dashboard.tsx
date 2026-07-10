@@ -44,6 +44,16 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface RsvpRow {
   id: string;
@@ -197,6 +207,7 @@ const Dashboard = () => {
   const { pricing } = usePricingRegion();
   const [site, setSite] = useState<any>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
+  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
@@ -338,7 +349,15 @@ const Dashboard = () => {
 
   const handleTogglePublish = async () => {
     if (!site) return;
-    const newStatus = !site.is_published;
+    if (!site.is_published) {
+      setPublishConfirmOpen(true);
+      return;
+    }
+    await doTogglePublish(false);
+  };
+
+  const doTogglePublish = async (newStatus: boolean) => {
+    if (!site) return;
     const success = await updateSite(site.id, { is_published: newStatus });
     if (success) {
       setSite({ ...site, is_published: newStatus });
@@ -1004,6 +1023,29 @@ const Dashboard = () => {
           </>
         )}
       </div>
+      <AlertDialog open={publishConfirmOpen} onOpenChange={setPublishConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Publish your wedding site?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your site will become <strong>publicly visible</strong> to anyone with the link
+              {site?.slug ? ` (vowz.me/${site.slug})` : ""}. Search engines and guests may see
+              names, dates, photos and event details. You can unpublish at any time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                setPublishConfirmOpen(false);
+                await doTogglePublish(true);
+              }}
+            >
+              Yes, make it public
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
