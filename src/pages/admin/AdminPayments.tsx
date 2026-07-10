@@ -926,6 +926,66 @@ export default function AdminPayments() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Refund dialog */}
+      <Dialog open={!!refundTarget} onOpenChange={(open) => !open && setRefundTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Refund payment</DialogTitle>
+            <DialogDescription className="font-body text-sm">
+              Refunds go to the original payment method via Razorpay. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="text-xs text-muted-foreground font-body space-y-0.5">
+              <div>User: <span className="text-foreground">{refundTarget?.user_email || refundTarget?.user_name || "—"}</span></div>
+              <div>Payment ID: <span className="font-mono">{refundTarget?.payment_id || "—"}</span></div>
+              <div>Paid: <span className="text-foreground">{refundTarget?.currency === "INR" ? "₹" : (refundTarget?.currency || "") + " "}{Number(refundTarget?.amount_paid || 0).toLocaleString()}</span></div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-body text-sm">Amount to refund</Label>
+              <Input
+                type="number"
+                value={refundAmount}
+                onChange={(e) => setRefundAmount(e.target.value)}
+                min={0}
+                step="0.01"
+                className="font-body"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-body text-sm">Speed</Label>
+              <Select value={refundSpeed} onValueChange={setRefundSpeed}>
+                <SelectTrigger className="font-body text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal (5–7 business days)</SelectItem>
+                  <SelectItem value="optimum">Optimum (instant when available)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-body text-sm">Reason (optional)</Label>
+              <Textarea
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                placeholder="Why is this being refunded?"
+                rows={2}
+                className="font-body text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRefundTarget(null)} disabled={refundSubmitting}>
+              Cancel
+            </Button>
+            <Button variant="gold" onClick={submitRefund} disabled={refundSubmitting}>
+              {refundSubmitting ? "Processing..." : "Refund"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
