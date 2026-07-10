@@ -455,6 +455,22 @@ const Dashboard = () => {
           </div>
           {site && site.slug && (
             <div className="flex flex-wrap gap-2 shrink-0">
+              <div
+                className="flex items-center gap-2 px-3 rounded-md border border-border/50 bg-card/50 text-xs font-body"
+                aria-live="polite"
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${site.is_published ? "bg-emerald-500" : "bg-muted-foreground"}`}
+                />
+                <span className="font-medium text-foreground">
+                  {site.is_published ? "Published" : "Draft"}
+                </span>
+                {(site as any).updated_at && (
+                  <span className="text-muted-foreground hidden sm:inline">
+                    · Updated {format(new Date((site as any).updated_at), "MMM d, h:mm a")}
+                  </span>
+                )}
+              </div>
               <Button
                 variant={site.is_published ? "outline" : "gold"}
                 size="sm"
