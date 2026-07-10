@@ -207,6 +207,7 @@ const Dashboard = () => {
   const { pricing } = usePricingRegion();
   const [site, setSite] = useState<any>(null);
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
+  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
