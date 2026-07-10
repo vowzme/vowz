@@ -20,6 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Mail, RefreshCw } from "lucide-react";
+import { AlertTriangle, RotateCcw, Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 type LogRow = {
   id: string;
@@ -54,6 +56,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const PAGE_SIZE = 50;
+// Pending rows older than this are treated as timed-out and eligible for retry.
+const STUCK_PENDING_MS = 30 * 60 * 1000;
 
 export default function AdminEmails() {
   const [rows, setRows] = useState<LogRow[]>([]);
@@ -65,6 +69,7 @@ export default function AdminEmails() {
   const [template, setTemplate] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
   const [page, setPage] = useState(0);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
 
   const { start, end } = useMemo(() => {
     if (rangeKey === "custom" && customStart && customEnd) {
@@ -137,14 +142,18 @@ export default function AdminEmails() {
   }, [deduped, template, status]);
 
   const stats = useMemo(() => {
-    let sent = 0, failed = 0, sup = 0, pending = 0;
+    let sent = 0, failed = 0, sup = 0, pending = 0, stuck = 0;
+    const now = Date.now();
     for (const r of filtered) {
       if (r.status === "sent") sent++;
       else if (r.status === "dlq" || r.status === "failed" || r.status === "bounced") failed++;
       else if (r.status === "suppressed" || r.status === "complained") sup++;
-      else if (r.status === "pending") pending++;
+      else if (r.status === "pending") {
+        pending++;
+        if (now - new Date(r.created_at).getTime() > STUCK_PENDING_MS) stuck++;
+      }
     }
-    return { total: filtered.length, sent, failed, sup, pending };
+    return { total: filtered.length, sent, failed, sup, pending, stuck };
   }, [filtered]);
 
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
@@ -153,6 +162,45 @@ export default function AdminEmails() {
   useEffect(() => {
     setPage(0);
   }, [template, status, rangeKey, customStart, customEnd]);
+
+  const isRetryable = (r: LogRow) => {
+    if (!r.template_name || !r.recipient_email) return false;
+    if (r.status === "dlq" || r.status === "failed" || r.status === "bounced") return true;
+    if (r.status === "pending") {
+      return Date.now() - new Date(r.created_at).getTime() > STUCK_PENDING_MS;
+    }
+    return false;
+  };
+
+  const retry = async (r: LogRow) => {
+    if (!r.template_name || !r.recipient_email) return;
+    setRetryingId(r.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: r.template_name,
+          recipientEmail: r.recipient_email,
+          idempotencyKey: `retry-${r.message_id ?? r.id}-${Date.now()}`,
+          templateData: {},
+        },
+      });
+      if (error) throw error;
+      if (data && (data as any).success === false) {
+        toast({
+          title: "Retry skipped",
+          description: (data as any).reason ?? "Recipient is suppressed",
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: "Retry queued", description: `Re-sending ${r.template_name} to ${r.recipient_email}` });
+      }
+      await load();
+    } catch (e: any) {
+      toast({ title: "Retry failed", description: e?.message ?? "Unknown error", variant: "destructive" });
+    } finally {
+      setRetryingId(null);
+    }
+  };
 
   return (
     <div>
@@ -228,7 +276,11 @@ export default function AdminEmails() {
         {[
           { label: "Total", value: stats.total, color: "text-foreground" },
           { label: "Sent", value: stats.sent, color: "text-emerald-600" },
-          { label: "Pending", value: stats.pending, color: "text-sky-600" },
+          {
+            label: stats.stuck > 0 ? `Pending (${stats.stuck} stuck)` : "Pending",
+            value: stats.pending,
+            color: stats.stuck > 0 ? "text-amber-600" : "text-sky-600",
+          },
           { label: "Failed", value: stats.failed, color: "text-red-600" },
           { label: "Suppressed", value: stats.sup, color: "text-amber-600" },
         ].map((s) => (
@@ -251,19 +303,27 @@ export default function AdminEmails() {
                 <TableHead>Status</TableHead>
                 <TableHead>Timestamp</TableHead>
                 <TableHead>Error</TableHead>
+                <TableHead className="text-right">Retry</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paged.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">{loading ? "Loading…" : "No emails in this range"}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">{loading ? "Loading…" : "No emails in this range"}</TableCell></TableRow>
               )}
-              {paged.map((r) => (
+              {paged.map((r) => {
+                const stuck = r.status === "pending" && Date.now() - new Date(r.created_at).getTime() > STUCK_PENDING_MS;
+                const canRetry = isRetryable(r);
+                return (
                 <TableRow key={r.id}>
                   <TableCell className="font-mono text-xs">{r.template_name ?? "—"}</TableCell>
                   <TableCell className="text-sm">{r.recipient_email ?? "—"}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={STATUS_COLORS[r.status ?? ""] ?? ""}>
-                      {r.status ?? "unknown"}
+                    <Badge variant="outline" className={stuck ? STATUS_COLORS.failed : (STATUS_COLORS[r.status ?? ""] ?? "")}>
+                      {stuck ? (
+                        <span className="flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" /> timed out
+                        </span>
+                      ) : (r.status ?? "unknown")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
@@ -272,8 +332,25 @@ export default function AdminEmails() {
                   <TableCell className="text-xs text-red-600 max-w-[320px] truncate" title={r.error_message ?? ""}>
                     {r.error_message ?? ""}
                   </TableCell>
+                  <TableCell className="text-right">
+                    {canRetry && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={retryingId === r.id}
+                        onClick={() => retry(r)}
+                      >
+                        {retryingId === r.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <><RotateCcw className="h-3 w-3 mr-1" /> Retry</>
+                        )}
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
           {filtered.length > PAGE_SIZE && (
