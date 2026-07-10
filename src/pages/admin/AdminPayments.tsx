@@ -142,6 +142,7 @@ export default function AdminPayments() {
   const [refundSpeed, setRefundSpeed] = useState<string>("normal");
   const [refundSubmitting, setRefundSubmitting] = useState(false);
   const [existingRefundInfo, setExistingRefundInfo] = useState<Partial<RefundRecord> | null>(null);
+  const [existingRefundPolling, setExistingRefundPolling] = useState(false);
 
   // Refund filters
   const [refundStatusFilter, setRefundStatusFilter] = useState<string>("all");
