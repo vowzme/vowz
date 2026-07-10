@@ -236,6 +236,33 @@ export default function CustomSlugEditor({
         </svg>
         Share on WhatsApp
       </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="w-full gap-2 text-white border-transparent bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:opacity-90"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(previewUrl);
+          } catch {}
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: "Our wedding site", url: previewUrl });
+              return;
+            } catch {}
+          }
+          toast({
+            title: "Link copied 📋",
+            description: "Paste it into your Instagram story, bio, or DM.",
+          });
+          window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+        }}
+        aria-label="Share on Instagram"
+      >
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.975.975 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.975.975-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.975-.975-1.246-2.242-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608C4.516 2.567 5.783 2.295 7.15 2.233 8.416 2.175 8.796 2.163 12 2.163zm0 1.837c-3.148 0-3.515.012-4.756.069-1.017.046-1.57.215-1.937.357-.487.19-.835.417-1.2.782-.365.365-.592.713-.782 1.2-.142.367-.311.92-.357 1.937C3.011 8.485 3 8.852 3 12s.012 3.515.069 4.756c.046 1.017.215 1.57.357 1.937.19.487.417.835.782 1.2.365.365.713.592 1.2.782.367.142.92.311 1.937.357C8.485 20.989 8.852 21 12 21s3.515-.012 4.756-.069c1.017-.046 1.57-.215 1.937-.357.487-.19.835-.417 1.2-.782.365-.365.592-.713.782-1.2.142-.367.311-.92.357-1.937.058-1.241.069-1.608.069-4.756s-.012-3.515-.069-4.756c-.046-1.017-.215-1.57-.357-1.937a3.098 3.098 0 00-.782-1.2 3.098 3.098 0 00-1.2-.782c-.367-.142-.92-.311-1.937-.357C15.515 4.012 15.148 4 12 4zm0 3.838a4.162 4.162 0 110 8.324 4.162 4.162 0 010-8.324zm0 6.87a2.708 2.708 0 100-5.416 2.708 2.708 0 000 5.416zm5.29-7.05a.97.97 0 11-1.94 0 .97.97 0 011.94 0z"/>
+        </svg>
+        Share on Instagram
+      </Button>
       <QRCodeGenerator url={previewUrl} coupleNames={coupleNames} isPremium={isPremium} />
     </div>
   );
