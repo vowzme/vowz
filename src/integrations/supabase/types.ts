@@ -938,6 +938,77 @@ export type Database = {
         }
         Relationships: []
       }
+      razorpay_refunds: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          error_code: string | null
+          error_description: string | null
+          id: string
+          initiated_by: string | null
+          notes: Json
+          processed_at: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string
+          razorpay_refund_id: string | null
+          reason: string | null
+          speed: string | null
+          status: string
+          subscription_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          error_code?: string | null
+          error_description?: string | null
+          id?: string
+          initiated_by?: string | null
+          notes?: Json
+          processed_at?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id: string
+          razorpay_refund_id?: string | null
+          reason?: string | null
+          speed?: string | null
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          error_code?: string | null
+          error_description?: string | null
+          id?: string
+          initiated_by?: string | null
+          notes?: Json
+          processed_at?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string
+          razorpay_refund_id?: string | null
+          reason?: string | null
+          speed?: string | null
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "razorpay_refunds_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       razorpay_webhook_events: {
         Row: {
           error: string | null

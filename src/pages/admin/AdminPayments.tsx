@@ -10,8 +10,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, IndianRupee, Wallet, Receipt, TrendingUp, Users, Search, Webhook, CheckCircle2, XCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { CreditCard, IndianRupee, Wallet, Receipt, TrendingUp, Users, Search, Webhook, CheckCircle2, XCircle, AlertTriangle, RefreshCw, Undo2 } from "lucide-react";
 import { format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface PaymentProvider {
   id: string;
@@ -49,6 +58,23 @@ interface WebhookEvent {
   status_code: number;
   error: string | null;
   payload: any;
+}
+
+interface RefundRecord {
+  id: string;
+  created_at: string;
+  razorpay_refund_id: string | null;
+  razorpay_payment_id: string;
+  razorpay_order_id: string | null;
+  amount: number;
+  currency: string;
+  status: string;
+  speed: string | null;
+  reason: string | null;
+  error_code: string | null;
+  error_description: string | null;
+  processed_at: string | null;
+  user_id: string | null;
 }
 
 const providerMeta: Record<string, { label: string; icon: React.ElementType; fields: { key: string; label: string; type?: string }[] }> = {
@@ -106,6 +132,92 @@ export default function AdminPayments() {
   const [webhookEvents, setWebhookEvents] = useState<WebhookEvent[]>([]);
   const [webhookLoading, setWebhookLoading] = useState(true);
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
+
+  // Refunds state
+  const [refunds, setRefunds] = useState<RefundRecord[]>([]);
+  const [refundsLoading, setRefundsLoading] = useState(true);
+  const [refundTarget, setRefundTarget] = useState<PaymentRecord | null>(null);
+  const [refundAmount, setRefundAmount] = useState<string>("");
+  const [refundReason, setRefundReason] = useState<string>("");
+  const [refundSpeed, setRefundSpeed] = useState<string>("normal");
+  const [refundSubmitting, setRefundSubmitting] = useState(false);
+
+  const fetchRefunds = async () => {
+    setRefundsLoading(true);
+    const { data } = await supabase
+      .from("razorpay_refunds" as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    setRefunds((data as any) ?? []);
+    setRefundsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchRefunds();
+  }, []);
+
+  const refundsByPayment = useMemo(() => {
+    const m = new Map<string, RefundRecord[]>();
+    for (const r of refunds) {
+      const arr = m.get(r.razorpay_payment_id) || [];
+      arr.push(r);
+      m.set(r.razorpay_payment_id, arr);
+    }
+    return m;
+  }, [refunds]);
+
+  const openRefundDialog = (p: PaymentRecord) => {
+    setRefundTarget(p);
+    setRefundAmount(String(p.amount_paid || ""));
+    setRefundReason("");
+    setRefundSpeed("normal");
+  };
+
+  const submitRefund = async () => {
+    if (!refundTarget?.payment_id) return;
+    const amt = Number(refundAmount);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      toast({ title: "Invalid amount", description: "Enter a positive amount.", variant: "destructive" });
+      return;
+    }
+    if (amt > Number(refundTarget.amount_paid)) {
+      toast({ title: "Amount too high", description: "Refund cannot exceed the paid amount.", variant: "destructive" });
+      return;
+    }
+    setRefundSubmitting(true);
+    const { data, error } = await supabase.functions.invoke("razorpay-refund", {
+      body: {
+        payment_id: refundTarget.payment_id,
+        amount: amt,
+        speed: refundSpeed,
+        reason: refundReason,
+      },
+    });
+    setRefundSubmitting(false);
+    if (error || (data as any)?.error) {
+      toast({
+        title: "Refund failed",
+        description: (data as any)?.error || error?.message || "Unable to create refund",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({ title: "Refund initiated", description: `Status: ${(data as any)?.refund?.status || "pending"}` });
+    setRefundTarget(null);
+    await Promise.all([fetchRefunds()]);
+  };
+
+  const refundStats = useMemo(() => {
+    const total = refunds.length;
+    const processed = refunds.filter((r) => r.status === "processed").length;
+    const pending = refunds.filter((r) => r.status === "pending").length;
+    const failed = refunds.filter((r) => r.status === "failed").length;
+    const totalRefunded = refunds
+      .filter((r) => r.status === "processed")
+      .reduce((s, r) => s + Number(r.amount || 0), 0);
+    return { total, processed, pending, failed, totalRefunded };
+  }, [refunds]);
 
   const fetchWebhookEvents = async () => {
     setWebhookLoading(true);
@@ -274,6 +386,9 @@ export default function AdminPayments() {
           <TabsTrigger value="webhooks" className="font-body text-sm">
             <Webhook className="w-4 h-4 mr-1.5" /> Webhooks
           </TabsTrigger>
+          <TabsTrigger value="refunds" className="font-body text-sm">
+            <Undo2 className="w-4 h-4 mr-1.5" /> Refunds
+          </TabsTrigger>
           <TabsTrigger value="gateways" className="font-body text-sm">
             <CreditCard className="w-4 h-4 mr-1.5" /> Gateways
           </TabsTrigger>
@@ -386,6 +501,7 @@ export default function AdminPayments() {
                         <TableHead className="font-body text-xs">Provider</TableHead>
                         <TableHead className="font-body text-xs">Date</TableHead>
                         <TableHead className="font-body text-xs">Expires</TableHead>
+                        <TableHead className="font-body text-xs text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -436,6 +552,24 @@ export default function AdminPayments() {
                           </TableCell>
                           <TableCell className="font-body text-xs text-muted-foreground">
                             {p.expires_at ? format(new Date(p.expires_at), "dd MMM yyyy") : "—"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {p.payment_id && p.provider === "razorpay" && p.amount_paid > 0 && p.status !== "refunded" ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="font-body text-xs h-7"
+                                onClick={() => openRefundDialog(p)}
+                              >
+                                <Undo2 className="w-3 h-3 mr-1" /> Refund
+                              </Button>
+                            ) : refundsByPayment.get(p.payment_id || "")?.length ? (
+                              <span className="font-body text-[10px] text-muted-foreground">
+                                {refundsByPayment.get(p.payment_id || "")?.[0]?.status}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground/40">—</span>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -610,6 +744,126 @@ export default function AdminPayments() {
         </TabsContent>
 
         {/* ─── Gateways Tab ─── */}
+        <TabsContent value="refunds">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Undo2 className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-body text-xs text-muted-foreground">Total refunds</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{refundStats.total}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <CheckCircle2 className="w-4 h-4 text-emerald" />
+                  <span className="font-body text-xs text-muted-foreground">Processed</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{refundStats.processed}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertTriangle className="w-4 h-4 text-gold" />
+                  <span className="font-body text-xs text-muted-foreground">Pending</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{refundStats.pending}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <IndianRupee className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-body text-xs text-muted-foreground">Amount refunded</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">
+                  ₹{refundStats.totalRefunded.toLocaleString("en-IN")}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="flex justify-end mb-3">
+            <Button size="sm" variant="outline" className="font-body text-xs" onClick={fetchRefunds}>
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh
+            </Button>
+          </div>
+          <Card className="border-border/50">
+            <CardContent className="p-0">
+              {refundsLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : refunds.length === 0 ? (
+                <div className="text-center py-12">
+                  <Undo2 className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="font-body text-sm text-muted-foreground">
+                    No refunds yet. Trigger one from the Payment History tab.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-body text-xs">Created</TableHead>
+                        <TableHead className="font-body text-xs">Refund ID</TableHead>
+                        <TableHead className="font-body text-xs">Payment</TableHead>
+                        <TableHead className="font-body text-xs">Amount</TableHead>
+                        <TableHead className="font-body text-xs">Status</TableHead>
+                        <TableHead className="font-body text-xs">Speed</TableHead>
+                        <TableHead className="font-body text-xs">Reason / Error</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {refunds.map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="font-body text-xs text-muted-foreground whitespace-nowrap">
+                            {format(new Date(r.created_at), "dd MMM HH:mm")}
+                          </TableCell>
+                          <TableCell className="font-mono text-[11px] text-muted-foreground">
+                            {r.razorpay_refund_id ? r.razorpay_refund_id.slice(-14) : "—"}
+                          </TableCell>
+                          <TableCell className="font-mono text-[11px] text-muted-foreground">
+                            {r.razorpay_payment_id.slice(-14)}
+                          </TableCell>
+                          <TableCell className="font-display text-sm font-semibold">
+                            {r.currency === "INR" ? "₹" : r.currency + " "}
+                            {Number(r.amount).toLocaleString(r.currency === "INR" ? "en-IN" : "en-US")}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="secondary"
+                              className={`font-body text-[10px] ${
+                                r.status === "processed"
+                                  ? "bg-emerald/15 text-emerald border-emerald/30"
+                                  : r.status === "failed"
+                                  ? "bg-destructive/15 text-destructive border-destructive/30"
+                                  : "bg-gold/15 text-gold border-gold/30"
+                              }`}
+                            >
+                              {r.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-body text-xs text-muted-foreground">
+                            {r.speed || "—"}
+                          </TableCell>
+                          <TableCell className="font-body text-xs text-muted-foreground max-w-[280px] truncate">
+                            {r.error_description || r.reason || "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ─── Gateways Tab ─── */}
         <TabsContent value="gateways">
           <div className="grid gap-6">
             {providers.map((p) => {
@@ -672,6 +926,66 @@ export default function AdminPayments() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Refund dialog */}
+      <Dialog open={!!refundTarget} onOpenChange={(open) => !open && setRefundTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Refund payment</DialogTitle>
+            <DialogDescription className="font-body text-sm">
+              Refunds go to the original payment method via Razorpay. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="text-xs text-muted-foreground font-body space-y-0.5">
+              <div>User: <span className="text-foreground">{refundTarget?.user_email || refundTarget?.user_name || "—"}</span></div>
+              <div>Payment ID: <span className="font-mono">{refundTarget?.payment_id || "—"}</span></div>
+              <div>Paid: <span className="text-foreground">{refundTarget?.currency === "INR" ? "₹" : (refundTarget?.currency || "") + " "}{Number(refundTarget?.amount_paid || 0).toLocaleString()}</span></div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-body text-sm">Amount to refund</Label>
+              <Input
+                type="number"
+                value={refundAmount}
+                onChange={(e) => setRefundAmount(e.target.value)}
+                min={0}
+                step="0.01"
+                className="font-body"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-body text-sm">Speed</Label>
+              <Select value={refundSpeed} onValueChange={setRefundSpeed}>
+                <SelectTrigger className="font-body text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal (5–7 business days)</SelectItem>
+                  <SelectItem value="optimum">Optimum (instant when available)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-body text-sm">Reason (optional)</Label>
+              <Textarea
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                placeholder="Why is this being refunded?"
+                rows={2}
+                className="font-body text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRefundTarget(null)} disabled={refundSubmitting}>
+              Cancel
+            </Button>
+            <Button variant="gold" onClick={submitRefund} disabled={refundSubmitting}>
+              {refundSubmitting ? "Processing..." : "Refund"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
