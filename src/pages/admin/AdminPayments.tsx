@@ -744,14 +744,127 @@ export default function AdminPayments() {
         </TabsContent>
 
         {/* ─── Gateways Tab ─── */}
+        <TabsContent value="refunds">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Undo2 className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-body text-xs text-muted-foreground">Total refunds</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{refundStats.total}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <CheckCircle2 className="w-4 h-4 text-emerald" />
+                  <span className="font-body text-xs text-muted-foreground">Processed</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{refundStats.processed}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertTriangle className="w-4 h-4 text-gold" />
+                  <span className="font-body text-xs text-muted-foreground">Pending</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">{refundStats.pending}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <IndianRupee className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-body text-xs text-muted-foreground">Amount refunded</span>
+                </div>
+                <p className="font-display text-xl font-bold text-foreground">
+                  ₹{refundStats.totalRefunded.toLocaleString("en-IN")}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="flex justify-end mb-3">
+            <Button size="sm" variant="outline" className="font-body text-xs" onClick={fetchRefunds}>
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh
+            </Button>
+          </div>
+          <Card className="border-border/50">
+            <CardContent className="p-0">
+              {refundsLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : refunds.length === 0 ? (
+                <div className="text-center py-12">
+                  <Undo2 className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="font-body text-sm text-muted-foreground">
+                    No refunds yet. Trigger one from the Payment History tab.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-body text-xs">Created</TableHead>
+                        <TableHead className="font-body text-xs">Refund ID</TableHead>
+                        <TableHead className="font-body text-xs">Payment</TableHead>
+                        <TableHead className="font-body text-xs">Amount</TableHead>
+                        <TableHead className="font-body text-xs">Status</TableHead>
+                        <TableHead className="font-body text-xs">Speed</TableHead>
+                        <TableHead className="font-body text-xs">Reason / Error</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {refunds.map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="font-body text-xs text-muted-foreground whitespace-nowrap">
+                            {format(new Date(r.created_at), "dd MMM HH:mm")}
+                          </TableCell>
+                          <TableCell className="font-mono text-[11px] text-muted-foreground">
+                            {r.razorpay_refund_id ? r.razorpay_refund_id.slice(-14) : "—"}
+                          </TableCell>
+                          <TableCell className="font-mono text-[11px] text-muted-foreground">
+                            {r.razorpay_payment_id.slice(-14)}
+                          </TableCell>
+                          <TableCell className="font-display text-sm font-semibold">
+                            {r.currency === "INR" ? "₹" : r.currency + " "}
+                            {Number(r.amount).toLocaleString(r.currency === "INR" ? "en-IN" : "en-US")}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="secondary"
+                              className={`font-body text-[10px] ${
+                                r.status === "processed"
+                                  ? "bg-emerald/15 text-emerald border-emerald/30"
+                                  : r.status === "failed"
+                                  ? "bg-destructive/15 text-destructive border-destructive/30"
+                                  : "bg-gold/15 text-gold border-gold/30"
+                              }`}
+                            >
+                              {r.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-body text-xs text-muted-foreground">
+                            {r.speed || "—"}
+                          </TableCell>
+                          <TableCell className="font-body text-xs text-muted-foreground max-w-[280px] truncate">
+                            {r.error_description || r.reason || "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ─── Gateways Tab ─── */}
         <TabsContent value="gateways">
-
-        </TabsContent>
-
-        {/* ─── Refunds Tab (placeholder marker — real content inserted below) ─── */}
-        <TabsContent value="__refunds_marker__">
-        </TabsContent>
-        <TabsContent value="gateways-real">
           <div className="grid gap-6">
             {providers.map((p) => {
               const meta = providerMeta[p.provider];
