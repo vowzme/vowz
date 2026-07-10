@@ -517,6 +517,23 @@ const Dashboard = () => {
                   <ExternalLink className="w-4 h-4 mr-1" /> Preview Site
                 </a>
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadHeaderQR}
+                aria-label="Download QR code as PNG"
+              >
+                <QrCode className="w-4 h-4 mr-1" /> Download QR
+              </Button>
+              <div ref={headerQrRef} className="hidden" aria-hidden="true">
+                <QRCodeSVG
+                  value={`${window.location.origin}/site/${site.slug}`}
+                  size={512}
+                  level="H"
+                  bgColor="#FFFFFF"
+                  fgColor="#001F3F"
+                />
+              </div>
             </div>
           )}
         </div>
