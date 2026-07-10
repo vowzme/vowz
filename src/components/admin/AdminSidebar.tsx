@@ -12,6 +12,7 @@ import {
   Network,
   Mail,
   HardDrive,
+  Palette,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -41,6 +42,7 @@ const items = [
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Storage Cleanup", url: "/admin/storage-cleanup", icon: HardDrive },
   { title: "Emails", url: "/admin/emails", icon: Mail },
+  { title: "Email Branding", url: "/admin/email-branding", icon: Palette },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
