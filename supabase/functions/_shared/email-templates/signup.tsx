@@ -41,22 +41,20 @@ export const SignupEmail = ({
           alt="VowZ"
           style={logo}
         />
-        <Heading style={h1}>Welcome to VowZ! ✨</Heading>
+        <Heading style={h1}>Welcome to VowZ 💍</Heading>
         <Text style={text}>
-          We're so excited you're here. Your love story deserves a beautiful
-          website, and we can't wait to help you create one.
-        </Text>
-        <Text style={text}>
-          Please confirm your email address ({recipient}) to get started:
+          Thanks for joining{' '}
+          <Link href={siteUrl} style={link}>VowZ</Link> — beautiful wedding
+          websites made effortless. Confirm your email ({recipient}) to
+          start building your story.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Verify My Email
+          Confirm email
         </Button>
         <Hr style={divider} />
         <Text style={footer}>
-          If you didn't create an account on{' '}
-          <Link href={siteUrl} style={footerLink}>VowZ</Link>, you can safely
-          ignore this email.
+          If you didn't create a VowZ account, you can safely ignore this
+          email.
         </Text>
       </Container>
     </Body>
@@ -75,12 +73,8 @@ const h1 = {
   color: '#001F3F',
   margin: '0 0 20px',
 }
-const text = {
-  fontSize: '15px',
-  color: '#4A6A8A',
-  lineHeight: '1.6',
-  margin: '0 0 20px',
-}
+const text = { fontSize: '15px', color: '#4A6A8A', lineHeight: '1.6', margin: '0 0 20px' }
+const link = { color: '#B8943E', textDecoration: 'underline' }
 const button = {
   backgroundColor: '#001F3F',
   color: '#F5F0E8',
@@ -92,4 +86,3 @@ const button = {
 }
 const divider = { borderColor: '#E8E0D4', margin: '32px 0' }
 const footer = { fontSize: '12px', color: '#999999', margin: '0', lineHeight: '1.5' }
-const footerLink = { color: '#B8943E', textDecoration: 'underline' }

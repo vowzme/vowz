@@ -42,12 +42,12 @@ export const RecoveryEmail = ({
           below to choose a new one.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Reset Password
+          Reset password
         </Button>
         <Hr style={divider} />
         <Text style={footer}>
-          If you didn't request this, your password remains unchanged. You can
-          safely ignore this email.
+          If you didn't request a password reset, you can safely ignore this
+          email. Your password will not be changed.
         </Text>
       </Container>
     </Body>
@@ -66,12 +66,7 @@ const h1 = {
   color: '#001F3F',
   margin: '0 0 20px',
 }
-const text = {
-  fontSize: '15px',
-  color: '#4A6A8A',
-  lineHeight: '1.6',
-  margin: '0 0 20px',
-}
+const text = { fontSize: '15px', color: '#4A6A8A', lineHeight: '1.6', margin: '0 0 20px' }
 const button = {
   backgroundColor: '#001F3F',
   color: '#F5F0E8',

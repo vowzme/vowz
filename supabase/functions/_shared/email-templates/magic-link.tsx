@@ -26,7 +26,7 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your VowZ login link</Preview>
+    <Preview>Your VowZ sign-in link</Preview>
     <Body style={main}>
       <Container style={container}>
         <Img
@@ -36,13 +36,13 @@ export const MagicLinkEmail = ({
           alt="VowZ"
           style={logo}
         />
-        <Heading style={h1}>Your login link</Heading>
+        <Heading style={h1}>Your sign-in link</Heading>
         <Text style={text}>
-          Click the button below to log in to VowZ. This link will expire
-          shortly.
+          Click below to sign in to VowZ. This link will expire shortly for
+          your security.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Log In to VowZ
+          Sign in
         </Button>
         <Hr style={divider} />
         <Text style={footer}>
@@ -65,12 +65,7 @@ const h1 = {
   color: '#001F3F',
   margin: '0 0 20px',
 }
-const text = {
-  fontSize: '15px',
-  color: '#4A6A8A',
-  lineHeight: '1.6',
-  margin: '0 0 20px',
-}
+const text = { fontSize: '15px', color: '#4A6A8A', lineHeight: '1.6', margin: '0 0 20px' }
 const button = {
   backgroundColor: '#001F3F',
   color: '#F5F0E8',
