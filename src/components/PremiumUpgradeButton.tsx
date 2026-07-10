@@ -142,13 +142,10 @@ const PremiumUpgradeButton = ({
             if (verifyError) throw new Error(verifyError.message || "Payment verification failed.");
             if (!verifyData?.success) throw new Error(verifyData?.error || "Payment verification failed.");
 
-            toast({ title: "Payment successful 🎉", description: "Premium has been activated." });
+            toast({ title: "Payment successful 🎉", description: "Premium has been activated. Redirecting to your dashboard…" });
             onUpgraded?.();
             setCheckoutOpen(false);
-
-            if (!onUpgraded) {
-              navigate("/dashboard");
-            }
+            navigate("/dashboard");
           } catch (verifyErr: any) {
             toast({
               title: "Payment verification failed",
