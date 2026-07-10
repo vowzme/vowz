@@ -142,6 +142,7 @@ export default function AdminPayments() {
   const [refundSpeed, setRefundSpeed] = useState<string>("normal");
   const [refundSubmitting, setRefundSubmitting] = useState(false);
   const [existingRefundInfo, setExistingRefundInfo] = useState<Partial<RefundRecord> | null>(null);
+  const [existingRefundPolling, setExistingRefundPolling] = useState(false);
 
   // Refund filters
   const [refundStatusFilter, setRefundStatusFilter] = useState<string>("all");
@@ -164,6 +165,45 @@ export default function AdminPayments() {
   useEffect(() => {
     fetchRefunds();
   }, []);
+
+  // Live-refresh the "existing refund" dialog until the webhook lands a terminal status.
+  useEffect(() => {
+    if (!existingRefundInfo) return;
+    const status = existingRefundInfo.status;
+    if (status === "processed" || status === "failed") {
+      setExistingRefundPolling(false);
+      return;
+    }
+    setExistingRefundPolling(true);
+    let cancelled = false;
+
+    const poll = async () => {
+      const key = existingRefundInfo.razorpay_refund_id;
+      const paymentId = existingRefundInfo.razorpay_payment_id;
+      let query = supabase.from("razorpay_refunds" as any).select("*").limit(1);
+      query = key
+        ? query.eq("razorpay_refund_id", key)
+        : query.eq("razorpay_payment_id", paymentId!).neq("status", "failed").order("created_at", { ascending: false });
+      const { data } = await query;
+      if (cancelled) return;
+      const row = (data as any)?.[0] as RefundRecord | undefined;
+      if (row && row.status !== existingRefundInfo.status) {
+        setExistingRefundInfo((prev) => (prev ? { ...prev, ...row } : prev));
+        // Also refresh the main list so table/stats stay in sync
+        fetchRefunds();
+      }
+    };
+
+    const interval = setInterval(poll, 4000);
+    poll();
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      setExistingRefundPolling(false);
+    };
+    // Only react to identity of the open refund, not every field change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingRefundInfo?.razorpay_refund_id, existingRefundInfo?.razorpay_payment_id, existingRefundInfo?.status]);
 
   const refundsByPayment = useMemo(() => {
     const m = new Map<string, RefundRecord[]>();
@@ -1134,7 +1174,8 @@ export default function AdminPayments() {
             </div>
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Status</span>
-              <Badge
+              <div className="flex items-center gap-2">
+                <Badge
                 variant="secondary"
                 className={`font-body text-[10px] ${
                   existingRefundInfo?.status === "processed"
@@ -1143,9 +1184,16 @@ export default function AdminPayments() {
                     ? "bg-destructive/15 text-destructive border-destructive/30"
                     : "bg-gold/15 text-gold border-gold/30"
                 }`}
-              >
-                {existingRefundInfo?.status || "unknown"}
-              </Badge>
+                >
+                  {existingRefundInfo?.status || "unknown"}
+                </Badge>
+                {existingRefundPolling && (
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+                    live
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Speed</span>
