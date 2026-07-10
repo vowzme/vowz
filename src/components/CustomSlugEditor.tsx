@@ -576,3 +576,86 @@ function ShareRow({
     </div>
   );
 }
+
+// ─── Share analytics panel ───────────────────────────────────────────
+const CHANNEL_META: Record<string, { label: string; color: string }> = {
+  whatsapp: { label: "WhatsApp", color: "#25D366" },
+  facebook: { label: "Facebook", color: "#1877F2" },
+  twitter:  { label: "X",        color: "#000000" },
+  telegram: { label: "Telegram", color: "#26A5E4" },
+  linkedin: { label: "LinkedIn", color: "#0A66C2" },
+  email:    { label: "Email",    color: "#6B7280" },
+  instagram:{ label: "Instagram",color: "#DD2A7B" },
+  native:   { label: "Native",   color: "#6B7280" },
+  copy_url: { label: "Copy URL", color: "#D4AF37" },
+};
+
+function ShareAnalytics({ siteId }: { siteId: string }) {
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("site_analytics" as any)
+      .select("metadata")
+      .eq("wedding_site_id", siteId)
+      .eq("event_type", "share_click")
+      .limit(2000);
+    const c: Record<string, number> = {};
+    (data as any[] | null)?.forEach((row) => {
+      const key = row?.metadata?.channel || row?.metadata?.platform || "other";
+      c[key] = (c[key] || 0) + 1;
+    });
+    setCounts(c);
+    setLoading(false);
+  }, [siteId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+  return (
+    <div className="space-y-2 pt-2 border-t border-border/40">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <BarChart3 className="w-3.5 h-3.5 text-[hsl(var(--gold))]" />
+          <p className="text-xs font-medium text-foreground font-body">
+            Share analytics {total > 0 && <span className="text-muted-foreground">({total})</span>}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={load}
+          className="text-[11px] text-muted-foreground hover:text-foreground underline decoration-dotted"
+        >
+          Refresh
+        </button>
+      </div>
+      {loading ? (
+        <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+          <Loader2 className="w-3 h-3 animate-spin" /> Loading…
+        </p>
+      ) : entries.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground">No share clicks yet. Share your link to start tracking.</p>
+      ) : (
+        <div className="flex flex-wrap gap-1.5">
+          {entries.map(([key, n]) => {
+            const meta = CHANNEL_META[key] || { label: key, color: "#6B7280" };
+            return (
+              <span
+                key={key}
+                className="inline-flex items-center gap-1.5 text-[11px] rounded-full border border-border/50 bg-background/50 px-2 py-0.5"
+              >
+                <span className="w-2 h-2 rounded-full" style={{ background: meta.color }} />
+                <span className="text-foreground font-body">{meta.label}</span>
+                <span className="text-muted-foreground font-mono">{n}</span>
+              </span>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
