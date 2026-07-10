@@ -116,8 +116,8 @@ export default function QRCodeGenerator({ url, coupleNames, isPremium, accent = 
         <Button variant="outline" size="sm" className="font-body text-xs" onClick={copyImage}>
           <Copy className="w-3.5 h-3.5 mr-1" /> Copy
         </Button>
-        <Button variant="outline" size="sm" className="font-body text-xs" onClick={downloadPNG}>
-          <Download className="w-3.5 h-3.5 mr-1" /> PNG
+        <Button variant="gold" size="sm" className="font-body text-xs" onClick={downloadPNG} aria-label="Download QR code as PNG">
+          <Download className="w-3.5 h-3.5 mr-1" /> Download PNG
         </Button>
         <Button variant="outline" size="sm" className="font-body text-xs" onClick={downloadSVG}>
           <Download className="w-3.5 h-3.5 mr-1" /> SVG
