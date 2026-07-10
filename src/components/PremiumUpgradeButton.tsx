@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Crown, Loader2 } from "lucide-react";
+import { Crown, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -57,6 +57,9 @@ const PremiumUpgradeButton = ({
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [couponResult, setCouponResult] = useState<any>(null);
   const [affiliateRef, setAffiliateRef] = useState<string | null>(null);
+  type PayStatus = "idle" | "verifying" | "syncing" | "failed" | "timeout";
+  const [payStatus, setPayStatus] = useState<PayStatus>("idle");
+  const [payError, setPayError] = useState<string | null>(null);
 
   const originalPrice = pricing.premiumPrice;
   const currency = region === "IN" ? "INR" : "USD";
@@ -81,11 +84,15 @@ const PremiumUpgradeButton = ({
       navigate(`/auth?redirect=${encodeURIComponent(redirect)}`);
       return;
     }
+    setPayStatus("idle");
+    setPayError(null);
     setCheckoutOpen(true);
   };
 
   const handlePay = async () => {
     setLoading(true);
+    setPayError(null);
+    setPayStatus("idle");
     try {
       const { data, error } = await supabase.functions.invoke("razorpay-payment", {
         body: {
@@ -130,6 +137,7 @@ const PremiumUpgradeButton = ({
           razorpay_signature: string;
         }) => {
           try {
+            setPayStatus("verifying");
             const { data: verifyData, error: verifyError } = await supabase.functions.invoke("razorpay-payment", {
               body: {
                 action: "verify_payment",
@@ -146,6 +154,7 @@ const PremiumUpgradeButton = ({
             // before celebrating — protects against a verified payment that
             // failed to persist the subscription row for any reason.
             // Poll up to ~20s to cover webhook latency before redirecting.
+            setPayStatus("syncing");
             let entitled = false;
             for (let attempt = 0; attempt < 10 && !entitled; attempt++) {
               const { data: rpcData, error: rpcErr } = await supabase.rpc("user_has_premium", {
@@ -159,9 +168,11 @@ const PremiumUpgradeButton = ({
             }
 
             if (!entitled) {
-              throw new Error(
-                "Payment received but premium is not active yet. It may take a minute — refresh your dashboard, or contact support if it doesn't appear."
+              setPayStatus("timeout");
+              setPayError(
+                "Payment received but premium is still syncing. This can take a minute — retry the check, or contact support if it doesn't appear."
               );
+              return;
             }
 
             toast({ title: "Payment successful 🎉", description: "Premium has been activated. Redirecting to your dashboard…" });
@@ -169,33 +180,45 @@ const PremiumUpgradeButton = ({
             setCheckoutOpen(false);
             navigate("/dashboard");
           } catch (verifyErr: any) {
-            toast({
-              title: "Payment verification failed",
-              description: verifyErr?.message || "Please contact support with your payment details.",
-              variant: "destructive",
-            });
+            setPayStatus("failed");
+            setPayError(verifyErr?.message || "Payment verification failed. Please try again or contact support.");
           }
         },
       };
 
       const paymentObject = new window.Razorpay(options);
-      paymentObject.on("payment.failed", () => {
-        toast({
-          title: "Payment failed",
-          description: "Your payment was not completed. Please try again.",
-          variant: "destructive",
-        });
+      paymentObject.on("payment.failed", (resp: any) => {
+        setPayStatus("failed");
+        setPayError(resp?.error?.description || "Your payment was not completed. Please try again.");
       });
       paymentObject.open();
     } catch (err: any) {
-      toast({
-        title: "Unable to start payment",
-        description: err?.message || "Please try again in a moment.",
-        variant: "destructive",
-      });
+      setPayStatus("failed");
+      setPayError(err?.message || "Unable to start payment. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const recheckEntitlement = async () => {
+    if (!user) return;
+    setPayStatus("syncing");
+    setPayError(null);
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const { data: rpcData, error: rpcErr } = await supabase.rpc("user_has_premium", {
+        _user_id: user.id,
+      });
+      if (!rpcErr && rpcData === true) {
+        toast({ title: "Premium activated 🎉", description: "Redirecting to your dashboard…" });
+        onUpgraded?.();
+        setCheckoutOpen(false);
+        navigate("/dashboard");
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+    setPayStatus("timeout");
+    setPayError("Still not active. Please contact support with your payment ID.");
   };
 
   return (
@@ -249,9 +272,48 @@ const PremiumUpgradeButton = ({
               onApply={setCouponResult}
             />
 
-            <Button className="w-full" onClick={handlePay} disabled={loading}>
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${symbol}${finalPrice}`}
-            </Button>
+            {payStatus === "verifying" || payStatus === "syncing" ? (
+              <div className="flex items-start gap-2 p-3 rounded-md bg-muted/50 border border-border text-sm">
+                <Loader2 className="w-4 h-4 animate-spin mt-0.5 shrink-0 text-primary" />
+                <div>
+                  <p className="font-medium">
+                    {payStatus === "verifying" ? "Verifying payment…" : "Activating premium…"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Please don't close this window.
+                  </p>
+                </div>
+              </div>
+            ) : payStatus === "failed" || payStatus === "timeout" ? (
+              <div className="space-y-2">
+                <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/30 text-sm">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-destructive" />
+                  <div>
+                    <p className="font-medium text-destructive">
+                      {payStatus === "timeout" ? "Still syncing" : "Payment didn't complete"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{payError}</p>
+                  </div>
+                </div>
+                <Button
+                  className="w-full"
+                  onClick={payStatus === "timeout" ? recheckEntitlement : handlePay}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Please wait…</>
+                  ) : payStatus === "timeout" ? (
+                    <><CheckCircle2 className="w-4 h-4" /> Check again</>
+                  ) : (
+                    "Try again"
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <Button className="w-full" onClick={handlePay} disabled={loading}>
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${symbol}${finalPrice}`}
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
