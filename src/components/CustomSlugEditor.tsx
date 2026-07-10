@@ -200,17 +200,27 @@ export default function CustomSlugEditor({
           <Copy className="w-3.5 h-3.5" />
         </Button>
       </div>
-      <Button
-        size="sm"
-        variant="outline"
-        className="w-full gap-2"
-        asChild
-      >
-        <a href={previewUrl} target="_blank" rel="noopener noreferrer">
-          <ExternalLink className="w-3.5 h-3.5" />
-          Open live site
-        </a>
-      </Button>
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          size="sm"
+          variant="gold"
+          className="w-full gap-2"
+          onClick={() => {
+            navigator.clipboard.writeText(previewUrl);
+            toast({ title: "Preview URL copied! 📋", description: previewUrl });
+          }}
+          aria-label="Copy preview URL to clipboard"
+        >
+          <Copy className="w-3.5 h-3.5" />
+          Copy URL
+        </Button>
+        <Button size="sm" variant="outline" className="w-full gap-2" asChild>
+          <a href={previewUrl} target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="w-3.5 h-3.5" />
+            Open live site
+          </a>
+        </Button>
+      </div>
       <Button
         size="sm"
         variant="outline"
