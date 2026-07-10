@@ -386,6 +386,9 @@ export default function AdminPayments() {
           <TabsTrigger value="webhooks" className="font-body text-sm">
             <Webhook className="w-4 h-4 mr-1.5" /> Webhooks
           </TabsTrigger>
+          <TabsTrigger value="refunds" className="font-body text-sm">
+            <Undo2 className="w-4 h-4 mr-1.5" /> Refunds
+          </TabsTrigger>
           <TabsTrigger value="gateways" className="font-body text-sm">
             <CreditCard className="w-4 h-4 mr-1.5" /> Gateways
           </TabsTrigger>
