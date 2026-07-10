@@ -554,22 +554,36 @@ export default function AdminPayments() {
                             {p.expires_at ? format(new Date(p.expires_at), "dd MMM yyyy") : "—"}
                           </TableCell>
                           <TableCell className="text-right">
-                            {p.payment_id && p.provider === "razorpay" && p.amount_paid > 0 && p.status !== "refunded" ? (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="font-body text-xs h-7"
-                                onClick={() => openRefundDialog(p)}
-                              >
-                                <Undo2 className="w-3 h-3 mr-1" /> Refund
-                              </Button>
-                            ) : refundsByPayment.get(p.payment_id || "")?.length ? (
+                            {(() => {
+                              const existing = refundsByPayment.get(p.payment_id || "") || [];
+                              const hasActive = existing.some((r) => r.status !== "failed");
+                              if (
+                                p.payment_id &&
+                                p.provider === "razorpay" &&
+                                p.amount_paid > 0 &&
+                                p.status !== "refunded" &&
+                                !hasActive
+                              ) {
+                                return (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="font-body text-xs h-7"
+                                    onClick={() => openRefundDialog(p)}
+                                  >
+                                    <Undo2 className="w-3 h-3 mr-1" /> Refund
+                                  </Button>
+                                );
+                              }
+                              if (existing.length) {
+                                return (
                               <span className="font-body text-[10px] text-muted-foreground">
-                                {refundsByPayment.get(p.payment_id || "")?.[0]?.status}
+                                    {existing[0]?.status}
                               </span>
-                            ) : (
-                              <span className="text-muted-foreground/40">—</span>
-                            )}
+                                );
+                              }
+                              return <span className="text-muted-foreground/40">—</span>;
+                            })()}
                           </TableCell>
                         </TableRow>
                       ))}
