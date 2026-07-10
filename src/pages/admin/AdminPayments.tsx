@@ -1105,6 +1105,64 @@ export default function AdminPayments() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Existing refund conflict (HTTP 409) */}
+      <Dialog open={!!existingRefundInfo} onOpenChange={(open) => !open && setExistingRefundInfo(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Refund already exists</DialogTitle>
+            <DialogDescription className="font-body text-sm">
+              A refund for this payment is already in progress or has been completed. No new refund was created.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 font-body text-sm">
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Payment ID</span>
+              <span className="font-mono text-xs text-foreground truncate">{existingRefundInfo?.razorpay_payment_id || "—"}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Refund ID</span>
+              <span className="font-mono text-xs text-foreground truncate">{existingRefundInfo?.razorpay_refund_id || "—"}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Amount</span>
+              <span className="text-foreground">
+                {existingRefundInfo?.amount != null
+                  ? `${existingRefundInfo?.currency === "INR" ? "₹" : (existingRefundInfo?.currency || "") + " "}${Number(existingRefundInfo.amount).toLocaleString()}`
+                  : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Status</span>
+              <Badge
+                variant="secondary"
+                className={`font-body text-[10px] ${
+                  existingRefundInfo?.status === "processed"
+                    ? "bg-emerald/15 text-emerald border-emerald/30"
+                    : existingRefundInfo?.status === "failed"
+                    ? "bg-destructive/15 text-destructive border-destructive/30"
+                    : "bg-gold/15 text-gold border-gold/30"
+                }`}
+              >
+                {existingRefundInfo?.status || "unknown"}
+              </Badge>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Speed</span>
+              <span className="text-foreground">{existingRefundInfo?.speed || "—"}</span>
+            </div>
+            {existingRefundInfo?.created_at && (
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">Created</span>
+                <span className="text-foreground">{format(new Date(existingRefundInfo.created_at), "dd MMM yyyy HH:mm")}</span>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExistingRefundInfo(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
