@@ -49,6 +49,27 @@ Deno.serve(async (req) => {
       .eq("payment_id", paymentId)
       .maybeSingle();
 
+    // Idempotency: block if a non-failed refund already exists for this payment.
+    const { data: existingRefunds, error: existingErr } = await adminClient
+      .from("razorpay_refunds")
+      .select("id, razorpay_refund_id, status, amount, created_at")
+      .eq("razorpay_payment_id", paymentId)
+      .neq("status", "failed")
+      .order("created_at", { ascending: false });
+    if (existingErr) {
+      console.error("razorpay-refund: existing refund check failed", existingErr);
+      return json({ error: "Could not verify existing refunds" }, 500);
+    }
+    if (existingRefunds && existingRefunds.length > 0) {
+      return json(
+        {
+          error: "A refund for this payment is already in progress or completed.",
+          existing_refund: existingRefunds[0],
+        },
+        409
+      );
+    }
+
     const { data: providerConfig } = await adminClient
       .from("payment_config")
       .select("is_enabled, config")
