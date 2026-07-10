@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, IndianRupee, Wallet, Receipt, TrendingUp, Users, Search } from "lucide-react";
+import { CreditCard, IndianRupee, Wallet, Receipt, TrendingUp, Users, Search, Webhook, CheckCircle2, XCircle, AlertTriangle, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 
 interface PaymentProvider {
@@ -35,6 +35,20 @@ interface PaymentRecord {
   created_at: string;
   user_email?: string;
   user_name?: string;
+}
+
+interface WebhookEvent {
+  id: string;
+  received_at: string;
+  event_type: string | null;
+  razorpay_event_id: string | null;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  signature_valid: boolean;
+  processed: boolean;
+  status_code: number;
+  error: string | null;
+  payload: any;
 }
 
 const providerMeta: Record<string, { label: string; icon: React.ElementType; fields: { key: string; label: string; type?: string }[] }> = {
@@ -87,6 +101,35 @@ export default function AdminPayments() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange>("30d");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Webhook events state
+  const [webhookEvents, setWebhookEvents] = useState<WebhookEvent[]>([]);
+  const [webhookLoading, setWebhookLoading] = useState(true);
+  const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
+
+  const fetchWebhookEvents = async () => {
+    setWebhookLoading(true);
+    const { data } = await supabase
+      .from("razorpay_webhook_events" as any)
+      .select("*")
+      .order("received_at", { ascending: false })
+      .limit(100);
+    setWebhookEvents((data as any) ?? []);
+    setWebhookLoading(false);
+  };
+
+  useEffect(() => {
+    fetchWebhookEvents();
+  }, []);
+
+  const webhookStats = useMemo(() => {
+    const total = webhookEvents.length;
+    const sigFail = webhookEvents.filter((e) => !e.signature_valid).length;
+    const procFail = webhookEvents.filter((e) => e.signature_valid && !e.processed).length;
+    const ok = webhookEvents.filter((e) => e.signature_valid && e.processed).length;
+    const last = webhookEvents[0];
+    return { total, sigFail, procFail, ok, last };
+  }, [webhookEvents]);
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -227,6 +270,9 @@ export default function AdminPayments() {
         <TabsList className="bg-card border border-border/50">
           <TabsTrigger value="history" className="font-body text-sm">
             <Receipt className="w-4 h-4 mr-1.5" /> Payment History
+          </TabsTrigger>
+          <TabsTrigger value="webhooks" className="font-body text-sm">
+            <Webhook className="w-4 h-4 mr-1.5" /> Webhooks
           </TabsTrigger>
           <TabsTrigger value="gateways" className="font-body text-sm">
             <CreditCard className="w-4 h-4 mr-1.5" /> Gateways
