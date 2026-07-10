@@ -200,6 +200,17 @@ export default function CustomSlugEditor({
           <Copy className="w-3.5 h-3.5" />
         </Button>
       </div>
+      <Button
+        size="sm"
+        variant="outline"
+        className="w-full gap-2"
+        asChild
+      >
+        <a href={previewUrl} target="_blank" rel="noopener noreferrer">
+          <ExternalLink className="w-3.5 h-3.5" />
+          Open live site
+        </a>
+      </Button>
       <QRCodeGenerator url={previewUrl} coupleNames={coupleNames} isPremium={isPremium} />
     </div>
   );
