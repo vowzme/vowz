@@ -40,6 +40,7 @@ const items = [
   { title: "Card Analytics", url: "/admin/card-analytics", icon: BarChart3 },
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Storage Cleanup", url: "/admin/storage-cleanup", icon: HardDrive },
+  { title: "Emails", url: "/admin/emails", icon: Mail },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
