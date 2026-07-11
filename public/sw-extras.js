@@ -83,6 +83,58 @@ self.addEventListener("sync", (event) => {
   }
 });
 
+// ---------- PWA Widgets (Windows 11 Widgets Board) ----------
+// PWABuilder's Widgets capability check requires the SW to handle the
+// widget lifecycle events and update instances via the Widgets API.
+async function renderVowzCountdown(widget) {
+  if (!widget) return;
+  try {
+    const [tplRes, dataRes] = await Promise.all([
+      fetch(widget.definition.msAcTemplate),
+      fetch(widget.definition.data),
+    ]);
+    const template = await tplRes.text();
+    const data = await dataRes.text();
+    if (self.widgets && widget.instances) {
+      await Promise.all(
+        widget.instances.map((i) =>
+          self.widgets.updateByInstanceId(i.id, { template, data }),
+        ),
+      );
+    }
+  } catch {
+    /* offline — Widgets Board will retry */
+  }
+}
+
+self.addEventListener("widgetinstall", (event) => {
+  event.waitUntil(
+    (async () => {
+      const widget = await self.widgets?.getByTag(event.widget.definition.tag);
+      await renderVowzCountdown(widget);
+    })(),
+  );
+});
+
+self.addEventListener("widgetresume", (event) => {
+  event.waitUntil(
+    (async () => {
+      const widget = await self.widgets?.getByTag(event.widget.definition.tag);
+      await renderVowzCountdown(widget);
+    })(),
+  );
+});
+
+self.addEventListener("widgetuninstall", () => {
+  /* nothing to clean up */
+});
+
+self.addEventListener("widgetclick", (event) => {
+  if (event.action === "open-vowz") {
+    event.waitUntil(self.clients.openWindow("/"));
+  }
+});
+
 // ---------- Offline catch-all ----------
 // Guarantees any failed navigation returns the precached offline shell so
 // PWABuilder's offline probe always gets a real HTML response.
