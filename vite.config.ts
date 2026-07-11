@@ -52,6 +52,7 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         skipWaiting: false,
         clientsClaim: true,
+        importScripts: ["/sw-extras.js"],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         // Guarantee the offline fallback is in the precache manifest even if
