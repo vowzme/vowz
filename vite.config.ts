@@ -48,10 +48,11 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        // No `navigateFallback` — that registers a precache-only NavigationRoute
-        // which fires before runtimeCaching and would prevent our NetworkFirst +
-        // offline.html fallback from ever running. Navigations are handled by
-        // the runtimeCaching entry below.
+        // Disable vite-plugin-pwa's default NavigationRoute (index.html) so our
+        // NetworkFirst nav handler below runs and can fall back to offline.html
+        // when the network is unreachable. Cast to `any` because the plugin
+        // typings default to `string` but workbox-build accepts null to disable.
+        navigateFallback: null as unknown as string,
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.mode === "navigate",
