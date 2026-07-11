@@ -36,6 +36,13 @@ const DashboardMusicCard = ({ site, onUpdate }: DashboardMusicCardProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(savedVolume);
+  const [savingVolume, setSavingVolume] = useState(false);
+
+  // Restore the saved volume whenever the site reloads (e.g. after refresh)
+  // or the underlying track changes — keeps the dashboard in sync with DB.
+  useEffect(() => {
+    setVolume(savedVolume);
+  }, [savedVolume]);
 
   // Sync volume with the audio element and reset when the track changes.
   useEffect(() => {
@@ -48,6 +55,56 @@ const DashboardMusicCard = ({ site, onUpdate }: DashboardMusicCardProps) => {
       audioRef.current.currentTime = 0;
     }
   }, [trackUrl]);
+
+  /** Persist the current preview volume to the site's music section. Called
+   *  on slider release (onValueCommit) so we don't spam writes while dragging. */
+  const persistVolume = async (nextVolume: number) => {
+    if (!site?.id) return;
+    const clamped = Math.min(1, Math.max(0, nextVolume));
+    // No-op if unchanged (avoids a write on mount).
+    if (Math.abs(clamped - savedVolume) < 0.005) return;
+
+    const hasMusic = (site.sections || []).some((s: any) => s?.type === "music");
+    const sections = hasMusic
+      ? (site.sections || []).map((s: any) =>
+          s?.type === "music"
+            ? { ...s, data: { ...(s.data || {}), volume: clamped } }
+            : s,
+        )
+      : [
+          ...(site.sections || []),
+          {
+            type: "music",
+            title: "Background Music",
+            data: {
+              enabled: true,
+              category: "romantic",
+              trackUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+              trackName: "First Dance",
+              autoplay: true,
+              loop: true,
+              volume: clamped,
+            },
+          },
+        ];
+
+    setSavingVolume(true);
+    const { error } = await supabase
+      .from("wedding_sites")
+      .update({ sections } as any)
+      .eq("id", site.id);
+    setSavingVolume(false);
+
+    if (error) {
+      toast({
+        title: "Couldn't save volume",
+        description: error.message,
+        variant: "destructive" as any,
+      });
+      return;
+    }
+    onUpdate({ ...site, sections });
+  };
 
   const togglePlay = async () => {
     const el = audioRef.current;
@@ -162,12 +219,14 @@ const DashboardMusicCard = ({ site, onUpdate }: DashboardMusicCardProps) => {
         <div className="flex-1 min-w-0">
           <p className="font-body text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
             Preview {!trackUrl && "· no track set"}
+            {savingVolume && <span className="ml-2 normal-case tracking-normal text-gold">Saving…</span>}
           </p>
           <div className="flex items-center gap-2">
             <VolumeX className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
             <Slider
               value={[Math.round(volume * 100)]}
               onValueChange={(v) => setVolume((v[0] ?? 0) / 100)}
+              onValueCommit={(v) => persistVolume((v[0] ?? 0) / 100)}
               max={100}
               step={1}
               aria-label="Preview volume"
