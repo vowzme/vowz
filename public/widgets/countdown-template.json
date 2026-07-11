@@ -1,0 +1,9 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    { "type": "TextBlock", "text": "Vowz Wedding Countdown", "weight": "Bolder", "size": "Medium" },
+    { "type": "TextBlock", "text": "${daysLeft} days to go", "size": "ExtraLarge", "color": "Accent" },
+    { "type": "TextBlock", "text": "${coupleNames}", "isSubtle": true, "wrap": true }
+  ]
+}
