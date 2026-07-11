@@ -56,12 +56,12 @@ export default defineConfig(({ mode }) => ({
             options: { cacheName: "html", networkTimeoutSeconds: 3 },
           },
           {
-            urlPattern: ({ url }) => url.origin === self.location.origin && /\.(?:js|css|woff2)$/.test(url.pathname),
+            urlPattern: /\.(?:js|css|woff2)$/,
             handler: "CacheFirst",
             options: { cacheName: "static-assets", expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 } },
           },
           {
-            urlPattern: ({ url }) => url.origin === self.location.origin && /^\/(icons|splash)\//.test(url.pathname),
+            urlPattern: /\/(icons|splash)\//,
             handler: "CacheFirst",
             options: { cacheName: "pwa-icons", expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 } },
           },
