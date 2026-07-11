@@ -76,6 +76,22 @@ export default defineConfig(({ mode }) => ({
               // When both network and cache miss (true offline + uncached route),
               // Workbox serves this precached page instead of a browser error.
               precacheFallback: { fallbackURL: "/offline.html" },
+              plugins: [
+                {
+                  // Belt-and-suspenders: if the strategy still errors (e.g. the
+                  // SW returned a non-OK response while offline), serve the
+                  // precached offline shell so PWABuilder's offline check sees
+                  // a valid 200 response.
+                  handlerDidError: async () => {
+                    const cache = await caches.open("html");
+                    return (
+                      (await cache.match("/offline.html")) ||
+                      (await caches.match("/offline.html")) ||
+                      Response.error()
+                    );
+                  },
+                },
+              ],
             },
           },
           {
