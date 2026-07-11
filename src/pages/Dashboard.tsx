@@ -790,6 +790,16 @@ const Dashboard = () => {
                   </div>
                 )}
 
+                {/* Background Music — surfaced on Overview for visibility */}
+                <div className="lg:col-span-3" data-tour="overview-music">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <Music2 className="w-4 h-4 text-gold" />
+                    <h3 className="font-display text-lg font-semibold text-foreground">Background Music</h3>
+                    <span className="ml-auto text-[10px] font-body uppercase tracking-wider bg-gold/15 text-gold px-2 py-0.5 rounded-full">New</span>
+                  </div>
+                  <DashboardMusicCard site={site} onUpdate={(next) => setSite(next)} />
+                </div>
+
                 {/* Stats cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
                   <StatCard
