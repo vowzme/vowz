@@ -54,6 +54,11 @@ export default defineConfig(({ mode }) => ({
         clientsClaim: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        // Guarantee the offline fallback is in the precache manifest even if
+        // globPatterns misses it (PWABuilder verifies an offline response).
+        additionalManifestEntries: [
+          { url: "/offline.html", revision: null },
+        ],
         // Disable vite-plugin-pwa's default NavigationRoute (index.html) so our
         // NetworkFirst nav handler below runs and can fall back to offline.html
         // when the network is unreachable. Cast to `any` because the plugin
@@ -80,6 +85,15 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\/(icons|splash)\//,
             handler: "CacheFirst",
             options: { cacheName: "pwa-icons", expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 } },
+          },
+          {
+            urlPattern: ({ request }) => request.destination === "image",
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "images",
+              expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
           },
         ],
       },
