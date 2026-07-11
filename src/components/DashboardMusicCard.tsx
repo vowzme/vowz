@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Music, Edit3, VolumeX, Volume2 } from "lucide-react";
+import { Music, Edit3, VolumeX, Volume2, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import HelpTip from "@/components/HelpTip";
@@ -27,6 +28,47 @@ const DashboardMusicCard = ({ site, onUpdate }: DashboardMusicCardProps) => {
   const enabled: boolean = music.enabled !== false;
   const trackName: string = music.trackName || "First Dance";
   const category: string = music.category || "romantic";
+  const trackUrl: string | undefined = music.trackUrl;
+  const savedVolume: number =
+    typeof music.volume === "number" ? Math.min(1, Math.max(0, music.volume)) : 0.4;
+
+  // ── Preview player ──────────────────────────────────────────────
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(savedVolume);
+
+  // Sync volume with the audio element and reset when the track changes.
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume;
+  }, [volume]);
+  useEffect(() => {
+    setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, [trackUrl]);
+
+  const togglePlay = async () => {
+    const el = audioRef.current;
+    if (!el || !trackUrl) return;
+    try {
+      if (el.paused) {
+        el.volume = volume;
+        await el.play();
+        setIsPlaying(true);
+      } else {
+        el.pause();
+        setIsPlaying(false);
+      }
+    } catch (err: any) {
+      toast({
+        title: "Couldn't play preview",
+        description: err?.message || "Try a different track.",
+        variant: "destructive" as any,
+      });
+    }
+  };
 
   const toggle = async (next: boolean) => {
     if (!site?.id) return;
@@ -102,6 +144,52 @@ const DashboardMusicCard = ({ site, onUpdate }: DashboardMusicCardProps) => {
           aria-label={enabled ? "Mute background music" : "Enable background music"}
           className="shrink-0"
         />
+      </div>
+
+      {/* Preview player — instant test, does NOT change site playback */}
+      <div className="rounded-lg border border-border/40 bg-muted/20 px-3 py-3 mb-3 flex items-center gap-3">
+        <Button
+          type="button"
+          size="icon"
+          variant="gold"
+          className="rounded-full h-10 w-10 shrink-0"
+          onClick={togglePlay}
+          disabled={!trackUrl}
+          aria-label={isPlaying ? "Pause preview" : "Play preview"}
+        >
+          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+        </Button>
+        <div className="flex-1 min-w-0">
+          <p className="font-body text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
+            Preview {!trackUrl && "· no track set"}
+          </p>
+          <div className="flex items-center gap-2">
+            <VolumeX className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <Slider
+              value={[Math.round(volume * 100)]}
+              onValueChange={(v) => setVolume((v[0] ?? 0) / 100)}
+              max={100}
+              step={1}
+              aria-label="Preview volume"
+              className="flex-1"
+            />
+            <Volume2 className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <span className="font-mono text-[11px] text-muted-foreground w-8 text-right tabular-nums">
+              {Math.round(volume * 100)}
+            </span>
+          </div>
+        </div>
+        {trackUrl && (
+          <audio
+            ref={audioRef}
+            src={trackUrl}
+            preload="none"
+            loop
+            onEnded={() => setIsPlaying(false)}
+            onPause={() => setIsPlaying(false)}
+            className="hidden"
+          />
+        )}
       </div>
 
       <Button variant="outline" size="sm" asChild className="w-full sm:w-auto min-h-11">
