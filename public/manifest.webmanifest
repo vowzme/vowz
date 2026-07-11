@@ -58,6 +58,8 @@
         {
           "src": "/screenshots/mobile-home.jpg",
           "sizes": "1080x1920",
+          "platform": "windows",
+          "type": "image/jpeg",
           "label": "Wedding countdown widget"
         }
       ],
