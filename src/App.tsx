@@ -51,6 +51,7 @@ import BlogPost from "./pages/BlogPost";
 import Showcase from "./pages/Showcase";
 import SharePreview from "./pages/SharePreview";
 import IconsDebug from "./pages/IconsDebug";
+import PwaDiagnostics from "./pages/PwaDiagnostics";
 import Unsubscribe from "./pages/Unsubscribe";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -88,6 +89,7 @@ const AppRoutes = () => (
     <Route path="/showcase" element={<Showcase />} />
     <Route path="/share-preview" element={<Layout><SharePreview /></Layout>} />
     <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
+    <Route path="/debug/pwa" element={<AdminOnlyRoute><PwaDiagnostics /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<CardTemplatesPreview />} />
     <Route path="/affiliate" element={<Layout><Affiliate /></Layout>} />
