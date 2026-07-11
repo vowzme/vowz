@@ -53,6 +53,7 @@ import SharePreview from "./pages/SharePreview";
 import Share from "./pages/Share";
 import IconsDebug from "./pages/IconsDebug";
 import PwaDiagnostics from "./pages/PwaDiagnostics";
+import WidgetSettings from "./pages/WidgetSettings";
 import { IosInstallPrompt } from "./components/IosInstallPrompt";
 import Unsubscribe from "./pages/Unsubscribe";
 import { useAdmin } from "@/hooks/use-admin";
@@ -81,6 +82,7 @@ const AppRoutes = () => (
     <Route path="/forgot-password" element={<Layout><ForgotPassword /></Layout>} />
     <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+    <Route path="/dashboard/widgets" element={<ProtectedRoute><WidgetSettings /></ProtectedRoute>} />
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
