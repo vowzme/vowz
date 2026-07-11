@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#001F3F" />
+    <title>Offline · Vowz</title>
+    <link rel="icon" href="/favicon.ico" />
+    <style>
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; }
+      body {
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: #F5F5DC;
+        color: #001F3F;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        max-width: 420px;
+        text-align: center;
+      }
+      .badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(212, 175, 55, 0.18);
+        color: #7a6412;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+      }
+      h1 {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 32px;
+        margin: 0 0 12px;
+        line-height: 1.15;
+      }
+      p { margin: 0 0 24px; color: rgba(0, 31, 63, 0.72); line-height: 1.55; }
+      button {
+        appearance: none;
+        border: 0;
+        background: #001F3F;
+        color: #F5F5DC;
+        font: inherit;
+        font-weight: 600;
+        padding: 12px 24px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+      button:hover { background: #002a54; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="badge">Offline</span>
+      <h1>You&rsquo;re offline</h1>
+      <p>Vowz needs a connection to load your wedding site. Reconnect to Wi&#8209;Fi or mobile data and try again.</p>
+      <button type="button" onclick="location.reload()">Try again</button>
+    </main>
+  </body>
+</html>
