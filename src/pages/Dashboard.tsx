@@ -651,6 +651,9 @@ const Dashboard = () => {
               <TabsTrigger value="billing" data-tour="tab-billing" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Billing <Receipt className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
+              <TabsTrigger value="music" data-tour="tab-music" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                Music <Music2 className="w-3 h-3 ml-0.5 hidden sm:inline" />
+              </TabsTrigger>
               <TabsTrigger value="settings" data-tour="tab-settings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Settings</TabsTrigger>
             </TabsList>
 
