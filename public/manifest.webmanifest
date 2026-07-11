@@ -12,6 +12,35 @@
   "lang": "en",
   "dir": "ltr",
   "categories": ["lifestyle", "social", "productivity"],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "launch_handler": { "client_mode": "navigate-existing" },
+  "edge_side_panel": { "preferred_width": 480 },
+  "handle_links": "preferred",
+  "scope_extensions": [],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-home.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Beautiful wedding website preview on mobile"
+    },
+    {
+      "src": "/screenshots/mobile-editor.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Customize your wedding site in minutes"
+    },
+    {
+      "src": "/screenshots/desktop-home.jpg",
+      "sizes": "1920x1080",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Vowz dashboard on desktop"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png?v=5",
