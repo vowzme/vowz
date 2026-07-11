@@ -57,6 +57,7 @@ import TwaVerify from "./pages/TwaVerify";
 import WidgetSettings from "./pages/WidgetSettings";
 import { IosInstallPrompt } from "./components/IosInstallPrompt";
 import Unsubscribe from "./pages/Unsubscribe";
+import DeleteAccount from "./pages/DeleteAccount";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -125,6 +126,7 @@ const AppRoutes = () => (
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
     <Route path="/unsubscribe" element={<Unsubscribe />} />
+    <Route path="/delete-account" element={<Layout><DeleteAccount /></Layout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>
 );
