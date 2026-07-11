@@ -27,8 +27,7 @@
   "handle_links": "preferred",
   "scope_extensions": [
     { "origin": "https://www.vowz.me" },
-    { "origin": "https://vowz.lovable.app" },
-    { "origin": "https://vowz.me" }
+    { "origin": "https://vowz.lovable.app" }
   ],
   "protocol_handlers": [
     { "protocol": "web+vowz", "url": "/share?url=%s" }
