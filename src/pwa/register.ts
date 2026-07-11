@@ -9,6 +9,7 @@
  * the user to reload so the fresh offline cache and app shell take effect.
  */
 import { toast } from "sonner";
+import { trackPwaEvent, wireConnectivityAnalytics } from "@/lib/pwa-analytics";
 
 const SW_PATH = "/sw.js";
 
@@ -42,6 +43,7 @@ async function unregisterMatching() {
 
 export async function registerPwa() {
   if (!("serviceWorker" in navigator)) return;
+  wireConnectivityAnalytics();
   if (isRefusedContext()) {
     await unregisterMatching();
     return;
@@ -55,12 +57,14 @@ export async function registerPwa() {
 }
 
 function promptReload(worker: ServiceWorker) {
+  trackPwaEvent("pwa_update_prompt_shown");
   toast("Update available", {
     description: "A new version of Vowz is ready. Reload to get the latest.",
     duration: Infinity,
     action: {
       label: "Reload",
       onClick: () => {
+        trackPwaEvent("pwa_update_prompt_accepted");
         // Ask the waiting SW to activate; reload once it takes control.
         worker.postMessage({ type: "SKIP_WAITING" });
         navigator.serviceWorker.addEventListener(
