@@ -133,6 +133,16 @@ self.addEventListener("widgetclick", (event) => {
   if (event.action === "open-vowz") {
     event.waitUntil(self.clients.openWindow("/"));
   }
+  if (event.action === "refresh-events" || event.host === "widgets") {
+    event.waitUntil(
+      (async () => {
+        const widget = await self.widgets?.getByTag(
+          event.widget?.definition?.tag || "vowz-events",
+        );
+        await renderVowzCountdown(widget); // generic template+data render
+      })(),
+    );
+  }
 });
 
 // ---------- Offline catch-all ----------
