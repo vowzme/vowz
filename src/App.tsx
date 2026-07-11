@@ -53,6 +53,7 @@ import SharePreview from "./pages/SharePreview";
 import Share from "./pages/Share";
 import IconsDebug from "./pages/IconsDebug";
 import PwaDiagnostics from "./pages/PwaDiagnostics";
+import TwaVerify from "./pages/TwaVerify";
 import WidgetSettings from "./pages/WidgetSettings";
 import { IosInstallPrompt } from "./components/IosInstallPrompt";
 import Unsubscribe from "./pages/Unsubscribe";
@@ -95,6 +96,7 @@ const AppRoutes = () => (
     <Route path="/share" element={<Share />} />
     <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
     <Route path="/debug/pwa" element={<AdminOnlyRoute><PwaDiagnostics /></AdminOnlyRoute>} />
+    <Route path="/debug/twa" element={<AdminOnlyRoute><TwaVerify /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<CardTemplatesPreview />} />
     <Route path="/affiliate" element={<Layout><Affiliate /></Layout>} />
