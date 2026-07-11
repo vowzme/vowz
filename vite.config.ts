@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { VitePWA } from "vite-plugin-pwa";
 
 /**
  * Rewrites `?v=<any>` on apple-touch-icon, apple-touch-startup-image, mask-icon,
@@ -31,7 +32,44 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), iconCacheBust(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(),
+    iconCacheBust(),
+    // Emits /sw.js at build time — needed for PWABuilder / Play Store TWA
+    // installability. Registration is done manually from src/pwa/register.ts
+    // (see skill/pwa: NEVER register in dev/preview/iframe).
+    VitePWA({
+      registerType: "autoUpdate",
+      injectRegister: null,
+      filename: "sw.js",
+      strategies: "generateSW",
+      devOptions: { enabled: false },
+      manifest: false, // we ship our own manifest.webmanifest
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
+        navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/functions\//],
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: { cacheName: "html", networkTimeoutSeconds: 3 },
+          },
+          {
+            urlPattern: ({ url }) => url.origin === self.location.origin && /\.(?:js|css|woff2)$/.test(url.pathname),
+            handler: "CacheFirst",
+            options: { cacheName: "static-assets", expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 } },
+          },
+          {
+            urlPattern: ({ url }) => url.origin === self.location.origin && /^\/(icons|splash)\//.test(url.pathname),
+            handler: "CacheFirst",
+            options: { cacheName: "pwa-icons", expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 } },
+          },
+        ],
+      },
+    }),
+    mode === "development" && componentTagger(),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
