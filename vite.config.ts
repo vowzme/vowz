@@ -59,6 +59,7 @@ export default defineConfig(({ mode }) => ({
         // globPatterns misses it (PWABuilder verifies an offline response).
         additionalManifestEntries: [
           { url: "/offline.html", revision: null },
+          { url: "/", revision: null },
         ],
         // Disable vite-plugin-pwa's default NavigationRoute (index.html) so our
         // NetworkFirst nav handler below runs and can fall back to offline.html
