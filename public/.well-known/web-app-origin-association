@@ -1,0 +1,10 @@
+{
+  "web_apps": [
+    {
+      "manifest": "https://vowz.me/manifest.webmanifest",
+      "details": {
+        "paths": ["/*"]
+      }
+    }
+  ]
+}
