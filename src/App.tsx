@@ -50,6 +50,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Showcase from "./pages/Showcase";
 import SharePreview from "./pages/SharePreview";
+import Share from "./pages/Share";
 import IconsDebug from "./pages/IconsDebug";
 import PwaDiagnostics from "./pages/PwaDiagnostics";
 import { IosInstallPrompt } from "./components/IosInstallPrompt";
@@ -89,6 +90,7 @@ const AppRoutes = () => (
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
     <Route path="/showcase" element={<Showcase />} />
     <Route path="/share-preview" element={<Layout><SharePreview /></Layout>} />
+    <Route path="/share" element={<Share />} />
     <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
     <Route path="/debug/pwa" element={<AdminOnlyRoute><PwaDiagnostics /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
