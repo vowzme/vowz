@@ -27,7 +27,8 @@
   "handle_links": "preferred",
   "scope_extensions": [
     { "origin": "https://www.vowz.me" },
-    { "origin": "https://vowz.lovable.app" }
+    { "origin": "https://vowz.lovable.app" },
+    { "origin": "https://vowz.me" }
   ],
   "protocol_handlers": [
     { "protocol": "web+vowz", "url": "/share?url=%s" }
@@ -60,11 +61,15 @@
           "sizes": "1080x1920",
           "platform": "windows",
           "type": "image/jpeg",
+          "form_factor": "narrow",
           "label": "Wedding countdown widget"
         }
       ],
       "icons": [
         { "src": "/icons/icon-192.png?v=5", "sizes": "192x192", "type": "image/png" }
+      ],
+      "backgrounds": [
+        { "src": "/screenshots/mobile-home.jpg", "type": "image/jpeg" }
       ],
       "auth": false,
       "update": 86400
