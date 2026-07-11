@@ -13,5 +13,9 @@ import "@fontsource/cinzel/700.css";
 import "@fontsource/great-vibes/400.css";
 import "@fontsource/dm-serif-display/400.css";
 import "@fontsource/lato/400.css";
+import { registerPwa } from "./pwa/register";
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+// Register service worker (production, non-preview only — see src/pwa/register.ts)
+registerPwa();

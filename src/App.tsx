@@ -52,6 +52,7 @@ import Showcase from "./pages/Showcase";
 import SharePreview from "./pages/SharePreview";
 import IconsDebug from "./pages/IconsDebug";
 import PwaDiagnostics from "./pages/PwaDiagnostics";
+import { IosInstallPrompt } from "./components/IosInstallPrompt";
 import Unsubscribe from "./pages/Unsubscribe";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -135,6 +136,7 @@ const App = () => (
               <ErrorBoundary>
                 <AppRoutes />
               </ErrorBoundary>
+              <IosInstallPrompt />
             </BrowserRouter>
           </AuthProvider>
         </PricingRegionProvider>
