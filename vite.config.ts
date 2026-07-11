@@ -83,10 +83,12 @@ export default defineConfig(({ mode }) => ({
                   // precached offline shell so PWABuilder's offline check sees
                   // a valid 200 response.
                   handlerDidError: async () => {
-                    const c = await (self as unknown as ServiceWorkerGlobalScope).caches.open("html");
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const cs = (globalThis as any).caches;
+                    const c = await cs.open("html");
                     return (
                       (await c.match("/offline.html")) ||
-                      (await (self as unknown as ServiceWorkerGlobalScope).caches.match("/offline.html")) ||
+                      (await cs.match("/offline.html")) ||
                       Response.error()
                     );
                   },
