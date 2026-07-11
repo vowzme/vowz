@@ -1,0 +1,80 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "${coupleNames}",
+      "weight": "Bolder",
+      "size": "Medium",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Upcoming Events",
+      "isSubtle": true,
+      "spacing": "None"
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "items": [
+        {
+          "type": "Container",
+          "$data": "${events}",
+          "separator": true,
+          "items": [
+            {
+              "type": "ColumnSet",
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "items": [
+                    { "type": "TextBlock", "text": "${date}", "weight": "Bolder", "size": "Small", "color": "Accent" }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    { "type": "TextBlock", "text": "${name}", "weight": "Bolder", "wrap": true, "spacing": "None" },
+                    { "type": "TextBlock", "text": "${time} · ${venue}", "isSubtle": true, "size": "Small", "wrap": true, "spacing": "None" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "spacing": "Medium",
+      "items": [
+        { "type": "TextBlock", "text": "RSVP Status", "weight": "Bolder", "size": "Small" },
+        {
+          "type": "FactSet",
+          "facts": [
+            { "title": "Attending", "value": "${rsvp.attending}" },
+            { "title": "Declined", "value": "${rsvp.declined}" },
+            { "title": "Pending", "value": "${rsvp.pending}" }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "Open Wedding Site",
+      "url": "${siteUrl}"
+    },
+    {
+      "type": "Action.Execute",
+      "title": "Refresh",
+      "verb": "refresh-events"
+    }
+  ]
+}

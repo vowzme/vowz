@@ -1,0 +1,15 @@
+{
+  "coupleNames": "Aisha & Rohan",
+  "siteUrl": "https://vowz.me/",
+  "events": [
+    { "date": "Sat, Dec 6", "name": "Mehndi",   "time": "5:00 PM", "venue": "The Leela Garden"   },
+    { "date": "Sun, Dec 7", "name": "Sangeet",  "time": "7:30 PM", "venue": "The Leela Ballroom" },
+    { "date": "Mon, Dec 8", "name": "Wedding",  "time": "6:00 PM", "venue": "Taj Palace"          },
+    { "date": "Tue, Dec 9", "name": "Reception", "time": "8:00 PM", "venue": "Taj Palace"         }
+  ],
+  "rsvp": {
+    "attending": "142",
+    "declined": "18",
+    "pending": "40"
+  }
+}
