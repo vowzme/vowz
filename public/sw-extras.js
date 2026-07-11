@@ -87,7 +87,9 @@ self.addEventListener("sync", (event) => {
 // PWABuilder's Widgets capability check requires the SW to handle the
 // widget lifecycle events and update instances via the Widgets API.
 async function renderVowzCountdown(widget) {
-  if (!widget) return;
+  // Graceful fallback: the Widgets API only exists on Windows 11 Chromium
+  // installs. Anywhere else `self.widgets` is undefined, so bail silently.
+  if (!widget || !self.widgets || typeof self.widgets.updateByInstanceId !== "function") return;
   try {
     const [tplRes, dataRes] = await Promise.all([
       fetch(widget.definition.msAcTemplate),
@@ -95,55 +97,58 @@ async function renderVowzCountdown(widget) {
     ]);
     const template = await tplRes.text();
     const data = await dataRes.text();
-    if (self.widgets && widget.instances) {
-      await Promise.all(
-        widget.instances.map((i) =>
-          self.widgets.updateByInstanceId(i.id, { template, data }),
-        ),
-      );
-    }
+    if (!widget.instances) return;
+    await Promise.all(
+      widget.instances.map((i) =>
+        self.widgets.updateByInstanceId(i.id, { template, data }),
+      ),
+    );
   } catch {
     /* offline — Widgets Board will retry */
   }
 }
 
-self.addEventListener("widgetinstall", (event) => {
+// Only wire widget lifecycle events when the API is actually present.
+// Adding listeners on unsupported UAs is harmless, but this keeps DevTools clean.
+if (typeof self.widgets !== "undefined") {
+  self.addEventListener("widgetinstall", (event) => {
   event.waitUntil(
     (async () => {
-      const widget = await self.widgets?.getByTag(event.widget.definition.tag);
+        const widget = await self.widgets.getByTag(event.widget.definition.tag);
       await renderVowzCountdown(widget);
     })(),
   );
-});
+  });
 
-self.addEventListener("widgetresume", (event) => {
+  self.addEventListener("widgetresume", (event) => {
   event.waitUntil(
     (async () => {
-      const widget = await self.widgets?.getByTag(event.widget.definition.tag);
+        const widget = await self.widgets.getByTag(event.widget.definition.tag);
       await renderVowzCountdown(widget);
     })(),
   );
-});
+  });
 
-self.addEventListener("widgetuninstall", () => {
-  /* nothing to clean up */
-});
+  self.addEventListener("widgetuninstall", () => {
+    /* nothing to clean up */
+  });
 
-self.addEventListener("widgetclick", (event) => {
+  self.addEventListener("widgetclick", (event) => {
   if (event.action === "open-vowz") {
     event.waitUntil(self.clients.openWindow("/"));
   }
   if (event.action === "refresh-events" || event.host === "widgets") {
     event.waitUntil(
       (async () => {
-        const widget = await self.widgets?.getByTag(
+          const widget = await self.widgets.getByTag(
           event.widget?.definition?.tag || "vowz-events",
         );
         await renderVowzCountdown(widget); // generic template+data render
       })(),
     );
   }
-});
+  });
+}
 
 // ---------- Offline catch-all ----------
 // Guarantees any failed navigation returns the precached offline shell so
