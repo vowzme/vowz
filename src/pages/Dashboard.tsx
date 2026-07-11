@@ -1002,6 +1002,22 @@ const Dashboard = () => {
               </div>
             </TabsContent>
 
+            {/* ─── Music Tab ─── */}
+            <TabsContent value="music">
+              <div className="max-w-4xl mx-auto space-y-4">
+                <div className="flex items-start gap-3 bg-gold/5 border border-gold/20 rounded-2xl p-4">
+                  <Music2 className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-foreground">Background Music</h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">
+                      Set the mood for your wedding site. Pick a track from the curated library or upload your own — visitors can play or mute it from the site.
+                    </p>
+                  </div>
+                </div>
+                <DashboardMusicCard site={site} onUpdate={(next) => setSite(next)} />
+              </div>
+            </TabsContent>
+
             {/* ─── Settings Tab ─── */}
             <TabsContent value="settings">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
