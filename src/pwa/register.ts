@@ -4,7 +4,12 @@
  * Registers `/sw.js` only in production browsers on the real domain.
  * Never registers in Lovable preview, dev servers, iframes, or when the
  * URL carries `?sw=off` (kill switch). See docs/pwabuilder-android.md.
+ *
+ * When a new SW is installed and waiting, shows a sonner toast prompting
+ * the user to reload so the fresh offline cache and app shell take effect.
  */
+import { toast } from "sonner";
+
 const SW_PATH = "/sw.js";
 
 function isRefusedContext(): boolean {
@@ -42,8 +47,47 @@ export async function registerPwa() {
     return;
   }
   try {
-    await navigator.serviceWorker.register(SW_PATH, { scope: "/" });
+    const reg = await navigator.serviceWorker.register(SW_PATH, { scope: "/" });
+    watchForUpdate(reg);
   } catch (err) {
     console.warn("[pwa] service worker registration failed", err);
   }
+}
+
+function promptReload(worker: ServiceWorker) {
+  toast("Update available", {
+    description: "A new version of Vowz is ready. Reload to get the latest.",
+    duration: Infinity,
+    action: {
+      label: "Reload",
+      onClick: () => {
+        // Ask the waiting SW to activate; reload once it takes control.
+        worker.postMessage({ type: "SKIP_WAITING" });
+        navigator.serviceWorker.addEventListener(
+          "controllerchange",
+          () => window.location.reload(),
+          { once: true },
+        );
+      },
+    },
+  });
+}
+
+function watchForUpdate(reg: ServiceWorkerRegistration) {
+  // Case 1: A waiting worker was already present at registration time.
+  if (reg.waiting && navigator.serviceWorker.controller) {
+    promptReload(reg.waiting);
+  }
+  // Case 2: An update is found — wait for it to install, then prompt.
+  reg.addEventListener("updatefound", () => {
+    const installing = reg.installing;
+    if (!installing) return;
+    installing.addEventListener("statechange", () => {
+      if (installing.state === "installed" && navigator.serviceWorker.controller) {
+        promptReload(installing);
+      }
+    });
+  });
+  // Poll periodically so long-lived tabs pick up new releases.
+  setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
 }

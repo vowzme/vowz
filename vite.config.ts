@@ -39,13 +39,19 @@ export default defineConfig(({ mode }) => ({
     // installability. Registration is done manually from src/pwa/register.ts
     // (see skill/pwa: NEVER register in dev/preview/iframe).
     VitePWA({
-      registerType: "autoUpdate",
+      // "prompt" keeps the new SW in `waiting` so we can show a reload toast
+      // via src/pwa/register.ts. `skipWaiting` is disabled below for the same
+      // reason; the toast's Reload button posts SKIP_WAITING when the user
+      // opts in.
+      registerType: "prompt",
       injectRegister: null,
       filename: "sw.js",
       strategies: "generateSW",
       devOptions: { enabled: false },
       manifest: false, // we ship our own manifest.webmanifest
       workbox: {
+        skipWaiting: false,
+        clientsClaim: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         // Disable vite-plugin-pwa's default NavigationRoute (index.html) so our
