@@ -14,13 +14,20 @@
   "dir": "ltr",
   "categories": ["lifestyle", "social", "productivity"],
   "prefer_related_applications": false,
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://vowz.me/manifest.webmanifest",
+      "id": "https://vowz.me/"
+    }
+  ],
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "launch_handler": { "client_mode": "navigate-existing" },
   "edge_side_panel": { "preferred_width": 480 },
   "handle_links": "preferred",
   "scope_extensions": [
-    { "origin": "https://www.vowz.me" }
+    { "origin": "https://www.vowz.me" },
+    { "origin": "https://vowz.lovable.app" }
   ],
   "protocol_handlers": [
     { "protocol": "web+vowz", "url": "/share?url=%s" }
