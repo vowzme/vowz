@@ -48,8 +48,10 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/functions\//],
+        // No `navigateFallback` — that registers a precache-only NavigationRoute
+        // which fires before runtimeCaching and would prevent our NetworkFirst +
+        // offline.html fallback from ever running. Navigations are handled by
+        // the runtimeCaching entry below.
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.mode === "navigate",
