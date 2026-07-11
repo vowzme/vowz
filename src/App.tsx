@@ -136,6 +136,7 @@ const App = () => (
               <ErrorBoundary>
                 <AppRoutes />
               </ErrorBoundary>
+              <IosInstallPrompt />
             </BrowserRouter>
           </AuthProvider>
         </PricingRegionProvider>
