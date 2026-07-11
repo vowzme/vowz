@@ -54,7 +54,13 @@ export default defineConfig(({ mode }) => ({
           {
             urlPattern: ({ request }) => request.mode === "navigate",
             handler: "NetworkFirst",
-            options: { cacheName: "html", networkTimeoutSeconds: 3 },
+            options: {
+              cacheName: "html",
+              networkTimeoutSeconds: 3,
+              // When both network and cache miss (true offline + uncached route),
+              // Workbox serves this precached page instead of a browser error.
+              precacheFallback: { fallbackURL: "/offline.html" },
+            },
           },
           {
             urlPattern: /\.(?:js|css|woff2)$/,
