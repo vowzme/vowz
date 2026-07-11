@@ -9,7 +9,7 @@ import {
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
   IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon,
-  Pause, Play, QrCode
+  Pause, Play, QrCode, Music2
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
@@ -651,6 +651,9 @@ const Dashboard = () => {
               <TabsTrigger value="billing" data-tour="tab-billing" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
                 Billing <Receipt className="w-3 h-3 ml-0.5 hidden sm:inline" />
               </TabsTrigger>
+              <TabsTrigger value="music" data-tour="tab-music" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">
+                Music <Music2 className="w-3 h-3 ml-0.5 hidden sm:inline" />
+              </TabsTrigger>
               <TabsTrigger value="settings" data-tour="tab-settings" className="font-body text-[11px] sm:text-sm flex-1 sm:flex-initial min-w-[calc(33%-4px)] sm:min-w-0">Settings</TabsTrigger>
             </TabsList>
 
@@ -786,6 +789,16 @@ const Dashboard = () => {
                     />
                   </div>
                 )}
+
+                {/* Background Music — surfaced on Overview for visibility */}
+                <div className="lg:col-span-3" data-tour="overview-music">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <Music2 className="w-4 h-4 text-gold" />
+                    <h3 className="font-display text-lg font-semibold text-foreground">Background Music</h3>
+                    <span className="ml-auto text-[10px] font-body uppercase tracking-wider bg-gold/15 text-gold px-2 py-0.5 rounded-full">New</span>
+                  </div>
+                  <DashboardMusicCard site={site} onUpdate={(next) => setSite(next)} />
+                </div>
 
                 {/* Stats cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
@@ -989,13 +1002,25 @@ const Dashboard = () => {
               </div>
             </TabsContent>
 
+            {/* ─── Music Tab ─── */}
+            <TabsContent value="music">
+              <div className="max-w-4xl mx-auto space-y-4">
+                <div className="flex items-start gap-3 bg-gold/5 border border-gold/20 rounded-2xl p-4">
+                  <Music2 className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-foreground">Background Music</h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">
+                      Set the mood for your wedding site. Pick a track from the curated library or upload your own — visitors can play or mute it from the site.
+                    </p>
+                  </div>
+                </div>
+                <DashboardMusicCard site={site} onUpdate={(next) => setSite(next)} />
+              </div>
+            </TabsContent>
+
             {/* ─── Settings Tab ─── */}
             <TabsContent value="settings">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                {/* Background Music quick controls */}
-                <div className="lg:col-span-2">
-                  <DashboardMusicCard site={site} onUpdate={(next) => setSite(next)} />
-                </div>
                 {/* Profile settings */}
                 <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6">
                   <h2 className="font-display text-xl font-bold text-foreground mb-4 flex items-center gap-1.5">
