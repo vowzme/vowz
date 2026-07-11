@@ -219,12 +219,14 @@ const DashboardMusicCard = ({ site, onUpdate }: DashboardMusicCardProps) => {
         <div className="flex-1 min-w-0">
           <p className="font-body text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
             Preview {!trackUrl && "· no track set"}
+            {savingVolume && <span className="ml-2 normal-case tracking-normal text-gold">Saving…</span>}
           </p>
           <div className="flex items-center gap-2">
             <VolumeX className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
             <Slider
               value={[Math.round(volume * 100)]}
               onValueChange={(v) => setVolume((v[0] ?? 0) / 100)}
+              onValueCommit={(v) => persistVolume((v[0] ?? 0) / 100)}
               max={100}
               step={1}
               aria-label="Preview volume"
