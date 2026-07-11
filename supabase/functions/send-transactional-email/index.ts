@@ -52,6 +52,25 @@ function generateToken(): string {
 // Auth note: this function uses verify_jwt = true in config.toml, so Supabase's
 // gateway validates the caller's JWT (anon or service_role) before the request
 // reaches this code. No in-function auth check is needed.
+//
+// SECURITY: the gateway only confirms the JWT is a valid Supabase key — it does
+// NOT prove the caller has any right to send email to `recipientEmail`. Without
+// an in-function authorization gate, anyone with the public anon key could use
+// this endpoint to send branded phishing/spam from the verified domain. We
+// enforce authorization below:
+//
+//   * Anonymous callers may only trigger a small allow-list of guest-facing
+//     templates (currently `rsvp-confirmation`), and the recipient must
+//     correspond to a recent row in a trusted table (e.g. `rsvps`) — so
+//     attackers cannot mail arbitrary inboxes without first writing a real
+//     RSVP row (which is itself RLS-scoped).
+//   * Authenticated non-admin users may send to their OWN email only.
+//   * Admins (per `admin_emails`) can send to any address (used by the admin
+//     retry UI).
+
+const ANON_ALLOWED_TEMPLATES = new Set(['rsvp-confirmation'])
+// Freshness window when correlating anon sends against a trusted table row.
+const ANON_RECORD_LOOKBACK_MS = 15 * 60 * 1000
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -71,6 +90,29 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
+  }
+
+  // Resolve caller identity from the Authorization header.
+  // `verify_jwt = true` at the gateway guarantees this header exists and is a
+  // valid Supabase JWT (anon or user). We still need to distinguish anon vs
+  // authenticated users in-function to authorize the send.
+  const authHeader = req.headers.get('Authorization') || ''
+  const bearer = authHeader.replace(/^Bearer\s+/i, '').trim()
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') || ''
+  let callerUserId: string | null = null
+  let callerEmail: string | null = null
+  if (bearer && bearer !== anonKey) {
+    try {
+      const authClient = createClient(supabaseUrl, anonKey || supabaseServiceKey)
+      const { data: claimsResult } = await authClient.auth.getClaims(bearer)
+      const claims: any = claimsResult?.claims
+      if (claims && claims.role === 'authenticated' && typeof claims.sub === 'string') {
+        callerUserId = claims.sub
+        callerEmail = typeof claims.email === 'string' ? claims.email : null
+      }
+    } catch (e) {
+      console.warn('JWT claim extraction failed — treating caller as anonymous', e)
+    }
   }
 
   // Parse request body
@@ -143,6 +185,67 @@ Deno.serve(async (req) => {
 
   // Create Supabase client with service role (bypasses RLS)
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+  // Determine admin status for the caller (admins can send any template to any recipient).
+  let isAdmin = false
+  if (callerUserId) {
+    try {
+      const { data: adminCheck } = await supabase.rpc('is_admin', { _user_id: callerUserId })
+      isAdmin = Boolean(adminCheck)
+    } catch (e) {
+      console.warn('is_admin RPC failed — treating caller as non-admin', e)
+    }
+  }
+
+  // ── Authorization gate ────────────────────────────────────────────────────
+  // Reject early when the caller has no right to send this template to this
+  // recipient. Blocks the "anyone with the anon key can mail any inbox" hole.
+  if (!isAdmin) {
+    const normalized = effectiveRecipient.toLowerCase()
+    if (!callerUserId) {
+      // Anonymous caller — must use an allow-listed template AND the recipient
+      // must correspond to a recently persisted trusted record.
+      if (!ANON_ALLOWED_TEMPLATES.has(templateName)) {
+        console.warn('Anon caller blocked from template', { templateName })
+        return new Response(
+          JSON.stringify({ error: 'Not authorized to send this template' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      if (templateName === 'rsvp-confirmation') {
+        const since = new Date(Date.now() - ANON_RECORD_LOOKBACK_MS).toISOString()
+        const { data: rsvpRow, error: rsvpErr } = await supabase
+          .from('rsvps')
+          .select('id')
+          .ilike('guest_email', normalized)
+          .gte('created_at', since)
+          .limit(1)
+          .maybeSingle()
+        if (rsvpErr || !rsvpRow) {
+          console.warn('Anon rsvp-confirmation blocked — no matching recent RSVP', {
+            normalized,
+            rsvpErr,
+          })
+          return new Response(
+            JSON.stringify({ error: 'Not authorized to send to this recipient' }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      }
+    } else {
+      // Authenticated non-admin — can only email themselves.
+      if (!callerEmail || callerEmail.toLowerCase() !== normalized) {
+        console.warn('Authenticated non-admin blocked from sending to another address', {
+          callerUserId,
+          normalized,
+        })
+        return new Response(
+          JSON.stringify({ error: 'Not authorized to send to this recipient' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+  }
 
   // 2. Check suppression list (fail-closed: if we can't verify, don't send)
   const { data: suppressed, error: suppressionError } = await supabase
