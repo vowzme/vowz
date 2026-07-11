@@ -63,5 +63,27 @@
       <p>Vowz needs a connection to load your wedding site. Reconnect to Wi&#8209;Fi or mobile data and try again.</p>
       <button type="button" onclick="location.reload()">Try again</button>
     </main>
+    <script>
+      // Lightweight PWA analytics — mirrors src/lib/pwa-analytics.ts.
+      // offline.html is served without the app bundle, so we inline the
+      // localStorage-buffer write and rely on the SPA to flush it on next load.
+      (function () {
+        var BUFFER_KEY = "vowz.pwa.events";
+        function record(name) {
+          try {
+            var buf = JSON.parse(localStorage.getItem(BUFFER_KEY) || "[]");
+            buf.push({ name: name, at: Date.now(), url: location.href });
+            while (buf.length > 50) buf.shift();
+            localStorage.setItem(BUFFER_KEY, JSON.stringify(buf));
+          } catch (e) {}
+          try { console.info("[pwa-analytics]", name); } catch (e) {}
+        }
+        record("pwa_offline_fallback_shown");
+        window.addEventListener("online", function () {
+          record("pwa_connectivity_recovered");
+          location.reload();
+        });
+      })();
+    </script>
   </body>
 </html>
