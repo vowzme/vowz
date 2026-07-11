@@ -6,18 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, LayoutGrid } from "lucide-react";
+import { detectCapabilities, type Capability } from "@/lib/pwa-capabilities";
+import { Badge } from "@/components/ui/badge";
+import { AlertCircle } from "lucide-react";
 
 const STORAGE_KEY = "vowz.pwa.widgets.prefs";
 
-type WidgetKey =
-  | "countdown"
-  | "pushNotifications"
-  | "backgroundSync"
-  | "periodicSync"
-  | "offlineFallback"
-  | "tabbedDisplay"
-  | "windowControlsOverlay";
-
+type WidgetKey = Capability;
 type Prefs = Record<WidgetKey, boolean>;
 
 const DEFAULTS: Prefs = {
@@ -52,10 +47,14 @@ function loadPrefs(): Prefs {
 
 export default function WidgetSettings() {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULTS);
+  const [support, setSupport] = useState(() => detectCapabilities());
 
   useEffect(() => {
     setPrefs(loadPrefs());
+    setSupport(detectCapabilities());
   }, []);
+
+  const unsupportedCount = (Object.keys(support) as Capability[]).filter((k) => !support[k]).length;
 
   const update = (key: WidgetKey, value: boolean) => {
     const next = { ...prefs, [key]: value };
@@ -101,6 +100,18 @@ export default function WidgetSettings() {
           </div>
         </div>
 
+      {unsupportedCount > 0 && (
+          <div className="mb-4 flex items-start gap-3 p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-sm">
+            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-medium text-foreground">Some features aren't available on this device</div>
+              <div className="text-muted-foreground mt-1">
+                Vowz falls back to the standard web experience — RSVPs, invitations and your public site keep working exactly the same. Unsupported toggles are disabled below.
+              </div>
+            </div>
+          </div>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Widget features</CardTitle>
@@ -108,11 +119,16 @@ export default function WidgetSettings() {
           </CardHeader>
           <CardContent className="space-y-5">
             {ROWS.map((row) => (
-              <div key={row.key} className="flex items-start justify-between gap-4 pb-4 border-b last:border-0 last:pb-0">
+              <div key={row.key} className={`flex items-start justify-between gap-4 pb-4 border-b last:border-0 last:pb-0 ${!support[row.key] ? "opacity-60" : ""}`}>
                 <div className="flex-1">
-                  <Label htmlFor={row.key} className="text-base font-medium">{row.title}</Label>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Label htmlFor={row.key} className="text-base font-medium">{row.title}</Label>
+                    {!support[row.key] && (
+                      <Badge variant="outline" className="text-[10px] uppercase tracking-wide">Not supported</Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground mt-1">{row.description}</p>
-                  {row.key === "pushNotifications" && prefs.pushNotifications && (
+                  {row.key === "pushNotifications" && prefs.pushNotifications && support.pushNotifications && (
                     <Button size="sm" variant="outline" className="mt-2" onClick={requestPush}>
                       Grant browser permission
                     </Button>
@@ -120,7 +136,8 @@ export default function WidgetSettings() {
                 </div>
                 <Switch
                   id={row.key}
-                  checked={prefs[row.key]}
+                  checked={prefs[row.key] && support[row.key]}
+                  disabled={!support[row.key]}
                   onCheckedChange={(v) => update(row.key, v)}
                 />
               </div>
