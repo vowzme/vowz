@@ -32,9 +32,11 @@ function readPngIhdr(buf: Buffer) {
 
 function decodePngRgba(buf: Buffer) {
   const ihdr = readPngIhdr(buf);
-  if (ihdr.bitDepth !== 8 || ihdr.colorType !== 6 || ihdr.interlace !== 0) {
+  // Support 8-bit RGB (colorType 2) and RGBA (colorType 6), non-interlaced.
+  if (ihdr.bitDepth !== 8 || (ihdr.colorType !== 6 && ihdr.colorType !== 2) || ihdr.interlace !== 0) {
     throw new Error(`unsupported PNG format (bd=${ihdr.bitDepth} ct=${ihdr.colorType})`);
   }
+  const channels = ihdr.colorType === 6 ? 4 : 3;
   const chunks: Buffer[] = [];
   let p = 8;
   while (p < buf.length) {
@@ -46,8 +48,8 @@ function decodePngRgba(buf: Buffer) {
   }
   const raw = inflateSync(Buffer.concat(chunks));
   const { width: w, height: h } = ihdr;
-  const stride = w * 4;
-  const out = Buffer.alloc(w * h * 4);
+  const stride = w * channels;
+  const decoded = Buffer.alloc(w * h * channels);
   let src = 0;
   const paeth = (a: number, b: number, c: number) => {
     const p = a + b - c;
@@ -60,9 +62,9 @@ function decodePngRgba(buf: Buffer) {
     const prevRow = y === 0 ? null : rowStart - stride;
     for (let x = 0; x < stride; x++) {
       const v = raw[src++];
-      const left = x >= 4 ? out[rowStart + x - 4] : 0;
-      const up = prevRow !== null ? out[prevRow + x] : 0;
-      const ul = prevRow !== null && x >= 4 ? out[prevRow + x - 4] : 0;
+      const left = x >= channels ? decoded[rowStart + x - channels] : 0;
+      const up = prevRow !== null ? decoded[prevRow + x] : 0;
+      const ul = prevRow !== null && x >= channels ? decoded[prevRow + x - channels] : 0;
       let recon: number;
       switch (filter) {
         case 0: recon = v; break;
@@ -72,10 +74,19 @@ function decodePngRgba(buf: Buffer) {
         case 4: recon = v + paeth(left, up, ul); break;
         default: throw new Error(`unknown filter ${filter}`);
       }
-      out[rowStart + x] = recon & 0xff;
+      decoded[rowStart + x] = recon & 0xff;
     }
   }
-  return { width: w, height: h, pixels: out };
+  // Normalise to RGBA so downstream code can assume 4 channels.
+  if (channels === 4) return { width: w, height: h, pixels: decoded };
+  const rgba = Buffer.alloc(w * h * 4);
+  for (let i = 0, j = 0; i < decoded.length; i += 3, j += 4) {
+    rgba[j] = decoded[i];
+    rgba[j + 1] = decoded[i + 1];
+    rgba[j + 2] = decoded[i + 2];
+    rgba[j + 3] = 255;
+  }
+  return { width: w, height: h, pixels: rgba };
 }
 
 function contentBounds(img: { width: number; height: number; pixels: Buffer }) {
