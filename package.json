@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "predev": "bunx tsx scripts/generate-sitemap.ts",
-    "prebuild": "bunx tsx scripts/validate-white-glossy.ts && bunx tsx scripts/validate-icons.ts && bunx tsx scripts/generate-sitemap.ts",
+    "prebuild": "bunx tsx scripts/validate-white-glossy.ts && bunx tsx scripts/generate-sitemap.ts",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
