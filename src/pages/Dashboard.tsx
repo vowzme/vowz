@@ -9,7 +9,7 @@ import {
   BarChart3, TrendingUp, MousePointer, MessageSquare,
   ClipboardList, CalendarDays, Search, Crown, ShieldCheck, ExternalLink as ExternalLinkIcon,
   IndianRupee, BookOpen, Receipt, Download, Heart as HeartIcon,
-  Pause, Play, QrCode
+  Pause, Play, QrCode, Music2
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
