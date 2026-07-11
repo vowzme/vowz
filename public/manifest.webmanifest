@@ -6,6 +6,7 @@
   "scope": "/",
   "id": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF",
@@ -13,11 +14,18 @@
   "dir": "ltr",
   "categories": ["lifestyle", "social", "productivity"],
   "prefer_related_applications": false,
-  "related_applications": [],
   "launch_handler": { "client_mode": "navigate-existing" },
   "edge_side_panel": { "preferred_width": 480 },
   "handle_links": "preferred",
-  "scope_extensions": [],
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "screenshots": [
     {
       "src": "/screenshots/mobile-home.jpg",
