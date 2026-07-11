@@ -82,3 +82,16 @@ self.addEventListener("sync", (event) => {
     event.waitUntil(Promise.resolve());
   }
 });
+
+// ---------- Offline catch-all ----------
+// Guarantees any failed navigation returns the precached offline shell so
+// PWABuilder's offline probe always gets a real HTML response.
+if (self.workbox && self.workbox.routing) {
+  self.workbox.routing.setCatchHandler(async ({ request }) => {
+    if (request.destination === "document" || request.mode === "navigate") {
+      const cached = await caches.match("/offline.html");
+      if (cached) return cached;
+    }
+    return Response.error();
+  });
+}
