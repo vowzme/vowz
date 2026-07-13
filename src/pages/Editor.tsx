@@ -2610,7 +2610,7 @@ function SectionEditor({
                 />
                 {video.url && (
                   (() => {
-                    const v = validateVideoUrl(video.url);
+                    const v = validateVideoUrl(video.url) as { ok: boolean; label?: string; error?: string; hint?: string };
                     if (v.ok) {
                       return <p className="text-[10px] text-green-600 font-body">✓ Detected: {v.label}</p>;
                     }
