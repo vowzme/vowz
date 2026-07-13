@@ -232,6 +232,14 @@ const Editor = () => {
     previewMode: false,
   });
 
+  // ─── LocalStorage autosave ─────────────────────────────────────────
+  // Keeps in-progress edits safe across accidental refresh / tab close.
+  // Stored under vowz_editor_draft_<siteId>, cleared once the DB save succeeds.
+  const draftKey = dbSiteId ? `vowz_editor_draft_${dbSiteId}` : null;
+  const restoredDraftRef = useRef(false);
+  const skipNextAutosaveRef = useRef(true); // don't autosave the initial hydrate
+  const prevSavingRef = useRef(saving);
+
   // Load existing site from DB if no wizard data passed
   useEffect(() => {
     if (!wizardData && user) {
