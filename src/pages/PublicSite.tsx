@@ -674,7 +674,7 @@ function PublicSection({
   if (type === "gallery") return <GallerySection data={td} accent={accent} coupleNames={coupleNames} />;
   if (type === "travel") return <TravelSection data={td} accent={accent} />;
   if (type === "guestbook") return <GuestbookSection data={td} site={site} accent={accent} trackEvent={trackEvent} />;
-  if (type === "rsvp") return <RsvpSection data={td} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
+  if (type === "rsvp") return <RsvpSection data={td} site={site} bg={bg} accent={accent} trackEvent={trackEvent} t={t} />;
   if (type === "custom") return <StorySection data={td} accent={accent} />;
   if (type === "polls") return <PollsSection data={td} site={site} accent={accent} />;
   if (type === "ecotips") return <EcoTipsSection data={td} accent={accent} />;
