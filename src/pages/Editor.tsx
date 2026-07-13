@@ -26,7 +26,7 @@ import { useMediaUpload } from "@/hooks/use-media-upload";
 import { StorageBadge } from "@/components/StorageBadge";
 import { DEFAULT_STORY, STORY_TEMPLATES } from "@/lib/default-story";
 import MediaManagerPanel from "@/components/MediaManagerPanel";
-import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS } from "@/lib/video-embed";
+import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS, validateVideoUrl } from "@/lib/video-embed";
 import { MUSIC_CATEGORIES } from "@/lib/music-library";
 import { useR2Upload } from "@/hooks/use-r2-upload";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
@@ -2610,11 +2610,15 @@ function SectionEditor({
                 />
                 {video.url && (
                   (() => {
-                    const p = parseVideoUrl(video.url);
-                    return p ? (
-                      <p className="text-[10px] text-green-600 font-body">✓ Detected: {p.label}</p>
-                    ) : (
-                      <p className="text-[10px] text-destructive font-body">Unsupported URL — use one of the platforms above</p>
+                    const v = validateVideoUrl(video.url) as { ok: boolean; label?: string; error?: string; hint?: string };
+                    if (v.ok) {
+                      return <p className="text-[10px] text-green-600 font-body">✓ Detected: {v.label}</p>;
+                    }
+                    return (
+                      <div className="text-[10px] font-body">
+                        <p className="text-destructive">{v.error}</p>
+                        {v.hint && <p className="text-muted-foreground mt-0.5">{v.hint}</p>}
+                      </div>
                     );
                   })()
                 )}

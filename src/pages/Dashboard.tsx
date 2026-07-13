@@ -39,6 +39,26 @@ import DashboardTour from "@/components/DashboardTour";
 import DashboardMusicCard from "@/components/DashboardMusicCard";
 import HelpTip from "@/components/HelpTip";
 import { subscribeWithLogging } from "@/lib/realtime-logger";
+import { validateVideoUrl } from "@/lib/video-embed";
+
+// Walk a wedding site's sections and return any video URLs that fail validation.
+function collectVideoProblems(sections: any): { where: string; error: string; hint?: string }[] {
+  if (!Array.isArray(sections)) return [];
+  const out: { where: string; error: string; hint?: string }[] = [];
+  sections.forEach((s: any, idx: number) => {
+    if (!s) return;
+    const check = (url: string, where: string) => {
+      if (!url) return;
+      const v = validateVideoUrl(url) as { ok: boolean; error?: string; hint?: string };
+      if (!v.ok) out.push({ where, error: v.error || "Invalid URL", hint: v.hint });
+    };
+    if (s.type === "video" && Array.isArray(s.data?.videos)) {
+      s.data.videos.forEach((v: any, i: number) => check(v?.url, `Video section #${idx + 1}, item ${i + 1}`));
+    }
+    if (s.type === "livestream") check(s.data?.embedUrl, `Live stream (section #${idx + 1})`);
+  });
+  return out;
+}
 import {
   Tabs,
   TabsContent,
@@ -375,6 +395,17 @@ const Dashboard = () => {
   const handleTogglePublish = async () => {
     if (!site) return;
     if (!site.is_published) {
+      // Block publish when any video URL in the site is broken/unsupported.
+      const problems = collectVideoProblems((site as any).sections);
+      if (problems.length > 0) {
+        const first = problems[0];
+        toast({
+          title: "Fix video links before publishing",
+          description: `${first.where}: ${first.error}${first.hint ? " — " + first.hint : ""}`,
+          variant: "destructive",
+        });
+        return;
+      }
       setPublishConfirmOpen(true);
       return;
     }
