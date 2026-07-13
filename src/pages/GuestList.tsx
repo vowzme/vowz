@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Search, Download, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone } from "lucide-react";
+import { ArrowLeft, Search, Download, FileText, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
