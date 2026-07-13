@@ -511,50 +511,38 @@ const OnboardingWizard = () => {
                 <div className="space-y-6">
                   <div className="text-center mb-8">
                     <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Pick Your Style 🎨</h2>
-                    <p className="text-muted-foreground font-body mt-2">Choose a theme and color palette</p>
+                    <p className="text-muted-foreground font-body mt-2">
+                      Choose a theme — colors and typography are preconfigured for you.
+                    </p>
                   </div>
-                  <div>
-                    <label className="text-sm font-body font-medium text-foreground mb-2 block">Theme</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {THEME_OPTIONS.map((t) => (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {WEDDING_THEMES.map((t) => {
+                      const isSelected = wizardData.theme === t.id;
+                      return (
                         <button
-                          key={t.value}
-                          onClick={() => updateField("theme", t.value)}
-                          className={`rounded-xl border-2 px-4 py-3 text-left transition-all ${
-                            wizardData.theme === t.value
-                              ? "border-gold bg-gold/10"
-                              : "border-border hover:border-gold/50"
+                          key={t.id}
+                          type="button"
+                          onClick={() => {
+                            updateField("theme", t.id);
+                            updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
+                            updateField("displayFont", t.fonts.display);
+                            updateField("bodyFont", t.fonts.body);
+                          }}
+                          className={`text-left rounded-2xl border-2 transition-all overflow-hidden ${
+                            isSelected ? "border-gold shadow-md" : "border-transparent hover:border-gold/40"
                           }`}
                         >
-                          <p className={`text-sm font-body font-semibold ${wizardData.theme === t.value ? "text-gold" : "text-foreground"}`}>{t.label}</p>
-                          <p className="text-xs text-muted-foreground font-body mt-0.5">{t.desc}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-body font-medium text-foreground mb-2 block">Color Palette</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {COLOR_PALETTES.map((p) => {
-                        const isSelected = JSON.stringify(wizardData.suggestedColors) === JSON.stringify(p.colors);
-                        return (
-                          <button
-                            key={p.name}
-                            onClick={() => updateField("suggestedColors", p.colors)}
-                            className={`rounded-xl border-2 p-3 transition-all ${
-                              isSelected ? "border-gold bg-gold/5 shadow-sm" : "border-border hover:border-gold/50"
-                            }`}
-                          >
-                            <div className="flex gap-1 mb-2">
-                              {p.colors.map((c, i) => (
-                                <div key={i} className="w-6 h-6 rounded-full border border-border/50" style={{ backgroundColor: c }} />
-                              ))}
+                          <ThemeDemo theme={t} compact />
+                          <div className="p-3">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className={`font-display font-semibold text-sm ${isSelected ? "text-gold" : "text-foreground"}`}>{t.name}</p>
+                              {isSelected && <Check className="w-4 h-4 text-gold" />}
                             </div>
-                            <p className={`text-xs font-body ${isSelected ? "text-gold font-semibold" : "text-muted-foreground"}`}>{p.name}</p>
-                          </button>
-                        );
-                      })}
-                    </div>
+                            <p className="text-[11px] text-muted-foreground font-body mt-0.5 line-clamp-1">{t.tagline}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
