@@ -18,8 +18,8 @@ import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeColors, DEFAULT_COLORS } from "@/hooks/use-wedding-site";
-import { diffThemes } from "@/lib/theme-diff";
-import { THEME_FIELDS } from "@/lib/theme-diff";
+import { diffThemes, THEME_FIELDS } from "@/lib/theme-diff";
+import { WhatWillChangeSummary, TokenDiffTable } from "@/components/ThemeSwitchImpact";
 
 // Regex for a valid CSS hex color (3/4/6/8 digits, optional leading #).
 const HEX_RE = /^#?[0-9a-fA-F]{3,8}$/;
@@ -1044,9 +1044,6 @@ const OnboardingWizard = () => {
                 // Derive the diff strictly from THEME_FIELDS — the same
                 // list applyTheme writes. This guarantees the "What
                 // changes" copy always matches the actual mutation.
-                const { rows, changedLabels } = diffThemes(current, pendingTheme);
-                const changedRows = rows.filter((r) => r.changed);
-                void changedLabels;
                 return (
                   <div className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
                     {/* Impact panel: at-a-glance summary of what stays vs. changes. */}
@@ -1111,43 +1108,12 @@ const OnboardingWizard = () => {
                            );
                          })()}
                        </div>
-                      <div className="rounded-lg border border-gold/40 bg-gold/10 p-2.5">
-                        <p className="text-[10px] uppercase tracking-widest font-body text-gold mb-1.5 flex items-center gap-1">
-                          <Palette className="w-3 h-3" /> What changes
-                        </p>
-                        {changedRows.length === 0 ? (
-                          <p className="text-[11px] font-body text-foreground/80">
-                            Nothing — this preset matches your current theme.
-                          </p>
-                        ) : (
-                          <ul className="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4">
-                            {changedRows.map((r) => (
-                              <li key={r.label}>{r.label}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
+                      <WhatWillChangeSummary current={current} next={pendingTheme} />
                     </div>
                     <p className="text-[10px] uppercase tracking-widest font-body text-muted-foreground mb-2">
                       Tokens that will change
                     </p>
-                    <ul className="space-y-1.5 text-xs font-body">
-                      {rows.map((r) => (
-                        <li key={r.label} className={`flex items-center gap-2 ${r.changed ? "text-foreground" : "text-muted-foreground/70"}`}>
-                          <span className="w-24 shrink-0">{r.label}</span>
-                          <span className="flex items-center gap-1 min-w-0 flex-1">
-                            {r.swatchFrom && <span className="w-3 h-3 rounded-full border border-border/60" style={{ background: r.swatchFrom }} aria-hidden />}
-                            <span className="truncate">{r.from}</span>
-                          </span>
-                          <span className="text-muted-foreground shrink-0">→</span>
-                          <span className="flex items-center gap-1 min-w-0 flex-1">
-                            {r.swatchTo && <span className="w-3 h-3 rounded-full border border-border/60" style={{ background: r.swatchTo }} aria-hidden />}
-                            <span className={`truncate ${r.changed ? "font-semibold" : ""}`}>{r.to}</span>
-                          </span>
-                          {!r.changed && <span className="text-[10px] uppercase tracking-wider text-muted-foreground shrink-0">same</span>}
-                        </li>
-                      ))}
-                    </ul>
+                    <TokenDiffTable current={current} next={pendingTheme} />
                     <p className="mt-2 text-[10px] font-body text-muted-foreground">
                       Spacing and layout scale stay the same — only these design tokens change.
                     </p>
