@@ -501,7 +501,7 @@ export default function Themes() {
                       <div className="px-1 mt-3 grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setPreviewTpl(t)}
+                          onClick={() => { persistPreviewedTheme(t); setPreviewTpl(t); }}
                           className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-3 py-2 text-xs font-body transition-colors"
                           aria-label={`Preview landing page for ${t.name}`}
                         >
@@ -574,7 +574,7 @@ export default function Themes() {
                       <div className="px-1 mt-3 grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setPreviewTpl(t)}
+                          onClick={() => { persistPreviewedTheme(t); setPreviewTpl(t); }}
                           className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-3 py-2 text-xs font-body transition-colors"
                           aria-label={`Preview landing page for ${t.name}`}
                         >
@@ -621,7 +621,7 @@ export default function Themes() {
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
                   <Button variant="ghost" size="sm" asChild>
-                    <button type="button" onClick={() => setPreviewTpl(active)}>
+                    <button type="button" onClick={() => { if (active) persistPreviewedTheme(active); setPreviewTpl(active); }}>
                       <Eye className="w-4 h-4 mr-1" /> Preview
                     </button>
                   </Button>
