@@ -6,6 +6,7 @@ import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ToastAction } from "@/components/ui/toast";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -1031,16 +1032,65 @@ const OnboardingWizard = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Reset your wizard draft?</AlertDialogTitle>
             <AlertDialogDescription>
-              This clears every answer you've entered — names, story, events, theme, colors — and deletes the autosaved draft from this device. This cannot be undone.
+              This clears every answer you've entered — names, story, events, theme, colors — and deletes the autosaved draft from this device. You'll have 15 seconds to undo from the toast that appears.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Keep my draft</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
+                // Snapshot the current autosaved draft into a backup key so an
+                // Undo action from the toast can restore it, even after the
+                // page reload we perform below.
+                const DRAFT_KEY = "vowz_wizard_draft";
+                const BACKUP_KEY = "vowz_wizard_draft_backup";
+                const UNDO_WINDOW_MS = 15000;
+                try {
+                  const snapshot =
+                    localStorage.getItem(DRAFT_KEY) ||
+                    sessionStorage.getItem(DRAFT_KEY);
+                  if (snapshot) {
+                    localStorage.setItem(
+                      BACKUP_KEY,
+                      JSON.stringify({ draft: snapshot, expiresAt: Date.now() + UNDO_WINDOW_MS }),
+                    );
+                  }
+                } catch { /* storage disabled — undo simply won't be offered */ }
                 resetDraft();
                 setConfirmReset(false);
-                toast({ title: "Draft cleared", description: "Your wizard has been reset to a blank start." });
+                toast({
+                  title: "Draft cleared",
+                  description: "Your wizard was reset. You have 15 seconds to undo.",
+                  duration: UNDO_WINDOW_MS,
+                  action: (
+                    <ToastAction
+                      altText="Undo draft reset"
+                      onClick={() => {
+                        try {
+                          const raw = localStorage.getItem(BACKUP_KEY);
+                          if (!raw) return;
+                          const { draft, expiresAt } = JSON.parse(raw) as {
+                            draft: string;
+                            expiresAt: number;
+                          };
+                          if (Date.now() > expiresAt) {
+                            localStorage.removeItem(BACKUP_KEY);
+                            return;
+                          }
+                          localStorage.setItem(DRAFT_KEY, draft);
+                          localStorage.removeItem(BACKUP_KEY);
+                        } catch { /* ignore */ }
+                        navigate(0 as any);
+                      }}
+                    >
+                      Undo
+                    </ToastAction>
+                  ),
+                });
+                // Sweep the backup after the undo window expires.
+                setTimeout(() => {
+                  try { localStorage.removeItem(BACKUP_KEY); } catch {}
+                }, UNDO_WINDOW_MS);
                 // Force a fresh mount so the wizard re-reads defaults from storage.
                 navigate(0 as any);
               }}
