@@ -1,60 +1,57 @@
-import type { WeddingTheme } from "./wedding-themes";
+import { WEDDING_THEMES } from "@/lib/wedding-themes";
 
-// Fields the theme picker actually applies to the site when the user switches
-// themes. Anything not in this list (event details, RSVP settings, gallery
-// media, story text, etc.) is guaranteed to stay untouched.
-export const THEME_TOKEN_FIELDS = [
-  "primary",
-  "accent",
-  "ink",
-  "displayFont",
-  "bodyFont",
-  "motif",
-] as const;
-export type ThemeTokenField = (typeof THEME_TOKEN_FIELDS)[number];
+// Single source of truth for which wizardData fields `applyTheme` writes
+// during a theme switch/merge. Keep this in lockstep with applyTheme in
+// OnboardingWizard.tsx — the "What changes" summary and token-diff table
+// are both derived from this list.
+export type ThemeField = {
+  key: "theme" | "suggestedColors" | "displayFont" | "bodyFont";
+  label: string;
+  get: (t: typeof WEDDING_THEMES[number]) => unknown;
+  format: (v: unknown) => string;
+  swatch?: (t: typeof WEDDING_THEMES[number]) => string;
+};
 
-export interface ThemeDiffRow {
-  field: ThemeTokenField;
+export const THEME_FIELDS: ThemeField[] = [
+  { key: "theme", label: "Theme preset", get: (t) => t.id, format: (v) => String(v) },
+  {
+    key: "suggestedColors",
+    label: "Color palette",
+    get: (t) => [t.colors.bg, t.colors.accent, t.colors.light],
+    format: (v) => (Array.isArray(v) ? v.join(" · ") : String(v)),
+    swatch: (t) => t.colors.accent,
+  },
+  { key: "displayFont", label: "Display font", get: (t) => t.fonts.display, format: (v) => String(v) },
+  { key: "bodyFont", label: "Body font", get: (t) => t.fonts.body, format: (v) => String(v) },
+];
+
+export const themeValuesEqual = (a: unknown, b: unknown) =>
+  JSON.stringify(a) === JSON.stringify(b);
+
+export type ThemeDiffRow = {
   label: string;
   from: string;
   to: string;
-  isColor: boolean;
+  swatchFrom?: string;
+  swatchTo?: string;
   changed: boolean;
-}
-
-const readField = (t: WeddingTheme, f: ThemeTokenField): string => {
-  switch (f) {
-    case "primary": return t.colors.bg;
-    case "accent": return t.colors.accent;
-    case "ink": return t.colors.ink;
-    case "displayFont": return t.fonts.display;
-    case "bodyFont": return t.fonts.body;
-    case "motif": return t.motif;
-  }
 };
 
-const LABELS: Record<ThemeTokenField, string> = {
-  primary: "Primary color",
-  accent: "Accent",
-  ink: "Ink / text",
-  displayFont: "Display font",
-  bodyFont: "Body font",
-  motif: "Motif",
-};
-
-const COLOR_FIELDS: ReadonlySet<ThemeTokenField> = new Set(["primary", "accent", "ink"]);
-
-export function computeThemeDiff(current: WeddingTheme, next: WeddingTheme): ThemeDiffRow[] {
-  return THEME_TOKEN_FIELDS.map((f) => {
-    const from = readField(current, f);
-    const to = readField(next, f);
+export function diffThemes(
+  current: typeof WEDDING_THEMES[number],
+  next: typeof WEDDING_THEMES[number],
+): { rows: ThemeDiffRow[]; changedLabels: string[] } {
+  const rows: ThemeDiffRow[] = THEME_FIELDS.map((f) => {
+    const from = f.get(current);
+    const to = f.get(next);
     return {
-      field: f,
-      label: LABELS[f],
-      from,
-      to,
-      isColor: COLOR_FIELDS.has(f),
-      changed: from !== to,
+      label: f.label,
+      from: f.format(from),
+      to: f.format(to),
+      swatchFrom: f.swatch?.(current),
+      swatchTo: f.swatch?.(next),
+      changed: !themeValuesEqual(from, to),
     };
   });
+  return { rows, changedLabels: rows.filter((r) => r.changed).map((r) => r.label) };
 }
