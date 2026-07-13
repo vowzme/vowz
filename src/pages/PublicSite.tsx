@@ -1390,6 +1390,9 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
               attending: validated.attending,
               guestCount: validated.guest_count,
               siteUrl: `${window.location.origin}/site/${site.slug}`,
+              editUrl: createdHandle
+                ? `${window.location.origin}/site/${site.slug}?rsvp=${encodeURIComponent(createdHandle.id)}&t=${encodeURIComponent(createdHandle.token)}`
+                : undefined,
             },
           },
         });
