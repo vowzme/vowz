@@ -47,6 +47,14 @@ const OnboardingWizard = () => {
   const { generate, loading: aiLoading } = useAIContentGen();
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
+  // Confirmation prompt when switching from an already-selected theme.
+  const [pendingTheme, setPendingTheme] = useState<typeof WEDDING_THEMES[number] | null>(null);
+  const applyTheme = (t: typeof WEDDING_THEMES[number]) => {
+    updateField("theme", t.id);
+    updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
+    updateField("displayFont", t.fonts.display);
+    updateField("bodyFont", t.fonts.body);
+  };
   // Resume flow: when user clicks "Wedding Wizard" from the dashboard we pass
   // ?resume=1. We hydrate wizardData from their existing site and show a
   // summary screen so they can pick up where they left off.
