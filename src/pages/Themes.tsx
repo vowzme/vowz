@@ -170,9 +170,31 @@ export default function Themes() {
   const openTheme = (t: WeddingTheme) => {
     setActive(t);
     setCustom(customFrom(t));
+    persistPreviewedTheme(t);
   };
 
   const previewTheme = active && custom ? themeWithCustom(active, custom) : null;
+
+  // Persist the previewed theme so the wizard/editor pre-fills correctly the
+  // next time the user starts (including after sign-in). Consumers read
+  // sessionStorage.pendingTemplate (see OnboardingWizard.tsx / Auth.tsx).
+  const persistPreviewedTheme = (t: WeddingTheme) => {
+    try {
+      const c = customFrom(t);
+      sessionStorage.setItem(
+        "pendingTemplate",
+        JSON.stringify({
+          templateName: t.name,
+          templateStyle: t.id,
+          templateColors: [c.bg, c.accent, c.surface],
+          displayFont: c.displayFont,
+          bodyFont: c.bodyFont,
+        }),
+      );
+    } catch {
+      /* storage disabled — safe to ignore */
+    }
+  };
 
   const filtersActive = query.trim() !== "" || region !== "all" || wtype !== "all" || style !== "all";
   const filteredThemes = useMemo(() => {
@@ -479,7 +501,7 @@ export default function Themes() {
                       <div className="px-1 mt-3 grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setPreviewTpl(t)}
+                          onClick={() => { persistPreviewedTheme(t); setPreviewTpl(t); }}
                           className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-3 py-2 text-xs font-body transition-colors"
                           aria-label={`Preview landing page for ${t.name}`}
                         >
@@ -552,7 +574,7 @@ export default function Themes() {
                       <div className="px-1 mt-3 grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setPreviewTpl(t)}
+                          onClick={() => { persistPreviewedTheme(t); setPreviewTpl(t); }}
                           className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-3 py-2 text-xs font-body transition-colors"
                           aria-label={`Preview landing page for ${t.name}`}
                         >
@@ -599,7 +621,7 @@ export default function Themes() {
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
                   <Button variant="ghost" size="sm" asChild>
-                    <button type="button" onClick={() => setPreviewTpl(active)}>
+                    <button type="button" onClick={() => { if (active) persistPreviewedTheme(active); setPreviewTpl(active); }}>
                       <Eye className="w-4 h-4 mr-1" /> Preview
                     </button>
                   </Button>
