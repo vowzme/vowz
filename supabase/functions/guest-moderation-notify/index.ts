@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
   }
   const userId = claims.claims.sub as string
 
-  let body: { post_id?: string; action?: Action }
+  let body: { post_id?: string; action?: Action; resend?: boolean }
   try { body = await req.json() } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -94,6 +94,7 @@ Deno.serve(async (req) => {
 
   const postId = body.post_id
   const action = body.action
+  const resend = body.resend === true
   if (!postId || !action || !['approved', 'hidden', 'deleted'].includes(action)) {
     return new Response(JSON.stringify({ error: 'post_id and valid action required' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -131,33 +132,49 @@ Deno.serve(async (req) => {
   let messageId: string | null = null
   const guestEmail = post.guest_email?.trim()
 
-  // Idempotency: insert the moderation event first. A unique index on
-  // (post_id, action) makes duplicate clicks a no-op — we detect that
-  // via the returned row count and skip enqueueing another email.
   messageId = crypto.randomUUID()
-  const { data: inserted, error: insertErr } = await admin
-    .from('guest_moderation_events')
-    .upsert({
-      post_id: postId,
-      wedding_site_id: site.id,
-      action,
-      guest_email: guestEmail || null,
-      message_id: guestEmail ? messageId : null,
-      actor_user_id: userId,
-    }, { onConflict: 'post_id,action', ignoreDuplicates: true })
-    .select('id')
 
-  if (insertErr) {
-    return new Response(JSON.stringify({ error: 'Failed to record event', detail: insertErr.message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
-  }
+  if (resend) {
+    // Manual resend: bypass idempotency, refresh the event's message_id
+    // so the new attempt is tracked separately in email_send_log.
+    if (!guestEmail) {
+      return new Response(JSON.stringify({ error: 'No guest email on file for this post' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    await admin
+      .from('guest_moderation_events')
+      .update({ message_id: messageId, guest_email: guestEmail, actor_user_id: userId })
+      .eq('post_id', postId)
+      .eq('action', action)
+  } else {
+    // Idempotency: insert the moderation event first. A unique index on
+    // (post_id, action) makes duplicate clicks a no-op — we detect that
+    // via the returned row count and skip enqueueing another email.
+    const { data: inserted, error: insertErr } = await admin
+      .from('guest_moderation_events')
+      .upsert({
+        post_id: postId,
+        wedding_site_id: site.id,
+        action,
+        guest_email: guestEmail || null,
+        message_id: guestEmail ? messageId : null,
+        actor_user_id: userId,
+      }, { onConflict: 'post_id,action', ignoreDuplicates: true })
+      .select('id')
 
-  const isDuplicate = !inserted || inserted.length === 0
-  if (isDuplicate) {
-    return new Response(JSON.stringify({ ok: true, emailed: false, duplicate: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    if (insertErr) {
+      return new Response(JSON.stringify({ error: 'Failed to record event', detail: insertErr.message }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const isDuplicate = !inserted || inserted.length === 0
+    if (isDuplicate) {
+      return new Response(JSON.stringify({ ok: true, emailed: false, duplicate: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
   }
 
   if (guestEmail) {

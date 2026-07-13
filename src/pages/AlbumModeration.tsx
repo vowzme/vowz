@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Check, EyeOff, Trash2, Eye, Loader2, ImageIcon, Heart } from "lucide-react";
+import { ArrowLeft, Check, EyeOff, Trash2, Eye, Loader2, ImageIcon, Heart, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -33,6 +33,27 @@ const AlbumModeration = () => {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [siteLabel, setSiteLabel] = useState<string>("");
+  const [resendingId, setResendingId] = useState<string | null>(null);
+
+  const resendNotify = async (post: Post) => {
+    if (post.status === "pending") {
+      toast({ title: "Approve or hide first", description: "There's no moderation email to resend for a pending photo." });
+      return;
+    }
+    setResendingId(post.id);
+    const { data, error } = await supabase.functions.invoke("guest-moderation-notify", {
+      body: { post_id: post.id, action: post.status, resend: true },
+    });
+    setResendingId(null);
+    if (error) {
+      toast({ title: "Resend failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    const res = data as { emailed?: boolean; opted_out?: boolean };
+    if (res?.opted_out) toast({ title: "Notifications are turned off for this site" });
+    else if (res?.emailed) toast({ title: "Notification resent" });
+    else toast({ title: "Nothing to resend", description: "No guest email on file or address is suppressed." });
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -159,6 +180,7 @@ const AlbumModeration = () => {
 
   const renderCard = (post: Post) => {
     const busy = busyId === post.id;
+    const resending = resendingId === post.id;
     const rc = reactionCounts[post.id] || 0;
     return (
       <Card key={post.id} className="overflow-hidden">
@@ -215,6 +237,17 @@ const AlbumModeration = () => {
             <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => removePost(post)} disabled={busy}>
               <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
             </Button>
+            {(post.status === "approved" || post.status === "hidden") && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => resendNotify(post)}
+                disabled={busy || resending}
+                title="Resend guest notification"
+              >
+                {resending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Send className="w-3.5 h-3.5 mr-1" /> Resend</>}
+              </Button>
+            )}
           </div>
         </div>
       </Card>
