@@ -63,7 +63,7 @@ export function useWeddingSite() {
         const p1 = (data.partner1 || "partner1").trim() || "partner1";
         const p2 = (data.partner2 || "partner2").trim() || "partner2";
         const safeColors = sanitizeColors(data.suggestedColors);
-        const safeTheme = (data.theme || "").trim() || DEFAULT_THEME;
+        const safeTheme = resolveTheme(data.theme);
         const safeDisplayFont = data.displayFont || DEFAULT_DISPLAY_FONT;
         const safeBodyFont = data.bodyFont || DEFAULT_BODY_FONT;
         const slug = `${p1.toLowerCase().replace(/\s+/g, "-")}-${p2.toLowerCase().replace(/\s+/g, "-")}-${Date.now().toString(36)}`;
