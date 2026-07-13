@@ -2,11 +2,35 @@
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 import { AwsClient } from "npm:aws4fetch@1.0.20";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-};
+const ALLOWED_ORIGINS = new Set([
+  "https://vowz.me",
+  "https://www.vowz.me",
+  "https://vowz.lovable.app",
+]);
+const ALLOWED_ORIGIN_PATTERNS = [
+  /^https:\/\/id-preview--[a-z0-9-]+\.lovable\.app$/i,
+  /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/i,
+];
+function buildCors(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") || "";
+  const allowed =
+    ALLOWED_ORIGINS.has(origin) ||
+    ALLOWED_ORIGIN_PATTERNS.some((r) => r.test(origin));
+  return {
+    "Access-Control-Allow-Origin": allowed ? origin : "https://vowz.me",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    Vary: "Origin",
+  };
+}
+
+// Constant-time string comparison to avoid timing side-channels on secret compare.
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let out = 0;
+  for (let i = 0; i < a.length; i++) out |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return out === 0;
+}
 
 const R2_ACCOUNT_ID = Deno.env.get("R2_ACCOUNT_ID")!;
 const R2_ACCESS_KEY_ID = Deno.env.get("R2_ACCESS_KEY_ID")!;
