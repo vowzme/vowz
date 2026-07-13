@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { parseThemeStyle } from "@/lib/theme-schema";
 
 const WIZARD_STORAGE_KEY = "vowz_wizard_draft";
 // Read from localStorage first (survives refresh, navigate-away, tab reopen),
@@ -114,12 +115,13 @@ export function useWeddingWizard() {
     };
     const ensure = (d: Partial<WeddingData> | undefined | null): WeddingData => {
       const merged = { ...safeDefaults, ...(d || {}) } as WeddingData;
-      if (!merged.theme) merged.theme = safeDefaults.theme;
-      if (!Array.isArray(merged.suggestedColors) || merged.suggestedColors.length < 3) {
-        merged.suggestedColors = safeDefaults.suggestedColors;
-      }
-      if (!merged.displayFont) merged.displayFont = safeDefaults.displayFont;
-      if (!merged.bodyFont) merged.bodyFont = safeDefaults.bodyFont;
+      // Validate theme/palette fields with the shared schema so a malformed
+      // draft (e.g. non-array colors, non-string fonts) can't crash the wizard.
+      const style = parseThemeStyle(merged);
+      merged.theme = style.theme;
+      merged.suggestedColors = style.suggestedColors;
+      merged.displayFont = style.displayFont;
+      merged.bodyFont = style.bodyFont;
       return merged;
     };
     const parsed = readDraft();
