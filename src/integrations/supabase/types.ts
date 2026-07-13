@@ -1500,6 +1500,7 @@ export type Database = {
           id: string
           is_completed: boolean
           notes: string | null
+          reminder_flags: Json
           sort_order: number
           title: string
           wedding_site_id: string
@@ -1511,6 +1512,7 @@ export type Database = {
           id?: string
           is_completed?: boolean
           notes?: string | null
+          reminder_flags?: Json
           sort_order?: number
           title: string
           wedding_site_id: string
@@ -1522,6 +1524,7 @@ export type Database = {
           id?: string
           is_completed?: boolean
           notes?: string | null
+          reminder_flags?: Json
           sort_order?: number
           title?: string
           wedding_site_id?: string
