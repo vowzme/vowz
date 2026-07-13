@@ -15,6 +15,86 @@ import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
 import { supabase } from "@/integrations/supabase/client";
 import { mergeSections } from "@/lib/theme-merge";
 
+/**
+ * Full-screen theme preview body. Owns iframe load state so we can surface
+ * a polite aria-live announcement to screen readers while the demo site
+ * loads, and provides a clear DialogTitle/DialogDescription pair for the
+ * accessible name and description of the modal.
+ */
+function FullScreenThemePreview({
+  theme,
+  starting,
+  onClose,
+  onStart,
+}: {
+  theme: WeddingTheme;
+  starting: boolean;
+  onClose: () => void;
+  onStart: (t: WeddingTheme) => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { setLoaded(false); }, [theme.id]);
+  const status = loaded
+    ? `${theme.name} landing preview loaded.`
+    : `Loading ${theme.name} landing preview…`;
+  return (
+    <div className="flex flex-col w-full h-full">
+      <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0">
+        <div className="min-w-0">
+          <DialogTitle
+            id="theme-preview-title"
+            className="font-display text-base sm:text-lg font-semibold truncate"
+          >
+            {theme.name} — full-screen landing page preview
+          </DialogTitle>
+          <DialogDescription
+            id="theme-preview-desc"
+            className="text-[11px] text-muted-foreground truncate"
+          >
+            {theme.tradition}. Interactive demo of the landing page for this theme. Press Escape or use the Close button to return to the theme list.
+          </DialogDescription>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="gold"
+            size="sm"
+            disabled={starting}
+            onClick={() => onStart(theme)}
+          >
+            <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            aria-label="Close preview"
+            className="min-h-11 min-w-11"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+      {/* Polite live region announces preview loading state to screen readers. */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {status}
+      </div>
+      <iframe
+        key={theme.id}
+        src={`/site/demo-${theme.id}`}
+        title={`${theme.name} landing preview`}
+        onLoad={() => setLoaded(true)}
+        className="flex-1 w-full border-0 bg-background"
+        tabIndex={0}
+      />
+    </div>
+  );
+}
+
 // Facet metadata for filtering by region, wedding type (ceremony style), and visual style.
 type Facet = { region: string; type: string; styles: string[] };
 const THEME_FACETS: Record<string, Facet> = {
@@ -675,47 +755,16 @@ export default function Themes() {
         <DialogContent
           className="max-w-none w-screen h-screen sm:h-screen p-0 rounded-none border-0 bg-background sm:rounded-none"
           style={{ width: "100vw", height: "100dvh", maxWidth: "100vw" }}
+          aria-labelledby="theme-preview-title"
           aria-describedby="theme-preview-desc"
         >
           {previewTpl && (
-            <div className="flex flex-col w-full h-full">
-              <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0">
-                <div className="min-w-0">
-                  <DialogTitle className="font-display text-base sm:text-lg font-semibold truncate">
-                    {previewTpl.name} · landing preview
-                  </DialogTitle>
-                  <DialogDescription id="theme-preview-desc" className="text-[11px] text-muted-foreground truncate">
-                    {previewTpl.tradition} — press Escape to close.
-                  </DialogDescription>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button
-                    variant="gold"
-                    size="sm"
-                    disabled={starting}
-                    onClick={() => { const t = previewTpl; setPreviewTpl(null); startFromTemplate(t); }}
-                  >
-                    <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setPreviewTpl(null)}
-                    aria-label="Close preview"
-                    className="min-h-11 min-w-11"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              <iframe
-                key={previewTpl.id}
-                src={`/site/demo-${previewTpl.id}`}
-                title={`${previewTpl.name} landing preview`}
-                className="flex-1 w-full border-0 bg-background"
-                tabIndex={0}
-              />
-            </div>
+            <FullScreenThemePreview
+              theme={previewTpl}
+              starting={starting}
+              onClose={() => setPreviewTpl(null)}
+              onStart={(t) => { setPreviewTpl(null); startFromTemplate(t); }}
+            />
           )}
         </DialogContent>
       </Dialog>
@@ -725,8 +774,13 @@ export default function Themes() {
         <DialogContent className="max-w-md p-6 bg-background border-border">
           {applyChoice && (
             <div className="space-y-4">
+              <DialogTitle className="font-display text-lg font-semibold">
+                Apply {applyChoice.theme.name}
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                Choose whether to merge the template with your existing site or replace all content.
+              </DialogDescription>
               <div>
-                <h3 className="font-display text-lg font-semibold">Apply {applyChoice.theme.name}</h3>
                 <p className="text-sm text-muted-foreground font-body mt-1">
                   You already have a site. Choose how to apply this template.
                 </p>
