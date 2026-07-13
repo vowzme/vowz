@@ -254,6 +254,8 @@ export default function Themes() {
   const [region, setRegion] = useState("all");
   const [wtype, setWtype] = useState("all");
   const [style, setStyle] = useState("all");
+  const [tradition, setTradition] = useState("all");
+  const [motif, setMotif] = useState("all");
   const { user } = useAuth();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
@@ -292,7 +294,13 @@ export default function Themes() {
     }
   };
 
-  const filtersActive = query.trim() !== "" || region !== "all" || wtype !== "all" || style !== "all";
+  const filtersActive =
+    query.trim() !== "" ||
+    region !== "all" ||
+    wtype !== "all" ||
+    style !== "all" ||
+    tradition !== "all" ||
+    motif !== "all";
   const filteredThemes = useMemo(() => {
     const q = query.trim().toLowerCase();
     return WEDDING_THEMES.filter((t) => {
@@ -300,14 +308,19 @@ export default function Themes() {
       if (region !== "all" && f?.region !== region) return false;
       if (wtype !== "all" && f?.type !== wtype) return false;
       if (style !== "all" && !f?.styles.includes(style)) return false;
+      if (tradition !== "all" && t.tradition !== tradition) return false;
+      if (motif !== "all" && t.motif !== motif) return false;
       if (!q) return true;
-      const hay = [t.name, t.tradition, t.description, t.tagline, ...(f?.styles ?? [])]
+      const hay = [t.name, t.tradition, t.description, t.tagline, t.motif, ...(f?.styles ?? [])]
         .join(" ").toLowerCase();
       return hay.includes(q);
     });
-  }, [query, region, wtype, style]);
+  }, [query, region, wtype, style, tradition, motif]);
 
-  const resetFilters = () => { setQuery(""); setRegion("all"); setWtype("all"); setStyle("all"); };
+  const resetFilters = () => {
+    setQuery(""); setRegion("all"); setWtype("all"); setStyle("all");
+    setTradition("all"); setMotif("all");
+  };
 
   const applyTheme = async () => {
     if (!active || !custom) return;
