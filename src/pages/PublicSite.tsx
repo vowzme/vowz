@@ -1294,6 +1294,10 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
 
       if (error) throw error;
       setSubmitted(true);
+      setSubmittedDietary({
+        tags: showDietaryTags ? [...form.dietary_tags] : [],
+        notes: showDietaryNotes ? form.dietary_notes.trim() : "",
+      });
       toast({ title: "RSVP submitted! 🎉" });
       trackEvent("rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
 
