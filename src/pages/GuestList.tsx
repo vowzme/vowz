@@ -28,6 +28,23 @@ type Rsvp = {
 type Site = { id: string; partner1: string; partner2: string; slug: string | null };
 type WeddingEvent = { name: string; date?: string; time?: string; venue?: string };
 
+// Extract "Dietary: …" and "Dietary notes: …" lines out of the message column.
+function parseDietary(message: string | null): { tags: string[]; notes: string; rest: string } {
+  if (!message) return { tags: [], notes: "", rest: "" };
+  const lines = message.split("\n");
+  let tags: string[] = [];
+  let notes = "";
+  const rest: string[] = [];
+  for (const line of lines) {
+    const t = line.match(/^Dietary:\s*(.*)$/i);
+    const n = line.match(/^Dietary notes:\s*(.*)$/i);
+    if (t) tags = t[1].split(",").map((s) => s.trim()).filter(Boolean);
+    else if (n) notes = n[1].trim();
+    else rest.push(line);
+  }
+  return { tags, notes, rest: rest.join("\n").trim() };
+}
+
 export default function GuestList() {
   const { siteId } = useParams<{ siteId: string }>();
   const { user } = useAuth();
