@@ -159,6 +159,13 @@ Deno.serve(async (req) => {
       .in('id', userIds)
     const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]))
 
+    const { data: prefs } = await admin
+      .from('reminder_preferences')
+      .select('user_id, milestone, channel')
+      .in('user_id', userIds)
+    const prefMap = new Map<string, string>()
+    for (const p of (prefs || []) as any[]) prefMap.set(`${p.user_id}::${p.milestone}`, p.channel)
+
     for (const bucket of buckets.values()) {
       summary.sites_scanned++
       try {
@@ -167,6 +174,16 @@ Deno.serve(async (req) => {
         const profile: any = profileMap.get(site.user_id)
         if (!profile?.email) continue
 
+        const channel = prefMap.get(`${site.user_id}::${bucket.milestone}`) || 'email'
+        if (channel === 'off') {
+          const stamp = new Date().toISOString()
+          for (const it of bucket.items) {
+            const merged = { ...(it.reminder_flags || {}), [bucket.milestone]: stamp }
+            await admin.from('wedding_checklist').update({ reminder_flags: merged }).eq('id', it.id)
+          }
+          continue
+        }
+
         const name = profile.full_name?.trim() || site.partner1 || 'there'
         const couple = [site.partner1, site.partner2].filter(Boolean).join(' & ') || 'your wedding'
         const { html, text, subject } = render(name, couple, bucket.items, bucket.milestone)
@@ -174,28 +191,37 @@ Deno.serve(async (req) => {
         const messageId = crypto.randomUUID()
         const label = `checklist_reminder_${bucket.milestone}`
 
-        await admin.from('email_send_log').insert({
-          message_id: messageId,
-          template_name: label,
-          recipient_email: profile.email,
-          status: 'pending',
-        })
-
-        await admin.rpc('enqueue_email', {
-          queue_name: 'transactional_emails',
-          payload: {
+        if (channel === 'email') {
+          await admin.from('email_send_log').insert({
             message_id: messageId,
-            to: profile.email,
-            from: 'VowZ Planner <noreply@vowz.me>',
-            sender_domain: 'notify.vowz.me',
-            subject,
-            html,
-            text,
-            purpose: 'transactional',
-            label,
-            queued_at: new Date().toISOString(),
-          },
-        })
+            template_name: label,
+            recipient_email: profile.email,
+            status: 'pending',
+          })
+          await admin.rpc('enqueue_email', {
+            queue_name: 'transactional_emails',
+            payload: {
+              message_id: messageId,
+              to: profile.email,
+              from: 'VowZ Planner <noreply@vowz.me>',
+              sender_domain: 'notify.vowz.me',
+              subject,
+              html,
+              text,
+              purpose: 'transactional',
+              label,
+              queued_at: new Date().toISOString(),
+            },
+          })
+        } else if (channel === 'in_app') {
+          await admin.from('notifications').insert({
+            user_id: site.user_id,
+            title: subject,
+            body: bucket.items.map((it) => `• ${it.title} — due ${fmtDate(it.due_date)}`).join('\n'),
+            link: '/dashboard',
+            milestone: bucket.milestone,
+          })
+        }
 
         // Mark each item so we never re-send the same milestone.
         const stamp = new Date().toISOString()
@@ -206,7 +232,7 @@ Deno.serve(async (req) => {
             .eq('id', it.id)
         }
 
-        summary.emails_sent++
+        if (channel !== 'off') summary.emails_sent++
         summary.items_notified += bucket.items.length
       } catch (inner) {
         summary.errors.push(inner instanceof Error ? inner.message : String(inner))
