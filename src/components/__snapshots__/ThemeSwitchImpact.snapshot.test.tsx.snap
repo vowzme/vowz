@@ -15843,17 +15843,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -15913,17 +15931,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -15983,17 +16019,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16053,17 +16107,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16123,17 +16195,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16193,17 +16283,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16263,17 +16371,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16333,17 +16459,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16403,17 +16547,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: benga
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16473,17 +16635,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16602,14 +16782,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16669,11 +16865,25 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
+    </li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16733,17 +16943,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16803,17 +17031,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16873,17 +17119,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -16943,17 +17207,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17013,17 +17295,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17083,17 +17383,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: boho-
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17153,17 +17471,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17223,14 +17559,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17349,14 +17701,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17416,17 +17784,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17486,17 +17872,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17556,14 +17960,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17623,14 +18043,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17690,17 +18126,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17760,17 +18214,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: chris
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17830,17 +18302,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17900,11 +18390,25 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
+    </li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -17964,14 +18468,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18090,17 +18610,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18160,17 +18698,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18230,17 +18786,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18300,17 +18874,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18370,17 +18962,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18440,17 +19050,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: goa-b
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18510,17 +19138,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18580,17 +19226,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18650,17 +19314,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18720,17 +19402,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18849,14 +19549,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18916,17 +19632,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -18986,17 +19720,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19056,14 +19808,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19123,14 +19891,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: keral
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19190,17 +19974,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19260,17 +20062,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19330,17 +20150,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19400,17 +20238,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19470,14 +20326,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19596,17 +20468,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19666,17 +20556,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19736,11 +20644,25 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
+    </li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19800,17 +20722,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: marwa
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19870,17 +20810,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -19940,17 +20898,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20010,14 +20986,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20077,17 +21069,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20147,17 +21157,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20217,17 +21245,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20346,14 +21392,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20413,17 +21475,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20483,17 +21563,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: moder
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20553,17 +21651,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20623,17 +21739,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20693,14 +21827,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20760,17 +21910,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20830,17 +21998,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20900,17 +22086,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -20970,14 +22174,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21096,17 +22316,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21166,14 +22404,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: punja
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21233,17 +22487,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21303,17 +22575,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21373,17 +22663,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21443,17 +22751,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21513,14 +22839,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21580,11 +22922,25 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
+    </li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21644,17 +23000,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21714,17 +23088,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21843,17 +23235,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: royal
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21913,17 +23323,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -21983,17 +23411,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -22053,17 +23499,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -22123,17 +23587,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -22193,14 +23675,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -22260,17 +23758,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -22330,17 +23846,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -22400,14 +23934,30 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>
@@ -22467,17 +24017,35 @@ exports[`ThemeSwitchImpact rendered snapshots > WhatWillChangeSummary DOM: south
   <ul
     class="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4"
   >
-    <li>
-      Theme preset
+    <li
+      data-field="primary"
+    >
+      Primary color
     </li>
-    <li>
-      Color palette
+    <li
+      data-field="accent"
+    >
+      Accent color
     </li>
-    <li>
+    <li
+      data-field="ink"
+    >
+      Ink / text color
+    </li>
+    <li
+      data-field="displayFont"
+    >
       Display font
     </li>
-    <li>
+    <li
+      data-field="bodyFont"
+    >
       Body font
+    </li>
+    <li
+      data-field="motif"
+    >
+      Decorative motif
     </li>
   </ul>
 </div>

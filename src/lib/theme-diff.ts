@@ -74,6 +74,17 @@ export const THEME_TOKEN_FIELDS = [
 ] as const;
 export type ThemeTokenField = typeof THEME_TOKEN_FIELDS[number];
 
+// Human-readable labels for token fields — used by the "What will change"
+// summary so both the summary and computeThemeDiff share one label source.
+export const THEME_TOKEN_LABELS: Record<ThemeTokenField, string> = {
+  primary: "Primary color",
+  accent: "Accent color",
+  ink: "Ink / text color",
+  displayFont: "Display font",
+  bodyFont: "Body font",
+  motif: "Decorative motif",
+};
+
 const TOKEN_READERS: Record<ThemeTokenField, (t: Theme) => string> = {
   primary: (t) => t.colors.bg,
   accent: (t) => t.colors.accent,
