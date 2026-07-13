@@ -1,6 +1,6 @@
 import { Palette } from "lucide-react";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
-import { diffThemes, computeThemeDiff, THEME_TOKEN_LABELS } from "@/lib/theme-diff";
+import { computeThemeDiff, diffThemes, THEME_TOKEN_LABELS } from "@/lib/theme-diff";
 
 type Theme = typeof WEDDING_THEMES[number];
 
