@@ -136,14 +136,27 @@ const OnboardingWizard = () => {
   } as const;
   const firstMissing = (["names", "theme", "story", "events"] as const).find((k) => !completion[k]);
 
-  // Apply template preset if navigated from templates
+  // Apply template preset if navigated from templates — but only when there
+  // is no saved wizard draft. Otherwise the useWeddingWizard hook has already
+  // rehydrated the user's in-progress answers from localStorage, and blindly
+  // overwriting theme/colors would drop the customizations they left off on.
   useEffect(() => {
-    if (templateState?.templateColors) {
+    if (!templateState) return;
+    let hasSavedDraft = false;
+    try {
+      hasSavedDraft = Boolean(
+        (typeof localStorage !== "undefined" && localStorage.getItem("vowz_wizard_draft")) ||
+        (typeof sessionStorage !== "undefined" && sessionStorage.getItem("vowz_wizard_draft"))
+      );
+    } catch { /* storage disabled — fall through and apply the template */ }
+    if (hasSavedDraft) return;
+    if (templateState.templateColors) {
       updateField("suggestedColors", templateState.templateColors);
     }
-    if (templateState?.templateStyle) {
+    if (templateState.templateStyle) {
       updateField("theme", templateState.templateStyle);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
