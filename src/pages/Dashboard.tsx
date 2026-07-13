@@ -902,6 +902,7 @@ const Dashboard = () => {
 
             {/* ─── RSVPs / Guest List Tab ─── */}
             <TabsContent value="rsvps">
+              <RsvpReminderCard site={site} />
               <GuestListPanel rsvps={rsvps} rsvpLoading={rsvpLoading} onDelete={handleDeleteRsvp} site={site} copyLink={copyLink} />
             </TabsContent>
 
