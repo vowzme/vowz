@@ -242,7 +242,7 @@ const OnboardingWizard = () => {
     switch (step) {
       case "names": return wizardData.partner1.trim() && wizardData.partner2.trim();
       case "story": return true;
-      case "theme": return wizardData.suggestedColors.length >= 3;
+      case "theme": return true;
       case "events": return wizardData.functions.length > 0;
       case "preview": return true;
       default: return false;
