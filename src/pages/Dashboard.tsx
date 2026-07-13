@@ -1112,6 +1112,11 @@ const Dashboard = () => {
                           <Edit3 className="w-4 h-4 mr-1" /> Open Editor
                         </Link>
                       </Button>
+                      <Button variant="outline" size="sm" asChild className="ml-2">
+                        <Link to={`/dashboard/guests/${site.id}`}>
+                          <Users className="w-4 h-4 mr-1" /> Guest List
+                        </Link>
+                      </Button>
                     </div>
                   </div>
                 </div>

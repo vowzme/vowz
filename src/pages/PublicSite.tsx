@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { CoupleProfilesPublic } from "@/components/CoupleProfilesSection";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink, Download } from "lucide-react";
+import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink, Download, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -1739,8 +1739,23 @@ function PasswordGate({ onUnlock, accent }: { onUnlock: () => void; accent: stri
 
 // ─── Registry Section ─────────────────────────────────────────────────
 function RegistrySection({ data, accent }: { data: any; accent: string }) {
-  const links = (data.links || []).filter((l: any) => l.name || l.url);
-  if (links.length === 0) return null;
+  // Accept both `links` (editor default) and `items` (theme templates / demos).
+  const linkItems = [...(data.links || []), ...(data.items || [])].filter((l: any) => l && (l.name || l.url || l.link));
+  const upi = data.upi && (data.upi.vpa || data.upi.name) ? data.upi : null;
+  const hasAnything = linkItems.length > 0 || !!upi;
+  if (!hasAnything) return null;
+
+  const upiUrl = upi
+    ? `upi://pay?pa=${encodeURIComponent(upi.vpa || "")}${upi.name ? `&pn=${encodeURIComponent(upi.name)}` : ""}${upi.note ? `&tn=${encodeURIComponent(upi.note)}` : ""}&cu=INR`
+    : "";
+  const qrUrl = upi ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}` : "";
+  const copyVpa = async () => {
+    if (!upi?.vpa) return;
+    try {
+      await navigator.clipboard.writeText(upi.vpa);
+      toast({ title: "UPI ID copied", description: upi.vpa });
+    } catch { /* noop */ }
+  };
 
   return (
     <motion.div
@@ -1759,17 +1774,55 @@ function RegistrySection({ data, accent }: { data: any; accent: string }) {
         {data.description && (
           <p className="text-muted-foreground font-body text-center mb-8 max-w-lg mx-auto">{data.description}</p>
         )}
+
+        {upi && (
+          <div className="max-w-md mx-auto mb-8 p-5 rounded-2xl border border-border/60 bg-card">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground font-body mb-3">Send Shagun via UPI</p>
+            {qrUrl && (
+              <img
+                src={qrUrl}
+                alt={`UPI QR code for ${upi.name || upi.vpa}`}
+                className="mx-auto rounded-lg border border-border/50 bg-white p-2 mb-3"
+                width={200}
+                height={200}
+                loading="lazy"
+              />
+            )}
+            {upi.name && <p className="font-display text-lg text-foreground">{upi.name}</p>}
+            {upi.vpa && (
+              <button
+                onClick={copyVpa}
+                className="mt-1 inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-border/60 bg-background hover:bg-muted text-sm font-mono"
+                aria-label="Copy UPI ID"
+              >
+                {upi.vpa} <Copy className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <div className="flex gap-2 mt-4 justify-center">
+              <a
+                href={upiUrl}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-body font-medium text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: accent }}
+              >
+                <Gift className="w-4 h-4" /> Pay any UPI app
+              </a>
+            </div>
+            {upi.note && <p className="text-xs text-muted-foreground mt-3">{upi.note}</p>}
+          </div>
+        )}
+
         <div className="space-y-3 max-w-md mx-auto">
-          {links.map((link: any, i: number) => (
+          {linkItems.map((link: any, i: number) => (
             <a
               key={i}
-              href={link.url}
+              href={link.url || link.link || "#"}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-card hover:shadow-elegant transition-all group"
             >
               <div className="text-left">
                 <p className="font-body text-sm font-medium text-foreground group-hover:underline">{link.name}</p>
+                {link.description && <p className="text-xs text-muted-foreground mt-0.5">{link.description}</p>}
                 {link.valueUSD > 0 && <CurrencyDisplay amountUSD={link.valueUSD} />}
               </div>
               <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
