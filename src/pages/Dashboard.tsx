@@ -2528,9 +2528,9 @@ function RsvpReminderCard({ site }: { site: any }) {
 
   const composeWhatsappUrl = (row: Row) => {
     const msg = template
-      .replaceAll("{event}", row.eventName)
-      .replaceAll("{date}", row.eventDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }))
-      .replaceAll("{link}", publicUrl);
+      .split("{event}").join(row.eventName)
+      .split("{date}").join(row.eventDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }))
+      .split("{link}").join(publicUrl);
     return `https://wa.me/?text=${encodeURIComponent(msg)}`;
   };
 
