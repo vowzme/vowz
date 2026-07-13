@@ -47,13 +47,10 @@ describe("/themes count", () => {
 
     const n = WEDDING_THEMES.length;
 
-    // Hero pill (visible copy).
-    expect(
-      await screen.findByText(
-        (_, node) =>
-          node?.textContent?.includes(`${n} curated collections`) ?? false,
-      ),
-    ).toBeInTheDocument();
+    // Hero pill (visible copy). Text is split across child nodes so we
+    // scan the rendered document text.
+    await screen.findByRole("heading"); // ensure page hydrated
+    expect(document.body.textContent).toContain(`${n} curated collections`);
 
     // Helmet updates asynchronously — wait a tick.
     await new Promise((r) => setTimeout(r, 0));
