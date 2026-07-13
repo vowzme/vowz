@@ -410,6 +410,21 @@ const PublicSite = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      {themedDemoId && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+          <Button
+            variant="gold"
+            size="lg"
+            onClick={cloneThemeDemo}
+            disabled={cloning}
+            className="shadow-xl h-12 px-5 rounded-full"
+            aria-label="Clone this demo to start a new wedding site"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            {cloning ? "Cloning demo…" : "Clone this demo"}
+          </Button>
+        </div>
+      )}
       {seoData && (
         <SEOHead
           title={`${seoData.coupleNames} Wedding Invitation | Vowz`}
