@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2, Eye } from "lucide-react";
+import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2, Eye, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
@@ -13,6 +13,49 @@ import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
 import { supabase } from "@/integrations/supabase/client";
+
+// Facet metadata for filtering by region, wedding type (ceremony style), and visual style.
+type Facet = { region: string; type: string; styles: string[] };
+const THEME_FACETS: Record<string, Facet> = {
+  "royal-rajput":       { region: "north-indian", type: "hindu",     styles: ["regal", "traditional", "ornate"] },
+  "marwari-haveli":     { region: "north-indian", type: "hindu",     styles: ["regal", "traditional", "ornate"] },
+  "punjabi-anand-karaj":{ region: "north-indian", type: "sikh",      styles: ["vibrant", "traditional"] },
+  "south-indian-temple":{ region: "south-indian", type: "hindu",     styles: ["traditional", "temple"] },
+  "kerala-backwaters":  { region: "south-indian", type: "hindu",     styles: ["traditional", "nature"] },
+  "bengali-alpona":     { region: "east-indian",  type: "hindu",     styles: ["traditional", "artisanal"] },
+  "goa-beach":          { region: "destination",  type: "beach",     styles: ["breezy", "modern", "nature"] },
+  "boho-destination":   { region: "destination",  type: "boho",      styles: ["boho", "modern", "nature"] },
+  "christian-chapel":   { region: "any",          type: "christian", styles: ["classic", "chapel"] },
+  "modern-minimal":     { region: "any",          type: "civil",     styles: ["modern", "minimal", "editorial"] },
+};
+const REGION_OPTIONS = [
+  { id: "all", label: "All regions" },
+  { id: "north-indian", label: "North Indian" },
+  { id: "south-indian", label: "South Indian" },
+  { id: "east-indian", label: "East Indian" },
+  { id: "destination", label: "Destination" },
+  { id: "any", label: "Universal" },
+];
+const TYPE_OPTIONS = [
+  { id: "all", label: "All wedding types" },
+  { id: "hindu", label: "Hindu" },
+  { id: "sikh", label: "Sikh · Anand Karaj" },
+  { id: "christian", label: "Christian · Chapel" },
+  { id: "beach", label: "Beach" },
+  { id: "boho", label: "Boho · Destination" },
+  { id: "civil", label: "Civil · Modern" },
+];
+const STYLE_OPTIONS = [
+  { id: "all", label: "All styles" },
+  { id: "traditional", label: "Traditional" },
+  { id: "regal", label: "Regal" },
+  { id: "modern", label: "Modern" },
+  { id: "minimal", label: "Minimal" },
+  { id: "boho", label: "Boho" },
+  { id: "nature", label: "Nature" },
+  { id: "classic", label: "Classic" },
+  { id: "vibrant", label: "Vibrant" },
+];
 
 const FONT_POOL = [
   "Playfair Display",
@@ -110,6 +153,11 @@ export default function Themes() {
   const [previewTpl, setPreviewTpl] = useState<WeddingTheme | null>(null);
   // When the user already has a site, ask whether to replace or merge template content.
   const [applyChoice, setApplyChoice] = useState<{ theme: WeddingTheme; existingId: string } | null>(null);
+  // Filter + search state
+  const [query, setQuery] = useState("");
+  const [region, setRegion] = useState("all");
+  const [wtype, setWtype] = useState("all");
+  const [style, setStyle] = useState("all");
   const { user } = useAuth();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
@@ -125,6 +173,23 @@ export default function Themes() {
   };
 
   const previewTheme = active && custom ? themeWithCustom(active, custom) : null;
+
+  const filtersActive = query.trim() !== "" || region !== "all" || wtype !== "all" || style !== "all";
+  const filteredThemes = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return WEDDING_THEMES.filter((t) => {
+      const f = THEME_FACETS[t.id];
+      if (region !== "all" && f?.region !== region) return false;
+      if (wtype !== "all" && f?.type !== wtype) return false;
+      if (style !== "all" && !f?.styles.includes(style)) return false;
+      if (!q) return true;
+      const hay = [t.name, t.tradition, t.description, t.tagline, ...(f?.styles ?? [])]
+        .join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }, [query, region, wtype, style]);
+
+  const resetFilters = () => { setQuery(""); setRegion("all"); setWtype("all"); setStyle("all"); };
 
   const applyTheme = async () => {
     if (!active || !custom) return;
