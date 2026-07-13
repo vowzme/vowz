@@ -47,7 +47,7 @@ export default function GuestAlbum({ siteId, accent, heading, description, track
   const [posts, setPosts] = useState<AlbumPost[]>([]);
   const [counts, setCounts] = useState<Record<string, Record<ReactionKey, number>>>({});
   const [mine, setMine] = useState<Record<string, Set<ReactionKey>>>({});
-  const [form, setForm] = useState({ guest_name: "", caption: "" });
+  const [form, setForm] = useState({ guest_name: "", guest_email: "", caption: "" });
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const guestId = getGuestId();
@@ -107,13 +107,14 @@ export default function GuestAlbum({ siteId, accent, heading, description, track
         .insert({
           wedding_site_id: siteId,
           guest_name: form.guest_name.trim().slice(0, 100),
+          guest_email: form.guest_email.trim().slice(0, 254) || null,
           caption: form.caption.trim().slice(0, 500) || null,
           photo_url: photoUrl,
           status: "pending",
         } as any);
       if (error) throw error;
       // Post is pending moderation; don't show it in the feed yet.
-      setForm({ guest_name: form.guest_name, caption: "" });
+      setForm({ guest_name: form.guest_name, guest_email: form.guest_email, caption: "" });
       setFile(null);
       toast({ title: "Photo submitted for review 📸", description: "The couple will approve it before it appears in the album." });
       trackEvent?.("album_post");
