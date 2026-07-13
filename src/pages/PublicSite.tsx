@@ -23,6 +23,11 @@ import BackgroundMusicPlayer from "@/components/BackgroundMusicPlayer";
 import { DEFAULT_STORY } from "@/lib/default-story";
 import { demoWeddingSite } from "@/lib/demo-site";
 import { getThemeDemoSite } from "@/lib/theme-demo-sites";
+import { WEDDING_THEMES } from "@/lib/wedding-themes";
+import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
+import { useAuth } from "@/hooks/use-auth";
+import { useWeddingSite } from "@/hooks/use-wedding-site";
+import { Sparkles } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
@@ -81,6 +86,42 @@ const SECTION_KEY_MAP: Record<string, { heading?: string; body?: string; descrip
 const PublicSite = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { createSite } = useWeddingSite();
+  const [cloning, setCloning] = useState(false);
+  const themedDemoId = slug && slug.startsWith("demo-") && slug !== "demo" ? slug.slice("demo-".length) : null;
+  const cloneThemeDemo = async () => {
+    if (!themedDemoId) return;
+    const theme = WEDDING_THEMES.find((t) => t.id === themedDemoId);
+    if (!theme) return;
+    if (!user) {
+      navigate("/auth", { state: { returnTo: `/site/demo-${themedDemoId}` } });
+      return;
+    }
+    setCloning(true);
+    try {
+      const tpl = buildThemeTemplate(theme);
+      const sections = buildThemeSections(theme);
+      const created = await createSite({
+        partner1: tpl.partner1,
+        partner2: tpl.partner2,
+        culturalBackground: tpl.culturalBackground,
+        howWeMet: tpl.howWeMet,
+        theme: theme.id,
+        tagline: tpl.tagline,
+        suggestedColors: [theme.colors.bg, theme.colors.accent, theme.colors.surface],
+        sections,
+        displayFont: theme.fonts.display,
+        bodyFont: theme.fonts.body,
+      });
+      if (created) {
+        toast({ title: "Demo cloned", description: `Your ${theme.name} starter site is ready — customize it now.` });
+        navigate(`/editor/${(created as any).id}`);
+      }
+    } finally {
+      setCloning(false);
+    }
+  };
   const [site, setSite] = useState<WeddingSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -369,6 +410,21 @@ const PublicSite = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      {themedDemoId && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+          <Button
+            variant="gold"
+            size="lg"
+            onClick={cloneThemeDemo}
+            disabled={cloning}
+            className="shadow-xl h-12 px-5 rounded-full"
+            aria-label="Clone this demo to start a new wedding site"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            {cloning ? "Cloning demo…" : "Clone this demo"}
+          </Button>
+        </div>
+      )}
       {seoData && (
         <SEOHead
           title={`${seoData.coupleNames} Wedding Invitation | Vowz`}
