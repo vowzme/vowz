@@ -405,10 +405,10 @@ export default function Themes() {
     <>
       <GoogleFontsLoader />
       <Helmet>
-        <title>10 Wedding Website Themes · Vowz</title>
+        <title>{`${WEDDING_THEMES.length} Wedding Website Themes · Vowz`}</title>
         <meta
           name="description"
-          content="Explore 10 curated wedding website themes, customize colors, typography, and motif intensity, then apply to your site in one click."
+          content={`Explore ${WEDDING_THEMES.length} curated wedding website themes, customize colors, typography, and motif intensity, then apply to your site in one click.`}
         />
       </Helmet>
 
@@ -416,7 +416,7 @@ export default function Themes() {
         <div className="border-b border-border/40 bg-gradient-to-b from-cream/40 to-transparent">
           <div className="max-w-6xl mx-auto px-4 py-14 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/30 bg-gold/10 text-gold text-xs font-body tracking-wide mb-4">
-              <Sparkles className="w-3.5 h-3.5" /> 10 curated collections · fully customizable
+              <Sparkles className="w-3.5 h-3.5" /> {WEDDING_THEMES.length} curated collections · fully customizable
             </div>
             <h1 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-3">
               Themes for every love story
