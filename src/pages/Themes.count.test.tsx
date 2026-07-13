@@ -198,4 +198,26 @@ describe("/themes count", () => {
       expect(twDesc).toBe(expectedDescription);
     });
   });
+
+  it("sets og:image to an absolute https URL matching the expected Vowz pattern", async () => {
+    render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={["/themes"]}>
+          <Themes />
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    // Absolute https URL on the vowz.me domain pointing at an image
+    // asset — social crawlers require an absolute URL.
+    const pattern = /^https:\/\/vowz\.me\/.+\.(jpg|jpeg|png|webp)$/i;
+
+    await waitFor(() => {
+      const ogImage = document
+        .querySelector('meta[property="og:image"]')
+        ?.getAttribute("content");
+      expect(ogImage, "og:image must be present").toBeTruthy();
+      expect(ogImage!).toMatch(pattern);
+    });
+  });
 });
