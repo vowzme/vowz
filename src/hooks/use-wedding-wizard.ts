@@ -338,6 +338,9 @@ export function useWeddingWizard() {
     }));
     setIsComplete(true);
     clearDraft();
+    // Clear the server-stored draft too — the wizard has been completed and
+    // a permanent wedding_sites row now owns this state.
+    deleteServerDraft();
   }, [wizardData, generateTagline]);
 
   return {
@@ -351,7 +354,7 @@ export function useWeddingWizard() {
     completeWizard,
     isComplete,
     generateTagline,
-    resetDraft: clearDraft,
+    resetDraft: () => { clearDraft(); deleteServerDraft(); },
     conflict,
     acceptRemoteDraft,
     dismissConflict,
