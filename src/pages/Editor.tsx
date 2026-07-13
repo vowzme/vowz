@@ -321,7 +321,15 @@ const Editor = () => {
         displayFont: (wizardData as any).displayFont,
         bodyFont: (wizardData as any).bodyFont,
       }).then((site) => {
-        if (site) setDbSiteId(site.id);
+        if (site) {
+          setDbSiteId(site.id);
+          savedStyleRef.current = {
+            theme: wizardData.theme,
+            suggestedColors: wizardData.suggestedColors,
+            displayFont: (wizardData as any).displayFont,
+            bodyFont: (wizardData as any).bodyFont,
+          };
+        }
       });
     }
   }, [wizardData, user, dbSiteId]);
