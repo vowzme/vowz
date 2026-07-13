@@ -1342,8 +1342,10 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
       }
       setSubmitted(true);
       setSubmittedDietary({
-        tags: showDietaryTags ? [...form.dietary_tags] : [],
-        notes: showDietaryNotes ? form.dietary_notes.trim() : "",
+        tags: showDietaryTags && form.attending
+          ? Array.from(new Set(form.dietary_tags.filter((t) => DIETARY_TAG_WHITELIST.has(t)))).slice(0, 8)
+          : [],
+        notes: showDietaryNotes && form.attending ? (form.dietary_notes || "").trim().slice(0, 200) : "",
       });
       const wasEditing = isEditing;
       toast({ title: wasEditing ? "RSVP updated ✨" : "RSVP submitted! 🎉" });
