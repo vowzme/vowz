@@ -2611,9 +2611,10 @@ function SectionEditor({
                 {video.url && (
                   (() => {
                     const v = validateVideoUrl(video.url);
-                    return v.ok ? (
-                      <p className="text-[10px] text-green-600 font-body">✓ Detected: {v.label}</p>
-                    ) : (
+                    if (v.ok) {
+                      return <p className="text-[10px] text-green-600 font-body">✓ Detected: {v.label}</p>;
+                    }
+                    return (
                       <div className="text-[10px] font-body">
                         <p className="text-destructive">{v.error}</p>
                         {v.hint && <p className="text-muted-foreground mt-0.5">{v.hint}</p>}
