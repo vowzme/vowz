@@ -1519,7 +1519,7 @@ function EditableField({
 
 // ─── Checklist Panel ──────────────────────────────────────────────────
 function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) {
-  const { items, loading, loadChecklist, addItem, toggleItem, deleteItem, updateItem, completedCount, progress } = useWeddingChecklist(siteId);
+  const { items, loading, error, loadChecklist, addItem, toggleItem, deleteItem, updateItem, completedCount, progress } = useWeddingChecklist(siteId);
   const [showAdd, setShowAdd] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newCategory, setNewCategory] = useState("Planning");
@@ -1552,6 +1552,40 @@ function ChecklistPanel({ siteId, accent }: { siteId: string; accent: string }) 
     return (
       <div className="bg-card border border-border/50 rounded-2xl p-12 text-center">
         <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-card border border-destructive/40 rounded-2xl p-8 text-center space-y-3">
+        <h3 className="font-display text-lg font-bold text-foreground">Couldn't load your checklist</h3>
+        <p className="text-sm text-muted-foreground font-body">{error}</p>
+        <button
+          onClick={() => loadChecklist()}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-body font-medium text-primary-foreground"
+          style={{ backgroundColor: accent }}
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="bg-card border border-border/50 rounded-2xl p-8 text-center space-y-3">
+        <h3 className="font-display text-lg font-bold text-foreground">No tasks yet</h3>
+        <p className="text-sm text-muted-foreground font-body">
+          We couldn't set up your starter checklist. Retry to load default tasks, or add your own.
+        </p>
+        <button
+          onClick={() => loadChecklist()}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-body font-medium text-primary-foreground"
+          style={{ backgroundColor: accent }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
