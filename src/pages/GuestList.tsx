@@ -424,7 +424,8 @@ export default function GuestList() {
                           </a>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
