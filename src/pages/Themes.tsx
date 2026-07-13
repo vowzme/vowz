@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { toast } from "@/hooks/use-toast";
 import { WEDDING_THEMES, type WeddingTheme } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
+import { LazyOnVisible } from "@/components/LazyOnVisible";
 import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
@@ -573,7 +574,18 @@ export default function Themes() {
                           data-theme-id={t.id}
                           className="transition-transform group-hover:-translate-y-1"
                         >
-                          <ThemeDemo theme={t} compact />
+                          <LazyOnVisible
+                            minHeight={220}
+                            fallback={
+                              <div
+                                aria-hidden
+                                className="w-full rounded-xl border border-border/50 animate-pulse"
+                                style={{ height: 220, background: t.colors.surface }}
+                              />
+                            }
+                          >
+                            <ThemeDemo theme={t} compact />
+                          </LazyOnVisible>
                         </div>
                         <div className="px-1 pt-4">
                           <div className="flex items-baseline justify-between gap-2">
@@ -650,7 +662,18 @@ export default function Themes() {
                           data-theme-id={t.id}
                           className="transition-transform group-hover:-translate-y-1"
                         >
-                          <ThemeDemo theme={t} compact />
+                          <LazyOnVisible
+                            minHeight={220}
+                            fallback={
+                              <div
+                                aria-hidden
+                                className="w-full rounded-xl border border-border/50 animate-pulse"
+                                style={{ height: 220, background: t.colors.surface }}
+                              />
+                            }
+                          >
+                            <ThemeDemo theme={t} compact />
+                          </LazyOnVisible>
                         </div>
                         <div className="px-1 pt-4">
                           <div className="flex items-baseline justify-between gap-2">
