@@ -1173,6 +1173,7 @@ export type Database = {
         Row: {
           attending: boolean
           created_at: string
+          edit_token: string | null
           guest_count: number
           guest_email: string
           guest_name: string
@@ -1185,6 +1186,7 @@ export type Database = {
         Insert: {
           attending?: boolean
           created_at?: string
+          edit_token?: string | null
           guest_count?: number
           guest_email: string
           guest_name: string
@@ -1197,6 +1199,7 @@ export type Database = {
         Update: {
           attending?: boolean
           created_at?: string
+          edit_token?: string | null
           guest_count?: number
           guest_email?: string
           guest_name?: string
@@ -2102,6 +2105,18 @@ export type Database = {
         }[]
       }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }
+      update_rsvp_by_token: {
+        Args: {
+          _attending: boolean
+          _edit_token: string
+          _guest_count: number
+          _meal_preference: string
+          _message: string
+          _rsvp_id: string
+          _selected_events: Json
+        }
+        Returns: boolean
+      }
       user_has_premium: { Args: { _user_id: string }; Returns: boolean }
       validate_coupon_for_redemption: {
         Args: {

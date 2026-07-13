@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { CoupleProfilesPublic } from "@/components/CoupleProfilesSection";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink, Download, Copy } from "lucide-react";
+import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink, Download, Copy, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -1211,6 +1211,14 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
   const [submitted, setSubmitted] = useState(false);
   const [submittedDietary, setSubmittedDietary] = useState<{ tags: string[]; notes: string }>({ tags: [], notes: "" });
   const [submitting, setSubmitting] = useState(false);
+  const editStorageKey = `vowz_rsvp_edit_${site.id}`;
+  const [editHandle, setEditHandle] = useState<{ id: string; token: string } | null>(() => {
+    try {
+      const raw = localStorage.getItem(editStorageKey);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
+  const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
     guest_name: "",
     guest_email: "",
@@ -1281,28 +1289,54 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         meal_preference: showMeal ? (form.meal_preference || null) : null,
       });
 
-      const { error } = await supabase.from("rsvps").insert({
-        wedding_site_id: site.id,
-        guest_name: validated.guest_name,
-        guest_email: validated.guest_email,
-        attending: validated.attending,
-        guest_count: validated.guest_count,
-        meal_preference: validated.meal_preference,
-        selected_events: validated.selected_events as any,
-        message: validated.message,
-      });
-
-      if (error) throw error;
+      if (isEditing && editHandle) {
+        const { data: ok, error } = await supabase.rpc("update_rsvp_by_token", {
+          _rsvp_id: editHandle.id,
+          _edit_token: editHandle.token,
+          _attending: validated.attending,
+          _guest_count: validated.guest_count,
+          _meal_preference: validated.meal_preference,
+          _selected_events: (validated.selected_events ?? null) as any,
+          _message: validated.message,
+        });
+        if (error) throw error;
+        if (!ok) throw new Error("This RSVP can no longer be edited from this device.");
+      } else {
+        const newToken = (globalThis.crypto as any)?.randomUUID?.() as string | undefined;
+        const { data: inserted, error } = await supabase
+          .from("rsvps")
+          .insert({
+            wedding_site_id: site.id,
+            guest_name: validated.guest_name,
+            guest_email: validated.guest_email,
+            attending: validated.attending,
+            guest_count: validated.guest_count,
+            meal_preference: validated.meal_preference,
+            selected_events: validated.selected_events as any,
+            message: validated.message,
+            edit_token: newToken,
+          } as any)
+          .select("id")
+          .single();
+        if (error) throw error;
+        if (inserted?.id && newToken) {
+          const handle = { id: inserted.id as string, token: newToken };
+          setEditHandle(handle);
+          try { localStorage.setItem(editStorageKey, JSON.stringify(handle)); } catch {}
+        }
+      }
       setSubmitted(true);
       setSubmittedDietary({
         tags: showDietaryTags ? [...form.dietary_tags] : [],
         notes: showDietaryNotes ? form.dietary_notes.trim() : "",
       });
-      toast({ title: "RSVP submitted! 🎉" });
-      trackEvent("rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
+      const wasEditing = isEditing;
+      toast({ title: wasEditing ? "RSVP updated ✨" : "RSVP submitted! 🎉" });
+      trackEvent(wasEditing ? "rsvp_update" : "rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
+      setIsEditing(false);
 
-      // Fire-and-forget confirmation email (non-blocking, non-fatal on failure).
-      try {
+      // Fire-and-forget confirmation email — skip on edits.
+      if (!wasEditing) try {
         const firstEvent = eventsSection?.data?.events?.[0];
         const weddingDate = firstEvent?.date
           ? new Date(firstEvent.date).toLocaleDateString(undefined, {
@@ -1403,6 +1437,15 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                   <p className="text-sm text-muted-foreground font-body">{submittedDietary.notes}</p>
                 )}
               </div>
+            )}
+            {editHandle && (
+              <button
+                type="button"
+                onClick={() => { setIsEditing(true); setSubmitted(false); }}
+                className="mt-5 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-body text-sm border border-border/60 hover:bg-muted/40"
+              >
+                <Pencil className="w-3.5 h-3.5" /> Edit my RSVP
+              </button>
             )}
             {showWhatsAppShare && (
               <a
@@ -1634,7 +1677,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
               {submitting ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
               ) : (
-                "Send RSVP"
+                isEditing ? "Update RSVP" : "Send RSVP"
               )}
             </Button>
           </form>
