@@ -109,15 +109,15 @@ export default function GuestAlbum({ siteId, accent, heading, description, track
           guest_name: form.guest_name.trim().slice(0, 100),
           caption: form.caption.trim().slice(0, 500) || null,
           photo_url: photoUrl,
-          status: "approved",
+          status: "pending",
         } as any)
         .select("id, guest_name, caption, photo_url, created_at")
         .single();
       if (error) throw error;
-      setPosts((prev) => [inserted as any, ...prev]);
+      // Post is pending moderation; don't show it in the feed yet.
       setForm({ guest_name: form.guest_name, caption: "" });
       setFile(null);
-      toast({ title: "Photo added to the album 📸" });
+      toast({ title: "Photo submitted for review 📸", description: "The couple will approve it before it appears in the album." });
       trackEvent?.("album_post");
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });
