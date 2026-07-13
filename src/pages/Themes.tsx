@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2, Eye, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { WEDDING_THEMES, type WeddingTheme } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
@@ -710,13 +710,18 @@ export default function Themes() {
         <DialogContent
           className="max-w-none w-screen h-screen sm:h-screen p-0 rounded-none border-0 bg-background sm:rounded-none"
           style={{ width: "100vw", height: "100dvh", maxWidth: "100vw" }}
+          aria-describedby="theme-preview-desc"
         >
           {previewTpl && (
             <div className="flex flex-col w-full h-full">
               <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0">
                 <div className="min-w-0">
-                  <h2 className="font-display text-base sm:text-lg font-semibold truncate">{previewTpl.name} · landing preview</h2>
-                  <p className="text-[11px] text-muted-foreground truncate">{previewTpl.tradition}</p>
+                  <DialogTitle className="font-display text-base sm:text-lg font-semibold truncate">
+                    {previewTpl.name} · landing preview
+                  </DialogTitle>
+                  <DialogDescription id="theme-preview-desc" className="text-[11px] text-muted-foreground truncate">
+                    {previewTpl.tradition} — press Escape to close.
+                  </DialogDescription>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Button
@@ -727,13 +732,15 @@ export default function Themes() {
                   >
                     <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
                   </Button>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setPreviewTpl(null)}
                     aria-label="Close preview"
-                    className="p-2 rounded-md hover:bg-muted"
+                    className="min-h-11 min-w-11"
                   >
                     <X className="w-4 h-4" />
-                  </button>
+                  </Button>
                 </div>
               </div>
               <iframe
@@ -741,6 +748,7 @@ export default function Themes() {
                 src={`/site/demo-${previewTpl.id}`}
                 title={`${previewTpl.name} landing preview`}
                 className="flex-1 w-full border-0 bg-background"
+                tabIndex={0}
               />
             </div>
           )}
