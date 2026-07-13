@@ -63,6 +63,18 @@ export function useWeddingSite() {
           .select()
           .single();
         if (error) throw error;
+        // Remember the user's theme picks on their profile so future sites/editor sessions default to them.
+        if (data.theme || (data.suggestedColors && data.suggestedColors.length)) {
+          await supabase
+            .from("profiles")
+            .update({
+              preferred_theme: data.theme || null,
+              preferred_colors: (data.suggestedColors && data.suggestedColors.length ? data.suggestedColors : null) as any,
+              preferred_display_font: data.displayFont ?? null,
+              preferred_body_font: data.bodyFont ?? null,
+            } as any)
+            .eq("id", user.id);
+        }
         return site;
       } catch (err: any) {
         toast({ title: "Error saving site", description: err.message, variant: "destructive" });
