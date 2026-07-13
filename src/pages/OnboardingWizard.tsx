@@ -558,7 +558,7 @@ const OnboardingWizard = () => {
                         </div>
                         <div
                           className="rounded-2xl border shadow-sm overflow-hidden"
-                          style={{ background: active.colors.bg, color: active.colors.text }}
+                          style={{ background: active.colors.bg, color: active.colors.ink }}
                         >
                           <div
                             className="px-6 py-12 md:py-16 text-center"
@@ -574,7 +574,7 @@ const OnboardingWizard = () => {
                             </p>
                             <h3
                               className="text-3xl md:text-5xl font-bold leading-tight"
-                              style={{ fontFamily: active.fonts.display, color: active.colors.text }}
+                              style={{ fontFamily: active.fonts.display, color: active.colors.ink }}
                             >
                               {p1} <span style={{ color: active.colors.accent }}>&</span> {p2}
                             </h3>
@@ -596,7 +596,7 @@ const OnboardingWizard = () => {
                           </div>
                           <div className="px-6 py-4 flex items-center justify-center gap-2 border-t" style={{ borderColor: `${active.colors.accent}33` }}>
                             {[active.colors.bg, active.colors.accent, active.colors.light].map((c) => (
-                              <span key={c} className="w-5 h-5 rounded-full border" style={{ background: c, borderColor: `${active.colors.text}22` }} />
+                              <span key={c} className="w-5 h-5 rounded-full border" style={{ background: c, borderColor: `${active.colors.ink}22` }} />
                             ))}
                             <span className="ml-2 text-[11px] font-body opacity-70">
                               {active.fonts.display.split(",")[0]} · {active.fonts.body.split(",")[0]}
