@@ -38,7 +38,15 @@ Deno.serve(async (req) => {
     let safe = target
     try {
       const u = new URL(target)
-      if (!/^https?:$/.test(u.protocol)) safe = 'https://vowz.me/dashboard'
+      const allowedHosts = new Set([
+        'vowz.me',
+        'www.vowz.me',
+        'vowz.lovable.app',
+      ])
+      const isAllowed =
+        /^https?:$/.test(u.protocol) &&
+        (allowedHosts.has(u.hostname) || u.hostname.endsWith('.vowz.me'))
+      if (!isAllowed) safe = 'https://vowz.me/dashboard'
     } catch { safe = 'https://vowz.me/dashboard' }
     return new Response(null, { status: 302, headers: { Location: safe } })
   }
