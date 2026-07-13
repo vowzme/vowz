@@ -1216,7 +1216,22 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
     meal_preference: "veg",
     selected_events: [] as string[],
     message: "",
+    dietary_notes: "",
   });
+
+  const showMeal = data.show_meal !== false;
+  const showEvents = data.show_events !== false;
+  const showDietaryNotes = data.show_dietary_notes === true;
+  const showCustomPolls = data.show_custom_polls === true;
+  const showWhatsAppShare = data.show_whatsapp_share !== false;
+
+  const hasPollsSection = ((site.sections as any[]) || []).some((s) => s.type === "polls" && s.visible !== false);
+
+  const siteUrl = `${window.location.origin}/site/${site.slug}`;
+  const inviteText =
+    (data.whatsapp_invite_message && String(data.whatsapp_invite_message).trim()) ||
+    `You're invited to ${site.partner1} & ${site.partner2}'s wedding — please RSVP:`;
+  const shareWhatsAppUrl = `https://wa.me/?text=${encodeURIComponent(`${inviteText}\n${siteUrl}`)}`;
 
   // Extract event names from sections for checkboxes
   const eventsSection = (site.sections as any[])?.find((s) => s.type === "events");
@@ -1236,11 +1251,15 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
     setSubmitting(true);
 
     try {
+      const combinedMessage = [form.message?.trim(), form.dietary_notes?.trim() ? `Dietary notes: ${form.dietary_notes.trim()}` : ""]
+        .filter(Boolean)
+        .join("\n") || null;
+
       const validated = rsvpSchema.parse({
         ...form,
-        message: form.message || null,
-        selected_events: form.selected_events.length > 0 ? form.selected_events : null,
-        meal_preference: form.meal_preference || null,
+        message: combinedMessage,
+        selected_events: showEvents && form.selected_events.length > 0 ? form.selected_events : null,
+        meal_preference: showMeal ? (form.meal_preference || null) : null,
       });
 
       const { error } = await supabase.from("rsvps").insert({
@@ -1331,6 +1350,18 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
             <p className="text-muted-foreground font-body">
               Your RSVP has been received. We can't wait to celebrate with you!
             </p>
+            {showWhatsAppShare && (
+              <a
+                href={shareWhatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent("share_click", { platform: "whatsapp", source: "rsvp_confirmation" })}
+                className="inline-flex items-center justify-center gap-2 mt-6 px-5 py-2.5 rounded-xl font-body text-sm font-medium text-white"
+                style={{ backgroundColor: "#25D366" }}
+              >
+                <Send className="w-4 h-4" /> Share with friends on WhatsApp
+              </a>
+            )}
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-card border border-border/50 rounded-2xl p-6 md:p-8 text-left space-y-5">
@@ -1411,7 +1442,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
                 </div>
 
                 {/* Meal preference */}
-                <div>
+                {showMeal && <div>
                   <label className="font-body text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
                     <Utensils className="w-3.5 h-3.5 text-muted-foreground" /> Meal Preference
                   </label>
@@ -1431,10 +1462,10 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
                       </button>
                     ))}
                   </div>
-                </div>
+                </div>}
 
                 {/* Event selection */}
-                {eventNames.length > 0 && (
+                {showEvents && eventNames.length > 0 && (
                   <div>
                     <label className="font-body text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-muted-foreground" /> Which events will you attend?
@@ -1457,6 +1488,33 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
                       ))}
                     </div>
                   </div>
+                )}
+
+                {/* Dietary notes / allergies */}
+                {showDietaryNotes && (
+                  <div>
+                    <label className="font-body text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5">
+                      <Leaf className="w-3.5 h-3.5 text-muted-foreground" /> Dietary notes / allergies
+                    </label>
+                    <Input
+                      placeholder="e.g. nut allergy, jain, gluten-free"
+                      value={form.dietary_notes}
+                      onChange={(e) => setForm({ ...form, dietary_notes: e.target.value })}
+                      maxLength={200}
+                      className="font-body"
+                    />
+                  </div>
+                )}
+
+                {/* Link to custom polls */}
+                {showCustomPolls && hasPollsSection && (
+                  <a
+                    href="#polls-section"
+                    className="inline-flex items-center gap-2 font-body text-sm underline"
+                    style={{ color: accent }}
+                  >
+                    <BarChart3 className="w-4 h-4" /> Answer the couple's polls below
+                  </a>
                 )}
               </motion.div>
             )}
