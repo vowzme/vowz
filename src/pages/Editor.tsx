@@ -1536,7 +1536,10 @@ function SettingsPanel({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             <button
               type="button"
-              onClick={() => onUpdate({ ...siteData, theme: "", displayFont: undefined, bodyFont: undefined } as any)}
+              onClick={() => applyThemeWithUndo(
+                { theme: "", displayFont: undefined, bodyFont: undefined } as any,
+                "no theme",
+              )}
               className={`rounded-lg border-2 px-3 py-2 text-left transition-all ${
                 !siteData.theme ? "border-gold bg-gold/10" : "border-border hover:border-gold/40"
               }`}
@@ -1550,15 +1553,15 @@ function SettingsPanel({
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() =>
-                    onUpdate({
-                      ...siteData,
+                  onClick={() => applyThemeWithUndo(
+                    {
                       theme: t.id,
                       suggestedColors: [t.colors.bg, t.colors.accent, t.colors.light],
                       displayFont: t.fonts.display,
                       bodyFont: t.fonts.body,
-                    } as any)
-                  }
+                    } as any,
+                    t.name,
+                  )}
                   className={`rounded-lg border-2 px-3 py-2 text-left transition-all ${
                     active ? "border-gold bg-gold/10" : "border-border hover:border-gold/40"
                   }`}
