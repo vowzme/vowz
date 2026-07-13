@@ -17,6 +17,10 @@ import WizardPreview from "@/components/WizardPreview";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeColors, DEFAULT_COLORS } from "@/hooks/use-wedding-site";
+
+// Regex for a valid CSS hex color (3/4/6/8 digits, optional leading #).
+const HEX_RE = /^#?[0-9a-fA-F]{3,8}$/;
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
