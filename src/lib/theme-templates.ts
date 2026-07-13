@@ -22,6 +22,10 @@ export type ThemeTemplate = {
   guestbookDescription: string;
   countdownLabel: string;
   travelDescription: string;
+  eventVenues: string[]; // one hint per event (parallel to events[])
+  eventTimes: string[];  // one hint per event (parallel to events[])
+  scheduleNote: string;
+  accommodations: { name: string; description: string; distance: string }[];
 };
 
 type Base = Omit<ThemeTemplate, "themeId" | "partner1" | "partner2" | "tagline" | "culturalBackground">;
@@ -39,6 +43,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Leave a blessing for the newlyweds — every word will be treasured.",
     countdownLabel: "Counting Down to Our Royal Union",
     travelDescription: "Udaipur & Jaipur await — palaces, lakes, and a welcome fit for royalty. We have curated havelis and heritage stays for you.",
+    eventVenues: ["Sheesh Mahal Courtyard", "Zenana Lawn", "Durbar Hall", "Marigold Terrace", "Palace Gates & Pheras Mandap", "Peacock Ballroom"],
+    eventTimes: ["Morning tilak", "Afternoon henna", "Evening baithak", "Sunrise haldi", "Baraat at dusk", "Late-night reception"],
+    scheduleNote: "Three days of royal festivities across palace courtyards. Traditional Rajputi attire encouraged.",
+    accommodations: [
+      { name: "Taj Lake Palace, Udaipur", description: "Heritage island palace — a room block is held for baraatis.", distance: "15 min from mandap" },
+      { name: "Rambagh Palace, Jaipur", description: "Royal Rajput hospitality with courtyard suites.", distance: "20 min from venue" },
+    ],
   },
   "south-indian-temple": {
     howWeMet:
@@ -52,6 +63,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Bless the couple with your wishes — spoken words become life-long treasures.",
     countdownLabel: "Days to the Muhurtham",
     travelDescription: "The temples of the south, silk-woven mornings, and warm sadhya lunches await. Recommended stays are close to the mandapam.",
+    eventVenues: ["Family Home — Puja Hall", "Temple Prakaram", "Kalyana Mandapam Foyer", "Kalyana Mandapam", "Banquet Hall — Banana Leaf Sadhya"],
+    eventTimes: ["Morning muhurtham", "Evening ritual", "Afternoon henna", "Sunrise muhurtham lagnam", "Lunch onwards"],
+    scheduleNote: "Rituals begin at the auspicious lagnam. Traditional silks and jasmine strands are most welcome.",
+    accommodations: [
+      { name: "ITC Grand Chola, Chennai", description: "Dravidian-inspired luxury, close to the mandapam.", distance: "10 min from venue" },
+      { name: "Sterling Mahabalipuram", description: "Serene sea-side stay for out-of-town guests.", distance: "45 min drive" },
+    ],
   },
   "modern-minimal": {
     howWeMet:
@@ -65,6 +83,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Share a memory, a wish, or a piece of advice for the road ahead.",
     countdownLabel: "Until we say I do",
     travelDescription: "A short guide to our favourite hotels, restaurants, and coffee spots for guests visiting the city.",
+    eventVenues: ["Rooftop Bar", "Garden Pavilion", "Loft Ballroom", "Underground Lounge"],
+    eventTimes: ["7:00 PM", "4:30 PM", "7:30 PM", "11:00 PM"],
+    scheduleNote: "One day, one venue, one very good playlist. Cocktail attire.",
+    accommodations: [
+      { name: "The Standard Hotel", description: "Design-forward rooms within walking distance of the venue.", distance: "5 min walk" },
+      { name: "Boutique City Loft", description: "Curated apartments for close friends and family.", distance: "10 min ride" },
+    ],
   },
   "bengali-alpona": {
     howWeMet:
@@ -78,6 +103,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Leave a poem, a prayer, or a Rabindrik line for the couple.",
     countdownLabel: "Din Ginchi — Counting Down",
     travelDescription: "Kolkata's lanes, sweet shops, and heritage stays — everything you need for a warm Bengali visit.",
+    eventVenues: ["Family Thakurdalan", "Alpona Courtyard", "Rabindra Sadan Hall", "Biye Bari Mandap", "Bou Bhaat Banquet"],
+    eventTimes: ["Evening blessings", "Morning holud", "Evening sangeet", "Shubho lagna (night)", "Afternoon feast"],
+    scheduleNote: "Five days of Bengali ritual and rasogolla. Traditional laal-paar sarees & dhoti-panjabi welcomed.",
+    accommodations: [
+      { name: "The Oberoi Grand, Kolkata", description: "Colonial charm in the heart of the city.", distance: "20 min from biye bari" },
+      { name: "Rajbari Bawali", description: "Heritage mansion stay for a true Bengali experience.", distance: "1 hr drive" },
+    ],
   },
   "goa-beach": {
     howWeMet:
@@ -91,6 +123,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Send us a wish — we'll keep it like a note washed up on our favourite shore.",
     countdownLabel: "Sundowns Until the Big Day",
     travelDescription: "Beach villas, boutique stays, and shack-side recommendations along the North Goa coast.",
+    eventVenues: ["Vagator Cliff Deck", "Ashwem Beach Shack", "Morjim Sandbar", "Sweet Water Beach", "Sunset Point, Chapora"],
+    eventTimes: ["Golden hour", "Late morning", "Evening under the stars", "4:30 PM ceremony", "Sunset onwards"],
+    scheduleNote: "Three sun-soaked days by the sea. Linen, florals, and bare feet encouraged.",
+    accommodations: [
+      { name: "W Goa, Vagator", description: "Beachfront rooms with easy access to the ceremony.", distance: "5 min from venue" },
+      { name: "Ahilya by the Sea", description: "Boutique villa stay for family and close friends.", distance: "15 min drive" },
+    ],
   },
   "kerala-backwaters": {
     howWeMet:
@@ -104,6 +143,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Bless the couple in Malayalam or English — every word is a keepsake.",
     countdownLabel: "Days Until Our Kalyanam",
     travelDescription: "Houseboats, heritage stays, and backwater retreats — we've noted the most beautiful spots near the venue.",
+    eventVenues: ["Tharavadu Nadumuttam", "Coconut Grove Lawn", "Lakeside Deck", "Kalyana Mandapam", "Banana-Leaf Sadhya Hall"],
+    eventTimes: ["Morning nishchayam", "Afternoon henna", "Evening sangeet", "Sunrise muhurtham", "Lunch onwards"],
+    scheduleNote: "Backwater rituals with kasavu-mundu attire and a traditional Sadhya on banana leaves.",
+    accommodations: [
+      { name: "Kumarakom Lake Resort", description: "Heritage lakeside cottages beside the venue.", distance: "5 min from mandapam" },
+      { name: "Alleppey Houseboat Cruise", description: "One-night backwater cruise for guests who arrive early.", distance: "45 min drive" },
+    ],
   },
   "punjabi-anand-karaj": {
     howWeMet:
@@ -117,6 +163,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Leave a shabad, a wish, or a memory — we'll carry it into our new life together.",
     countdownLabel: "Days Until the Anand Karaj",
     travelDescription: "Amritsar and beyond — heritage stays, langar-side hotels, and the warmest Punjabi welcome.",
+    eventVenues: ["Family Home — Baithak", "Gurdwara Prangan", "Haveli Courtyard", "Marigold Terrace", "Sangeet Ballroom", "Gurdwara Sahib", "Dhol Ballroom"],
+    eventTimes: ["Morning roka", "Evening sagai", "Late night jaggo", "Afternoon henna", "Evening sangeet", "Sunrise ardaas", "Dinner & bhangra"],
+    scheduleNote: "A week of Punjabi joy — from dholkis to the Anand Karaj. Bring your dancing shoes.",
+    accommodations: [
+      { name: "Taj Swarna, Amritsar", description: "Elegant stay a short drive from the Golden Temple.", distance: "10 min from gurdwara" },
+      { name: "Ranjit's Svaasa, Amritsar", description: "Heritage boutique haveli for family and friends.", distance: "15 min drive" },
+    ],
   },
   "marwari-haveli": {
     howWeMet:
@@ -130,6 +183,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Bless the couple in your own words — every message is a keepsake.",
     countdownLabel: "Days Until Our Pheras",
     travelDescription: "Jodhpur, Jaipur & Udaipur havelis — hand-picked heritage stays and airport shuttle notes.",
+    eventVenues: ["Haveli Puja Room", "Nani Sa's Courtyard", "Sheesh Mahal Terrace", "Chowk Baithak", "Marigold Lawn", "Mandap Chowk", "Darbar Hall"],
+    eventTimes: ["Morning puja", "Afternoon ritual", "Evening henna", "Late-night sangeet", "Morning haldi", "Sunrise pheras", "Dinner onwards"],
+    scheduleNote: "Seven ceremonies across a Marwari haveli. Bandhani, safas, and heirloom polkis are the dress code.",
+    accommodations: [
+      { name: "Umaid Bhawan Palace, Jodhpur", description: "Royal Rajputana suites — a block is held for guests.", distance: "20 min from haveli" },
+      { name: "RAAS Jodhpur", description: "Mehrangarh-facing boutique haveli stay.", distance: "10 min from venue" },
+    ],
   },
   "christian-chapel": {
     howWeMet:
@@ -143,6 +203,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Leave a verse, a prayer, or a favourite memory for the newlyweds.",
     countdownLabel: "Days Until We Say 'I Do'",
     travelDescription: "A short guide to hotels, chapels, and dinner spots near the ceremony and reception venues.",
+    eventVenues: ["Chapel Vestibule", "Vineyard Terrace", "Cathedral Sanctuary", "Grand Ballroom"],
+    eventTimes: ["Sunday afternoon", "7:00 PM", "4:00 PM ceremony", "6:30 PM reception"],
+    scheduleNote: "A traditional chapel service followed by dinner and toasts. Semi-formal attire.",
+    accommodations: [
+      { name: "The Grand Hotel", description: "Classic rooms a short drive from the chapel.", distance: "10 min from cathedral" },
+      { name: "Vineyard Inn & Spa", description: "Countryside stay near the reception venue.", distance: "5 min from reception" },
+    ],
   },
   "boho-destination": {
     howWeMet:
@@ -156,6 +223,13 @@ const T: Record<string, Base> = {
     guestbookDescription: "Leave a wish, a route, or a story for the road ahead.",
     countdownLabel: "Suns Until We Set Camp Together",
     travelDescription: "Desert camps, boho villas, and boutique tents — everything you need for a magical destination stay.",
+    eventVenues: ["Camp Firepit", "Dune Majlis Tent", "Open-Air Deck under the Milky Way", "Canyon Arch", "Long-Table Under the Fairy Lights"],
+    eventTimes: ["First night, dusk", "Morning henna", "Evening sangeet", "Golden-hour ceremony", "Dinner onwards"],
+    scheduleNote: "Three days off the grid. Layered linens, tassels, and desert boots strongly encouraged.",
+    accommodations: [
+      { name: "The Serai, Jaisalmer", description: "Luxury desert tents with private decks.", distance: "On-site" },
+      { name: "Suryagarh Desert Camp", description: "Boho tent stay for the wedding party.", distance: "20 min drive" },
+    ],
   },
 };
 
@@ -191,8 +265,14 @@ export function buildThemeSections(theme: WeddingTheme) {
     { id: "story", type: "story", title: "Our Story", visible: true, data: { heading: tpl.storyHeading, body: tpl.howWeMet } },
     { id: "events", type: "events", title: "Wedding Events", visible: true, data: {
       heading: "Wedding Events",
-      description: "Tap any event in the editor to set date, time, and venue.",
-      events: tpl.events.map((name) => ({ name, date: "", time: "", venue: "", location: "" })),
+      description: tpl.scheduleNote,
+      events: tpl.events.map((name, i) => ({
+        name,
+        date: "",
+        time: tpl.eventTimes[i] ?? "",
+        venue: tpl.eventVenues[i] ?? "",
+        location: "",
+      })),
     } },
     { id: "gallery", type: "gallery", title: "Photo Gallery", visible: true, data: {
       heading: "Our Moments",
@@ -200,7 +280,12 @@ export function buildThemeSections(theme: WeddingTheme) {
       images: sampleGallery,
       photos: sampleGallery,
     } },
-    { id: "travel", type: "travel", title: "Travel & Stay", visible: true, data: { heading: "Travel & Stay", description: tpl.travelDescription, hotels: [{ name: "Add your recommended hotel", description: "Update with your notes for guests.", distance: "Near venue" }], directions: "Add directions, nearest airport, and transport notes here." } },
+    { id: "travel", type: "travel", title: "Travel & Stay", visible: true, data: {
+      heading: "Travel & Stay",
+      description: tpl.travelDescription,
+      hotels: tpl.accommodations,
+      directions: "Add directions, nearest airport, and transport notes here.",
+    } },
     // Gift Registry + Shagun UPI. Add your UPI VPA in the editor to accept blessings by UPI.
     { id: "registry", type: "registry", title: "Gift Registry & Shagun", visible: true, data: {
       heading: "Gift Registry & Shagun",
