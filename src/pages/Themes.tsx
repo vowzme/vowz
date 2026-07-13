@@ -154,11 +154,53 @@ export default function Themes() {
     }
   };
 
+  // Preserve non-empty user fields when merging a template section on top of an
+  // existing one. Strings/arrays with content win over the template's placeholder.
+  const isMeaningful = (v: any): boolean => {
+    if (v == null) return false;
+    if (typeof v === "string") return v.trim().length > 0;
+    if (Array.isArray(v)) return v.length > 0;
+    if (typeof v === "object") return Object.keys(v).length > 0;
+    return true;
+  };
+  const mergeSectionData = (userData: any, tplData: any) => {
+    const out: any = { ...(tplData || {}) };
+    if (userData && typeof userData === "object") {
+      for (const k of Object.keys(userData)) {
+        if (isMeaningful((userData as any)[k])) out[k] = (userData as any)[k];
+      }
+    }
+    return out;
+  };
+  const mergeSections = (userSections: any[], tplSections: any[]) => {
+    const userById = new Map<string, any>((userSections || []).map((s) => [s.id, s]));
+    const tplIds = new Set(tplSections.map((s) => s.id));
+    const merged = tplSections.map((tplSec) => {
+      const u = userById.get(tplSec.id);
+      if (!u) return tplSec;
+      return {
+        ...tplSec,
+        // Preserve the user's visibility and title choices.
+        title: u.title || tplSec.title,
+        visible: typeof u.visible === "boolean" ? u.visible : tplSec.visible,
+        data: mergeSectionData(u.data, tplSec.data),
+      };
+    });
+    // Append custom sections the user added that aren't in the template.
+    const extras = (userSections || []).filter((s) => !tplIds.has(s.id));
+    return [...merged, ...extras];
+  };
+
   // One-click: seed a whole new site from the theme's tradition-specific template.
-  // If the user already has a site, apply theme + template sections on top of it.
+  // If the user already has a site, ask whether to replace or merge template content.
   const startFromTemplate = async (t: WeddingTheme) => {
     if (!user) {
       navigate("/auth", { state: { returnTo: "/themes" } });
+      return;
+    }
+    const existing = await loadUserSite();
+    if (existing) {
+      setApplyChoice({ theme: t, existingId: (existing as any).id });
       return;
     }
     setStarting(true);
@@ -166,21 +208,6 @@ export default function Themes() {
       const c = custom && active?.id === t.id ? custom : customFrom(t);
       const tpl = buildThemeTemplate(t);
       const sections = buildThemeSections(t);
-      const existing = await loadUserSite();
-      if (existing) {
-        const ok = await updateSite(existing.id, {
-          theme: t.id,
-          suggested_colors: [c.bg, c.accent, c.surface],
-          display_font: c.displayFont,
-          body_font: c.bodyFont,
-          sections,
-        });
-        if (ok) {
-          toast({ title: "Template applied", description: `Your site was reset to the ${t.name} starter.` });
-          navigate(`/editor/${existing.id}`);
-        }
-        return;
-      }
       const site = await createSite({
         partner1: tpl.partner1,
         partner2: tpl.partner2,
@@ -196,6 +223,45 @@ export default function Themes() {
       if (site) {
         toast({ title: "Your site is ready", description: `Started from the ${t.name} template — customize freely.` });
         navigate(`/editor/${(site as any).id}`);
+      }
+    } finally {
+      setStarting(false);
+    }
+  };
+
+  // Apply a template to an existing site — either fully replacing sections or
+  // merging on top so custom story/events/RSVP text is preserved.
+  const applyTemplateToExisting = async (t: WeddingTheme, existingId: string, mode: "replace" | "merge") => {
+    setStarting(true);
+    try {
+      const c = custom && active?.id === t.id ? custom : customFrom(t);
+      const tplSections = buildThemeSections(t);
+      let sections = tplSections;
+      if (mode === "merge") {
+        const { data: row } = await supabase
+          .from("wedding_sites")
+          .select("sections")
+          .eq("id", existingId)
+          .maybeSingle();
+        const userSections = Array.isArray((row as any)?.sections) ? (row as any).sections : [];
+        sections = mergeSections(userSections, tplSections);
+      }
+      const ok = await updateSite(existingId, {
+        theme: t.id,
+        suggested_colors: [c.bg, c.accent, c.surface],
+        display_font: c.displayFont,
+        body_font: c.bodyFont,
+        sections,
+      });
+      if (ok) {
+        toast({
+          title: mode === "merge" ? "Template merged" : "Template applied",
+          description: mode === "merge"
+            ? `Kept your story, events, and RSVP text — applied ${t.name} styling and filled missing sections.`
+            : `Your site was reset to the ${t.name} starter.`,
+        });
+        setApplyChoice(null);
+        navigate(`/editor/${existingId}`);
       }
     } finally {
       setStarting(false);
