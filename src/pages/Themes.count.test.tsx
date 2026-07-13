@@ -135,4 +135,21 @@ describe("/themes count", () => {
       expect(uniqueIds.has(t.id)).toBe(true);
     }
   });
+
+  it("sets canonical link to https://vowz.me/themes", async () => {
+    render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={["/themes"]}>
+          <Themes />
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    await waitFor(() => {
+      const canonical = document
+        .querySelector('link[rel="canonical"]')
+        ?.getAttribute("href");
+      expect(canonical).toBe("https://vowz.me/themes");
+    });
+  });
 });
