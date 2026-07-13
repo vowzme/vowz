@@ -60,5 +60,12 @@ describe("/themes count", () => {
       .querySelector('meta[name="description"]')
       ?.getAttribute("content") ?? "";
     expect(desc).toContain(`Explore ${n} curated wedding website themes`);
+
+    // Extra safety: the number in the description must equal the array
+    // length — guarantees the copy is derived, not a stale literal that
+    // happens to match today.
+    const match = desc.match(/Explore (\d+) curated wedding website themes/);
+    expect(match, `description missing count: ${desc}`).not.toBeNull();
+    expect(Number(match![1])).toBe(WEDDING_THEMES.length);
   });
 });
