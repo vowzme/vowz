@@ -190,6 +190,14 @@ export default function GuestAlbum({ siteId, accent, heading, description, track
             maxLength={100}
             className="font-body"
           />
+          <Input
+            type="email"
+            placeholder="Your email (optional — we'll let you know when the couple approves your photo)"
+            value={form.guest_email}
+            onChange={(e) => setForm({ ...form, guest_email: e.target.value })}
+            maxLength={254}
+            className="font-body"
+          />
           <Textarea
             placeholder="Caption (optional)"
             value={form.caption}
