@@ -354,6 +354,71 @@ const Editor = () => {
     }
   }, [wizardData, user, dbSiteId]);
 
+  // Restore any locally saved draft after we know the site id.
+  useEffect(() => {
+    if (!draftKey || restoredDraftRef.current) return;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) { restoredDraftRef.current = true; skipNextAutosaveRef.current = false; return; }
+      const parsed = JSON.parse(raw) as {
+        savedAt: number;
+        siteData: WeddingSiteData;
+        sections: WeddingSection[];
+      };
+      // Ignore drafts older than 14 days.
+      if (!parsed?.savedAt || Date.now() - parsed.savedAt > 14 * 86400000) {
+        localStorage.removeItem(draftKey);
+        restoredDraftRef.current = true;
+        skipNextAutosaveRef.current = false;
+        return;
+      }
+      restoredDraftRef.current = true;
+      skipNextAutosaveRef.current = true;
+      setState((prev) => ({
+        ...prev,
+        siteData: { ...prev.siteData, ...parsed.siteData },
+        sections: parsed.sections?.length ? parsed.sections : prev.sections,
+      }));
+      toast({
+        title: "Restored unsaved edits ✨",
+        description: "We recovered changes from your last session. Save to keep them.",
+      });
+    } catch {
+      try { localStorage.removeItem(draftKey); } catch {}
+      restoredDraftRef.current = true;
+      skipNextAutosaveRef.current = false;
+    }
+  }, [draftKey]);
+
+  // Autosave to localStorage (debounced). Only runs after restore has happened.
+  useEffect(() => {
+    if (!draftKey || !restoredDraftRef.current) return;
+    if (skipNextAutosaveRef.current) { skipNextAutosaveRef.current = false; return; }
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          draftKey,
+          JSON.stringify({
+            savedAt: Date.now(),
+            siteData: state.siteData,
+            sections: state.sections,
+          }),
+        );
+      } catch {
+        // Storage quota / private mode — ignore silently.
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [draftKey, state.siteData, state.sections]);
+
+  // Clear draft after a successful DB save (saving transitions true → false).
+  useEffect(() => {
+    if (prevSavingRef.current && !saving && draftKey) {
+      try { localStorage.removeItem(draftKey); } catch {}
+    }
+    prevSavingRef.current = saving;
+  }, [saving, draftKey]);
+
   const { siteData, sections, activePanel, selectedSectionId, previewMode } = state;
   const [bg, accent, light] = siteData.suggestedColors.length >= 3
     ? siteData.suggestedColors
