@@ -114,7 +114,8 @@ describe("full-screen preview modal accessibility", () => {
     const user = userEvent.setup();
     render(<PreviewHarness />);
     const trigger = screen.getByTestId("open-preview");
-    await user.click(trigger);
+    trigger.focus();
+    await user.keyboard("{Enter}");
     await screen.findByRole("dialog");
     await user.keyboard("{Escape}");
     await waitFor(() => {
