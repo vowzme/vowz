@@ -11,6 +11,34 @@ const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const CRON_SECRET = Deno.env.get('CRON_SECRET') || ''
 const TRACK_BASE = `${SUPABASE_URL}/functions/v1/email-track`
 
+const MAX_ATTEMPTS = 4 // total tries: initial + 3 retries
+const BASE_DELAY_MS = 250
+
+function sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)) }
+
+async function enqueueWithRetry(admin: any, payload: Record<string, unknown>): Promise<{ ok: true } | { ok: false; attempts: number; error: string }> {
+  let lastErr = 'unknown error'
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const { error } = await admin.rpc('enqueue_email', {
+        queue_name: 'transactional_emails',
+        payload,
+      })
+      if (!error) return { ok: true }
+      lastErr = error.message || String(error)
+    } catch (e) {
+      lastErr = e instanceof Error ? e.message : String(e)
+    }
+    if (attempt < MAX_ATTEMPTS) {
+      // Exponential backoff with jitter: 250ms, 500ms, 1000ms (+/- 20%)
+      const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1)
+      const jitter = delay * (Math.random() * 0.4 - 0.2)
+      await sleep(Math.max(50, Math.round(delay + jitter)))
+    }
+  }
+  return { ok: false, attempts: MAX_ATTEMPTS, error: lastErr }
+}
+
 type Milestone = 'd7' | 'd3' | 'd1' | 'overdue'
 type Variant = 'A' | 'B'
 
