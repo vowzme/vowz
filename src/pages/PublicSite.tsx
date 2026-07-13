@@ -1316,6 +1316,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         meal_preference: includeMeal ? (form.meal_preference || null) : null,
       });
 
+      let createdHandle: { id: string; token: string } | null = null;
       if (isEditing && editHandle) {
         const { data: ok, error } = await supabase.rpc("update_rsvp_by_token", {
           _rsvp_id: editHandle.id,
@@ -1329,10 +1330,6 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         if (error) throw error;
         if (!ok) throw new Error("This RSVP can no longer be edited from this device.");
       } else {
-        var _placeholder__unused = 0; // no-op
-      }
-      let createdHandle: { id: string; token: string } | null = null;
-      if (!(isEditing && editHandle)) {
         const newToken = (globalThis.crypto as any)?.randomUUID?.() as string | undefined;
         const { data: inserted, error } = await supabase
           .from("rsvps")
