@@ -390,6 +390,40 @@ const OnboardingWizard = () => {
         </div>
       </header>
 
+      {undoBackup && undoSecondsLeft > 0 && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="border-b border-gold/40 bg-gold/10"
+        >
+          <div className="max-w-3xl mx-auto px-4 py-2 flex items-center gap-3 text-xs font-body">
+            <AlertCircle className="w-4 h-4 text-gold shrink-0" aria-hidden />
+            <p className="text-foreground/90">
+              Draft cleared. You can restore your previous answers for {undoSecondsLeft}s.
+            </p>
+            <Button
+              variant="gold"
+              size="sm"
+              className="ml-auto h-7 px-3"
+              onClick={restoreDraftFromBackup}
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1" /> Undo reset
+            </Button>
+            <button
+              type="button"
+              aria-label="Dismiss undo banner"
+              onClick={() => {
+                try { localStorage.removeItem("vowz_wizard_draft_backup"); } catch {}
+                setUndoBackup(null);
+              }}
+              className="text-muted-foreground hover:text-foreground px-1"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Progress bar */}
       <div className="max-w-3xl mx-auto w-full px-4 pt-4">
         <div className="flex items-center gap-1">
