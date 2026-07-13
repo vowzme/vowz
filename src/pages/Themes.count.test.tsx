@@ -19,6 +19,21 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 
+vi.mock("@/hooks/use-auth", () => ({
+  useAuth: () => ({ user: null, loading: false }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock("@/hooks/use-wedding-site", () => ({
+  useWeddingSite: () => ({
+    loadUserSite: async () => null,
+    updateSite: async () => {},
+    createSite: async () => ({ id: "test" }),
+  }),
+  sanitizeColors: (c: unknown) => c,
+  DEFAULT_COLORS: {},
+}));
+
 describe("/themes count", () => {
   it("hero pill and meta description report WEDDING_THEMES.length", async () => {
     const helmetContext: { helmet?: { title: { toString: () => string }; meta: { toString: () => string } } } = {};
