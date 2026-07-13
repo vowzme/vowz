@@ -42,7 +42,7 @@ const AlbumModeration = () => {
       setLoading(true);
       const { data: site } = await supabase
         .from("wedding_sites")
-        .select("id, user_id, bride_name, groom_name")
+        .select("id, user_id, partner1, partner2")
         .eq("id", siteId)
         .maybeSingle();
 
@@ -52,7 +52,7 @@ const AlbumModeration = () => {
         return;
       }
       if (cancelled) return;
-      setSiteLabel([site.bride_name, site.groom_name].filter(Boolean).join(" & ") || "Wedding album");
+      setSiteLabel([site.partner1, site.partner2].filter(Boolean).join(" & ") || "Wedding album");
 
       const { data, error } = await supabase
         .from("guest_album_posts")
