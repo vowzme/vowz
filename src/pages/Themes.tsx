@@ -458,6 +458,16 @@ export default function Themes() {
           name="twitter:description"
           content={`Explore ${WEDDING_THEMES.length} curated wedding website themes, customize colors, typography, and motif intensity, then apply to your site in one click.`}
         />
+        <meta
+          property="og:image"
+          content="https://vowz.me/__l5e/assets-v1/c10ad07b-630f-4317-b1aa-e337c71c2348/og-image.jpg"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta
+          property="og:image:alt"
+          content="Vowz — curated wedding website themes"
+        />
       </Helmet>
 
       <div className="min-h-screen bg-background">
