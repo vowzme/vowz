@@ -102,7 +102,7 @@ export default function GuestAlbum({ siteId, accent, heading, description, track
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("blessing-photos").getPublicUrl(path);
       const photoUrl = urlData.publicUrl;
-      const { data: inserted, error } = await supabase
+      const { error } = await supabase
         .from("guest_album_posts" as any)
         .insert({
           wedding_site_id: siteId,
@@ -110,9 +110,7 @@ export default function GuestAlbum({ siteId, accent, heading, description, track
           caption: form.caption.trim().slice(0, 500) || null,
           photo_url: photoUrl,
           status: "pending",
-        } as any)
-        .select("id, guest_name, caption, photo_url, created_at")
-        .single();
+        } as any);
       if (error) throw error;
       // Post is pending moderation; don't show it in the feed yet.
       setForm({ guest_name: form.guest_name, caption: "" });
