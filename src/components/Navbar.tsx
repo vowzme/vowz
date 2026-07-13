@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import VowzLogo from "@/components/VowzLogo";
 import { useAuth } from "@/hooks/use-auth";
+import NotificationsBell from "@/components/NotificationsBell";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -68,11 +69,14 @@ const Navbar = () => {
           )}
           {!loading && (
             user ? (
-              <Button variant="gold" size="sm" asChild>
-                <Link to="/dashboard">
-                  <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" /> Dashboard
-                </Link>
-              </Button>
+              <>
+                <NotificationsBell />
+                <Button variant="gold" size="sm" asChild>
+                  <Link to="/dashboard">
+                    <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" /> Dashboard
+                  </Link>
+                </Button>
+              </>
             ) : (
               <>
                 <Link
