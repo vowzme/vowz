@@ -247,6 +247,24 @@ const Editor = () => {
               : ["en"],
             translations: (site as any).translations || {},
           };
+          // Fallback: if the site row has no theme yet, hydrate from the user's saved profile preferences.
+          if (!siteData.theme) {
+            (supabase as any)
+              .from("profiles")
+              .select("preferred_theme, preferred_colors, preferred_display_font, preferred_body_font")
+              .eq("id", user.id)
+              .maybeSingle()
+              .then(({ data: prof }: any) => {
+                if (!prof) return;
+                const patch: Partial<WeddingSiteData> = {};
+                if (prof.preferred_theme) patch.theme = prof.preferred_theme;
+                if (Array.isArray(prof.preferred_colors) && prof.preferred_colors.length >= 3) patch.suggestedColors = prof.preferred_colors;
+                if (prof.preferred_display_font) patch.displayFont = prof.preferred_display_font;
+                if (prof.preferred_body_font) patch.bodyFont = prof.preferred_body_font;
+                if (Object.keys(patch).length === 0) return;
+                setState((prev) => ({ ...prev, siteData: { ...prev.siteData, ...patch } }));
+              });
+          }
           const rawSections = (site.sections as any[]) || [];
           // Normalize old-format sections ({type:"event"}) to proper format
           const isOldFormat = rawSections.length > 0 && rawSections[0]?.type === "event";
