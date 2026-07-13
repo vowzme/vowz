@@ -17,6 +17,10 @@ import WizardPreview from "@/components/WizardPreview";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeColors, DEFAULT_COLORS } from "@/hooks/use-wedding-site";
+
+// Regex for a valid CSS hex color (3/4/6/8 digits, optional leading #).
+const HEX_RE = /^#?[0-9a-fA-F]{3,8}$/;
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
@@ -777,20 +781,66 @@ const OnboardingWizard = () => {
                     <p className="text-muted-foreground font-body mt-2">Review your details and create your site</p>
                   </div>
                   <div className="rounded-2xl border border-border overflow-hidden">
-                    {/* Mini preview hero */}
-                    {(() => { return null; })()}
-                    <div
-                      className="py-12 px-6 text-center"
-                      style={{ background: `linear-gradient(135deg, ${(wizardData.suggestedColors?.[0]) || "#6B1D2A"}, ${((wizardData.suggestedColors?.[0]) || "#6B1D2A")}dd)` }}
-                    >
-                      <Heart className="w-6 h-6 mx-auto mb-3" style={{ color: (wizardData.suggestedColors?.[1]) || "#D4A853" }} fill="currentColor" />
-                      <h3 className="font-display text-3xl font-bold" style={{ color: (wizardData.suggestedColors?.[2]) || "#FFF5E6" }}>
-                        {wizardData.partner1} & {wizardData.partner2}
-                      </h3>
-                      <p className="font-display text-base italic mt-2" style={{ color: (wizardData.suggestedColors?.[1]) || "#D4A853" }}>
-                        {wizardData.tagline || "Two hearts, one beautiful journey"}
-                      </p>
-                    </div>
+                    {/* Mini preview hero — palette is sanitized so empty/short/invalid
+                        colors never break the render. Invalid entries surface as
+                        disabled placeholder swatches below. */}
+                    {(() => {
+                      const raw = wizardData.suggestedColors || [];
+                      const safe = sanitizeColors(raw);
+                      const [bg, accent, light] = safe;
+                      const paletteSlots = [0, 1, 2].map((i) => {
+                        const val = raw[i];
+                        const isValid = typeof val === "string" && HEX_RE.test(val.trim());
+                        return { color: safe[i], isValid, isPlaceholder: !isValid };
+                      });
+                      return (
+                        <>
+                          <div
+                            className="py-12 px-6 text-center"
+                            style={{ background: `linear-gradient(135deg, ${bg}, ${bg}dd)` }}
+                          >
+                            <Heart className="w-6 h-6 mx-auto mb-3" style={{ color: accent }} fill="currentColor" />
+                            <h3 className="font-display text-3xl font-bold" style={{ color: light }}>
+                              {wizardData.partner1} & {wizardData.partner2}
+                            </h3>
+                            <p className="font-display text-base italic mt-2" style={{ color: accent }}>
+                              {wizardData.tagline || "Two hearts, one beautiful journey"}
+                            </p>
+                          </div>
+                          <div className="bg-card px-6 py-3 border-b border-border/50 flex items-center gap-3">
+                            <span className="text-[11px] uppercase tracking-widest font-body text-muted-foreground">Palette</span>
+                            <div className="flex items-center gap-2">
+                              {paletteSlots.map((slot, i) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  aria-disabled={slot.isPlaceholder || undefined}
+                                  disabled={slot.isPlaceholder}
+                                  title={slot.isPlaceholder
+                                    ? "Placeholder — pick a theme to fill this swatch"
+                                    : slot.color}
+                                  className={`relative w-6 h-6 rounded-full border transition-opacity ${
+                                    slot.isPlaceholder
+                                      ? "opacity-40 cursor-not-allowed border-dashed border-muted-foreground/50"
+                                      : "border-border/60 hover:scale-110"
+                                  }`}
+                                  style={{ background: slot.color }}
+                                >
+                                  {slot.isPlaceholder && (
+                                    <span className="absolute inset-0 flex items-center justify-center text-[10px] text-muted-foreground">?</span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                            {paletteSlots.some((s) => s.isPlaceholder) && (
+                              <span className="ml-auto text-[11px] font-body text-muted-foreground">
+                                Using safe defaults — pick a theme to complete
+                              </span>
+                            )}
+                          </div>
+                        </>
+                      );
+                    })()}
                     <div className="bg-card p-6 space-y-3">
                       <div className="flex items-center gap-2 text-sm font-body">
                         <span className="text-muted-foreground">Culture:</span>
