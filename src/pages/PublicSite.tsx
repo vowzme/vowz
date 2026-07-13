@@ -1821,8 +1821,13 @@ function VideoSection({ data, accent, coupleNames, trackEvent }: { data: any; ac
   const firstPlayable = videos.find((v: any) => v.url && getVideoEmbedUrl(v.url));
 
   if (style === "invitation" && firstPlayable) {
-    const embedUrl = getVideoEmbedUrl(firstPlayable.url)!;
+    const baseEmbed = getVideoEmbedUrl(firstPlayable.url)!;
     const provider = parseVideoUrl(firstPlayable.url)?.provider;
+    // Sensible mobile defaults: autoplay must be muted to work on iOS/Android;
+    // loop enabled so guests always see the invitation replay.
+    const autoplay = data.autoplay !== false;
+    const loop = data.loop !== false;
+    const embedUrl = withPlaybackParams(baseEmbed, provider, { autoplay, loop });
     const overlayTitle = (data.overlayTitle ?? coupleNames) || "";
     const overlayDate = data.overlayDate || "";
     const shareUrl = typeof window !== "undefined" ? window.location.href : "";
