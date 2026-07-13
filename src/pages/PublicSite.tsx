@@ -678,7 +678,7 @@ function PublicSection({
   if (type === "custom") return <StorySection data={td} accent={accent} />;
   if (type === "polls") return <PollsSection data={td} site={site} accent={accent} />;
   if (type === "ecotips") return <EcoTipsSection data={td} accent={accent} />;
-  if (type === "video") return <VideoSection data={td} accent={accent} coupleNames={coupleNames} />;
+  if (type === "video") return <VideoSection data={td} accent={accent} coupleNames={coupleNames} trackEvent={trackEvent} />;
   if (type === "livestream") return <LivestreamPublicSection data={td} accent={accent} />;
   if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
   if (type === "guest_album") return <GuestAlbum siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
@@ -1809,7 +1809,7 @@ function getVideoEmbedUrl(url: string): string | null {
   return parseVideoUrl(url)?.src ?? null;
 }
 
-function VideoSection({ data, accent, coupleNames }: { data: any; accent: string; coupleNames: string }) {
+function VideoSection({ data, accent, coupleNames, trackEvent }: { data: any; accent: string; coupleNames: string; trackEvent: (type: string, meta?: Record<string, any>) => void }) {
   const videos = data.videos || [];
   if (videos.length === 0 || !videos.some((v: any) => v.url)) return null;
 
@@ -1822,6 +1822,7 @@ function VideoSection({ data, accent, coupleNames }: { data: any; accent: string
 
   if (style === "invitation" && firstPlayable) {
     const embedUrl = getVideoEmbedUrl(firstPlayable.url)!;
+    const provider = parseVideoUrl(firstPlayable.url)?.provider;
     const overlayTitle = (data.overlayTitle ?? coupleNames) || "";
     const overlayDate = data.overlayDate || "";
     const shareUrl = typeof window !== "undefined" ? window.location.href : "";
@@ -1851,7 +1852,11 @@ function VideoSection({ data, accent, coupleNames }: { data: any; accent: string
             {data.heading || "Our Video Invitation"}
           </h2>
           <div className="w-14 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} aria-hidden="true" />
-          <div className={frameClass} style={frameStyle}>
+          <div
+            className={frameClass}
+            style={frameStyle}
+            onPointerDown={() => trackEvent("video_play", { provider, source: "invitation" })}
+          >
             <div className="aspect-video rounded-xl overflow-hidden bg-black">
               <iframe
                 src={embedUrl}
@@ -1881,6 +1886,7 @@ function VideoSection({ data, accent, coupleNames }: { data: any; accent: string
               href={`https://wa.me/?text=${waMsg}`}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent("share_click", { platform: "whatsapp", source: "video_invitation" })}
               className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-body text-white"
               style={{ backgroundColor: "#25D366" }}
               aria-label="Share invitation on WhatsApp"
@@ -1892,6 +1898,7 @@ function VideoSection({ data, accent, coupleNames }: { data: any; accent: string
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(shareUrl);
+                  trackEvent("copy_link", { source: "video_invitation" });
                   toast({ title: "Link copied", description: "Share it with your guests." });
                 } catch {
                   toast({ title: "Couldn't copy", description: shareUrl });
@@ -1906,6 +1913,7 @@ function VideoSection({ data, accent, coupleNames }: { data: any; accent: string
               href={firstPlayable.url}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent("video_open_source", { provider, source: "video_invitation" })}
               className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-body text-foreground hover:bg-muted/50"
             >
               <ExternalLink className="w-4 h-4" /> Open source
@@ -1925,9 +1933,13 @@ function VideoSection({ data, accent, coupleNames }: { data: any; accent: string
           {videos.filter((v: any) => v.url).map((video: any, i: number) => {
             const embedUrl = getVideoEmbedUrl(video.url);
             if (!embedUrl) return null;
+            const gProvider = parseVideoUrl(video.url)?.provider;
             return (
               <div key={i}>
-                <div className="aspect-video rounded-xl overflow-hidden shadow-elegant">
+                <div
+                  className="aspect-video rounded-xl overflow-hidden shadow-elegant"
+                  onPointerDown={() => trackEvent("video_play", { provider: gProvider, source: "gallery", index: i })}
+                >
                   <iframe
                     src={embedUrl}
                     className="w-full h-full"
