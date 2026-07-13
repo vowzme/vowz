@@ -2488,6 +2488,54 @@ function SectionEditor({
               className="font-body"
             />
           </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="font-body text-xs font-medium text-foreground mb-1 block">Style</label>
+              <select
+                value={data.style || "gallery"}
+                onChange={(e) => onUpdateData({ style: e.target.value })}
+                className="w-full h-8 rounded-md border border-border bg-background px-2 text-xs font-body"
+              >
+                <option value="gallery">Gallery (all videos)</option>
+                <option value="invitation">Video invitation (hero)</option>
+              </select>
+            </div>
+            <div>
+              <label className="font-body text-xs font-medium text-foreground mb-1 block">Frame</label>
+              <select
+                value={data.frame || "gold"}
+                onChange={(e) => onUpdateData({ frame: e.target.value })}
+                disabled={data.style !== "invitation"}
+                className="w-full h-8 rounded-md border border-border bg-background px-2 text-xs font-body disabled:opacity-50"
+              >
+                <option value="none">None</option>
+                <option value="gold">Gold gradient</option>
+                <option value="floral">Dashed floral</option>
+                <option value="minimal">Minimal border</option>
+              </select>
+            </div>
+          </div>
+          {data.style === "invitation" && (
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                placeholder="Overlay title (e.g. Priya & Arjun)"
+                value={data.overlayTitle || ""}
+                onChange={(e) => onUpdateData({ overlayTitle: e.target.value })}
+                className="font-body text-sm h-8"
+              />
+              <Input
+                placeholder="Overlay date (e.g. 12 · 02 · 2026)"
+                value={data.overlayDate || ""}
+                onChange={(e) => onUpdateData({ overlayDate: e.target.value })}
+                className="font-body text-sm h-8"
+              />
+            </div>
+          )}
+          {data.style === "invitation" && (
+            <p className="text-[11px] text-muted-foreground font-body bg-muted/40 rounded-md p-2 leading-relaxed">
+              Invitation mode uses the first video below as the hero. Guests can watch, share on WhatsApp, or copy the invitation link from the public site.
+            </p>
+          )}
           <div className="space-y-3">
             <label className="font-body text-sm font-medium text-foreground block">Videos</label>
             <div className="text-[11px] text-muted-foreground font-body bg-muted/50 rounded-lg p-2.5 leading-relaxed">

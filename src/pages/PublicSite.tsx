@@ -28,6 +28,7 @@ import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { Sparkles } from "lucide-react";
+import { parseVideoUrl } from "@/lib/video-embed";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
@@ -1701,17 +1702,117 @@ function EcoTipsSection({ data, accent }: { data: any; accent: string }) {
 
 // ─── Video ────────────────────────────────────────────────────────────
 function getVideoEmbedUrl(url: string): string | null {
-  if (!url) return null;
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  return null;
+  // Delegate to the shared parser so Facebook, Instagram, TikTok, Dailymotion,
+  // Google Drive, and Twitch all embed correctly — not just YouTube/Vimeo.
+  return parseVideoUrl(url)?.src ?? null;
 }
 
 function VideoSection({ data, accent, coupleNames }: { data: any; accent: string; coupleNames: string }) {
   const videos = data.videos || [];
   if (videos.length === 0 || !videos.some((v: any) => v.url)) return null;
+
+  // Invitation mode: render the first playable video as a hero-styled video
+  // invitation with an optional decorative frame, title/date overlay, and a
+  // share bar. Falls through to the gallery layout otherwise.
+  const style: "invitation" | "gallery" = data.style === "invitation" ? "invitation" : "gallery";
+  const frame: "none" | "gold" | "floral" | "minimal" = data.frame || "gold";
+  const firstPlayable = videos.find((v: any) => v.url && getVideoEmbedUrl(v.url));
+
+  if (style === "invitation" && firstPlayable) {
+    const embedUrl = getVideoEmbedUrl(firstPlayable.url)!;
+    const overlayTitle = (data.overlayTitle ?? coupleNames) || "";
+    const overlayDate = data.overlayDate || "";
+    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    const waMsg = encodeURIComponent(
+      `You're invited! ${overlayTitle ? overlayTitle + " — " : ""}Watch our wedding invitation: ${shareUrl}`,
+    );
+    const frameClass =
+      frame === "gold"
+        ? "p-2 md:p-3 rounded-2xl shadow-elegant"
+        : frame === "floral"
+        ? "p-3 md:p-4 rounded-3xl shadow-elegant border-2 border-dashed"
+        : frame === "minimal"
+        ? "p-0.5 rounded-lg shadow-elegant border"
+        : "";
+    const frameStyle: React.CSSProperties =
+      frame === "gold"
+        ? { background: `linear-gradient(135deg, ${accent}, ${accent}88)` }
+        : frame === "floral"
+        ? { borderColor: accent, background: "transparent" }
+        : frame === "minimal"
+        ? { borderColor: accent }
+        : {};
+    return (
+      <section aria-label={data.heading || "Video invitation"} className="bg-card py-16 md:py-20 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
+            {data.heading || "Our Video Invitation"}
+          </h2>
+          <div className="w-14 h-0.5 mx-auto mb-8" style={{ backgroundColor: accent }} aria-hidden="true" />
+          <div className={frameClass} style={frameStyle}>
+            <div className="aspect-video rounded-xl overflow-hidden bg-black">
+              <iframe
+                src={embedUrl}
+                className="w-full h-full"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                title={overlayTitle || `${coupleNames} video invitation`}
+                loading="lazy"
+              />
+            </div>
+          </div>
+          {(overlayTitle || overlayDate) && (
+            <div className="mt-6">
+              {overlayTitle && (
+                <p className="font-display text-2xl md:text-3xl text-foreground">{overlayTitle}</p>
+              )}
+              {overlayDate && (
+                <p className="font-body text-sm md:text-base text-muted-foreground mt-1">{overlayDate}</p>
+              )}
+            </div>
+          )}
+          {firstPlayable.caption && (
+            <p className="text-sm text-muted-foreground font-body mt-3">{firstPlayable.caption}</p>
+          )}
+          <div className="mt-8 flex flex-wrap justify-center gap-2">
+            <a
+              href={`https://wa.me/?text=${waMsg}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-body text-white"
+              style={{ backgroundColor: "#25D366" }}
+              aria-label="Share invitation on WhatsApp"
+            >
+              <Send className="w-4 h-4" /> Share on WhatsApp
+            </a>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(shareUrl);
+                  toast({ title: "Link copied", description: "Share it with your guests." });
+                } catch {
+                  toast({ title: "Couldn't copy", description: shareUrl });
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-body text-foreground hover:bg-muted/50"
+              aria-label="Copy invitation link"
+            >
+              <Copy className="w-4 h-4" /> Copy link
+            </button>
+            <a
+              href={firstPlayable.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-body text-foreground hover:bg-muted/50"
+            >
+              <ExternalLink className="w-4 h-4" /> Open source
+            </a>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section aria-label={data.heading || "Videos"} className="bg-card py-16 md:py-20 px-6">
