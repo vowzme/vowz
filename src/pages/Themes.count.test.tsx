@@ -49,7 +49,7 @@ describe("/themes count", () => {
 
     // Hero pill (visible copy). Text is split across child nodes so we
     // scan the rendered document text.
-    await screen.findByRole("heading"); // ensure page hydrated
+    await screen.findByPlaceholderText(/Search themes/i);
     expect(document.body.textContent).toContain(`${n} curated collections`);
 
     // Helmet updates asynchronously — wait a tick.
