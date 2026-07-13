@@ -68,4 +68,23 @@ describe("/themes count", () => {
     expect(match, `description missing count: ${desc}`).not.toBeNull();
     expect(Number(match![1])).toBe(WEDDING_THEMES.length);
   });
+
+  it("meta description exactly equals the string derived from WEDDING_THEMES.length", async () => {
+    render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={["/themes"]}>
+          <Themes />
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    const expected = `Explore ${WEDDING_THEMES.length} curated wedding website themes, customize colors, typography, and motif intensity, then apply to your site in one click.`;
+
+    await waitFor(() => {
+      const desc = document
+        .querySelector('meta[name="description"]')
+        ?.getAttribute("content");
+      expect(desc).toBe(expected);
+    });
+  });
 });
