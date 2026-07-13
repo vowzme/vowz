@@ -1669,8 +1669,10 @@ export type Database = {
       }
       wedding_sites: {
         Row: {
+          body_font: string | null
           created_at: string
           cultural_background: string
+          display_font: string | null
           how_we_met: string
           id: string
           is_published: boolean
@@ -1689,8 +1691,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          body_font?: string | null
           created_at?: string
           cultural_background?: string
+          display_font?: string | null
           how_we_met?: string
           id?: string
           is_published?: boolean
@@ -1709,8 +1713,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          body_font?: string | null
           created_at?: string
           cultural_background?: string
+          display_font?: string | null
           how_we_met?: string
           id?: string
           is_published?: boolean
