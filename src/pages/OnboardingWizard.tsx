@@ -538,10 +538,12 @@ const OnboardingWizard = () => {
                           key={t.id}
                           type="button"
                           onClick={() => {
-                            updateField("theme", t.id);
-                            updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
-                            updateField("displayFont", t.fonts.display);
-                            updateField("bodyFont", t.fonts.body);
+                            // Ask before overwriting an existing theme selection.
+                            if (wizardData.theme && wizardData.theme !== t.id) {
+                              setPendingTheme(t);
+                            } else {
+                              applyTheme(t);
+                            }
                           }}
                           className={`text-left rounded-2xl border-2 transition-all overflow-hidden ${
                             isSelected ? "border-gold shadow-md" : "border-transparent hover:border-gold/40"
