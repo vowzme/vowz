@@ -9,8 +9,10 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const CRON_SECRET = Deno.env.get('CRON_SECRET') || ''
+const TRACK_BASE = `${SUPABASE_URL}/functions/v1/email-track`
 
 type Milestone = 'd7' | 'd3' | 'd1' | 'overdue'
+type Variant = 'A' | 'B'
 
 interface ChecklistRow {
   id: string
@@ -47,7 +49,23 @@ function milestoneFor(days: number): Milestone | null {
   return null
 }
 
-function render(name: string, coupleTitle: string, items: ChecklistRow[], milestone: Milestone) {
+function subjectFor(milestone: Milestone, items: ChecklistRow[], variant: Variant): string {
+  const n = items.length
+  const s = n === 1 ? '' : 's'
+  if (variant === 'A') {
+    return milestone === 'overdue' ? `⚠️ Overdue: ${n} wedding task${s}` :
+      milestone === 'd1' ? `⏰ Due tomorrow: ${items[0].title}` :
+      milestone === 'd3' ? `🗓️ ${n} wedding task${s} due soon` :
+      `📋 ${n} wedding task${s} due this week`
+  }
+  // Variant B — more personal/urgent wording
+  return milestone === 'overdue' ? `You have ${n} overdue wedding to-do${s}` :
+    milestone === 'd1' ? `Last-minute check: "${items[0].title}" is due tomorrow` :
+    milestone === 'd3' ? `${n} wedding task${s} coming up in 3 days` :
+    `Your wedding week ahead — ${n} task${s} to review`
+}
+
+function render(name: string, coupleTitle: string, items: ChecklistRow[], milestone: Milestone, messageId: string, variant: Variant) {
   const safeName = escape(name)
   const safeCouple = escape(coupleTitle)
   const heading =
@@ -56,11 +74,12 @@ function render(name: string, coupleTitle: string, items: ChecklistRow[], milest
     milestone === 'd3' ? 'Wedding tasks due in the next 3 days' :
     'Wedding tasks due in the next week'
 
-  const subject =
-    milestone === 'overdue' ? `⚠️ Overdue: ${items.length} wedding task${items.length === 1 ? '' : 's'}` :
-    milestone === 'd1' ? `⏰ Due tomorrow: ${items[0].title}` :
-    milestone === 'd3' ? `🗓️ ${items.length} wedding task${items.length === 1 ? '' : 's'} due soon` :
-    `📋 ${items.length} wedding task${items.length === 1 ? '' : 's'} due this week`
+  const subject = subjectFor(milestone, items, variant)
+  const template = `checklist_reminder_${milestone}`
+  const trackParams = `m=${encodeURIComponent(messageId)}&v=${variant}&t=${encodeURIComponent(template)}`
+  const pixelUrl = `${TRACK_BASE}/open?${trackParams}`
+  const ctaTarget = 'https://vowz.me/dashboard'
+  const ctaUrl = `${TRACK_BASE}/click?${trackParams}&u=${encodeURIComponent(ctaTarget)}`
 
   const rows = items.map((it) => `
     <tr>
@@ -81,16 +100,17 @@ function render(name: string, coupleTitle: string, items: ChecklistRow[], milest
       <p style="font-size:15px;line-height:1.6;margin:0 0 16px">Hi ${safeName}, here${'\u2019'}s a friendly reminder for <strong>${safeCouple}</strong>:</p>
       <table style="width:100%;border-collapse:collapse;margin:8px 0 16px">${rows}</table>
       <div style="text-align:center;margin:24px 0 8px">
-        <a href="https://vowz.me/dashboard" style="background:#D4AF37;color:#001F3F;padding:12px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;display:inline-block">Open Planner</a>
+        <a href="${ctaUrl}" style="background:#D4AF37;color:#001F3F;padding:12px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;display:inline-block">Open Planner</a>
       </div>
       <p style="font-size:13px;color:#6b6b6b;line-height:1.5;margin:16px 0 0;text-align:center">Mark items complete once done — we won${'\u2019'}t remind you again.</p>
     </div>
     <hr style="border:none;border-top:1px solid #EFE7D2;margin:32px 0 16px"/>
     <p style="font-size:12px;color:#999;text-align:center;margin:0">VowZ by AXPIR Tech India LLP · <a href="https://vowz.me" style="color:#D4AF37;text-decoration:none">vowz.me</a></p>
+    <img src="${pixelUrl}" alt="" width="1" height="1" style="display:block;border:0;width:1px;height:1px" />
   </div>
 </body></html>`
 
-  const text = `${heading}\n\nHi ${name},\n\n${items.map((it) => `• ${it.title} — due ${fmtDate(it.due_date)}`).join('\n')}\n\nOpen Planner: https://vowz.me/dashboard\n\n— VowZ`
+  const text = `${heading}\n\nHi ${name},\n\n${items.map((it) => `• ${it.title} — due ${fmtDate(it.due_date)}`).join('\n')}\n\nOpen Planner: ${ctaUrl}\n\n— VowZ`
   return { html, text, subject }
 }
 
@@ -192,11 +212,21 @@ Deno.serve(async (req) => {
         const label = `checklist_reminder_${bucket.milestone}`
 
         if (channel === 'email') {
+          const variant: Variant = Math.random() < 0.5 ? 'A' : 'B'
+          const { html, text, subject } = render(name, couple, bucket.items, bucket.milestone, messageId, variant)
           await admin.from('email_send_log').insert({
             message_id: messageId,
             template_name: label,
             recipient_email: profile.email,
             status: 'pending',
+            metadata: { variant },
+          })
+          await admin.from('email_ab_events').insert({
+            message_id: messageId,
+            template_name: label,
+            variant,
+            event_type: 'sent',
+            user_id: site.user_id,
           })
           await admin.rpc('enqueue_email', {
             queue_name: 'transactional_emails',
@@ -211,9 +241,11 @@ Deno.serve(async (req) => {
               purpose: 'transactional',
               label,
               queued_at: new Date().toISOString(),
+              metadata: { variant },
             },
           })
         } else if (channel === 'in_app') {
+          const { subject } = render(name, couple, bucket.items, bucket.milestone, messageId, 'A')
           await admin.from('notifications').insert({
             user_id: site.user_id,
             title: subject,
