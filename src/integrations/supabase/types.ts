@@ -660,6 +660,76 @@ export type Database = {
           },
         ]
       }
+      guest_album_posts: {
+        Row: {
+          caption: string | null
+          created_at: string
+          guest_name: string
+          id: string
+          photo_url: string
+          status: string
+          wedding_site_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          guest_name: string
+          id?: string
+          photo_url: string
+          status?: string
+          wedding_site_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          guest_name?: string
+          id?: string
+          photo_url?: string
+          status?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_album_posts_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guest_album_reactions: {
+        Row: {
+          created_at: string
+          guest_identifier: string
+          id: string
+          post_id: string
+          reaction: string
+        }
+        Insert: {
+          created_at?: string
+          guest_identifier: string
+          id?: string
+          post_id: string
+          reaction: string
+        }
+        Update: {
+          created_at?: string
+          guest_identifier?: string
+          id?: string
+          post_id?: string
+          reaction?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_album_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "guest_album_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_blessings: {
         Row: {
           created_at: string

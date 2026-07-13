@@ -35,7 +35,7 @@ import { parseThemeStyle } from "@/lib/theme-schema";
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "music";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "music" | "guest_album";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -396,6 +396,7 @@ const Editor = () => {
       video: { type: "video", title: "Videos", data: { heading: "Our Moments 🎬", videos: [{ url: "", caption: "Pre-wedding video" }] } },
       livestream: { type: "livestream", title: "Live Stream", data: { heading: "Watch Live 📡", description: "Join us virtually from anywhere in the world!", embedUrl: "" } },
       blessings: { type: "blessings", title: "Guest Blessings", data: { heading: "Guest Blessings 💕", description: "Share your heartfelt blessings and wishes for the couple!" } },
+      guest_album: { type: "guest_album", title: "Guest Album", data: { heading: "Guest Album 📸", description: "Share your favourite photos from the celebration. Every guest can post and react." } },
       registry: { type: "registry", title: "Gift Registry", data: { heading: "Gift Registry 🎁", description: "Your presence is our greatest gift, but if you wish to bless us further:", links: [{ name: "", url: "", valueUSD: 0 }] } },
       couple_profiles: { type: "couple_profiles", title: "Couple Profiles", data: { heading: "Meet the Couple 💑", partner1Name: "", partner1Bio: "", partner1Photo: "", partner2Name: "", partner2Bio: "", partner2Photo: "" } },
       music: { type: "music", title: "Background Music", data: { enabled: true, category: "romantic", trackUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", trackName: "First Dance", autoplay: true, loop: true, volume: 0.4 } },
@@ -823,7 +824,7 @@ function SectionsPanel({
                 onClick={(e) => e.stopPropagation()}
                 className="scale-75"
               />
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "registry" || section.type === "couple_profiles" || section.type === "music") && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "guest_album" || section.type === "registry" || section.type === "couple_profiles" || section.type === "music") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
@@ -849,6 +850,7 @@ function SectionsPanel({
               { id: "video", label: "🎬 Video Embed", desc: "YouTube/Vimeo" },
               { id: "livestream", label: "📡 Live Stream", desc: "Virtual attendance" },
               { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
+              { id: "guest_album", label: "📸 Guest Album", desc: "Crowdsourced photos & reactions" },
               { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
               { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & Groom" },
               { id: "music", label: "🎵 Background Music", desc: "Wedding soundtrack" },
@@ -2695,6 +2697,22 @@ function SectionEditor({
           </div>
           <p className="text-xs text-muted-foreground font-body p-2 bg-muted rounded-lg">
             💡 Guest blessings require moderation. Approve or reject messages from your Dashboard → Blessings tab.
+          </p>
+        </>
+      )}
+
+      {type === "guest_album" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Description</label>
+            <Textarea value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} rows={2} className="font-body" />
+          </div>
+          <p className="text-xs text-muted-foreground font-body p-2 bg-muted rounded-lg">
+            📸 Guests can upload photos and react with emojis. Toggle this section off above to disable the album. You can delete individual posts from your Dashboard.
           </p>
         </>
       )}
