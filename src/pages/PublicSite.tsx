@@ -1328,10 +1328,11 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         });
         if (error) throw error;
         if (!ok) throw new Error("This RSVP can no longer be edited from this device.");
-      let createdHandle: { id: string; token: string } | null = null;
-      if (isEditing && editHandle) {
-        // (edit path already handled above)
       } else {
+        var _placeholder__unused = 0; // no-op
+      }
+      let createdHandle: { id: string; token: string } | null = null;
+      if (!(isEditing && editHandle)) {
         const newToken = (globalThis.crypto as any)?.randomUUID?.() as string | undefined;
         const { data: inserted, error } = await supabase
           .from("rsvps")
