@@ -4,7 +4,16 @@ import type { WeddingTheme } from "@/lib/wedding-themes";
 
 // A compact but full-fidelity live demo of a theme — hero, story, events,
 // palette strip. Used both as a card preview and inside the modal.
-export function ThemeDemo({ theme, compact = false }: { theme: WeddingTheme; compact?: boolean }) {
+export function ThemeDemo({
+  theme,
+  compact = false,
+  motifIntensity = 0.15,
+}: {
+  theme: WeddingTheme;
+  compact?: boolean;
+  /** 0 = hidden, 1 = fully opaque. Default matches the standard preview. */
+  motifIntensity?: number;
+}) {
   const { colors, fonts, motif, heroGradient, sampleCouple, sampleTagline } = theme;
   const [p1, p2] = sampleCouple;
 
@@ -18,7 +27,7 @@ export function ThemeDemo({ theme, compact = false }: { theme: WeddingTheme; com
         className="relative text-center px-4 py-8 sm:py-10 overflow-hidden"
         style={{ background: heroGradient, color: colors.light }}
       >
-        <div className="absolute inset-0 opacity-15" style={{ color: colors.accent }}>
+        <div className="absolute inset-0" style={{ color: colors.accent, opacity: Math.max(0, Math.min(1, motifIntensity)) }}>
           <div className="absolute inset-0 flex items-center justify-center">
             <ThemeMotif motif={motif} className="w-[110%] h-[110%]" />
           </div>
