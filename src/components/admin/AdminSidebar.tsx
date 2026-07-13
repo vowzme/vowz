@@ -42,6 +42,7 @@ const items = [
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Storage Cleanup", url: "/admin/storage-cleanup", icon: HardDrive },
   { title: "Emails", url: "/admin/emails", icon: Mail },
+  { title: "Email A/B Tests", url: "/admin/email-ab", icon: BarChart3 },
   { title: "Email Branding", url: "/admin/email-branding", icon: Palette },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];

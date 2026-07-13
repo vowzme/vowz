@@ -19,3 +19,5 @@ project_id = "qkjuywqrncsbxjzwtlzm"
     verify_jwt = false
   [functions.checklist-reminder-notifier]
     verify_jwt = false
+  [functions.email-track]
+    verify_jwt = false
