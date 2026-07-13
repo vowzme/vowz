@@ -15,16 +15,21 @@ export type ThemeField = {
 };
 
 export const THEME_FIELDS: ThemeField[] = [
-  { key: "theme", label: "Theme preset", get: (t) => t.id, format: (v) => String(v) },
+  { key: "theme", label: "Theme preset", get: (t) => t?.id, format: (v) => (v == null ? "—" : String(v)) },
   {
     key: "suggestedColors",
     label: "Color palette",
-    get: (t) => [t.colors.bg, t.colors.accent, t.colors.light],
-    format: (v) => (Array.isArray(v) ? v.join(" · ") : String(v)),
-    swatch: (t) => t.colors.accent,
+    get: (t) => (t?.colors ? [t.colors.bg, t.colors.accent, t.colors.light] : undefined),
+    format: (v) =>
+      Array.isArray(v)
+        ? v.map((x) => (x == null ? "—" : String(x))).join(" · ")
+        : v == null
+          ? "—"
+          : String(v),
+    swatch: (t) => t?.colors?.accent ?? "",
   },
-  { key: "displayFont", label: "Display font", get: (t) => t.fonts.display, format: (v) => String(v) },
-  { key: "bodyFont", label: "Body font", get: (t) => t.fonts.body, format: (v) => String(v) },
+  { key: "displayFont", label: "Display font", get: (t) => t?.fonts?.display, format: (v) => (v == null ? "—" : String(v)) },
+  { key: "bodyFont", label: "Body font", get: (t) => t?.fonts?.body, format: (v) => (v == null ? "—" : String(v)) },
 ];
 
 export const themeValuesEqual = (a: unknown, b: unknown) =>
@@ -46,13 +51,16 @@ export function diffThemes(
   const rows: ThemeDiffRow[] = THEME_FIELDS.map((f) => {
     const from = f.get(current);
     const to = f.get(next);
+    // If either side is missing, we cannot honestly claim a change —
+    // mark unchanged so the summary stays truthful and safe.
+    const bothDefined = from !== undefined && to !== undefined;
     return {
       label: f.label,
       from: f.format(from),
       to: f.format(to),
       swatchFrom: f.swatch?.(current),
       swatchTo: f.swatch?.(next),
-      changed: !themeValuesEqual(from, to),
+      changed: bothDefined && !themeValuesEqual(from, to),
     };
   });
   return { rows, changedLabels: rows.filter((r) => r.changed).map((r) => r.label) };
@@ -85,20 +93,24 @@ export const THEME_TOKEN_LABELS: Record<ThemeTokenField, string> = {
   motif: "Decorative motif",
 };
 
-const TOKEN_READERS: Record<ThemeTokenField, (t: Theme) => string> = {
-  primary: (t) => t.colors.bg,
-  accent: (t) => t.colors.accent,
-  ink: (t) => t.colors.ink,
-  displayFont: (t) => t.fonts.display,
-  bodyFont: (t) => t.fonts.body,
-  motif: (t) => t.motif,
+// Null-safe readers. Themes are user/AI-authored data — a partial theme
+// (missing `colors`, `fonts`, or a specific token) must not crash the
+// dialog. Missing values fall through as `undefined` and the diff logic
+// below treats "undefined on both sides" as unchanged.
+const TOKEN_READERS: Record<ThemeTokenField, (t: Theme) => string | undefined> = {
+  primary: (t) => t?.colors?.bg,
+  accent: (t) => t?.colors?.accent,
+  ink: (t) => t?.colors?.ink,
+  displayFont: (t) => t?.fonts?.display,
+  bodyFont: (t) => t?.fonts?.body,
+  motif: (t) => t?.motif,
 };
 const COLOR_FIELDS = new Set<ThemeTokenField>(["primary", "accent", "ink"]);
 
 export type TokenDiffRow = {
   field: ThemeTokenField;
-  from: string;
-  to: string;
+  from: string | undefined;
+  to: string | undefined;
   changed: boolean;
   isColor: boolean;
 };
@@ -107,6 +119,11 @@ export function computeThemeDiff(a: Theme, b: Theme): TokenDiffRow[] {
   return THEME_TOKEN_FIELDS.map((field) => {
     const from = TOKEN_READERS[field](a);
     const to = TOKEN_READERS[field](b);
-    return { field, from, to, changed: from !== to, isColor: COLOR_FIELDS.has(field) };
+    // Treat missing values as "unchanged": if either side is undefined
+    // and they compare equal (both undefined), or one is undefined and
+    // the other is defined, we still mark unchanged so the summary does
+    // not falsely advertise a change we couldn't render safely.
+    const changed = from !== undefined && to !== undefined && from !== to;
+    return { field, from, to, changed, isColor: COLOR_FIELDS.has(field) };
   });
 }
