@@ -112,6 +112,19 @@ export function useWeddingSite() {
           .update(data as any)
           .eq("id", siteId);
         if (error) throw error;
+        // Mirror theme picks to the user's profile so re-opening the editor loads them automatically.
+        if (data.theme !== undefined || data.suggested_colors !== undefined || data.display_font !== undefined || data.body_font !== undefined) {
+          const { data: userRes } = await supabase.auth.getUser();
+          const uid = userRes?.user?.id;
+          if (uid) {
+            const patch: any = {};
+            if (data.theme !== undefined) patch.preferred_theme = data.theme || null;
+            if (data.suggested_colors !== undefined) patch.preferred_colors = data.suggested_colors ?? null;
+            if (data.display_font !== undefined) patch.preferred_display_font = data.display_font ?? null;
+            if (data.body_font !== undefined) patch.preferred_body_font = data.body_font ?? null;
+            await supabase.from("profiles").update(patch).eq("id", uid);
+          }
+        }
         return true;
       } catch (err: any) {
         toast({ title: "Error saving", description: err.message, variant: "destructive" });
