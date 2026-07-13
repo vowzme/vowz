@@ -209,7 +209,7 @@ const Editor = () => {
   const location = useLocation();
   const { siteId } = useParams();
   const { user } = useAuth();
-  const { createSite, updateSite, loadUserSite, saving, loading } = useWeddingSite();
+  const { createSite, updateSite, loadUserSite, loadSiteById, saving, loading } = useWeddingSite();
   const wizardData: WeddingSiteData | null = (location.state as any)?.wizardData || null;
 
   const [dbSiteId, setDbSiteId] = useState<string | null>(siteId || null);
@@ -224,7 +224,8 @@ const Editor = () => {
   // Load existing site from DB if no wizard data passed
   useEffect(() => {
     if (!wizardData && user) {
-      loadUserSite().then((site) => {
+      const loader = siteId ? loadSiteById(siteId) : loadUserSite();
+      loader.then((site: any) => {
         if (site) {
           setDbSiteId(site.id);
           const siteData: WeddingSiteData = {
@@ -236,6 +237,8 @@ const Editor = () => {
             theme: site.theme,
             suggestedColors: (site.suggested_colors as any) || ["#6B1D2A", "#D4A853", "#FFF5E6"],
             tagline: site.tagline,
+            displayFont: (site as any).display_font || undefined,
+            bodyFont: (site as any).body_font || undefined,
             siteLanguage: (site as any).site_language || "en",
             sitePassword: "",
             availableLanguages: Object.keys((site as any).translations || {}).length > 0
@@ -373,6 +376,8 @@ const Editor = () => {
       sections: sections as any,
       site_language: siteData.siteLanguage || "en",
       translations: siteData.translations || {},
+      display_font: siteData.displayFont,
+      body_font: siteData.bodyFont,
     });
     // Persist password to owner-only table.
     // The current password value is never loaded back to the client, so we only
