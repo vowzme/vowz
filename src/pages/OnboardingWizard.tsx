@@ -932,6 +932,31 @@ const OnboardingWizard = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={confirmReset} onOpenChange={setConfirmReset}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset your wizard draft?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This clears every answer you've entered — names, story, events, theme, colors — and deletes the autosaved draft from this device. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep my draft</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                resetDraft();
+                setConfirmReset(false);
+                toast({ title: "Draft cleared", description: "Your wizard has been reset to a blank start." });
+                // Force a fresh mount so the wizard re-reads defaults from storage.
+                navigate(0 as any);
+              }}
+            >
+              Reset draft
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
