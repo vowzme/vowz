@@ -18,7 +18,8 @@ import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeColors, DEFAULT_COLORS } from "@/hooks/use-wedding-site";
-import { THEME_FIELDS, diffThemes } from "@/lib/theme-diff";
+import { diffThemes } from "@/lib/theme-diff";
+import { THEME_FIELDS } from "@/lib/theme-diff";
 
 // Regex for a valid CSS hex color (3/4/6/8 digits, optional leading #).
 const HEX_RE = /^#?[0-9a-fA-F]{3,8}$/;
@@ -1043,19 +1044,9 @@ const OnboardingWizard = () => {
                 // Derive the diff strictly from THEME_FIELDS — the same
                 // list applyTheme writes. This guarantees the "What
                 // changes" copy always matches the actual mutation.
-                const rows = THEME_FIELDS.map((f) => {
-                  const from = f.get(current);
-                  const to = f.get(pendingTheme);
-                  return {
-                    label: f.label,
-                    from: f.format(from),
-                    to: f.format(to),
-                    swatchFrom: f.swatch?.(current),
-                    swatchTo: f.swatch?.(pendingTheme),
-                    changed: !themeValuesEqual(from, to),
-                  };
-                });
+                const { rows, changedLabels } = diffThemes(current, pendingTheme);
                 const changedRows = rows.filter((r) => r.changed);
+                void changedLabels;
                 return (
                   <div className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
                     {/* Impact panel: at-a-glance summary of what stays vs. changes. */}
