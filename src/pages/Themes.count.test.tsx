@@ -112,4 +112,27 @@ describe("/themes count", () => {
       expect(ogDescription).toBe(expectedDescription);
     });
   });
+
+  it("renders one theme card per WEDDING_THEMES entry", async () => {
+    const { container } = render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={["/themes"]}>
+          <Themes />
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    await screen.findByPlaceholderText(/Search themes/i);
+
+    const cards = container.querySelectorAll<HTMLElement>(
+      '[data-testid="theme-demo-card"]',
+    );
+    const uniqueIds = new Set(
+      Array.from(cards).map((el) => el.dataset.themeId),
+    );
+    expect(uniqueIds.size).toBe(WEDDING_THEMES.length);
+    for (const t of WEDDING_THEMES) {
+      expect(uniqueIds.has(t.id)).toBe(true);
+    }
+  });
 });
