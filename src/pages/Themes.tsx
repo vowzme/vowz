@@ -138,6 +138,21 @@ const STYLE_OPTIONS = [
   { id: "vibrant", label: "Vibrant" },
 ];
 
+// Tradition + motif options are derived from WEDDING_THEMES so adding a
+// theme auto-populates the filter dropdowns.
+const uniq = <T extends string>(xs: T[]) => Array.from(new Set(xs)).sort();
+const TRADITION_OPTIONS = [
+  { id: "all", label: "All traditions" },
+  ...uniq(WEDDING_THEMES.map((t) => t.tradition)).map((v) => ({ id: v, label: v })),
+];
+const MOTIF_OPTIONS = [
+  { id: "all", label: "All motifs" },
+  ...uniq(WEDDING_THEMES.map((t) => t.motif)).map((v) => ({
+    id: v,
+    label: v.charAt(0).toUpperCase() + v.slice(1),
+  })),
+];
+
 const FONT_POOL = [
   "Playfair Display",
   "Cormorant Garamond",
