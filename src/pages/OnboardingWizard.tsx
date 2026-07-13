@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, Edit3, AlertCircle } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, Edit3, AlertCircle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,13 +46,14 @@ const OnboardingWizard = () => {
 
   const {
     step, setStep, wizardData, updateField, applyCulturalPreset,
-    nextStep, prevStep, completeWizard, isComplete,
+    nextStep, prevStep, completeWizard, isComplete, resetDraft,
   } = useWeddingWizard();
   const { generate, loading: aiLoading } = useAIContentGen();
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
   // Confirmation prompt when switching from an already-selected theme.
   const [pendingTheme, setPendingTheme] = useState<typeof WEDDING_THEMES[number] | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
   const applyTheme = (t: typeof WEDDING_THEMES[number]) => {
     updateField("theme", t.id);
     updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
@@ -309,6 +310,14 @@ const OnboardingWizard = () => {
               <p className="text-xs text-muted-foreground font-body">Step {currentStepIdx + 1} of {stepMeta.length}</p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setConfirmReset(true)}
+            aria-label="Reset wizard draft"
+            className="ml-auto inline-flex items-center gap-1.5 text-xs font-body text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md hover:bg-muted"
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> Reset draft
+          </button>
         </div>
       </header>
 
@@ -919,6 +928,31 @@ const OnboardingWizard = () => {
               onClick={() => { if (pendingTheme) applyTheme(pendingTheme); setPendingTheme(null); }}
             >
               Switch theme
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmReset} onOpenChange={setConfirmReset}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset your wizard draft?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This clears every answer you've entered — names, story, events, theme, colors — and deletes the autosaved draft from this device. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep my draft</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                resetDraft();
+                setConfirmReset(false);
+                toast({ title: "Draft cleared", description: "Your wizard has been reset to a blank start." });
+                // Force a fresh mount so the wizard re-reads defaults from storage.
+                navigate(0 as any);
+              }}
+            >
+              Reset draft
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
