@@ -13,6 +13,7 @@ import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
 import { supabase } from "@/integrations/supabase/client";
+import { mergeSections } from "@/lib/theme-merge";
 
 // Facet metadata for filtering by region, wedding type (ceremony style), and visual style.
 type Facet = { region: string; type: string; styles: string[] };
