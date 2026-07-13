@@ -17,6 +17,7 @@ import OnboardingWizard from "./pages/OnboardingWizard";
 import Editor from "./pages/Editor";
 import PublicSite from "./pages/PublicSite";
 import Templates from "./pages/Templates";
+import Themes from "./pages/Themes";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import Affiliate from "./pages/Affiliate";
@@ -92,6 +93,7 @@ const AppRoutes = () => (
     <Route path="/site/:slug" element={<PublicSite />} />
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
+    <Route path="/themes" element={<Layout><Themes /></Layout>} />
     <Route path="/showcase" element={<Showcase />} />
     <Route path="/share-preview" element={<Layout><SharePreview /></Layout>} />
     <Route path="/share" element={<Share />} />
