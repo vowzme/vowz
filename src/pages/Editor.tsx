@@ -407,14 +407,56 @@ const Editor = () => {
 
   // ─── Preview Mode ──────────────────────────────────────────────────
   if (previewMode) {
+    const dev = (state as any).previewDevice || "desktop";
+    const setDev = (d: "mobile" | "tablet" | "desktop") =>
+      setState((prev) => ({ ...(prev as any), previewDevice: d } as any));
+    const frame =
+      dev === "mobile"
+        ? { w: 390, h: 780, label: "iPhone" }
+        : dev === "tablet"
+        ? { w: 820, h: 1100, label: "iPad" }
+        : null;
     return (
-      <div className="min-h-screen bg-background">
-        <div className="fixed top-4 right-4 z-50 flex gap-2">
+      <div className="min-h-screen bg-muted/30">
+        <div className="fixed top-4 right-4 z-50 flex gap-2 items-center">
+          <div className="flex gap-1 rounded-lg bg-background border border-border/60 p-1 shadow-sm">
+            {[
+              { id: "mobile", label: "Phone" },
+              { id: "tablet", label: "Tablet" },
+              { id: "desktop", label: "Desktop" },
+            ].map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                onClick={() => setDev(o.id as any)}
+                aria-pressed={dev === o.id}
+                className={`px-3 py-1.5 text-xs font-body rounded-md transition-colors ${
+                  dev === o.id ? "bg-gold text-white" : "text-foreground hover:bg-muted"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
           <Button variant="gold" size="sm" onClick={() => updateState({ previewMode: false })}>
             <X className="w-4 h-4 mr-1" /> Exit Preview
           </Button>
         </div>
-        <SitePreview sections={sections.filter((s) => s.visible)} bg={bg} accent={accent} light={light} displayFont={displayFont} bodyFont={bodyFont} />
+        {frame ? (
+          <div className="min-h-screen flex items-start justify-center py-10">
+            <div
+              className="bg-background rounded-[2rem] border-[10px] border-foreground/80 shadow-2xl overflow-hidden"
+              style={{ width: frame.w, height: frame.h }}
+              aria-label={`${frame.label} preview`}
+            >
+              <div className="w-full h-full overflow-y-auto">
+                <SitePreview sections={sections.filter((s) => s.visible)} bg={bg} accent={accent} light={light} displayFont={displayFont} bodyFont={bodyFont} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <SitePreview sections={sections.filter((s) => s.visible)} bg={bg} accent={accent} light={light} displayFont={displayFont} bodyFont={bodyFont} />
+        )}
       </div>
     );
   }
