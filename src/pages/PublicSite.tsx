@@ -1207,7 +1207,7 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
 }
 
 // ─── RSVP Form ────────────────────────────────────────────────────────
-function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void }) {
+function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void; t: TranslateFn }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -1232,10 +1232,20 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
   const hasPollsSection = ((site.sections as any[]) || []).some((s) => s.type === "polls" && s.visible !== false);
 
   const siteUrl = `${window.location.origin}/site/${site.slug}`;
-  const inviteText =
+  // Bilingual WhatsApp text: English line + local translation (when one exists
+  // and differs). Guests on multilingual invites see both, so we don't force
+  // them to guess the language before opening the link.
+  const inviteEn =
     (data.whatsapp_invite_message && String(data.whatsapp_invite_message).trim()) ||
     `You're invited to ${site.partner1} & ${site.partner2}'s wedding — please RSVP:`;
+  const inviteLocal = t("rsvp_whatsapp_invite", inviteEn);
+  const inviteText = inviteLocal && inviteLocal !== inviteEn ? `${inviteEn}\n${inviteLocal}` : inviteEn;
   const shareWhatsAppUrl = `https://wa.me/?text=${encodeURIComponent(`${inviteText}\n${siteUrl}`)}`;
+
+  const confirmTitleEn = "Thank you!";
+  const confirmBodyEn = "Your RSVP has been received. We can't wait to celebrate with you!";
+  const confirmTitleLocal = t("rsvp_confirmation_title", confirmTitleEn);
+  const confirmBodyLocal = t("rsvp_confirmation_body", confirmBodyEn);
 
   // Extract event names from sections for checkboxes
   const eventsSection = (site.sections as any[])?.find((s) => s.type === "events");
