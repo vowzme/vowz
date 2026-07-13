@@ -64,6 +64,8 @@ export default function Themes() {
       const ok = await updateSite(site.id, {
         theme: t.id,
         suggested_colors: [t.colors.bg, t.colors.accent, t.colors.light],
+        display_font: t.fonts.display,
+        body_font: t.fonts.body,
       });
       if (ok) {
         toast({ title: "Theme applied", description: `${t.name} is now your site's theme.` });
