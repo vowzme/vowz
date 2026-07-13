@@ -675,10 +675,22 @@ export default function Themes() {
         <DialogContent
           className="max-w-none w-screen h-screen sm:h-screen p-0 rounded-none border-0 bg-background sm:rounded-none"
           style={{ width: "100vw", height: "100dvh", maxWidth: "100vw" }}
+          aria-labelledby="theme-preview-title"
           aria-describedby="theme-preview-desc"
         >
           {previewTpl && (
-            <div className="flex flex-col w-full h-full">
+            <FullScreenPreviewBody
+              theme={previewTpl}
+              starting={starting}
+              onClose={() => setPreviewTpl(null)}
+              onStart={(t) => { setPreviewTpl(null); startFromTemplate(t); }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Replace vs. Merge chooser when a site already exists */}
+      <Dialog open={!!applyChoice} onOpenChange={(o) => !o && setApplyChoice(null)}>
               <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0">
                 <div className="min-w-0">
                   <DialogTitle className="font-display text-base sm:text-lg font-semibold truncate">
