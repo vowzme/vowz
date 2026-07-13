@@ -2,6 +2,11 @@ import { useState, useCallback, useEffect } from "react";
 import { parseThemeStyle } from "@/lib/theme-schema";
 
 const WIZARD_STORAGE_KEY = "vowz_wizard_draft";
+// Unique per-tab id so we can tell our own writes apart from another tab's.
+const TAB_ID =
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2);
 // Read from localStorage first (survives refresh, navigate-away, tab reopen),
 // then fall back to sessionStorage for older in-progress drafts.
 const readDraft = (): { step?: WizardStep; data?: Partial<WeddingData> } | null => {
@@ -12,8 +17,13 @@ const readDraft = (): { step?: WizardStep; data?: Partial<WeddingData> } | null 
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
 };
-const writeDraft = (payload: unknown) => {
-  try { localStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(payload)); } catch {}
+const writeDraft = (payload: { step?: WizardStep; data?: Partial<WeddingData>; savedAt?: number }) => {
+  try {
+    localStorage.setItem(
+      WIZARD_STORAGE_KEY,
+      JSON.stringify({ ...payload, tabId: TAB_ID }),
+    );
+  } catch {}
 };
 const clearDraft = () => {
   try { localStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
