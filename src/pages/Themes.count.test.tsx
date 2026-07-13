@@ -220,4 +220,54 @@ describe("/themes count", () => {
       expect(ogImage!).toMatch(pattern);
     });
   });
+
+  it("og:title and og:description are stable across search/filter interactions", async () => {
+    render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={["/themes"]}>
+          <Themes />
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    const n = WEDDING_THEMES.length;
+    const expectedTitle = `${n} Wedding Website Themes · Vowz`;
+    const expectedDescription = `Explore ${n} curated wedding website themes, customize colors, typography, and motif intensity, then apply to your site in one click.`;
+
+    const readOg = () => ({
+      title: document
+        .querySelector('meta[property="og:title"]')
+        ?.getAttribute("content"),
+      description: document
+        .querySelector('meta[property="og:description"]')
+        ?.getAttribute("content"),
+    });
+
+    // Initial state
+    await waitFor(() => {
+      expect(readOg()).toEqual({
+        title: expectedTitle,
+        description: expectedDescription,
+      });
+    });
+
+    // Type a search query — filters activate, re-renders the grid.
+    const search = await screen.findByPlaceholderText(/Search themes/i);
+    fireEvent.change(search, { target: { value: "royal" } });
+    await waitFor(() => {
+      expect(readOg()).toEqual({
+        title: expectedTitle,
+        description: expectedDescription,
+      });
+    });
+
+    // Clear the search — filters deactivate.
+    fireEvent.change(search, { target: { value: "" } });
+    await waitFor(() => {
+      expect(readOg()).toEqual({
+        title: expectedTitle,
+        description: expectedDescription,
+      });
+    });
+  });
 });
