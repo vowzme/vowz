@@ -45,6 +45,7 @@ const items = [
   { title: "Email A/B Tests", url: "/admin/email-ab", icon: BarChart3 },
   { title: "Reminder Runs", url: "/admin/reminder-runs", icon: BarChart3 },
   { title: "Email Branding", url: "/admin/email-branding", icon: Palette },
+  { title: "Guest Moderation", url: "/admin/guest-moderation", icon: BarChart3 },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
