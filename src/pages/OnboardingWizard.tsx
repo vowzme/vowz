@@ -6,6 +6,10 @@ import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useWeddingWizard, CULTURAL_PRESETS } from "@/hooks/use-wedding-wizard";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
