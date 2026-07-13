@@ -16,6 +16,8 @@ export interface WeddingSiteRow {
   sections: any[];
   is_published: boolean;
   slug: string | null;
+  display_font: string | null;
+  body_font: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -83,6 +85,8 @@ export function useWeddingSite() {
         is_published?: boolean;
         site_language?: string;
         translations?: any;
+        display_font?: string;
+        body_font?: string;
       }
     ) => {
       setSaving(true);
@@ -135,5 +139,15 @@ export function useWeddingSite() {
     return data;
   }, []);
 
-  return { createSite, updateSite, loadUserSite, loadSiteBySlug, saving, loading };
+  const loadSiteById = useCallback(async (id: string) => {
+    const { data, error } = await supabase
+      .from("wedding_sites")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }, []);
+
+  return { createSite, updateSite, loadUserSite, loadSiteBySlug, loadSiteById, saving, loading };
 }
