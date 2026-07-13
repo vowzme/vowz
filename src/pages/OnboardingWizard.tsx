@@ -55,6 +55,11 @@ const OnboardingWizard = () => {
   // Confirmation prompt when switching from an already-selected theme.
   const [pendingTheme, setPendingTheme] = useState<typeof WEDDING_THEMES[number] | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  // Undo-reset banner state. Populated on mount if a reset happened within
+  // the last UNDO_WINDOW_MS and the pre-reset draft is still in the backup
+  // slot. `secondsLeft` powers the visible countdown.
+  const [undoBackup, setUndoBackup] = useState<{ draft: string; expiresAt: number } | null>(null);
+  const [undoSecondsLeft, setUndoSecondsLeft] = useState(0);
   const applyTheme = (t: typeof WEDDING_THEMES[number]) => {
     updateField("theme", t.id);
     updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
@@ -306,6 +311,56 @@ const OnboardingWizard = () => {
     }
   };
 
+  // Check for a pending undo-reset backup on mount. If it exists and hasn't
+  // expired, expose it via the banner. Otherwise sweep it.
+  useEffect(() => {
+    const BACKUP_KEY = "vowz_wizard_draft_backup";
+    let raw: string | null = null;
+    try { raw = localStorage.getItem(BACKUP_KEY); } catch { return; }
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as { draft: string; expiresAt: number };
+      if (!parsed?.draft || typeof parsed.expiresAt !== "number") {
+        localStorage.removeItem(BACKUP_KEY);
+        return;
+      }
+      if (Date.now() > parsed.expiresAt) {
+        localStorage.removeItem(BACKUP_KEY);
+        return;
+      }
+      setUndoBackup(parsed);
+      setUndoSecondsLeft(Math.max(1, Math.ceil((parsed.expiresAt - Date.now()) / 1000)));
+    } catch {
+      try { localStorage.removeItem(BACKUP_KEY); } catch {}
+    }
+  }, []);
+
+  // Countdown + auto-sweep for the undo banner.
+  useEffect(() => {
+    if (!undoBackup) return;
+    const tick = () => {
+      const left = Math.ceil((undoBackup.expiresAt - Date.now()) / 1000);
+      if (left <= 0) {
+        try { localStorage.removeItem("vowz_wizard_draft_backup"); } catch {}
+        setUndoBackup(null);
+        setUndoSecondsLeft(0);
+      } else {
+        setUndoSecondsLeft(left);
+      }
+    };
+    const id = window.setInterval(tick, 500);
+    return () => window.clearInterval(id);
+  }, [undoBackup]);
+
+  const restoreDraftFromBackup = () => {
+    if (!undoBackup) return;
+    try {
+      localStorage.setItem("vowz_wizard_draft", undoBackup.draft);
+      localStorage.removeItem("vowz_wizard_draft_backup");
+    } catch { /* ignore */ }
+    navigate(0 as any);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead title="Wedding Website Wizard – Vowz" description="Create your wedding website step by step." robots="noindex, nofollow" />
@@ -334,6 +389,40 @@ const OnboardingWizard = () => {
           </button>
         </div>
       </header>
+
+      {undoBackup && undoSecondsLeft > 0 && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="border-b border-gold/40 bg-gold/10"
+        >
+          <div className="max-w-3xl mx-auto px-4 py-2 flex items-center gap-3 text-xs font-body">
+            <AlertCircle className="w-4 h-4 text-gold shrink-0" aria-hidden />
+            <p className="text-foreground/90">
+              Draft cleared. You can restore your previous answers for {undoSecondsLeft}s.
+            </p>
+            <Button
+              variant="gold"
+              size="sm"
+              className="ml-auto h-7 px-3"
+              onClick={restoreDraftFromBackup}
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1" /> Undo reset
+            </Button>
+            <button
+              type="button"
+              aria-label="Dismiss undo banner"
+              onClick={() => {
+                try { localStorage.removeItem("vowz_wizard_draft_backup"); } catch {}
+                setUndoBackup(null);
+              }}
+              className="text-muted-foreground hover:text-foreground px-1"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Progress bar */}
       <div className="max-w-3xl mx-auto w-full px-4 pt-4">
@@ -1031,16 +1120,32 @@ const OnboardingWizard = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Reset your wizard draft?</AlertDialogTitle>
             <AlertDialogDescription>
-              This clears every answer you've entered — names, story, events, theme, colors — and deletes the autosaved draft from this device. This cannot be undone.
+              This clears every answer you've entered — names, story, events, theme, colors — and deletes the autosaved draft from this device. You'll have 15 seconds to undo from the toast that appears.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Keep my draft</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
+                // Snapshot the current autosaved draft into a backup key so an
+                // Undo banner (rendered on next mount) can restore it, even
+                // after the page reload we perform below.
+                const DRAFT_KEY = "vowz_wizard_draft";
+                const BACKUP_KEY = "vowz_wizard_draft_backup";
+                const UNDO_WINDOW_MS = 15000;
+                try {
+                  const snapshot =
+                    localStorage.getItem(DRAFT_KEY) ||
+                    sessionStorage.getItem(DRAFT_KEY);
+                  if (snapshot) {
+                    localStorage.setItem(
+                      BACKUP_KEY,
+                      JSON.stringify({ draft: snapshot, expiresAt: Date.now() + UNDO_WINDOW_MS }),
+                    );
+                  }
+                } catch { /* storage disabled — undo simply won't be offered */ }
                 resetDraft();
                 setConfirmReset(false);
-                toast({ title: "Draft cleared", description: "Your wizard has been reset to a blank start." });
                 // Force a fresh mount so the wizard re-reads defaults from storage.
                 navigate(0 as any);
               }}
