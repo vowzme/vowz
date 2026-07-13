@@ -436,6 +436,12 @@ const Editor = () => {
     }
     if (success) {
       toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
+      savedStyleRef.current = {
+        theme: siteData.theme,
+        suggestedColors: siteData.suggestedColors,
+        displayFont: siteData.displayFont,
+        bodyFont: siteData.bodyFont,
+      };
     }
   };
 
