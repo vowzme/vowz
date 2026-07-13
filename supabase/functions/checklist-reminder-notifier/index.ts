@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
     const siteIds = Array.from(new Set(Array.from(buckets.values()).map((b) => b.siteId)))
     const { data: sites } = await admin
       .from('wedding_sites')
-      .select('id, user_id, bride_name, groom_name, status')
+      .select('id, user_id, partner1, partner2, status')
       .in('id', siteIds)
 
     const siteMap = new Map((sites || []).map((s: any) => [s.id, s]))
@@ -167,8 +167,8 @@ Deno.serve(async (req) => {
         const profile: any = profileMap.get(site.user_id)
         if (!profile?.email) continue
 
-        const name = profile.full_name?.trim() || site.bride_name || 'there'
-        const couple = [site.bride_name, site.groom_name].filter(Boolean).join(' & ') || 'your wedding'
+        const name = profile.full_name?.trim() || site.partner1 || 'there'
+        const couple = [site.partner1, site.partner2].filter(Boolean).join(' & ') || 'your wedding'
         const { html, text, subject } = render(name, couple, bucket.items, bucket.milestone)
 
         const messageId = crypto.randomUUID()

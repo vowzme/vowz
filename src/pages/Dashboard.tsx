@@ -1150,6 +1150,11 @@ const Dashboard = () => {
                           <Users className="w-4 h-4 mr-1" /> Guest List
                         </Link>
                       </Button>
+                      <Button variant="outline" size="sm" asChild className="ml-2">
+                        <Link to={`/dashboard/album/${site.id}`}>
+                          <Users className="w-4 h-4 mr-1" /> Moderate Album
+                        </Link>
+                      </Button>
                     </div>
                   </div>
                 </div>

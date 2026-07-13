@@ -20,6 +20,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AlbumModeration = lazy(() => import("./pages/AlbumModeration"));
 const OnboardingWizard = lazy(() => import("./pages/OnboardingWizard"));
 const Editor = lazy(() => import("./pages/Editor"));
 const PublicSite = lazy(() => import("./pages/PublicSite"));
@@ -96,6 +97,7 @@ const AppRoutes = () => (
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/dashboard/widgets" element={<ProtectedRoute><WidgetSettings /></ProtectedRoute>} />
     <Route path="/dashboard/guests/:siteId" element={<ProtectedRoute><GuestList /></ProtectedRoute>} />
+    <Route path="/dashboard/album/:siteId" element={<ProtectedRoute><AlbumModeration /></ProtectedRoute>} />
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
