@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
+import { supabase } from "@/integrations/supabase/client";
 
 const FONT_POOL = [
   "Playfair Display",
