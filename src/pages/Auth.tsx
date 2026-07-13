@@ -57,9 +57,10 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate(redirectTarget, { replace: true });
+      navigate(routeAfterAuth(), { replace: true });
     }
-  }, [user, navigate, redirectTarget]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   
 
