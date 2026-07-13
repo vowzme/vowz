@@ -902,6 +902,7 @@ const Dashboard = () => {
 
             {/* ─── RSVPs / Guest List Tab ─── */}
             <TabsContent value="rsvps">
+              <RsvpReminderCard site={site} />
               <GuestListPanel rsvps={rsvps} rsvpLoading={rsvpLoading} onDelete={handleDeleteRsvp} site={site} copyLink={copyLink} />
             </TabsContent>
 
@@ -2464,6 +2465,115 @@ function ShareAttributionPanel({ siteId, accent }: { siteId: string; accent: str
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── RSVP Reminder Card ─────────────────────────────────────────────────
+// Reads events from the wedding site's sections plus the RSVP section's
+// reminder_offsets_days and reminder_message. Computes for each event a list
+// of due dates (event date - offset days) and surfaces WhatsApp "compose"
+// links so the couple can send the reminder to their guest list. This is the
+// honest ceiling for a web app — WhatsApp cannot dispatch messages without a
+// Business API, so the automation is: precomputed schedule + one-tap send.
+function RsvpReminderCard({ site }: { site: any }) {
+  const sections: any[] = Array.isArray(site?.sections) ? site.sections : [];
+  const rsvpSection = sections.find((s) => s?.type === "rsvp");
+  if (!rsvpSection) return null;
+
+  const offsets: number[] = Array.isArray(rsvpSection.data?.reminder_offsets_days)
+    ? rsvpSection.data.reminder_offsets_days
+    : [14, 7, 2];
+  if (offsets.length === 0) return null;
+
+  const template: string =
+    rsvpSection.data?.reminder_message ||
+    "Reminder: {event} is on {date}. Please RSVP here → {link}";
+
+  const events: { name: string; date: string }[] = [];
+  sections
+    .filter((s) => s?.type === "events")
+    .forEach((s) => {
+      (s.data?.events || []).forEach((e: any) => {
+        if (e?.date) events.push({ name: e.name || "Event", date: e.date });
+      });
+    });
+  if (events.length === 0) return null;
+
+  const publicUrl =
+    typeof window !== "undefined" && site?.slug
+      ? `${window.location.origin}/site/${site.slug}`
+      : "";
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  type Row = { key: string; eventName: string; eventDate: Date; dueDate: Date; offset: number; daysAway: number };
+  const rows: Row[] = [];
+  events.forEach((ev) => {
+    const eventDate = new Date(ev.date);
+    if (isNaN(eventDate.getTime())) return;
+    eventDate.setHours(0, 0, 0, 0);
+    offsets.forEach((offset) => {
+      const dueDate = new Date(eventDate);
+      dueDate.setDate(dueDate.getDate() - offset);
+      const daysAway = Math.round((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      // Show upcoming + 3 days of grace after due date.
+      if (daysAway < -3) return;
+      rows.push({ key: `${ev.name}-${offset}`, eventName: ev.name, eventDate, dueDate, offset, daysAway });
+    });
+  });
+  if (rows.length === 0) return null;
+  rows.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+
+  const composeWhatsappUrl = (row: Row) => {
+    const msg = template
+      .split("{event}").join(row.eventName)
+      .split("{date}").join(row.eventDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }))
+      .split("{link}").join(publicUrl);
+    return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  };
+
+  return (
+    <div className="bg-card border border-border/50 rounded-2xl p-4 sm:p-6 mb-4">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h3 className="font-display text-lg font-bold text-foreground">Automated RSVP reminders</h3>
+          <p className="font-body text-xs text-muted-foreground mt-0.5">
+            Scheduled from your event dates. Tap Send when it's due — WhatsApp opens with the message ready for your guest list.
+          </p>
+        </div>
+      </div>
+      <ul className="divide-y divide-border/50">
+        {rows.map((r) => {
+          const dueLabel =
+            r.daysAway === 0 ? "Due today" :
+            r.daysAway > 0 ? `In ${r.daysAway}d` :
+            `${-r.daysAway}d overdue`;
+          const isDue = r.daysAway <= 0;
+          return (
+            <li key={r.key} className="py-2 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-body text-sm text-foreground truncate">
+                  {r.eventName} <span className="text-muted-foreground">· {r.offset}d before</span>
+                </p>
+                <p className="font-body text-[11px] text-muted-foreground">
+                  {r.dueDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} · {dueLabel}
+                </p>
+              </div>
+              <a
+                href={composeWhatsappUrl(r)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-body text-white shrink-0 ${isDue ? "" : "opacity-70"}`}
+                style={{ backgroundColor: "#25D366" }}
+              >
+                Send WhatsApp
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
