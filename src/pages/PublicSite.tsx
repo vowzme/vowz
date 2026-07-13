@@ -1218,6 +1218,18 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
   const [submitting, setSubmitting] = useState(false);
   const editStorageKey = `vowz_rsvp_edit_${site.id}`;
   const [editHandle, setEditHandle] = useState<{ id: string; token: string } | null>(() => {
+    // Prefer ?rsvp=<id>&t=<token> from the confirmation email link, so a guest
+    // can edit their RSVP from any device (not just the browser that submitted).
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const rsvpId = params.get("rsvp");
+      const token = params.get("t");
+      if (rsvpId && token) {
+        const fromLink = { id: rsvpId, token };
+        try { localStorage.setItem(editStorageKey, JSON.stringify(fromLink)); } catch {}
+        return fromLink;
+      }
+    } catch { /* ignore */ }
     try {
       const raw = localStorage.getItem(editStorageKey);
       return raw ? JSON.parse(raw) : null;
