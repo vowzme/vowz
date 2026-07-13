@@ -1094,7 +1094,6 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
   const [form, setForm] = useState({ guest_name: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [submittedDietary, setSubmittedDietary] = useState<{ tags: string[]; notes: string }>({ tags: [], notes: "" });
 
   useEffect(() => {
     supabase
