@@ -153,6 +153,27 @@ describe("/themes count", () => {
     });
   });
 
+  it("sets og:url to https://vowz.me/themes and matches canonical", async () => {
+    render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={["/themes"]}>
+          <Themes />
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    await waitFor(() => {
+      const ogUrl = document
+        .querySelector('meta[property="og:url"]')
+        ?.getAttribute("content");
+      const canonical = document
+        .querySelector('link[rel="canonical"]')
+        ?.getAttribute("href");
+      expect(ogUrl).toBe("https://vowz.me/themes");
+      expect(ogUrl).toBe(canonical);
+    });
+  });
+
   it("twitter:title and twitter:description match strings derived from WEDDING_THEMES.length", async () => {
     render(
       <HelmetProvider>
