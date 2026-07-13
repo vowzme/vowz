@@ -1330,12 +1330,13 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         tags: showDietaryTags ? [...form.dietary_tags] : [],
         notes: showDietaryNotes ? form.dietary_notes.trim() : "",
       });
-      toast({ title: isEditing ? "RSVP updated ✨" : "RSVP submitted! 🎉" });
-      trackEvent(isEditing ? "rsvp_update" : "rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
+      const wasEditing = isEditing;
+      toast({ title: wasEditing ? "RSVP updated ✨" : "RSVP submitted! 🎉" });
+      trackEvent(wasEditing ? "rsvp_update" : "rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
       setIsEditing(false);
 
-      // Fire-and-forget confirmation email (non-blocking, non-fatal on failure).
-      try {
+      // Fire-and-forget confirmation email — skip on edits.
+      if (!wasEditing) try {
         const firstEvent = eventsSection?.data?.events?.[0];
         const weddingDate = firstEvent?.date
           ? new Date(firstEvent.date).toLocaleDateString(undefined, {
