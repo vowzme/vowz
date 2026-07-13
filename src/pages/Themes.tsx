@@ -449,6 +449,15 @@ export default function Themes() {
         />
         <link rel="canonical" href="https://vowz.me/themes" />
         <meta property="og:url" content="https://vowz.me/themes" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content={`${WEDDING_THEMES.length} Wedding Website Themes · Vowz`}
+        />
+        <meta
+          name="twitter:description"
+          content={`Explore ${WEDDING_THEMES.length} curated wedding website themes, customize colors, typography, and motif intensity, then apply to your site in one click.`}
+        />
       </Helmet>
 
       <div className="min-h-screen bg-background">
