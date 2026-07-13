@@ -574,7 +574,18 @@ export default function Themes() {
                           data-theme-id={t.id}
                           className="transition-transform group-hover:-translate-y-1"
                         >
-                          <ThemeDemo theme={t} compact />
+                          <LazyOnVisible
+                            minHeight={220}
+                            fallback={
+                              <div
+                                aria-hidden
+                                className="w-full rounded-xl border border-border/50 animate-pulse"
+                                style={{ height: 220, background: t.colors.surface }}
+                              />
+                            }
+                          >
+                            <ThemeDemo theme={t} compact />
+                          </LazyOnVisible>
                         </div>
                         <div className="px-1 pt-4">
                           <div className="flex items-baseline justify-between gap-2">
@@ -651,7 +662,18 @@ export default function Themes() {
                           data-theme-id={t.id}
                           className="transition-transform group-hover:-translate-y-1"
                         >
-                          <ThemeDemo theme={t} compact />
+                          <LazyOnVisible
+                            minHeight={220}
+                            fallback={
+                              <div
+                                aria-hidden
+                                className="w-full rounded-xl border border-border/50 animate-pulse"
+                                style={{ height: 220, background: t.colors.surface }}
+                              />
+                            }
+                          >
+                            <ThemeDemo theme={t} compact />
+                          </LazyOnVisible>
                         </div>
                         <div className="px-1 pt-4">
                           <div className="flex items-baseline justify-between gap-2">
