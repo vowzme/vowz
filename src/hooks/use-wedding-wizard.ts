@@ -1,6 +1,23 @@
 import { useState, useCallback, useEffect } from "react";
 
 const WIZARD_STORAGE_KEY = "vowz_wizard_draft";
+// Read from localStorage first (survives refresh, navigate-away, tab reopen),
+// then fall back to sessionStorage for older in-progress drafts.
+const readDraft = (): { step?: WizardStep; data?: Partial<WeddingData> } | null => {
+  try {
+    const raw =
+      (typeof localStorage !== "undefined" && localStorage.getItem(WIZARD_STORAGE_KEY)) ||
+      (typeof sessionStorage !== "undefined" && sessionStorage.getItem(WIZARD_STORAGE_KEY));
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+};
+const writeDraft = (payload: unknown) => {
+  try { localStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(payload)); } catch {}
+};
+const clearDraft = () => {
+  try { localStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
+  try { sessionStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
+};
 
 export interface WeddingData {
   partner1: string;
@@ -85,14 +102,8 @@ export { CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES };
 
 export function useWeddingWizard() {
   const [step, setStep] = useState<WizardStep>(() => {
-    try {
-      const saved = sessionStorage.getItem(WIZARD_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return parsed.step || "names";
-      }
-    } catch {}
-    return "names";
+    const parsed = readDraft();
+    return (parsed?.step as WizardStep) || "names";
   });
   const [wizardData, setWizardData] = useState<WeddingData>(() => {
     const safeDefaults: WeddingData = {
@@ -111,22 +122,14 @@ export function useWeddingWizard() {
       if (!merged.bodyFont) merged.bodyFont = safeDefaults.bodyFont;
       return merged;
     };
-    try {
-      const saved = sessionStorage.getItem(WIZARD_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return ensure(parsed.data);
-      }
-    } catch {}
-    return ensure(null);
+    const parsed = readDraft();
+    return ensure(parsed?.data ?? null);
   });
   const [isComplete, setIsComplete] = useState(false);
 
-  // Persist wizard state to sessionStorage
+  // Autosave to localStorage on every change so refresh/navigate-away preserves inputs.
   useEffect(() => {
-    if (!isComplete) {
-      sessionStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify({ step, data: wizardData }));
-    }
+    if (!isComplete) writeDraft({ step, data: wizardData, savedAt: Date.now() });
   }, [step, wizardData, isComplete]);
 
   const updateField = useCallback(<K extends keyof WeddingData>(key: K, value: WeddingData[K]) => {
@@ -184,7 +187,7 @@ export function useWeddingWizard() {
       welcomeMessage: `Welcome to ${prev.partner1} & ${prev.partner2}'s wedding celebration! We're so glad you're here.`,
     }));
     setIsComplete(true);
-    sessionStorage.removeItem(WIZARD_STORAGE_KEY);
+    clearDraft();
   }, [wizardData, generateTagline]);
 
   return {
@@ -198,5 +201,6 @@ export function useWeddingWizard() {
     completeWizard,
     isComplete,
     generateTagline,
+    resetDraft: clearDraft,
   };
 }
