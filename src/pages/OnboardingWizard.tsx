@@ -544,6 +544,68 @@ const OnboardingWizard = () => {
                       );
                     })}
                   </div>
+                  {(() => {
+                    const active = WEDDING_THEMES.find((t) => t.id === wizardData.theme);
+                    if (!active) return null;
+                    const p1 = wizardData.partner1 || "Aarav";
+                    const p2 = wizardData.partner2 || "Isha";
+                    const tagline = wizardData.tagline || active.tagline;
+                    return (
+                      <div className="mt-8">
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-xs uppercase tracking-widest font-body text-muted-foreground">Live preview</p>
+                          <p className="text-xs font-body text-muted-foreground">{active.name}</p>
+                        </div>
+                        <div
+                          className="rounded-2xl border shadow-sm overflow-hidden"
+                          style={{ background: active.colors.bg, color: active.colors.ink }}
+                        >
+                          <div
+                            className="px-6 py-12 md:py-16 text-center"
+                            style={{
+                              backgroundImage: `radial-gradient(circle at 50% 0%, ${active.colors.light}55, transparent 60%)`,
+                            }}
+                          >
+                            <p
+                              className="text-[11px] tracking-[0.3em] uppercase mb-4"
+                              style={{ color: active.colors.accent, fontFamily: active.fonts.body }}
+                            >
+                              You're invited
+                            </p>
+                            <h3
+                              className="text-3xl md:text-5xl font-bold leading-tight"
+                              style={{ fontFamily: active.fonts.display, color: active.colors.ink }}
+                            >
+                              {p1} <span style={{ color: active.colors.accent }}>&</span> {p2}
+                            </h3>
+                            <p
+                              className="mt-4 text-sm md:text-base opacity-80"
+                              style={{ fontFamily: active.fonts.body }}
+                            >
+                              {tagline}
+                            </p>
+                            <div className="mt-6 inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs md:text-sm"
+                              style={{
+                                background: active.colors.accent,
+                                color: active.colors.bg,
+                                fontFamily: active.fonts.body,
+                              }}
+                            >
+                              RSVP
+                            </div>
+                          </div>
+                          <div className="px-6 py-4 flex items-center justify-center gap-2 border-t" style={{ borderColor: `${active.colors.accent}33` }}>
+                            {[active.colors.bg, active.colors.accent, active.colors.light].map((c) => (
+                              <span key={c} className="w-5 h-5 rounded-full border" style={{ background: c, borderColor: `${active.colors.ink}22` }} />
+                            ))}
+                            <span className="ml-2 text-[11px] font-body opacity-70">
+                              {active.fonts.display.split(",")[0]} · {active.fonts.body.split(",")[0]}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
