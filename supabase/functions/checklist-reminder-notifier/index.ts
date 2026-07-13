@@ -206,8 +206,6 @@ Deno.serve(async (req) => {
 
         const name = profile.full_name?.trim() || site.partner1 || 'there'
         const couple = [site.partner1, site.partner2].filter(Boolean).join(' & ') || 'your wedding'
-        const { html, text, subject } = render(name, couple, bucket.items, bucket.milestone)
-
         const messageId = crypto.randomUUID()
         const label = `checklist_reminder_${bucket.milestone}`
 
