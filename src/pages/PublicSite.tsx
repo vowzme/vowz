@@ -1677,7 +1677,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
               {submitting ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
               ) : (
-                "Send RSVP"
+                isEditing ? "Update RSVP" : "Send RSVP"
               )}
             </Button>
           </form>
