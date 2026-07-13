@@ -1073,14 +1073,22 @@ const OnboardingWizard = () => {
               {(() => {
                 const current = WEDDING_THEMES.find((x) => x.id === wizardData.theme);
                 if (!current || current.id === pendingTheme.id) return null;
-                const rows: { label: string; from: string; to: string; swatchFrom?: string; swatchTo?: string; changed: boolean }[] = [
-                  { label: "Primary color", from: current.colors.bg, to: pendingTheme.colors.bg, swatchFrom: current.colors.bg, swatchTo: pendingTheme.colors.bg, changed: current.colors.bg !== pendingTheme.colors.bg },
-                  { label: "Accent", from: current.colors.accent, to: pendingTheme.colors.accent, swatchFrom: current.colors.accent, swatchTo: pendingTheme.colors.accent, changed: current.colors.accent !== pendingTheme.colors.accent },
-                  { label: "Ink / text", from: current.colors.ink, to: pendingTheme.colors.ink, swatchFrom: current.colors.ink, swatchTo: pendingTheme.colors.ink, changed: current.colors.ink !== pendingTheme.colors.ink },
-                  { label: "Display font", from: current.fonts.display, to: pendingTheme.fonts.display, changed: current.fonts.display !== pendingTheme.fonts.display },
-                  { label: "Body font", from: current.fonts.body, to: pendingTheme.fonts.body, changed: current.fonts.body !== pendingTheme.fonts.body },
-                  { label: "Motif", from: current.motif, to: pendingTheme.motif, changed: current.motif !== pendingTheme.motif },
-                ];
+                // Derive the diff strictly from THEME_FIELDS — the same
+                // list applyTheme writes. This guarantees the "What
+                // changes" copy always matches the actual mutation.
+                const rows = THEME_FIELDS.map((f) => {
+                  const from = f.get(current);
+                  const to = f.get(pendingTheme);
+                  return {
+                    label: f.label,
+                    from: f.format(from),
+                    to: f.format(to),
+                    swatchFrom: f.swatch?.(current),
+                    swatchTo: f.swatch?.(pendingTheme),
+                    changed: !themeValuesEqual(from, to),
+                  };
+                });
+                const changedRows = rows.filter((r) => r.changed);
                 return (
                   <div className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
                     {/* Impact panel: at-a-glance summary of what stays vs. changes. */}
@@ -1100,11 +1108,17 @@ const OnboardingWizard = () => {
                         <p className="text-[10px] uppercase tracking-widest font-body text-gold mb-1.5 flex items-center gap-1">
                           <Palette className="w-3 h-3" /> What changes
                         </p>
-                        <ul className="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4">
-                          <li>Theme colors (primary, accent, ink)</li>
-                          <li>Display &amp; body fonts</li>
-                          <li>Decorative motif</li>
-                        </ul>
+                        {changedRows.length === 0 ? (
+                          <p className="text-[11px] font-body text-foreground/80">
+                            Nothing — this preset matches your current theme.
+                          </p>
+                        ) : (
+                          <ul className="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4">
+                            {changedRows.map((r) => (
+                              <li key={r.label}>{r.label}</li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     </div>
                     <p className="text-[10px] uppercase tracking-widest font-body text-muted-foreground mb-2">
