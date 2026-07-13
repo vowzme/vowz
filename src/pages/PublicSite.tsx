@@ -22,6 +22,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 import BackgroundMusicPlayer from "@/components/BackgroundMusicPlayer";
 import { DEFAULT_STORY } from "@/lib/default-story";
 import { demoWeddingSite } from "@/lib/demo-site";
+import { getThemeDemoSite } from "@/lib/theme-demo-sites";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
@@ -112,6 +113,16 @@ const PublicSite = () => {
       setLoading(false);
       setHasPassword(false);
       return;
+    }
+    // Themed demo short-circuit: /site/demo-<themeId>
+    if (slug.startsWith("demo-")) {
+      const themed = getThemeDemoSite(slug.slice("demo-".length));
+      if (themed) {
+        setSite(themed as any);
+        setLoading(false);
+        setHasPassword(false);
+        return;
+      }
     }
     const fetchSite = async () => {
       // Try finding site by slug (published or paused)
