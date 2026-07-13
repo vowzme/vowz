@@ -310,6 +310,14 @@ const OnboardingWizard = () => {
               <p className="text-xs text-muted-foreground font-body">Step {currentStepIdx + 1} of {stepMeta.length}</p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setConfirmReset(true)}
+            aria-label="Reset wizard draft"
+            className="ml-auto inline-flex items-center gap-1.5 text-xs font-body text-muted-foreground hover:text-destructive transition-colors px-2 py-1 rounded-md hover:bg-muted"
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> Reset draft
+          </button>
         </div>
       </header>
 
