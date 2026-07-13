@@ -853,6 +853,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          link: string | null
+          milestone: string | null
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          milestone?: string | null
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          milestone?: string | null
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payment_config: {
         Row: {
           config: Json
@@ -1166,6 +1199,33 @@ export type Database = {
           received_at?: string
           signature_valid?: boolean
           status_code?: number
+        }
+        Relationships: []
+      }
+      reminder_preferences: {
+        Row: {
+          channel: string
+          created_at: string
+          id: string
+          milestone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          id?: string
+          milestone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          id?: string
+          milestone?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

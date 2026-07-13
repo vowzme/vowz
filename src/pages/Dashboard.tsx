@@ -637,6 +637,19 @@ const Dashboard = () => {
           </Link>
         </div>
 
+        <div className="mb-6">
+          <Link
+            to="/dashboard/reminders"
+            className="flex items-center justify-between gap-4 p-4 rounded-xl border border-border/50 bg-card hover:bg-accent/40 transition-colors"
+          >
+            <div>
+              <div className="font-display font-semibold text-foreground">Reminder Preferences</div>
+              <div className="text-sm text-muted-foreground">Choose email, in-app, or off for each checklist milestone (7d / 3d / 1d / overdue).</div>
+            </div>
+            <span className="text-sm text-primary font-medium">Configure →</span>
+          </Link>
+        </div>
+
         {!site ? (
           /* No site yet */
           <>
