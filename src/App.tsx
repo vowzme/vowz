@@ -47,6 +47,7 @@ const AdminCardTemplates = lazy(() => import("./pages/admin/AdminCardTemplates")
 const AdminCardAnalytics = lazy(() => import("./pages/admin/AdminCardAnalytics"));
 const AdminStorageCleanup = lazy(() => import("./pages/admin/AdminStorageCleanup"));
 const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
+const AdminEmailAbTests = lazy(() => import("./pages/admin/AdminEmailAbTests"));
 const AdminEmailBranding = lazy(() => import("./pages/admin/AdminEmailBranding"));
 const InvitationCard = lazy(() => import("./pages/InvitationCard"));
 const CardGallery = lazy(() => import("./pages/CardGallery"));
