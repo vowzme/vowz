@@ -1235,6 +1235,42 @@ export type Database = {
         }
         Relationships: []
       }
+      reminder_email_dlq: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: string
+          last_error: string | null
+          message_id: string | null
+          payload: Json | null
+          recipient_email: string | null
+          template_name: string | null
+          variant: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          message_id?: string | null
+          payload?: Json | null
+          recipient_email?: string | null
+          template_name?: string | null
+          variant?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          message_id?: string | null
+          payload?: Json | null
+          recipient_email?: string | null
+          template_name?: string | null
+          variant?: string | null
+        }
+        Relationships: []
+      }
       reminder_preferences: {
         Row: {
           channel: string
