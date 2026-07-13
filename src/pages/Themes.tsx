@@ -693,19 +693,14 @@ export default function Themes() {
       <Dialog open={!!applyChoice} onOpenChange={(o) => !o && setApplyChoice(null)}>
         <DialogContent className="max-w-md p-6 bg-background border-border">
           {applyChoice && (
-            <div className="hidden">
-                <div className="min-w-0">
-                  <DialogTitle className="font-display text-base sm:text-lg font-semibold truncate">
-                    {previewTpl.name} · landing preview
-                  </DialogTitle>
-                  <DialogDescription id="theme-preview-desc" className="text-[11px] text-muted-foreground truncate">
-                    {previewTpl.tradition} — press Escape to close.
-                  </DialogDescription>
-                </div>
-              </div>
             <div className="space-y-4">
+              <DialogTitle className="font-display text-lg font-semibold">
+                Apply {applyChoice.theme.name}
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                Choose whether to merge the template with your existing site or replace all content.
+              </DialogDescription>
               <div>
-                <h3 className="font-display text-lg font-semibold">Apply {applyChoice.theme.name}</h3>
                 <p className="text-sm text-muted-foreground font-body mt-1">
                   You already have a site. Choose how to apply this template.
                 </p>
