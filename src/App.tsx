@@ -20,6 +20,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AlbumModeration = lazy(() => import("./pages/AlbumModeration"));
 const OnboardingWizard = lazy(() => import("./pages/OnboardingWizard"));
 const Editor = lazy(() => import("./pages/Editor"));
 const PublicSite = lazy(() => import("./pages/PublicSite"));
