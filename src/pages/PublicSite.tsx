@@ -1364,9 +1364,17 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
             <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: `${accent}20` }}>
               <Check className="w-7 h-7" style={{ color: accent }} />
             </div>
-            <h3 className="font-display text-xl font-bold text-foreground mb-2">Thank you!</h3>
+            <h3 className="font-display text-xl font-bold text-foreground mb-2">
+              {confirmTitleEn}
+              {confirmTitleLocal !== confirmTitleEn && (
+                <span className="block text-base font-normal opacity-80 mt-1">{confirmTitleLocal}</span>
+              )}
+            </h3>
             <p className="text-muted-foreground font-body">
-              Your RSVP has been received. We can't wait to celebrate with you!
+              {confirmBodyEn}
+              {confirmBodyLocal !== confirmBodyEn && (
+                <span className="block mt-1 opacity-90">{confirmBodyLocal}</span>
+              )}
             </p>
             {showWhatsAppShare && (
               <a
