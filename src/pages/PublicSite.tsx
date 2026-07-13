@@ -86,6 +86,42 @@ const SECTION_KEY_MAP: Record<string, { heading?: string; body?: string; descrip
 const PublicSite = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { createSite } = useWeddingSite();
+  const [cloning, setCloning] = useState(false);
+  const themedDemoId = slug && slug.startsWith("demo-") && slug !== "demo" ? slug.slice("demo-".length) : null;
+  const cloneThemeDemo = async () => {
+    if (!themedDemoId) return;
+    const theme = WEDDING_THEMES.find((t) => t.id === themedDemoId);
+    if (!theme) return;
+    if (!user) {
+      navigate("/auth", { state: { returnTo: `/site/demo-${themedDemoId}` } });
+      return;
+    }
+    setCloning(true);
+    try {
+      const tpl = buildThemeTemplate(theme);
+      const sections = buildThemeSections(theme);
+      const created = await createSite({
+        partner1: tpl.partner1,
+        partner2: tpl.partner2,
+        culturalBackground: tpl.culturalBackground,
+        howWeMet: tpl.howWeMet,
+        theme: theme.id,
+        tagline: tpl.tagline,
+        suggestedColors: [theme.colors.bg, theme.colors.accent, theme.colors.surface],
+        sections,
+        displayFont: theme.fonts.display,
+        bodyFont: theme.fonts.body,
+      });
+      if (created) {
+        toast({ title: "Demo cloned", description: `Your ${theme.name} starter site is ready — customize it now.` });
+        navigate(`/editor/${(created as any).id}`);
+      }
+    } finally {
+      setCloning(false);
+    }
+  };
   const [site, setSite] = useState<WeddingSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
