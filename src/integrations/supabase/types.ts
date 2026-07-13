@@ -697,6 +697,7 @@ export type Database = {
         Row: {
           caption: string | null
           created_at: string
+          guest_email: string | null
           guest_name: string
           id: string
           photo_url: string
@@ -706,6 +707,7 @@ export type Database = {
         Insert: {
           caption?: string | null
           created_at?: string
+          guest_email?: string | null
           guest_name: string
           id?: string
           photo_url: string
@@ -715,6 +717,7 @@ export type Database = {
         Update: {
           caption?: string | null
           created_at?: string
+          guest_email?: string | null
           guest_name?: string
           id?: string
           photo_url?: string
@@ -803,6 +806,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      guest_moderation_events: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          created_at: string
+          guest_email: string | null
+          id: string
+          message_id: string | null
+          post_id: string | null
+          wedding_site_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          created_at?: string
+          guest_email?: string | null
+          id?: string
+          message_id?: string | null
+          post_id?: string | null
+          wedding_site_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          created_at?: string
+          guest_email?: string | null
+          id?: string
+          message_id?: string | null
+          post_id?: string | null
+          wedding_site_id?: string | null
+        }
+        Relationships: []
       }
       guestbook: {
         Row: {

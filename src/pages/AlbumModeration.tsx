@@ -105,6 +105,12 @@ const AlbumModeration = () => {
       toast({ title: "Update failed", description: error.message, variant: "destructive" });
       return;
     }
+    // Fire-and-forget notify (only if guest provided an email)
+    if (next === "approved" || next === "hidden") {
+      supabase.functions.invoke("guest-moderation-notify", {
+        body: { post_id: post.id, action: next },
+      }).catch(() => {});
+    }
     toast({
       title:
         next === "approved" ? "Photo approved ✨" :
@@ -116,6 +122,12 @@ const AlbumModeration = () => {
   const removePost = async (post: Post) => {
     if (!confirm(`Permanently delete ${post.guest_name}'s photo? This also removes all reactions and cannot be undone.`)) return;
     setBusyId(post.id);
+    // Notify BEFORE delete so we can still read guest_email server-side.
+    try {
+      await supabase.functions.invoke("guest-moderation-notify", {
+        body: { post_id: post.id, action: "deleted" },
+      });
+    } catch { /* non-blocking */ }
     // Reactions cascade via FK on post delete.
     const { error } = await supabase.from("guest_album_posts").delete().eq("id", post.id);
     setBusyId(null);
