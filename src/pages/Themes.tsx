@@ -106,6 +106,7 @@ export default function Themes() {
   const [custom, setCustom] = useState<Custom | null>(null);
   const [applying, setApplying] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [previewTpl, setPreviewTpl] = useState<WeddingTheme | null>(null);
   const { user } = useAuth();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
