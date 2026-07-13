@@ -408,6 +408,39 @@ export type Database = {
         }
         Relationships: []
       }
+      email_ab_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          message_id: string
+          template_name: string
+          url: string | null
+          user_id: string | null
+          variant: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          message_id: string
+          template_name: string
+          url?: string | null
+          user_id?: string | null
+          variant: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          message_id?: string
+          template_name?: string
+          url?: string | null
+          user_id?: string | null
+          variant?: string
+        }
+        Relationships: []
+      }
       email_branding: {
         Row: {
           accent_color: string
