@@ -4,6 +4,7 @@
 // Used by /themes "Start with this template" to seed a new wedding site.
 
 import { WEDDING_THEMES, type WeddingTheme } from "@/lib/wedding-themes";
+import { PHOTO_SETS } from "@/lib/theme-demo-sites";
 
 export type ThemeTemplate = {
   themeId: string;
@@ -173,12 +174,32 @@ export function buildThemeTemplate(theme: WeddingTheme): ThemeTemplate {
 // Build the full sections array for a wedding_sites row from a theme template.
 export function buildThemeSections(theme: WeddingTheme) {
   const tpl = buildThemeTemplate(theme);
+  const photos = PHOTO_SETS[theme.id] ?? PHOTO_SETS["modern-minimal"];
+  const heroImage = photos?.hero || "";
+  const sampleGallery = (photos?.gallery || []).slice(0, 3);
   return [
-    { id: "hero", type: "hero", title: "Hero", visible: true, data: { heading: `${tpl.partner1} & ${tpl.partner2}`, subheading: tpl.heroSubheading, tagline: tpl.tagline } },
+    { id: "hero", type: "hero", title: "Hero", visible: true, data: {
+      heading: `${tpl.partner1} & ${tpl.partner2}`,
+      subheading: tpl.heroSubheading,
+      tagline: tpl.tagline,
+      // Cover / featured image — replace with your own in the editor.
+      heroImage,
+      coverImage: heroImage,
+      backgroundImage: heroImage,
+    } },
     { id: "countdown", type: "countdown", title: "Countdown", visible: true, data: { label: tpl.countdownLabel, date: "" } },
     { id: "story", type: "story", title: "Our Story", visible: true, data: { heading: tpl.storyHeading, body: tpl.howWeMet } },
-    { id: "events", type: "events", title: "Wedding Events", visible: true, data: { heading: "Wedding Events", events: tpl.events.map((name) => ({ name, date: "", time: "", venue: "", location: "" })) } },
-    { id: "gallery", type: "gallery", title: "Photo Gallery", visible: true, data: { heading: "Our Moments" } },
+    { id: "events", type: "events", title: "Wedding Events", visible: true, data: {
+      heading: "Wedding Events",
+      description: "Tap any event in the editor to set date, time, and venue.",
+      events: tpl.events.map((name) => ({ name, date: "", time: "", venue: "", location: "" })),
+    } },
+    { id: "gallery", type: "gallery", title: "Photo Gallery", visible: true, data: {
+      heading: "Our Moments",
+      description: "Sample photos to get you started — replace them with your own in the editor.",
+      images: sampleGallery,
+      photos: sampleGallery,
+    } },
     { id: "travel", type: "travel", title: "Travel & Stay", visible: true, data: { heading: "Travel & Stay", description: tpl.travelDescription, hotels: [{ name: "Add your recommended hotel", description: "Update with your notes for guests.", distance: "Near venue" }], directions: "Add directions, nearest airport, and transport notes here." } },
     // Gift Registry + Shagun UPI. Add your UPI VPA in the editor to accept blessings by UPI.
     { id: "registry", type: "registry", title: "Gift Registry & Shagun", visible: true, data: {
@@ -196,6 +217,12 @@ export function buildThemeSections(theme: WeddingTheme) {
       description: "Upload a photo with the couple and leave a blessing — it'll appear on this page for everyone to enjoy.",
     } },
     { id: "guestbook", type: "guestbook", title: "Wishes & Blessings", visible: true, data: { heading: tpl.guestbookHeading, description: tpl.guestbookDescription } },
-    { id: "rsvp", type: "rsvp", title: "RSVP", visible: true, data: { heading: tpl.rsvpHeading, body: tpl.rsvpBody } },
+    { id: "rsvp", type: "rsvp", title: "RSVP", visible: true, data: {
+      heading: tpl.rsvpHeading,
+      body: tpl.rsvpBody,
+      // Sensible default deadline hint — override in the editor.
+      deadline: "",
+      confirmationMessage: "Thank you! Your RSVP has been received — see you soon.",
+    } },
   ];
 }
