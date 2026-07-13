@@ -54,10 +54,15 @@ const rsvpSchema = z.object({
   guest_email: z.string().trim().email("Invalid email").max(255),
   attending: z.boolean(),
   guest_count: z.number().int().min(1).max(20),
-  meal_preference: z.string().max(50).nullable(),
+  meal_preference: z.enum(["veg", "non-veg", "vegan"]).nullable(),
   selected_events: z.array(z.string()).nullable(),
-  message: z.string().trim().max(500).nullable(),
+  message: z.string().trim().max(800).nullable(),
 });
+
+// Allowed dietary tag values — anything else is dropped before validation.
+const DIETARY_TAG_WHITELIST = new Set([
+  "gluten-free", "jain", "halal", "kosher", "nut-free", "dairy-free", "vegan", "vegetarian",
+]);
 
 // ─── Translation helper ───────────────────────────────────────────────
 type TranslateFn = (key: string, fallback: string) => string;
@@ -1274,10 +1279,20 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
     setSubmitting(true);
 
     try {
+      // Only include meal / dietary data when their section is enabled AND the guest is attending.
+      const includeMeal = showMeal && form.attending;
+      const includeDietaryTags = showDietaryTags && form.attending;
+      const includeDietaryNotes = showDietaryNotes && form.attending;
+
+      const cleanTags = includeDietaryTags
+        ? Array.from(new Set(form.dietary_tags.filter((t) => DIETARY_TAG_WHITELIST.has(t)))).slice(0, 8)
+        : [];
+      const cleanNotes = includeDietaryNotes ? (form.dietary_notes || "").trim().slice(0, 200) : "";
+
       const combinedMessage = [
         form.message?.trim(),
-        form.dietary_tags.length > 0 ? `Dietary: ${form.dietary_tags.join(", ")}` : "",
-        form.dietary_notes?.trim() ? `Dietary notes: ${form.dietary_notes.trim()}` : "",
+        cleanTags.length > 0 ? `Dietary: ${cleanTags.join(", ")}` : "",
+        cleanNotes ? `Dietary notes: ${cleanNotes}` : "",
       ]
         .filter(Boolean)
         .join("\n") || null;
@@ -1285,8 +1300,8 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
       const validated = rsvpSchema.parse({
         ...form,
         message: combinedMessage,
-        selected_events: showEvents && form.selected_events.length > 0 ? form.selected_events : null,
-        meal_preference: showMeal ? (form.meal_preference || null) : null,
+        selected_events: showEvents && form.attending && form.selected_events.length > 0 ? form.selected_events : null,
+        meal_preference: includeMeal ? (form.meal_preference || null) : null,
       });
 
       if (isEditing && editHandle) {
@@ -1327,8 +1342,10 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
       }
       setSubmitted(true);
       setSubmittedDietary({
-        tags: showDietaryTags ? [...form.dietary_tags] : [],
-        notes: showDietaryNotes ? form.dietary_notes.trim() : "",
+        tags: showDietaryTags && form.attending
+          ? Array.from(new Set(form.dietary_tags.filter((t) => DIETARY_TAG_WHITELIST.has(t)))).slice(0, 8)
+          : [],
+        notes: showDietaryNotes && form.attending ? (form.dietary_notes || "").trim().slice(0, 200) : "",
       });
       const wasEditing = isEditing;
       toast({ title: wasEditing ? "RSVP updated ✨" : "RSVP submitted! 🎉" });
