@@ -8,7 +8,7 @@ import { buildThemeTemplate } from "@/lib/theme-templates";
 
 // Curated Unsplash direct-image URLs. Each is a stable photo ID.
 // Grouped so themed demos feel visually distinct.
-const PHOTO_SETS: Record<string, { hero: string; gallery: string[]; venue: string }> = {
+export const PHOTO_SETS: Record<string, { hero: string; gallery: string[]; venue: string }> = {
   "royal-rajput": {
     hero: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1600&q=80",
     gallery: [
