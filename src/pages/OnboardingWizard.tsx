@@ -920,7 +920,7 @@ const OnboardingWizard = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Switch to {pendingTheme?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Only the theme, colors, and fonts will change. Your names, story, events, and any other content you've entered stay exactly as they are.
+              Only the theme colors and fonts will change. Your names, story, event details (dates, times, venues), RSVP settings, and any gallery media you've uploaded stay exactly as they are.
             </AlertDialogDescription>
           </AlertDialogHeader>
           {pendingTheme && (
