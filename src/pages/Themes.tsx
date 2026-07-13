@@ -458,7 +458,7 @@ export default function Themes() {
         <div className="max-w-6xl mx-auto px-4 py-10">
           {/* Filter + search bar */}
           <div className="mb-6 rounded-2xl border border-border/60 bg-muted/20 p-4 sm:p-5">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
@@ -470,6 +470,22 @@ export default function Themes() {
                   aria-label="Search themes"
                 />
               </div>
+              <select
+                value={tradition}
+                onChange={(e) => setTradition(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+                aria-label="Filter by tradition"
+              >
+                {TRADITION_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+              <select
+                value={motif}
+                onChange={(e) => setMotif(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+                aria-label="Filter by motif"
+              >
+                {MOTIF_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
               <select
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
