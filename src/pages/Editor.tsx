@@ -1471,6 +1471,33 @@ function SettingsPanel({
   siteData: WeddingSiteData;
   onUpdate: (data: WeddingSiteData) => void;
 }) {
+  // Apply a theme/style change with a toast-level Undo. Snapshots only the
+  // style fields — content (names, story, events, gallery) is never touched.
+  const applyThemeWithUndo = (
+    patch: Partial<WeddingSiteData>,
+    label: string,
+  ) => {
+    const prev = {
+      theme: siteData.theme,
+      suggestedColors: siteData.suggestedColors,
+      displayFont: (siteData as any).displayFont,
+      bodyFont: (siteData as any).bodyFont,
+    };
+    onUpdate({ ...siteData, ...patch } as WeddingSiteData);
+    toast({
+      title: `Applied ${label}`,
+      description: "Only theme, colors and fonts changed. Tap Undo to revert.",
+      action: (
+        <button
+          type="button"
+          onClick={() => onUpdate({ ...siteData, ...prev } as WeddingSiteData)}
+          className="inline-flex items-center gap-1 rounded-md border border-gold/50 bg-gold/10 hover:bg-gold/20 text-gold px-2.5 py-1 text-xs font-body"
+        >
+          Undo
+        </button>
+      ) as any,
+    });
+  };
   return (
     <div>
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Settings</h3>
@@ -1509,7 +1536,10 @@ function SettingsPanel({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             <button
               type="button"
-              onClick={() => onUpdate({ ...siteData, theme: "", displayFont: undefined, bodyFont: undefined } as any)}
+              onClick={() => applyThemeWithUndo(
+                { theme: "", displayFont: undefined, bodyFont: undefined } as any,
+                "no theme",
+              )}
               className={`rounded-lg border-2 px-3 py-2 text-left transition-all ${
                 !siteData.theme ? "border-gold bg-gold/10" : "border-border hover:border-gold/40"
               }`}
@@ -1523,15 +1553,15 @@ function SettingsPanel({
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() =>
-                    onUpdate({
-                      ...siteData,
+                  onClick={() => applyThemeWithUndo(
+                    {
                       theme: t.id,
                       suggestedColors: [t.colors.bg, t.colors.accent, t.colors.light],
                       displayFont: t.fonts.display,
                       bodyFont: t.fonts.body,
-                    } as any)
-                  }
+                    } as any,
+                    t.name,
+                  )}
                   className={`rounded-lg border-2 px-3 py-2 text-left transition-all ${
                     active ? "border-gold bg-gold/10" : "border-border hover:border-gold/40"
                   }`}
