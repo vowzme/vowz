@@ -7,7 +7,7 @@ import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
-  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail, Download, CalendarPlus
+  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail, Download, CalendarPlus, RotateCcw
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { buildGoogleCalendarUrl, buildOutlookCalendarUrl, downloadIcs, downloadAllEventsIcs, parseEventStart } from "@/lib/calendar-invite";
@@ -214,6 +214,15 @@ const Editor = () => {
   const wizardData: WeddingSiteData | null = (location.state as any)?.wizardData || null;
 
   const [dbSiteId, setDbSiteId] = useState<string | null>(siteId || null);
+  // Snapshot of the last-saved styling fields. Used by the theme picker's
+  // "Restore last saved" button to discard unsaved theme/color/font changes
+  // without touching sections or other content.
+  const savedStyleRef = useRef<{
+    theme: string;
+    suggestedColors: string[];
+    displayFont?: string;
+    bodyFont?: string;
+  } | null>(null);
   const [state, setState] = useState<EditorState>({
     siteData: wizardData || FALLBACK_DATA,
     sections: buildSections(wizardData || FALLBACK_DATA),
@@ -269,6 +278,12 @@ const Editor = () => {
           // Normalize old-format sections ({type:"event"}) to proper format
           const isOldFormat = rawSections.length > 0 && rawSections[0]?.type === "event";
           const sections = isOldFormat ? buildSections(siteData) : (rawSections as any as WeddingSection[]);
+          savedStyleRef.current = {
+            theme: siteData.theme,
+            suggestedColors: siteData.suggestedColors,
+            displayFont: siteData.displayFont,
+            bodyFont: siteData.bodyFont,
+          };
           setState((prev) => ({
             ...prev,
             siteData,
@@ -306,7 +321,15 @@ const Editor = () => {
         displayFont: (wizardData as any).displayFont,
         bodyFont: (wizardData as any).bodyFont,
       }).then((site) => {
-        if (site) setDbSiteId(site.id);
+        if (site) {
+          setDbSiteId(site.id);
+          savedStyleRef.current = {
+            theme: wizardData.theme,
+            suggestedColors: wizardData.suggestedColors,
+            displayFont: (wizardData as any).displayFont,
+            bodyFont: (wizardData as any).bodyFont,
+          };
+        }
       });
     }
   }, [wizardData, user, dbSiteId]);
@@ -421,6 +444,12 @@ const Editor = () => {
     }
     if (success) {
       toast({ title: "Site saved! ✨", description: "Your changes have been saved." });
+      savedStyleRef.current = {
+        theme: siteData.theme,
+        suggestedColors: siteData.suggestedColors,
+        displayFont: siteData.displayFont,
+        bodyFont: siteData.bodyFont,
+      };
     }
   };
 
@@ -595,7 +624,19 @@ const Editor = () => {
                     />
                   )}
                   {activePanel === "settings" && (
-                    <SettingsPanel siteData={siteData} onUpdate={(d) => updateState({ siteData: d })} />
+                    <SettingsPanel
+                      siteData={siteData}
+                      onUpdate={(d) => updateState({ siteData: d })}
+                      onRestoreLastSavedStyle={() => {
+                        const snap = savedStyleRef.current;
+                        if (!snap) {
+                          toast({ title: "Nothing to restore yet", description: "Save the site once to create a restore point." });
+                          return;
+                        }
+                        updateState({ siteData: { ...siteData, ...snap } });
+                        toast({ title: "Styling restored", description: "Reverted theme, colors, and fonts to the last saved version." });
+                      }}
+                    />
                   )}
                   {activePanel === "templates" && (
                     <TemplateSwitcherPanel
@@ -1467,9 +1508,11 @@ function TranslationLanguageBlock({
 function SettingsPanel({
   siteData,
   onUpdate,
+  onRestoreLastSavedStyle,
 }: {
   siteData: WeddingSiteData;
   onUpdate: (data: WeddingSiteData) => void;
+  onRestoreLastSavedStyle?: () => void;
 }) {
   // Apply a theme/style change with a toast-level Undo. Snapshots only the
   // style fields — content (names, story, events, gallery) is never touched.
@@ -1529,7 +1572,19 @@ function SettingsPanel({
           />
         </div>
         <div>
-          <label className="font-body text-sm font-medium text-foreground mb-1 block">Theme</label>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <label className="font-body text-sm font-medium text-foreground">Theme</label>
+            {onRestoreLastSavedStyle && (
+              <button
+                type="button"
+                onClick={onRestoreLastSavedStyle}
+                className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-2 py-1 text-[11px] font-body"
+                title="Discard unsaved theme, color, and font changes. Content stays as is."
+              >
+                <RotateCcw className="w-3 h-3" /> Restore last saved
+              </button>
+            )}
+          </div>
           <p className="font-body text-xs text-muted-foreground mb-2">
             Switch themes anytime — only colors and typography change, your names, story, events, and gallery stay intact.
           </p>
