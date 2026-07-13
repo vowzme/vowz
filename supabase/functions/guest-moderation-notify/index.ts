@@ -137,14 +137,14 @@ Deno.serve(async (req) => {
   messageId = crypto.randomUUID()
   const { data: inserted, error: insertErr } = await admin
     .from('guest_moderation_events')
-    .insert({
+    .upsert({
       post_id: postId,
       wedding_site_id: site.id,
       action,
       guest_email: guestEmail || null,
       message_id: guestEmail ? messageId : null,
       actor_user_id: userId,
-    }, { onConflict: 'post_id,action', ignoreDuplicates: true } as never)
+    }, { onConflict: 'post_id,action', ignoreDuplicates: true })
     .select('id')
 
   if (insertErr) {
