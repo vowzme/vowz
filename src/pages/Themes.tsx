@@ -447,6 +447,8 @@ export default function Themes() {
           property="og:description"
           content={`Explore ${WEDDING_THEMES.length} curated wedding website themes, customize colors, typography, and motif intensity, then apply to your site in one click.`}
         />
+        <link rel="canonical" href="https://vowz.me/themes" />
+        <meta property="og:url" content="https://vowz.me/themes" />
       </Helmet>
 
       <div className="min-h-screen bg-background">
