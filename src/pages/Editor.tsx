@@ -284,6 +284,8 @@ const Editor = () => {
         tagline: wizardData.tagline,
         suggestedColors: wizardData.suggestedColors,
         sections,
+        displayFont: (wizardData as any).displayFont,
+        bodyFont: (wizardData as any).bodyFont,
       }).then((site) => {
         if (site) setDbSiteId(site.id);
       });
