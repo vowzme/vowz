@@ -189,7 +189,32 @@ Deno.serve(async (req) => {
 
     if (!suppressed) {
       const couple = [site.partner1, site.partner2].filter(Boolean).join(' & ') || 'the couple'
-      const { html, text, subject } = render(post.guest_name || 'there', couple, action, post.caption)
+      let { html, text, subject } = render(post.guest_name || 'there', couple, action, post.caption)
+
+      // Optional per-site custom template
+      const { data: custom } = await admin
+        .from('guest_moderation_templates')
+        .select('subject, body_html')
+        .eq('wedding_site_id', site.id)
+        .eq('action', action)
+        .maybeSingle()
+
+      if (custom && (custom.subject || custom.body_html)) {
+        const vars: Record<string, string> = {
+          guest_name: post.guest_name || 'there',
+          couple,
+          caption: post.caption || '',
+          action,
+        }
+        const substitute = (s: string) =>
+          s.replace(/\{\{\s*(guest_name|couple|caption|action)\s*\}\}/g, (_, k) => escape(vars[k] || ''))
+
+        if (custom.subject) subject = substitute(custom.subject)
+        if (custom.body_html) {
+          html = substitute(custom.body_html)
+          text = html.replace(/<[^>]+>/g, '').trim()
+        }
+      }
       const label = `guest_moderation_${action}`
 
       await admin.from('email_send_log').insert({

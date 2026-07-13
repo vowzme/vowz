@@ -840,6 +840,44 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_moderation_templates: {
+        Row: {
+          action: string
+          body_html: string | null
+          created_at: string
+          id: string
+          subject: string | null
+          updated_at: string
+          wedding_site_id: string
+        }
+        Insert: {
+          action: string
+          body_html?: string | null
+          created_at?: string
+          id?: string
+          subject?: string | null
+          updated_at?: string
+          wedding_site_id: string
+        }
+        Update: {
+          action?: string
+          body_html?: string | null
+          created_at?: string
+          id?: string
+          subject?: string | null
+          updated_at?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_moderation_templates_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_notification_prefs: {
         Row: {
           created_at: string
