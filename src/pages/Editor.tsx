@@ -2211,6 +2211,40 @@ function SectionEditor({
               className="font-body"
             />
           </div>
+          <div className="rounded-lg border border-border/50 p-3 space-y-2">
+            <p className="font-body text-xs font-semibold text-foreground uppercase tracking-wide">Automated RSVP reminders</p>
+            <p className="text-[11px] text-muted-foreground font-body">
+              Pick how many days before each event a WhatsApp reminder is due. Reminders appear on your dashboard on the due date with one-tap compose links.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {[21, 14, 7, 3, 2, 1].map((d) => {
+                const offsets: number[] = Array.isArray(data.reminder_offsets_days) ? data.reminder_offsets_days : [14, 7, 2];
+                const on = offsets.includes(d);
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => {
+                      const next = on ? offsets.filter((x) => x !== d) : [...offsets, d].sort((a, b) => b - a);
+                      onUpdateData({ reminder_offsets_days: next });
+                    }}
+                    className={`text-[11px] font-body px-2.5 py-1 rounded-full border transition-colors ${on ? "bg-primary text-primary-foreground border-primary" : "border-border/60 hover:border-primary/50"}`}
+                  >
+                    {d}d before
+                  </button>
+                );
+              })}
+            </div>
+            <label className="font-body text-xs text-muted-foreground block mt-2">Reminder message template</label>
+            <Textarea
+              value={data.reminder_message || ""}
+              onChange={(e) => onUpdateData({ reminder_message: e.target.value })}
+              rows={3}
+              placeholder="Reminder: {event} is on {date}. Please RSVP here → {link}"
+              className="font-body"
+            />
+            <p className="text-[10px] text-muted-foreground font-body">Placeholders: {"{event}"}, {"{date}"}, {"{link}"}</p>
+          </div>
         </>
       )}
 
