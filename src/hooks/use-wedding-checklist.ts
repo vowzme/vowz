@@ -40,10 +40,12 @@ const DEFAULT_TASKS: { title: string; category: string; sort_order: number }[] =
 export function useWeddingChecklist(siteId: string | undefined) {
   const [items, setItems] = useState<ChecklistItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadChecklist = useCallback(async () => {
     if (!siteId) return;
     setLoading(true);
+    setError(null);
     const { data, error } = await supabase
       .from("wedding_checklist" as any)
       .select("*")
@@ -52,6 +54,7 @@ export function useWeddingChecklist(siteId: string | undefined) {
 
     if (error) {
       console.error("Load checklist error:", error);
+      setError(error.message || "Failed to load checklist");
       setLoading(false);
       return;
     }
@@ -70,7 +73,10 @@ export function useWeddingChecklist(siteId: string | undefined) {
         .from("wedding_checklist" as any)
         .insert(inserts)
         .select();
-      if (!seedErr && seeded) {
+      if (seedErr) {
+        console.error("Seed checklist error:", seedErr);
+        setError(seedErr.message || "Failed to create default checklist");
+      } else if (seeded) {
         setItems(seeded as any as ChecklistItem[]);
       }
     } else {
@@ -148,5 +154,5 @@ export function useWeddingChecklist(siteId: string | undefined) {
   const completedCount = items.filter((i) => i.is_completed).length;
   const progress = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
 
-  return { items, loading, loadChecklist, addItem, toggleItem, deleteItem, updateItem, completedCount, progress };
+  return { items, loading, error, loadChecklist, addItem, toggleItem, deleteItem, updateItem, completedCount, progress };
 }
