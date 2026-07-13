@@ -108,6 +108,14 @@ const OnboardingWizard = () => {
     for (const f of THEME_FIELDS) {
       updateField(f.key as never, f.get(t) as never);
     }
+    // Merge-apply toast. Copy is locked by a regression test — see
+    // OnboardingWizard.safety-copy.test.ts. It must keep reassuring users
+    // that event details, RSVP settings, and gallery media are unchanged.
+    toast({
+      title: `Theme updated to ${t.name}`,
+      description:
+        "Only theme colors and fonts changed. Event details, RSVP settings, and gallery media are unchanged.",
+    });
   };
   // Resume flow: when user clicks "Wedding Wizard" from the dashboard we pass
   // ?resume=1. We hydrate wizardData from their existing site and show a
