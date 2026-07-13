@@ -1040,6 +1040,30 @@ const OnboardingWizard = () => {
                 ];
                 return (
                   <div className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
+                    {/* Impact panel: at-a-glance summary of what stays vs. changes. */}
+                    <div className="mb-3 grid gap-2 sm:grid-cols-2">
+                      <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-2.5">
+                        <p className="text-[10px] uppercase tracking-widest font-body text-emerald-600 dark:text-emerald-400 mb-1.5 flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Stays the same
+                        </p>
+                        <ul className="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4">
+                          <li>Event details (dates, times, venues)</li>
+                          <li>RSVP settings &amp; responses</li>
+                          <li>Gallery media &amp; uploads</li>
+                          <li>Names, story, tagline &amp; guest list</li>
+                        </ul>
+                      </div>
+                      <div className="rounded-lg border border-gold/40 bg-gold/10 p-2.5">
+                        <p className="text-[10px] uppercase tracking-widest font-body text-gold mb-1.5 flex items-center gap-1">
+                          <Palette className="w-3 h-3" /> What changes
+                        </p>
+                        <ul className="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4">
+                          <li>Theme colors (primary, accent, ink)</li>
+                          <li>Display &amp; body fonts</li>
+                          <li>Decorative motif</li>
+                        </ul>
+                      </div>
+                    </div>
                     <p className="text-[10px] uppercase tracking-widest font-body text-muted-foreground mb-2">
                       Tokens that will change
                     </p>
