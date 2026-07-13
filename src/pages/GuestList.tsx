@@ -253,6 +253,72 @@ export default function GuestList() {
             </div>
           </div>
 
+          {/* Announcements broadcast */}
+          <div className="mb-6 rounded-xl border border-border/60 bg-card p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Megaphone className="w-4 h-4 text-gold" />
+              <h2 className="font-display text-lg">Announcement broadcast</h2>
+              <span className="ml-auto text-xs font-body text-muted-foreground">
+                {broadcastRecipients.length} guest{broadcastRecipients.length === 1 ? "" : "s"} · {broadcastRecipients.filter((r) => r.guest_email).length} email{broadcastRecipients.filter((r) => r.guest_email).length === 1 ? "" : "s"}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <select
+                value={broadcast.audience}
+                onChange={(e) => setBroadcast({ ...broadcast, audience: e.target.value as any })}
+                className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+              >
+                <option value="all">Everyone who RSVP'd</option>
+                <option value="yes">Attending only</option>
+                <option value="no">Not attending</option>
+                <option value="event">Guests for a specific event</option>
+              </select>
+              <select
+                value={broadcast.eventIdx}
+                onChange={(e) => setBroadcast({ ...broadcast, eventIdx: parseInt(e.target.value), audience: parseInt(e.target.value) >= 0 ? "event" : broadcast.audience })}
+                disabled={events.length === 0}
+                className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body disabled:opacity-50"
+              >
+                <option value={-1}>{events.length === 0 ? "No events on your site" : "Pick an event (optional)"}</option>
+                {events.map((ev, i) => (
+                  <option key={i} value={i}>{ev.name}{ev.date ? ` — ${ev.date}` : ""}</option>
+                ))}
+              </select>
+              <Input
+                value={broadcast.subject}
+                onChange={(e) => setBroadcast({ ...broadcast, subject: e.target.value })}
+                placeholder="Email subject"
+                className="h-9"
+                maxLength={140}
+              />
+            </div>
+            <Textarea
+              value={broadcast.message}
+              onChange={(e) => setBroadcast({ ...broadcast, message: e.target.value })}
+              placeholder="What do you want to tell your guests? e.g. Sangeet dress code is pastel, bus leaves at 6pm sharp."
+              rows={3}
+              maxLength={1000}
+              className="font-body text-sm"
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button variant="gold" size="sm" onClick={openWhatsAppBroadcast} disabled={!composedMessage.trim()}>
+                <MessageCircle className="w-4 h-4 mr-1" /> WhatsApp
+              </Button>
+              <Button variant="outline" size="sm" onClick={openSmsBroadcast} disabled={!composedMessage.trim()}>
+                <Smartphone className="w-4 h-4 mr-1" /> SMS
+              </Button>
+              <Button variant="outline" size="sm" onClick={openEmailBroadcast} disabled={!composedMessage.trim() || broadcastRecipients.filter((r) => r.guest_email).length === 0}>
+                <Mail className="w-4 h-4 mr-1" /> Email (BCC)
+              </Button>
+              <Button variant="ghost" size="sm" onClick={copyBroadcastMessage} disabled={!composedMessage.trim()}>
+                <Copy className="w-4 h-4 mr-1" /> Copy message
+              </Button>
+            </div>
+            <p className="text-[11px] font-body text-muted-foreground">
+              Announcements open your own WhatsApp / SMS / email app with the message and recipients prefilled — no bulk send from our servers, so guests always see it come from you.
+            </p>
+          </div>
+
           {loading ? (
             <div className="py-20 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
           ) : filtered.length === 0 ? (
