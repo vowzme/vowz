@@ -1211,6 +1211,14 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
   const [submitted, setSubmitted] = useState(false);
   const [submittedDietary, setSubmittedDietary] = useState<{ tags: string[]; notes: string }>({ tags: [], notes: "" });
   const [submitting, setSubmitting] = useState(false);
+  const editStorageKey = `vowz_rsvp_edit_${site.id}`;
+  const [editHandle, setEditHandle] = useState<{ id: string; token: string } | null>(() => {
+    try {
+      const raw = localStorage.getItem(editStorageKey);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
+  const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
     guest_name: "",
     guest_email: "",
