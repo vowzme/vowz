@@ -170,9 +170,31 @@ export default function Themes() {
   const openTheme = (t: WeddingTheme) => {
     setActive(t);
     setCustom(customFrom(t));
+    persistPreviewedTheme(t);
   };
 
   const previewTheme = active && custom ? themeWithCustom(active, custom) : null;
+
+  // Persist the previewed theme so the wizard/editor pre-fills correctly the
+  // next time the user starts (including after sign-in). Consumers read
+  // sessionStorage.pendingTemplate (see OnboardingWizard.tsx / Auth.tsx).
+  const persistPreviewedTheme = (t: WeddingTheme) => {
+    try {
+      const c = customFrom(t);
+      sessionStorage.setItem(
+        "pendingTemplate",
+        JSON.stringify({
+          templateName: t.name,
+          templateStyle: t.id,
+          templateColors: [c.bg, c.accent, c.surface],
+          displayFont: c.displayFont,
+          bodyFont: c.bodyFont,
+        }),
+      );
+    } catch {
+      /* storage disabled — safe to ignore */
+    }
+  };
 
   const filtersActive = query.trim() !== "" || region !== "all" || wtype !== "all" || style !== "all";
   const filteredThemes = useMemo(() => {
