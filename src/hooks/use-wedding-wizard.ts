@@ -266,5 +266,8 @@ export function useWeddingWizard() {
     isComplete,
     generateTagline,
     resetDraft: clearDraft,
+    conflict,
+    acceptRemoteDraft,
+    dismissConflict,
   };
 }
