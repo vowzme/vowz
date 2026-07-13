@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IndianRupee, Plus, Trash2, Check, X, Edit3,
-  TrendingUp, TrendingDown, Wallet, PiggyBank, AlertCircle,
+  TrendingUp, TrendingDown, Wallet, PiggyBank, AlertCircle, Download,
   ChevronDown, ChevronUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,41 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
       setNewExpense({ title: "", amount: "", category: "venue", vendor_name: "", notes: "", due_date: "" });
       setShowAddForm(false);
     }
+  };
+
+  const exportCsv = () => {
+    const esc = (v: unknown) => {
+      const s = v == null ? "" : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = ["Title", "Category", "Amount", "Paid", "Due date", "Vendor", "Notes"];
+    const rows = expenses.map((e) => [
+      e.title,
+      e.category,
+      Number(e.amount).toFixed(2),
+      e.paid ? "Yes" : "No",
+      e.due_date || "",
+      e.vendor_name || "",
+      (e.notes || "").replace(/\r?\n/g, " "),
+    ]);
+    const summary = [
+      [],
+      ["Total budget", (budget?.total_budget || 0).toFixed(2)],
+      ["Total spent", totalSpent.toFixed(2)],
+      ["Total paid", totalPaid.toFixed(2)],
+      ["Total pending", totalPending.toFixed(2)],
+      ["Remaining", remaining.toFixed(2)],
+    ];
+    const csv = [header, ...rows, ...summary].map((r) => r.map(esc).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `wedding-budget-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const formatCurrency = (amount: number) =>
@@ -191,14 +226,26 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
       {/* Add Expense Button & Form */}
       <div className="flex items-center justify-between">
         <h3 className="font-display text-lg font-semibold text-foreground">Expenses</h3>
-        <Button
-          variant={showAddForm ? "outline" : "gold"}
-          size="sm"
-          onClick={() => setShowAddForm(!showAddForm)}
-        >
-          {showAddForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-          {showAddForm ? "Cancel" : "Add Expense"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportCsv}
+            disabled={expenses.length === 0}
+            aria-label="Export budget as CSV"
+          >
+            <Download className="w-4 h-4 mr-1" />
+            Export CSV
+          </Button>
+          <Button
+            variant={showAddForm ? "outline" : "gold"}
+            size="sm"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            {showAddForm ? <X className="w-4 h-4 mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
+            {showAddForm ? "Cancel" : "Add Expense"}
+          </Button>
+        </div>
       </div>
 
       <AnimatePresence>

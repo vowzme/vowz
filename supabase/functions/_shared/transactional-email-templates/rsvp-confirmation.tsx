@@ -24,6 +24,7 @@ interface Props {
   attending?: boolean
   guestCount?: number
   siteUrl?: string
+  editUrl?: string
   _brand?: Partial<EmailBrand>
 }
 
@@ -35,6 +36,7 @@ const RsvpConfirmationEmail = ({
   attending,
   guestCount,
   siteUrl,
+  editUrl,
   _brand,
 }: Props) => {
   const name = guestName?.trim() || 'there'
@@ -94,6 +96,26 @@ const RsvpConfirmationEmail = ({
             <Section style={{ textAlign: 'center', margin: '28px 0' }}>
               <Button style={{ ...button, backgroundColor: b.primaryColor, color: b.buttonTextColor }} href={siteUrl}>
                 View wedding site
+              </Button>
+            </Section>
+          )}
+
+          {editUrl && (
+            <Section style={{ textAlign: 'center', margin: '0 0 24px' }}>
+              <Text style={{ ...text, textAlign: 'center', margin: '0 0 8px' }}>
+                Need to change your response, meal, or headcount?
+              </Text>
+              <Button
+                style={{
+                  ...button,
+                  backgroundColor: 'transparent',
+                  color: b.primaryColor,
+                  border: `1px solid ${b.primaryColor}`,
+                  padding: '12px 24px',
+                }}
+                href={editUrl}
+              >
+                Edit your RSVP
               </Button>
             </Section>
           )}

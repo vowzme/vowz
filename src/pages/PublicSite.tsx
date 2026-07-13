@@ -1218,6 +1218,18 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
   const [submitting, setSubmitting] = useState(false);
   const editStorageKey = `vowz_rsvp_edit_${site.id}`;
   const [editHandle, setEditHandle] = useState<{ id: string; token: string } | null>(() => {
+    // Prefer ?rsvp=<id>&t=<token> from the confirmation email link, so a guest
+    // can edit their RSVP from any device (not just the browser that submitted).
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const rsvpId = params.get("rsvp");
+      const token = params.get("t");
+      if (rsvpId && token) {
+        const fromLink = { id: rsvpId, token };
+        try { localStorage.setItem(editStorageKey, JSON.stringify(fromLink)); } catch {}
+        return fromLink;
+      }
+    } catch { /* ignore */ }
     try {
       const raw = localStorage.getItem(editStorageKey);
       return raw ? JSON.parse(raw) : null;
@@ -1304,6 +1316,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         meal_preference: includeMeal ? (form.meal_preference || null) : null,
       });
 
+      let createdHandle: { id: string; token: string } | null = null;
       if (isEditing && editHandle) {
         const { data: ok, error } = await supabase.rpc("update_rsvp_by_token", {
           _rsvp_id: editHandle.id,
@@ -1336,6 +1349,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         if (error) throw error;
         if (inserted?.id && newToken) {
           const handle = { id: inserted.id as string, token: newToken };
+          createdHandle = handle;
           setEditHandle(handle);
           try { localStorage.setItem(editStorageKey, JSON.stringify(handle)); } catch {}
         }
@@ -1376,6 +1390,9 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
               attending: validated.attending,
               guestCount: validated.guest_count,
               siteUrl: `${window.location.origin}/site/${site.slug}`,
+              editUrl: createdHandle
+                ? `${window.location.origin}/site/${site.slug}?rsvp=${encodeURIComponent(createdHandle.id)}&t=${encodeURIComponent(createdHandle.token)}`
+                : undefined,
             },
           },
         });
