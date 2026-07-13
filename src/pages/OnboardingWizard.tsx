@@ -925,6 +925,45 @@ const OnboardingWizard = () => {
           </AlertDialogHeader>
           {pendingTheme && (
             <div className="mt-2">
+              {(() => {
+                const current = WEDDING_THEMES.find((x) => x.id === wizardData.theme);
+                if (!current || current.id === pendingTheme.id) return null;
+                const rows: { label: string; from: string; to: string; swatchFrom?: string; swatchTo?: string; changed: boolean }[] = [
+                  { label: "Primary color", from: current.colors.bg, to: pendingTheme.colors.bg, swatchFrom: current.colors.bg, swatchTo: pendingTheme.colors.bg, changed: current.colors.bg !== pendingTheme.colors.bg },
+                  { label: "Accent", from: current.colors.accent, to: pendingTheme.colors.accent, swatchFrom: current.colors.accent, swatchTo: pendingTheme.colors.accent, changed: current.colors.accent !== pendingTheme.colors.accent },
+                  { label: "Ink / text", from: current.colors.ink, to: pendingTheme.colors.ink, swatchFrom: current.colors.ink, swatchTo: pendingTheme.colors.ink, changed: current.colors.ink !== pendingTheme.colors.ink },
+                  { label: "Display font", from: current.fonts.display, to: pendingTheme.fonts.display, changed: current.fonts.display !== pendingTheme.fonts.display },
+                  { label: "Body font", from: current.fonts.body, to: pendingTheme.fonts.body, changed: current.fonts.body !== pendingTheme.fonts.body },
+                  { label: "Motif", from: current.motif, to: pendingTheme.motif, changed: current.motif !== pendingTheme.motif },
+                ];
+                return (
+                  <div className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
+                    <p className="text-[10px] uppercase tracking-widest font-body text-muted-foreground mb-2">
+                      Tokens that will change
+                    </p>
+                    <ul className="space-y-1.5 text-xs font-body">
+                      {rows.map((r) => (
+                        <li key={r.label} className={`flex items-center gap-2 ${r.changed ? "text-foreground" : "text-muted-foreground/70"}`}>
+                          <span className="w-24 shrink-0">{r.label}</span>
+                          <span className="flex items-center gap-1 min-w-0 flex-1">
+                            {r.swatchFrom && <span className="w-3 h-3 rounded-full border border-border/60" style={{ background: r.swatchFrom }} aria-hidden />}
+                            <span className="truncate">{r.from}</span>
+                          </span>
+                          <span className="text-muted-foreground shrink-0">→</span>
+                          <span className="flex items-center gap-1 min-w-0 flex-1">
+                            {r.swatchTo && <span className="w-3 h-3 rounded-full border border-border/60" style={{ background: r.swatchTo }} aria-hidden />}
+                            <span className={`truncate ${r.changed ? "font-semibold" : ""}`}>{r.to}</span>
+                          </span>
+                          {!r.changed && <span className="text-[10px] uppercase tracking-wider text-muted-foreground shrink-0">same</span>}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 text-[10px] font-body text-muted-foreground">
+                      Spacing and layout scale stay the same — only these design tokens change.
+                    </p>
+                  </div>
+                );
+              })()}
               <p className="text-[10px] uppercase tracking-widest font-body text-muted-foreground mb-2">Live preview</p>
               <div
                 className="rounded-xl border overflow-hidden"
