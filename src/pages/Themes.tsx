@@ -106,6 +106,7 @@ export default function Themes() {
   const [custom, setCustom] = useState<Custom | null>(null);
   const [applying, setApplying] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [previewTpl, setPreviewTpl] = useState<WeddingTheme | null>(null);
   const { user } = useAuth();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
@@ -289,15 +290,14 @@ export default function Themes() {
                         </div>
                       </button>
                       <div className="px-1 mt-3 grid grid-cols-2 gap-2">
-                        <Link
-                          to={`/site/demo-${t.id}`}
-                          target="_blank"
-                          rel="noopener"
+                        <button
+                          type="button"
+                          onClick={() => setPreviewTpl(t)}
                           className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-3 py-2 text-xs font-body transition-colors"
-                          aria-label={`View live demo of ${t.name}`}
+                          aria-label={`Preview landing page for ${t.name}`}
                         >
-                          <Eye className="w-3.5 h-3.5" /> View demo
-                        </Link>
+                          <Eye className="w-3.5 h-3.5" /> Preview
+                        </button>
                         <button
                           type="button"
                           onClick={() => startFromTemplate(t)}
@@ -339,9 +339,9 @@ export default function Themes() {
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to={`/site/demo-${active.id}`} target="_blank" rel="noopener">
-                      <Eye className="w-4 h-4 mr-1" /> View demo
-                    </Link>
+                    <button type="button" onClick={() => setPreviewTpl(active)}>
+                      <Eye className="w-4 h-4 mr-1" /> Preview
+                    </button>
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => startFromTemplate(active)} disabled={starting}>
                     <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
@@ -418,6 +418,48 @@ export default function Themes() {
                   <p className="text-sm text-muted-foreground font-body mt-5 leading-relaxed">{active.description}</p>
                 </div>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Full-screen landing page preview modal */}
+      <Dialog open={!!previewTpl} onOpenChange={(o) => !o && setPreviewTpl(null)}>
+        <DialogContent
+          className="max-w-none w-screen h-screen sm:h-screen p-0 rounded-none border-0 bg-background sm:rounded-none"
+          style={{ width: "100vw", height: "100dvh", maxWidth: "100vw" }}
+        >
+          {previewTpl && (
+            <div className="flex flex-col w-full h-full">
+              <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0">
+                <div className="min-w-0">
+                  <h2 className="font-display text-base sm:text-lg font-semibold truncate">{previewTpl.name} · landing preview</h2>
+                  <p className="text-[11px] text-muted-foreground truncate">{previewTpl.tradition}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="gold"
+                    size="sm"
+                    disabled={starting}
+                    onClick={() => { const t = previewTpl; setPreviewTpl(null); startFromTemplate(t); }}
+                  >
+                    <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
+                  </Button>
+                  <button
+                    onClick={() => setPreviewTpl(null)}
+                    aria-label="Close preview"
+                    className="p-2 rounded-md hover:bg-muted"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <iframe
+                key={previewTpl.id}
+                src={`/site/demo-${previewTpl.id}`}
+                title={`${previewTpl.name} landing preview`}
+                className="flex-1 w-full border-0 bg-background"
+              />
             </div>
           )}
         </DialogContent>
