@@ -207,6 +207,41 @@ export function useWeddingWizard() {
     setLastLocalSaveAt(savedAt);
   }, [step, wizardData, isComplete]);
 
+  // Optional server-side sync. On mount we check for a newer draft stored on
+  // the wizard_drafts table (signed-in users) and adopt it if it beats what we
+  // hydrated from localStorage. Every subsequent local autosave is debounced
+  // and mirrored to the server so a second device sees the same state.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const remote = await fetchServerDraft();
+      if (cancelled || !remote) return;
+      const localSavedAt = (() => {
+        try {
+          const raw = localStorage.getItem(WIZARD_STORAGE_KEY);
+          if (!raw) return 0;
+          const parsed = JSON.parse(raw);
+          return typeof parsed?.savedAt === "number" ? parsed.savedAt : 0;
+        } catch { return 0; }
+      })();
+      if ((remote.savedAt ?? 0) > localSavedAt + 500) {
+        if (remote.step) setStep(remote.step);
+        if (remote.data) setWizardData((prev) => ({ ...prev, ...remote.data }));
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Debounced server mirror of the local draft.
+  useEffect(() => {
+    if (isComplete) return;
+    const id = window.setTimeout(() => {
+      upsertServerDraft({ step, data: wizardData, savedAt: Date.now() });
+    }, 1200);
+    return () => window.clearTimeout(id);
+  }, [step, wizardData, isComplete]);
+
   // Watch for writes to the same key from other tabs. `storage` only fires in
   // tabs OTHER than the one that made the change, so any event we receive is a
   // remote edit by definition — flag it as a conflict when it's newer than our
