@@ -242,41 +242,43 @@ export default function Themes() {
     }
   };
 
-  // Preserve non-empty user fields when merging a template section on top of an
-  // existing one. Strings/arrays with content win over the template's placeholder.
-  const isMeaningful = (v: any): boolean => {
-    if (v == null) return false;
-    if (typeof v === "string") return v.trim().length > 0;
-    if (Array.isArray(v)) return v.length > 0;
-    if (typeof v === "object") return Object.keys(v).length > 0;
-    return true;
-  };
+  // Merge a template section's data on top of a user's existing section data.
+  // Rule: any key the user has authored (even if now empty) is preserved as-is —
+  // we only fill in keys the user has never touched. This guarantees story,
+  // events, and RSVP text the user typed is never overwritten by placeholders.
   const mergeSectionData = (userData: any, tplData: any) => {
-    const out: any = { ...(tplData || {}) };
-    if (userData && typeof userData === "object") {
-      for (const k of Object.keys(userData)) {
-        if (isMeaningful((userData as any)[k])) out[k] = (userData as any)[k];
+    if (!userData || typeof userData !== "object") {
+      return tplData && typeof tplData === "object" ? { ...tplData } : (tplData ?? {});
+    }
+    const out: any = { ...userData };
+    if (tplData && typeof tplData === "object") {
+      for (const k of Object.keys(tplData)) {
+        if (!(k in userData)) out[k] = (tplData as any)[k];
       }
     }
     return out;
   };
   const mergeSections = (userSections: any[], tplSections: any[]) => {
-    const userById = new Map<string, any>((userSections || []).map((s) => [s.id, s]));
-    const tplIds = new Set(tplSections.map((s) => s.id));
-    const merged = tplSections.map((tplSec) => {
-      const u = userById.get(tplSec.id);
-      if (!u) return tplSec;
+    const tplById = new Map<string, any>(tplSections.map((s) => [s.id, s]));
+    const userIds = new Set((userSections || []).map((s) => s.id));
+    // Preserve the user's section order and any custom sections they added.
+    const merged = (userSections || []).map((u) => {
+      const tpl = tplById.get(u.id);
+      if (!tpl) return u;
       return {
-        ...tplSec,
-        // Preserve the user's visibility and title choices.
-        title: u.title || tplSec.title,
-        visible: typeof u.visible === "boolean" ? u.visible : tplSec.visible,
-        data: mergeSectionData(u.data, tplSec.data),
+        ...tpl,
+        ...u,
+        // Keep user's title/visibility choices; fall back to template only if unset.
+        title: u.title || tpl.title,
+        visible: typeof u.visible === "boolean" ? u.visible : tpl.visible,
+        // Keep user's authored content; only fill missing keys from the template.
+        data: mergeSectionData(u.data, tpl.data),
       };
     });
-    // Append custom sections the user added that aren't in the template.
-    const extras = (userSections || []).filter((s) => !tplIds.has(s.id));
-    return [...merged, ...extras];
+    // Append template sections the user doesn't have yet — these are the
+    // "empty/default" slots the template contributes on top of the existing site.
+    const missing = tplSections.filter((s) => !userIds.has(s.id));
+    return [...merged, ...missing];
   };
 
   // One-click: seed a whole new site from the theme's tradition-specific template.
