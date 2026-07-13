@@ -25,6 +25,36 @@ const Auth = () => {
   const redirectParam = searchParams.get("redirect");
   const redirectTarget = redirectParam && redirectParam.startsWith("/") ? redirectParam : "/dashboard";
 
+  // A wizard draft is auto-saved to localStorage under this key while the user
+  // fills out the onboarding flow. If it exists on login, we surface a
+  // "Resume your draft" prompt so they can continue where they left off.
+  const WIZARD_STORAGE_KEY = "vowz_wizard_draft";
+  const hasWizardDraft = () => {
+    try {
+      const raw =
+        (typeof localStorage !== "undefined" && localStorage.getItem(WIZARD_STORAGE_KEY)) ||
+        (typeof sessionStorage !== "undefined" && sessionStorage.getItem(WIZARD_STORAGE_KEY));
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      return !!parsed && (parsed.data || parsed.step !== undefined);
+    } catch {
+      return false;
+    }
+  };
+  const routeAfterAuth = () => {
+    const pending = sessionStorage.getItem("pendingTemplate");
+    if (pending) return "/wizard";
+    if (hasWizardDraft()) {
+      toast({
+        title: "Welcome back — resume your draft?",
+        description: "We saved your wedding wizard progress. Tap to continue where you left off.",
+        action: undefined,
+      });
+      return "/wizard?resume=1";
+    }
+    return redirectTarget;
+  };
+
   useEffect(() => {
     if (user) {
       navigate(redirectTarget, { replace: true });
@@ -42,8 +72,7 @@ const Auth = () => {
         const { error } = await signIn(form.email, form.password);
         if (error) throw error;
         toast({ title: "Welcome back! 💍" });
-        const pending = sessionStorage.getItem("pendingTemplate");
-        navigate(pending ? "/wizard" : redirectTarget);
+        navigate(routeAfterAuth());
       } else {
         if (form.password.length < 6) {
           toast({ title: "Password must be at least 6 characters", variant: "destructive" });
@@ -60,8 +89,7 @@ const Auth = () => {
           return;
         }
         toast({ title: "Welcome to Vowz! 💍" });
-        const pending = sessionStorage.getItem("pendingTemplate");
-        navigate(pending ? "/wizard" : redirectTarget);
+        navigate(routeAfterAuth());
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
