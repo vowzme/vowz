@@ -1572,7 +1572,19 @@ function SettingsPanel({
           />
         </div>
         <div>
-          <label className="font-body text-sm font-medium text-foreground mb-1 block">Theme</label>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <label className="font-body text-sm font-medium text-foreground">Theme</label>
+            {onRestoreLastSavedStyle && (
+              <button
+                type="button"
+                onClick={onRestoreLastSavedStyle}
+                className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-2 py-1 text-[11px] font-body"
+                title="Discard unsaved theme, color, and font changes. Content stays as is."
+              >
+                <RotateCcw className="w-3 h-3" /> Restore last saved
+              </button>
+            )}
+          </div>
           <p className="font-body text-xs text-muted-foreground mb-2">
             Switch themes anytime — only colors and typography change, your names, story, events, and gallery stay intact.
           </p>
