@@ -278,6 +278,12 @@ const Editor = () => {
           // Normalize old-format sections ({type:"event"}) to proper format
           const isOldFormat = rawSections.length > 0 && rawSections[0]?.type === "event";
           const sections = isOldFormat ? buildSections(siteData) : (rawSections as any as WeddingSection[]);
+          savedStyleRef.current = {
+            theme: siteData.theme,
+            suggestedColors: siteData.suggestedColors,
+            displayFont: siteData.displayFont,
+            bodyFont: siteData.bodyFont,
+          };
           setState((prev) => ({
             ...prev,
             siteData,
