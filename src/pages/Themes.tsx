@@ -361,7 +361,63 @@ export default function Themes() {
         </div>
 
         <div className="max-w-6xl mx-auto px-4 py-10">
-          {/* Category quick-jump */}
+          {/* Filter + search bar */}
+          <div className="mb-6 rounded-2xl border border-border/60 bg-muted/20 p-4 sm:p-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search themes, traditions, styles…"
+                  className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm font-body focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  aria-label="Search themes"
+                />
+              </div>
+              <select
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+                aria-label="Filter by region"
+              >
+                {REGION_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+              <select
+                value={wtype}
+                onChange={(e) => setWtype(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+                aria-label="Filter by wedding type"
+              >
+                {TYPE_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+              <select
+                value={style}
+                onChange={(e) => setStyle(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+                aria-label="Filter by style"
+              >
+                {STYLE_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+            </div>
+            {filtersActive && (
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground font-body">
+                  {filteredThemes.length} theme{filteredThemes.length === 1 ? "" : "s"} match your filters
+                </p>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="text-xs font-body text-gold hover:underline inline-flex items-center gap-1"
+                >
+                  <RotateCcw className="w-3 h-3" /> Clear filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Category quick-jump (hidden when filtering) */}
+          {!filtersActive && (
           <nav className="flex flex-wrap gap-2 justify-center mb-10">
             {THEME_CATEGORIES.map((cat) => (
               <a
@@ -374,8 +430,78 @@ export default function Themes() {
               </a>
             ))}
           </nav>
+          )}
 
-          {THEME_CATEGORIES.map((cat) => {
+          {filtersActive ? (
+            filteredThemes.length === 0 ? (
+              <div className="text-center py-16 border border-dashed border-border/60 rounded-2xl">
+                <p className="font-body text-muted-foreground mb-3">No themes match those filters.</p>
+                <Button variant="outline" size="sm" onClick={resetFilters}>
+                  <RotateCcw className="w-4 h-4 mr-1" /> Clear filters
+                </Button>
+              </div>
+            ) : (
+              <section className="mb-14">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredThemes.map((t, i) => (
+                    <motion.div
+                      key={t.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="group text-left rounded-2xl"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => openTheme(t)}
+                        className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-2xl"
+                        aria-label={`Preview and customize ${t.name}`}
+                      >
+                        <div className="transition-transform group-hover:-translate-y-1">
+                          <ThemeDemo theme={t} compact />
+                        </div>
+                        <div className="px-1 pt-4">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <h3 className="font-display text-lg font-semibold text-foreground">{t.name}</h3>
+                            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t.tradition}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-body mt-1 line-clamp-2">{t.description}</p>
+                          <div className="flex items-center gap-2 mt-3">
+                            {[t.colors.bg, t.colors.accent, t.colors.surface, t.colors.ink].map((c) => (
+                              <span key={c} className="w-4 h-4 rounded-full border border-border/60" style={{ background: c }} />
+                            ))}
+                            <span className="ml-auto text-xs text-gold font-body inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Customize <ArrowRight className="w-3 h-3" />
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                      <div className="px-1 mt-3 grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewTpl(t)}
+                          className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-3 py-2 text-xs font-body transition-colors"
+                          aria-label={`Preview landing page for ${t.name}`}
+                        >
+                          <Eye className="w-3.5 h-3.5" /> Preview
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => startFromTemplate(t)}
+                          disabled={starting}
+                          className="inline-flex items-center justify-center gap-1.5 rounded-md border border-gold/40 bg-gold/10 hover:bg-gold/20 text-gold px-3 py-2 text-xs font-body transition-colors disabled:opacity-60"
+                          aria-label={`Start with the ${t.name} template`}
+                        >
+                          <Wand2 className="w-3.5 h-3.5" /> {starting ? "Starting…" : "Start with template"}
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+            )
+          ) : (
+          THEME_CATEGORIES.map((cat) => {
             const items = cat.themeIds
               .map((id) => WEDDING_THEMES.find((t) => t.id === id))
               .filter(Boolean) as WeddingTheme[];
@@ -447,7 +573,7 @@ export default function Themes() {
                 </div>
               </section>
             );
-          })}
+          }))}
 
           <div className="text-center mt-16">
             <p className="text-sm text-muted-foreground font-body mb-4">Not sure which one? Start with our onboarding wizard.</p>
