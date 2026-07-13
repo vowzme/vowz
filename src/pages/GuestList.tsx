@@ -108,10 +108,11 @@ export default function GuestList() {
     `https://wa.me/?text=${encodeURIComponent(`Hi ${name}, ${inviteText}`)}`;
 
   const exportCsv = () => {
-    const header = ["Name", "Email", "Attending", "Guests", "Meal", "Events", "Message", "Submitted"];
+    const header = ["Name", "Email", "Attending", "Guests", "Meal", "Dietary", "Dietary notes", "Events", "Message", "Submitted"];
     const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const lines = [header.join(",")];
     for (const r of filtered) {
+      const { tags, notes, rest } = parseDietary(r.message);
       lines.push(
         [
           esc(r.guest_name),
@@ -119,8 +120,10 @@ export default function GuestList() {
           esc(r.attending ? "Yes" : "No"),
           esc(r.guest_count),
           esc(r.meal_preference ?? ""),
+          esc(tags.join(" | ")),
+          esc(notes),
           esc((r.selected_events ?? []).join(" | ")),
-          esc(r.message ?? ""),
+          esc(rest),
           esc(new Date(r.created_at).toISOString()),
         ].join(",")
       );
