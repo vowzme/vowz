@@ -1588,6 +1588,21 @@ function SettingsPanel({
           <p className="font-body text-xs text-muted-foreground mb-2">
             Switch themes anytime — only colors and typography change, your names, story, events, and gallery stay intact.
           </p>
+          <div className="mb-3 rounded-lg border border-gold/30 bg-gold/5 p-2.5 text-[11px] font-body leading-relaxed">
+            <p className="font-semibold text-foreground mb-1">What a theme change updates</p>
+            <div className="grid grid-cols-2 gap-2">
+              <ul className="space-y-0.5 text-foreground/80">
+                <li className="flex items-start gap-1"><Check className="w-3 h-3 mt-0.5 text-gold shrink-0" /> Colors & palette</li>
+                <li className="flex items-start gap-1"><Check className="w-3 h-3 mt-0.5 text-gold shrink-0" /> Display & body fonts</li>
+                <li className="flex items-start gap-1"><Check className="w-3 h-3 mt-0.5 text-gold shrink-0" /> Background motif</li>
+              </ul>
+              <ul className="space-y-0.5 text-muted-foreground">
+                <li className="flex items-start gap-1"><X className="w-3 h-3 mt-0.5 shrink-0" /> Names, story, tagline</li>
+                <li className="flex items-start gap-1"><X className="w-3 h-3 mt-0.5 shrink-0" /> Events, dates, venues</li>
+                <li className="flex items-start gap-1"><X className="w-3 h-3 mt-0.5 shrink-0" /> Gallery, RSVP, guestbook</li>
+              </ul>
+            </div>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             <button
               type="button"
