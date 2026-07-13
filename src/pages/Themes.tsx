@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2 } from "lucide-react";
+import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
@@ -11,6 +11,7 @@ import { ThemeDemo } from "@/components/ThemeDemo";
 import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
+import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
 
 const FONT_POOL = [
   "Playfair Display",
@@ -225,48 +226,94 @@ export default function Themes() {
         </div>
 
         <div className="max-w-6xl mx-auto px-4 py-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {WEDDING_THEMES.map((t, i) => (
-              <motion.button
-                key={t.id}
-                type="button"
-                onClick={() => openTheme(t)}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
-                className="group text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-2xl"
+          {/* Category quick-jump */}
+          <nav className="flex flex-wrap gap-2 justify-center mb-10">
+            {THEME_CATEGORIES.map((cat) => (
+              <a
+                key={cat.id}
+                href={`#${cat.id}`}
+                className="px-3 py-1.5 rounded-full border border-border/60 bg-muted/30 hover:bg-gold/10 hover:border-gold/40 hover:text-gold text-xs font-body transition-colors"
               >
-                <div className="transition-transform group-hover:-translate-y-1">
-                  <ThemeDemo theme={t} compact />
-                </div>
-                <div className="px-1 pt-4">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <h3 className="font-display text-lg font-semibold text-foreground">{t.name}</h3>
-                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t.tradition}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground font-body mt-1 line-clamp-2">{t.description}</p>
-                  <div className="flex items-center gap-2 mt-3">
-                    {[t.colors.bg, t.colors.accent, t.colors.surface, t.colors.ink].map((c) => (
-                      <span key={c} className="w-4 h-4 rounded-full border border-border/60" style={{ background: c }} />
-                    ))}
-                    <span className="ml-auto text-xs text-gold font-body inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Customize <ArrowRight className="w-3 h-3" />
-                    </span>
-                  </div>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); startFromTemplate(t); }}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); startFromTemplate(t); } }}
-                    className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-gold/40 bg-gold/10 hover:bg-gold/20 text-gold px-3 py-2 text-xs font-body transition-colors"
-                    aria-label={`Start with the ${t.name} template`}
-                  >
-                    <Wand2 className="w-3.5 h-3.5" /> {starting ? "Starting…" : "Start with this template"}
-                  </div>
-                </div>
-              </motion.button>
+                {cat.label}
+                <span className="ml-1.5 text-muted-foreground">({cat.themeIds.length})</span>
+              </a>
             ))}
-          </div>
+          </nav>
+
+          {THEME_CATEGORIES.map((cat) => {
+            const items = cat.themeIds
+              .map((id) => WEDDING_THEMES.find((t) => t.id === id))
+              .filter(Boolean) as WeddingTheme[];
+            if (items.length === 0) return null;
+            return (
+              <section key={cat.id} id={cat.id} className="mb-14 scroll-mt-24">
+                <header className="mb-5 flex items-end justify-between gap-4 flex-wrap">
+                  <div>
+                    <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">{cat.label}</h2>
+                    <p className="text-sm text-muted-foreground font-body mt-1 max-w-xl">{cat.description}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground font-body">{items.length} theme{items.length > 1 ? "s" : ""}</span>
+                </header>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {items.map((t, i) => (
+                    <motion.div
+                      key={t.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="group text-left rounded-2xl"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => openTheme(t)}
+                        className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-2xl"
+                        aria-label={`Preview and customize ${t.name}`}
+                      >
+                        <div className="transition-transform group-hover:-translate-y-1">
+                          <ThemeDemo theme={t} compact />
+                        </div>
+                        <div className="px-1 pt-4">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <h3 className="font-display text-lg font-semibold text-foreground">{t.name}</h3>
+                            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t.tradition}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-body mt-1 line-clamp-2">{t.description}</p>
+                          <div className="flex items-center gap-2 mt-3">
+                            {[t.colors.bg, t.colors.accent, t.colors.surface, t.colors.ink].map((c) => (
+                              <span key={c} className="w-4 h-4 rounded-full border border-border/60" style={{ background: c }} />
+                            ))}
+                            <span className="ml-auto text-xs text-gold font-body inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Customize <ArrowRight className="w-3 h-3" />
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                      <div className="px-1 mt-3 grid grid-cols-2 gap-2">
+                        <Link
+                          to={`/site/demo-${t.id}`}
+                          target="_blank"
+                          rel="noopener"
+                          className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-3 py-2 text-xs font-body transition-colors"
+                          aria-label={`View live demo of ${t.name}`}
+                        >
+                          <Eye className="w-3.5 h-3.5" /> View demo
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => startFromTemplate(t)}
+                          disabled={starting}
+                          className="inline-flex items-center justify-center gap-1.5 rounded-md border border-gold/40 bg-gold/10 hover:bg-gold/20 text-gold px-3 py-2 text-xs font-body transition-colors disabled:opacity-60"
+                          aria-label={`Start with the ${t.name} template`}
+                        >
+                          <Wand2 className="w-3.5 h-3.5" /> {starting ? "Starting…" : "Start with template"}
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
 
           <div className="text-center mt-16">
             <p className="text-sm text-muted-foreground font-body mb-4">Not sure which one? Start with our onboarding wizard.</p>
@@ -290,6 +337,11 @@ export default function Themes() {
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={() => setCustom(customFrom(active))}>
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
+                  </Button>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to={`/site/demo-${active.id}`} target="_blank" rel="noopener">
+                      <Eye className="w-4 h-4 mr-1" /> View demo
+                    </Link>
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => startFromTemplate(active)} disabled={starting}>
                     <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
