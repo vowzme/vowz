@@ -55,6 +55,11 @@ const OnboardingWizard = () => {
   // Confirmation prompt when switching from an already-selected theme.
   const [pendingTheme, setPendingTheme] = useState<typeof WEDDING_THEMES[number] | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  // Undo-reset banner state. Populated on mount if a reset happened within
+  // the last UNDO_WINDOW_MS and the pre-reset draft is still in the backup
+  // slot. `secondsLeft` powers the visible countdown.
+  const [undoBackup, setUndoBackup] = useState<{ draft: string; expiresAt: number } | null>(null);
+  const [undoSecondsLeft, setUndoSecondsLeft] = useState(0);
   const applyTheme = (t: typeof WEDDING_THEMES[number]) => {
     updateField("theme", t.id);
     updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
