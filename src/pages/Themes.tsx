@@ -339,9 +339,9 @@ export default function Themes() {
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to={`/site/demo-${active.id}`} target="_blank" rel="noopener">
-                      <Eye className="w-4 h-4 mr-1" /> View demo
-                    </Link>
+                    <button type="button" onClick={() => setPreviewTpl(active)}>
+                      <Eye className="w-4 h-4 mr-1" /> Preview
+                    </button>
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => startFromTemplate(active)} disabled={starting}>
                     <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
