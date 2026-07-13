@@ -210,7 +210,7 @@ function Swatch({ label, value, onChange }: { label: string; value: string; onCh
   return (
     <label className="flex items-center gap-2 text-xs font-body">
       <span
-        className="relative w-8 h-8 rounded-full border border-border/60 overflow-hidden shadow-sm"
+        className="relative w-8 h-8 rounded-full border border-border/60 overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background"
         style={{ background: value }}
       >
         <input
@@ -655,7 +655,12 @@ export default function Themes() {
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
         <DialogContent className="max-w-5xl p-0 overflow-hidden bg-background border-border">
           {active && custom && previewTheme && (
-            <div className="max-h-[92vh] overflow-y-auto">
+            <div
+              className="max-h-[92vh] overflow-y-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+              tabIndex={0}
+              role="region"
+              aria-label={`${active.name} theme customizer`}
+            >
               <div className="sticky top-0 z-10 bg-background/90 backdrop-blur border-b border-border/50 px-5 py-3 flex items-center justify-between">
                 <div>
                   <h2 className="font-display text-xl font-semibold">{active.name}</h2>
@@ -665,10 +670,13 @@ export default function Themes() {
                   <Button variant="ghost" size="sm" onClick={() => setCustom(customFrom(active))}>
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
-                  <Button variant="ghost" size="sm" asChild>
-                    <button type="button" onClick={() => { if (active) persistPreviewedTheme(active); setPreviewTpl(active); }}>
-                      <Eye className="w-4 h-4 mr-1" /> Preview
-                    </button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    onClick={() => { if (active) persistPreviewedTheme(active); setPreviewTpl(active); }}
+                  >
+                    <Eye className="w-4 h-4 mr-1" /> Preview
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => startFromTemplate(active)} disabled={starting}>
                     <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
@@ -676,7 +684,12 @@ export default function Themes() {
                   <Button variant="gold" size="sm" onClick={applyTheme} disabled={applying}>
                     <Check className="w-4 h-4 mr-1" /> {applying ? "Applying…" : "Apply to my site"}
                   </Button>
-                  <button onClick={() => setActive(null)} aria-label="Close" className="p-2 rounded-md hover:bg-muted">
+                  <button
+                    type="button"
+                    onClick={() => setActive(null)}
+                    aria-label="Close"
+                    className="p-2 rounded-md hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
