@@ -152,4 +152,29 @@ describe("/themes count", () => {
       expect(canonical).toBe("https://vowz.me/themes");
     });
   });
+
+  it("twitter:title and twitter:description match strings derived from WEDDING_THEMES.length", async () => {
+    render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={["/themes"]}>
+          <Themes />
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    const n = WEDDING_THEMES.length;
+    const expectedTitle = `${n} Wedding Website Themes · Vowz`;
+    const expectedDescription = `Explore ${n} curated wedding website themes, customize colors, typography, and motif intensity, then apply to your site in one click.`;
+
+    await waitFor(() => {
+      const twTitle = document
+        .querySelector('meta[name="twitter:title"]')
+        ?.getAttribute("content");
+      const twDesc = document
+        .querySelector('meta[name="twitter:description"]')
+        ?.getAttribute("content");
+      expect(twTitle).toBe(expectedTitle);
+      expect(twDesc).toBe(expectedDescription);
+    });
+  });
 });
