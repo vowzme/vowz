@@ -674,7 +674,7 @@ function PublicSection({
   if (type === "gallery") return <GallerySection data={td} accent={accent} coupleNames={coupleNames} />;
   if (type === "travel") return <TravelSection data={td} accent={accent} />;
   if (type === "guestbook") return <GuestbookSection data={td} site={site} accent={accent} trackEvent={trackEvent} />;
-  if (type === "rsvp") return <RsvpSection data={td} site={site} bg={bg} accent={accent} trackEvent={trackEvent} />;
+  if (type === "rsvp") return <RsvpSection data={td} site={site} bg={bg} accent={accent} trackEvent={trackEvent} t={t} />;
   if (type === "custom") return <StorySection data={td} accent={accent} />;
   if (type === "polls") return <PollsSection data={td} site={site} accent={accent} />;
   if (type === "ecotips") return <EcoTipsSection data={td} accent={accent} />;
@@ -1207,7 +1207,7 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
 }
 
 // ─── RSVP Form ────────────────────────────────────────────────────────
-function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void }) {
+function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void; t: TranslateFn }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -1232,10 +1232,20 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
   const hasPollsSection = ((site.sections as any[]) || []).some((s) => s.type === "polls" && s.visible !== false);
 
   const siteUrl = `${window.location.origin}/site/${site.slug}`;
-  const inviteText =
+  // Bilingual WhatsApp text: English line + local translation (when one exists
+  // and differs). Guests on multilingual invites see both, so we don't force
+  // them to guess the language before opening the link.
+  const inviteEn =
     (data.whatsapp_invite_message && String(data.whatsapp_invite_message).trim()) ||
     `You're invited to ${site.partner1} & ${site.partner2}'s wedding — please RSVP:`;
+  const inviteLocal = t("rsvp_whatsapp_invite", inviteEn);
+  const inviteText = inviteLocal && inviteLocal !== inviteEn ? `${inviteEn}\n${inviteLocal}` : inviteEn;
   const shareWhatsAppUrl = `https://wa.me/?text=${encodeURIComponent(`${inviteText}\n${siteUrl}`)}`;
+
+  const confirmTitleEn = "Thank you!";
+  const confirmBodyEn = "Your RSVP has been received. We can't wait to celebrate with you!";
+  const confirmTitleLocal = t("rsvp_confirmation_title", confirmTitleEn);
+  const confirmBodyLocal = t("rsvp_confirmation_body", confirmBodyEn);
 
   // Extract event names from sections for checkboxes
   const eventsSection = (site.sections as any[])?.find((s) => s.type === "events");
@@ -1354,9 +1364,17 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
             <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: `${accent}20` }}>
               <Check className="w-7 h-7" style={{ color: accent }} />
             </div>
-            <h3 className="font-display text-xl font-bold text-foreground mb-2">Thank you!</h3>
+            <h3 className="font-display text-xl font-bold text-foreground mb-2">
+              {confirmTitleEn}
+              {confirmTitleLocal !== confirmTitleEn && (
+                <span className="block text-base font-normal opacity-80 mt-1">{confirmTitleLocal}</span>
+              )}
+            </h3>
             <p className="text-muted-foreground font-body">
-              Your RSVP has been received. We can't wait to celebrate with you!
+              {confirmBodyEn}
+              {confirmBodyLocal !== confirmBodyEn && (
+                <span className="block mt-1 opacity-90">{confirmBodyLocal}</span>
+              )}
             </p>
             {showWhatsAppShare && (
               <a
