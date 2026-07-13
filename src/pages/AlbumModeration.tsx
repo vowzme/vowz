@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { GuestModerationTemplatesDialog } from "@/components/GuestModerationTemplatesDialog";
 
 type Status = "pending" | "approved" | "hidden";
 
@@ -227,6 +228,9 @@ const AlbumModeration = () => {
           <Button variant="ghost" size="sm" asChild>
             <Link to="/dashboard"><ArrowLeft className="w-4 h-4 mr-1" /> Dashboard</Link>
           </Button>
+          <div className="ml-auto">
+            {siteId && <GuestModerationTemplatesDialog siteId={siteId} />}
+          </div>
         </div>
 
         <div className="mb-6">
