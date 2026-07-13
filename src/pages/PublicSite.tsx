@@ -17,6 +17,7 @@ import { TimezoneDisplay, TimezoneNotice } from "@/components/TimezoneDisplay";
 import { buildGoogleCalendarUrl, buildOutlookCalendarUrl, downloadIcs, downloadAllEventsIcs, parseEventStart } from "@/lib/calendar-invite";
 import { LivestreamPublicSection } from "@/components/LivestreamSection";
 import BlessingWall from "@/components/BlessingWall";
+import GuestAlbum from "@/components/GuestAlbum";
 import { CurrencyDisplay } from "@/components/CurrencyConverter";
 import LanguageSelector from "@/components/LanguageSelector";
 import BackgroundMusicPlayer from "@/components/BackgroundMusicPlayer";
@@ -680,6 +681,7 @@ function PublicSection({
   if (type === "video") return <VideoSection data={td} accent={accent} coupleNames={coupleNames} />;
   if (type === "livestream") return <LivestreamPublicSection data={td} accent={accent} />;
   if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
+  if (type === "guest_album") return <GuestAlbum siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
   if (type === "registry") return <RegistrySection data={td} accent={accent} />;
   if (type === "couple_profiles") return <CoupleProfilesPublic data={td} accent={accent} bg={bg} light={light} />;
 
