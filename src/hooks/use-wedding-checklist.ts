@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -41,11 +41,17 @@ export function useWeddingChecklist(siteId: string | undefined) {
   const [items, setItems] = useState<ChecklistItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Guard against StrictMode double-invoke + rapid re-renders seeding twice.
+  const inFlight = useRef(false);
+  const seededFor = useRef<string | null>(null);
 
   const loadChecklist = useCallback(async () => {
     if (!siteId) return;
+    if (inFlight.current) return;
+    inFlight.current = true;
     setLoading(true);
     setError(null);
+    try {
     const { data, error } = await supabase
       .from("wedding_checklist" as any)
       .select("*")
@@ -55,14 +61,14 @@ export function useWeddingChecklist(siteId: string | undefined) {
     if (error) {
       console.error("Load checklist error:", error);
       setError(error.message || "Failed to load checklist");
-      setLoading(false);
       return;
     }
 
     const rows = (data || []) as any as ChecklistItem[];
 
     // Seed defaults if empty
-    if (rows.length === 0) {
+    if (rows.length === 0 && seededFor.current !== siteId) {
+      seededFor.current = siteId;
       const inserts = DEFAULT_TASKS.map((t) => ({
         wedding_site_id: siteId,
         title: t.title,
@@ -76,13 +82,17 @@ export function useWeddingChecklist(siteId: string | undefined) {
       if (seedErr) {
         console.error("Seed checklist error:", seedErr);
         setError(seedErr.message || "Failed to create default checklist");
+        seededFor.current = null;
       } else if (seeded) {
         setItems(seeded as any as ChecklistItem[]);
       }
     } else {
       setItems(rows);
     }
-    setLoading(false);
+    } finally {
+      setLoading(false);
+      inFlight.current = false;
+    }
   }, [siteId]);
 
   const addItem = useCallback(
