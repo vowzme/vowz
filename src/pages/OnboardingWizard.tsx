@@ -18,51 +18,10 @@ import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeColors, DEFAULT_COLORS } from "@/hooks/use-wedding-site";
+import { THEME_FIELDS, diffThemes } from "@/lib/theme-diff";
 
 // Regex for a valid CSS hex color (3/4/6/8 digits, optional leading #).
 const HEX_RE = /^#?[0-9a-fA-F]{3,8}$/;
-
-// Single source of truth for which wizardData fields `applyTheme` writes
-// during a theme switch/merge. The "What changes" summary and the token
-// diff are both derived from this list so the copy can never drift from
-// the actual mutation. If you add a new field here, applyTheme picks it
-// up automatically AND the dialog will list it.
-type ThemeField = {
-  key: "theme" | "suggestedColors" | "displayFont" | "bodyFont";
-  label: string;
-  get: (t: typeof WEDDING_THEMES[number]) => unknown;
-  format: (v: unknown) => string;
-  swatch?: (t: typeof WEDDING_THEMES[number]) => string;
-};
-const THEME_FIELDS: ThemeField[] = [
-  {
-    key: "theme",
-    label: "Theme preset",
-    get: (t) => t.id,
-    format: (v) => String(v),
-  },
-  {
-    key: "suggestedColors",
-    label: "Color palette",
-    get: (t) => [t.colors.bg, t.colors.accent, t.colors.light],
-    format: (v) => (Array.isArray(v) ? v.join(" · ") : String(v)),
-    swatch: (t) => t.colors.accent,
-  },
-  {
-    key: "displayFont",
-    label: "Display font",
-    get: (t) => t.fonts.display,
-    format: (v) => String(v),
-  },
-  {
-    key: "bodyFont",
-    label: "Body font",
-    get: (t) => t.fonts.body,
-    format: (v) => String(v),
-  },
-];
-const themeValuesEqual = (a: unknown, b: unknown) =>
-  JSON.stringify(a) === JSON.stringify(b);
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
