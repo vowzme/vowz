@@ -5,9 +5,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Search, Download, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy } from "lucide-react";
+import { ArrowLeft, Search, Download, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
@@ -25,6 +26,7 @@ type Rsvp = {
 };
 
 type Site = { id: string; partner1: string; partner2: string; slug: string | null };
+type WeddingEvent = { name: string; date?: string; time?: string; venue?: string };
 
 export default function GuestList() {
   const { siteId } = useParams<{ siteId: string }>();
@@ -35,6 +37,13 @@ export default function GuestList() {
   const [rows, setRows] = useState<Rsvp[]>([]);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "yes" | "no">("all");
+  const [events, setEvents] = useState<WeddingEvent[]>([]);
+  const [broadcast, setBroadcast] = useState({
+    eventIdx: -1,
+    audience: "yes" as "all" | "yes" | "no" | "event",
+    subject: "Update about our wedding",
+    message: "",
+  });
 
   useEffect(() => {
     if (!siteId || !user) return;
@@ -42,7 +51,7 @@ export default function GuestList() {
       setLoading(true);
       const { data: s } = await supabase
         .from("wedding_sites")
-        .select("id, partner1, partner2, slug, user_id")
+        .select("id, partner1, partner2, slug, user_id, sections")
         .eq("id", siteId)
         .maybeSingle();
       if (!s || s.user_id !== user.id) {
@@ -51,6 +60,9 @@ export default function GuestList() {
         return;
       }
       setSite(s as any);
+      const ev = ((s as any).sections as any[] || [])
+        .find((sec) => sec.type === "events")?.data?.events as WeddingEvent[] | undefined;
+      setEvents(ev || []);
       const { data: r, error } = await supabase
         .from("rsvps")
         .select("id, guest_name, guest_email, attending, guest_count, meal_preference, selected_events, message, created_at")
@@ -126,6 +138,55 @@ export default function GuestList() {
     if (!inviteText) return;
     await navigator.clipboard.writeText(inviteText);
     toast({ title: "Invite copied", description: "Paste it into any WhatsApp chat or group to broadcast." });
+  };
+
+  // ── Mass broadcast (announcements) ────────────────────────────────────
+  const broadcastRecipients = useMemo(() => {
+    let list = rows;
+    if (broadcast.audience === "yes") list = rows.filter((r) => r.attending);
+    else if (broadcast.audience === "no") list = rows.filter((r) => !r.attending);
+    else if (broadcast.audience === "event") {
+      const ev = events[broadcast.eventIdx];
+      if (ev) list = rows.filter((r) => r.attending && (r.selected_events ?? []).includes(ev.name));
+    }
+    return list;
+  }, [rows, broadcast.audience, broadcast.eventIdx, events]);
+
+  const composedMessage = useMemo(() => {
+    const ev = broadcast.eventIdx >= 0 ? events[broadcast.eventIdx] : null;
+    const evLine = ev
+      ? `📢 ${ev.name}${ev.date ? ` — ${ev.date}` : ""}${ev.time ? ` at ${ev.time}` : ""}${ev.venue ? ` (${ev.venue})` : ""}`
+      : "";
+    const signature = site ? `\n— ${site.partner1} & ${site.partner2}` : "";
+    const link = inviteUrl ? `\n${inviteUrl}` : "";
+    return [evLine, broadcast.message.trim(), link, signature].filter(Boolean).join("\n").trim();
+  }, [broadcast, events, site, inviteUrl]);
+
+  const openWhatsAppBroadcast = () => {
+    if (!composedMessage) return;
+    window.open(`https://wa.me/?text=${encodeURIComponent(composedMessage)}`, "_blank");
+    toast({ title: `Opens WhatsApp for ${broadcastRecipients.length} guest${broadcastRecipients.length === 1 ? "" : "s"}`, description: "Pick a WhatsApp Broadcast list or paste into your group." });
+  };
+
+  const openSmsBroadcast = () => {
+    if (!composedMessage) return;
+    window.location.href = `sms:?&body=${encodeURIComponent(composedMessage)}`;
+  };
+
+  const openEmailBroadcast = () => {
+    if (!composedMessage) return;
+    const bcc = broadcastRecipients.map((r) => r.guest_email).filter(Boolean).join(",");
+    if (!bcc) {
+      toast({ title: "No email addresses in this audience", variant: "destructive" });
+      return;
+    }
+    window.location.href = `mailto:?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(broadcast.subject)}&body=${encodeURIComponent(composedMessage)}`;
+  };
+
+  const copyBroadcastMessage = async () => {
+    if (!composedMessage) return;
+    await navigator.clipboard.writeText(composedMessage);
+    toast({ title: "Message copied", description: "Paste into your WhatsApp broadcast list, group, or SMS app." });
   };
 
   return (
