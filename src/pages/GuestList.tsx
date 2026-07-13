@@ -1,0 +1,276 @@
+// Guest List Manager — per-guest RSVP tracking + WhatsApp share.
+// Reads from public.rsvps (RLS restricts to site owner). No new tables.
+// WhatsApp support is manual via wa.me deep links — no WhatsApp Business API.
+
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { ArrowLeft, Search, Download, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
+
+type Rsvp = {
+  id: string;
+  guest_name: string;
+  guest_email: string;
+  attending: boolean;
+  guest_count: number;
+  meal_preference: string | null;
+  selected_events: string[] | null;
+  message: string | null;
+  created_at: string;
+};
+
+type Site = { id: string; partner1: string; partner2: string; slug: string | null };
+
+export default function GuestList() {
+  const { siteId } = useParams<{ siteId: string }>();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [site, setSite] = useState<Site | null>(null);
+  const [rows, setRows] = useState<Rsvp[]>([]);
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<"all" | "yes" | "no">("all");
+
+  useEffect(() => {
+    if (!siteId || !user) return;
+    (async () => {
+      setLoading(true);
+      const { data: s } = await supabase
+        .from("wedding_sites")
+        .select("id, partner1, partner2, slug, user_id")
+        .eq("id", siteId)
+        .maybeSingle();
+      if (!s || s.user_id !== user.id) {
+        toast({ title: "Not found", description: "This site doesn't exist or isn't yours.", variant: "destructive" });
+        navigate("/dashboard");
+        return;
+      }
+      setSite(s as any);
+      const { data: r, error } = await supabase
+        .from("rsvps")
+        .select("id, guest_name, guest_email, attending, guest_count, meal_preference, selected_events, message, created_at")
+        .eq("wedding_site_id", siteId)
+        .order("created_at", { ascending: false });
+      if (error) {
+        toast({ title: "Couldn't load RSVPs", description: error.message, variant: "destructive" });
+      } else {
+        setRows((r ?? []) as any);
+      }
+      setLoading(false);
+    })();
+  }, [siteId, user, navigate]);
+
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (filter === "yes" && !r.attending) return false;
+      if (filter === "no" && r.attending) return false;
+      if (!needle) return true;
+      return (
+        r.guest_name.toLowerCase().includes(needle) ||
+        r.guest_email.toLowerCase().includes(needle) ||
+        (r.message ?? "").toLowerCase().includes(needle)
+      );
+    });
+  }, [rows, q, filter]);
+
+  const stats = useMemo(() => {
+    const total = rows.length;
+    const yes = rows.filter((r) => r.attending).length;
+    const no = total - yes;
+    const heads = rows.filter((r) => r.attending).reduce((s, r) => s + (r.guest_count || 1), 0);
+    return { total, yes, no, heads };
+  }, [rows]);
+
+  const inviteUrl = site?.slug ? `${window.location.origin}/site/${site.slug}` : "";
+  const inviteText = site
+    ? `You're invited to ${site.partner1} & ${site.partner2}'s wedding! ${inviteUrl ? `RSVP here: ${inviteUrl}` : ""}`.trim()
+    : "";
+
+  const waLink = (name: string) =>
+    `https://wa.me/?text=${encodeURIComponent(`Hi ${name}, ${inviteText}`)}`;
+
+  const exportCsv = () => {
+    const header = ["Name", "Email", "Attending", "Guests", "Meal", "Events", "Message", "Submitted"];
+    const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = [header.join(",")];
+    for (const r of filtered) {
+      lines.push(
+        [
+          esc(r.guest_name),
+          esc(r.guest_email),
+          esc(r.attending ? "Yes" : "No"),
+          esc(r.guest_count),
+          esc(r.meal_preference ?? ""),
+          esc((r.selected_events ?? []).join(" | ")),
+          esc(r.message ?? ""),
+          esc(new Date(r.created_at).toISOString()),
+        ].join(",")
+      );
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `guest-list-${site?.slug || site?.id}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const copyBroadcast = async () => {
+    if (!inviteText) return;
+    await navigator.clipboard.writeText(inviteText);
+    toast({ title: "Invite copied", description: "Paste it into any WhatsApp chat or group to broadcast." });
+  };
+
+  return (
+    <>
+      <Helmet>
+        <title>Guest List · Vowz</title>
+      </Helmet>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <Button variant="ghost" size="sm" asChild className="mb-2 -ml-2">
+                <Link to="/dashboard"><ArrowLeft className="w-4 h-4 mr-1" /> Dashboard</Link>
+              </Button>
+              <h1 className="font-display text-3xl font-semibold">Guest List</h1>
+              <p className="text-sm text-muted-foreground font-body">
+                {site ? `${site.partner1} & ${site.partner2}'s wedding` : "Loading…"}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={copyBroadcast} disabled={!inviteText}>
+                <Copy className="w-4 h-4 mr-1" /> Copy invite
+              </Button>
+              <Button variant="gold" size="sm" asChild disabled={!inviteText}>
+                <a href={`https://wa.me/?text=${encodeURIComponent(inviteText)}`} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="w-4 h-4 mr-1" /> WhatsApp broadcast
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
+                <Download className="w-4 h-4 mr-1" /> Export CSV
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <Stat label="Total RSVPs" value={stats.total} icon={<Users className="w-4 h-4" />} />
+            <Stat label="Attending" value={stats.yes} icon={<Check className="w-4 h-4 text-emerald-600" />} />
+            <Stat label="Regrets" value={stats.no} icon={<XIcon className="w-4 h-4 text-destructive" />} />
+            <Stat label="Total heads" value={stats.heads} icon={<Users className="w-4 h-4 text-gold" />} />
+          </div>
+
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <div className="relative flex-1 min-w-[220px]">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search name, email, message…"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <div className="inline-flex rounded-md border border-border overflow-hidden">
+              {(["all", "yes", "no"] as const).map((k) => (
+                <button
+                  key={k}
+                  onClick={() => setFilter(k)}
+                  className={`px-3 py-1.5 text-xs font-body transition-colors ${
+                    filter === k ? "bg-gold text-primary-foreground" : "bg-background hover:bg-muted"
+                  }`}
+                >
+                  {k === "all" ? "All" : k === "yes" ? "Attending" : "Not attending"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="py-20 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
+          ) : filtered.length === 0 ? (
+            <div className="py-16 text-center border border-dashed border-border/60 rounded-xl">
+              <Users className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+              <p className="font-body text-muted-foreground">No RSVPs match your filters yet.</p>
+            </div>
+          ) : (
+            <div className="border border-border/60 rounded-xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm font-body">
+                  <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+                    <tr>
+                      <th className="text-left px-4 py-2.5">Guest</th>
+                      <th className="text-left px-4 py-2.5">Attending</th>
+                      <th className="text-left px-4 py-2.5">Heads</th>
+                      <th className="text-left px-4 py-2.5">Meal</th>
+                      <th className="text-left px-4 py-2.5">Events</th>
+                      <th className="text-left px-4 py-2.5">Message</th>
+                      <th className="text-right px-4 py-2.5">Reach out</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((r) => (
+                      <tr key={r.id} className="border-t border-border/50 hover:bg-muted/20">
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-foreground">{r.guest_name}</div>
+                          <div className="text-xs text-muted-foreground">{r.guest_email}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {r.attending ? (
+                            <span className="inline-flex items-center gap-1 text-emerald-600"><Check className="w-3.5 h-3.5" /> Yes</span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-destructive"><XIcon className="w-3.5 h-3.5" /> No</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">{r.guest_count}</td>
+                        <td className="px-4 py-3 capitalize text-muted-foreground">{r.meal_preference || "—"}</td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground max-w-[180px] truncate" title={(r.selected_events ?? []).join(", ")}>
+                          {(r.selected_events ?? []).join(", ") || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground max-w-[240px] truncate" title={r.message ?? ""}>
+                          {r.message || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-right whitespace-nowrap">
+                          <a
+                            href={waLink(r.guest_name)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-border hover:bg-muted mr-1"
+                            title="Open WhatsApp with a prefilled invite message"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                          </a>
+                          <a
+                            href={`mailto:${encodeURIComponent(r.guest_email)}?subject=${encodeURIComponent("Our wedding invitation")}&body=${encodeURIComponent(inviteText)}`}
+                            className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-border hover:bg-muted"
+                          >
+                            <Mail className="w-3.5 h-3.5" /> Email
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Stat({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-card px-4 py-3">
+      <div className="flex items-center gap-2 text-muted-foreground text-xs font-body">{icon} {label}</div>
+      <div className="font-display text-2xl mt-1">{value}</div>
+    </div>
+  );
+}
