@@ -1101,17 +1101,66 @@ const OnboardingWizard = () => {
                   <div className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
                     {/* Impact panel: at-a-glance summary of what stays vs. changes. */}
                     <div className="mb-3 grid gap-2 sm:grid-cols-2">
-                      <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-2.5">
-                        <p className="text-[10px] uppercase tracking-widest font-body text-emerald-600 dark:text-emerald-400 mb-1.5 flex items-center gap-1">
-                          <Check className="w-3 h-3" /> Stays the same
-                        </p>
-                        <ul className="text-[11px] font-body text-foreground/80 space-y-0.5 list-disc pl-4">
-                          <li>Event details (dates, times, venues)</li>
-                          <li>RSVP settings &amp; responses</li>
-                          <li>Gallery media &amp; uploads</li>
-                          <li>Names, story, tagline &amp; guest list</li>
-                        </ul>
-                      </div>
+                       <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-2.5">
+                         <p className="text-[10px] uppercase tracking-widest font-body text-emerald-600 dark:text-emerald-400 mb-1.5 flex items-center gap-1">
+                           <Check className="w-3 h-3" /> Stays the same
+                         </p>
+                         {(() => {
+                           // Read-only snapshot of user data so it's obvious
+                           // these fields aren't touched by a theme switch.
+                           const eventCount = wizardData.functions.length;
+                           const firstEvent = wizardData.functions.find(
+                             (n) => wizardData.eventDates?.[n]?.date,
+                           );
+                           const firstDate = firstEvent
+                             ? wizardData.eventDates[firstEvent]?.date
+                             : undefined;
+                           const prettyDate = firstDate
+                             ? new Date(firstDate).toLocaleDateString(undefined, {
+                                 month: "short", day: "numeric", year: "numeric",
+                               })
+                             : null;
+                           return (
+                             <ul className="text-[11px] font-body text-foreground/85 space-y-1">
+                               <li className="flex items-center gap-1.5">
+                                 <Calendar className="w-3 h-3 text-emerald-600/80 shrink-0" aria-hidden />
+                                 <span className="truncate">
+                                   {eventCount > 0
+                                     ? <>
+                                         <span className="font-medium">{eventCount}</span> event{eventCount === 1 ? "" : "s"}
+                                         {firstEvent && (
+                                           <span className="text-muted-foreground">
+                                             {" "}· {firstEvent}{prettyDate ? ` (${prettyDate})` : ""}
+                                           </span>
+                                         )}
+                                       </>
+                                     : <span className="text-muted-foreground">No events yet — details preserved</span>}
+                                 </span>
+                               </li>
+                               <li className="flex items-center gap-1.5">
+                                 <Users className="w-3 h-3 text-emerald-600/80 shrink-0" aria-hidden />
+                                 <span>
+                                   RSVP <span className="font-medium">enabled</span>
+                                   <span className="text-muted-foreground"> · responses preserved</span>
+                                 </span>
+                               </li>
+                               <li className="flex items-center gap-1.5">
+                                 <Sparkles className="w-3 h-3 text-emerald-600/80 shrink-0" aria-hidden />
+                                 <span className="text-muted-foreground">
+                                   Gallery media &amp; uploads preserved
+                                 </span>
+                               </li>
+                               <li className="flex items-center gap-1.5">
+                                 <BookOpen className="w-3 h-3 text-emerald-600/80 shrink-0" aria-hidden />
+                                 <span className="truncate">
+                                   {(wizardData.partner1 || "—")} &amp; {(wizardData.partner2 || "—")}
+                                   {wizardData.howWeMet?.trim() && <span className="text-muted-foreground"> · story kept</span>}
+                                 </span>
+                               </li>
+                             </ul>
+                           );
+                         })()}
+                       </div>
                       <div className="rounded-lg border border-gold/40 bg-gold/10 p-2.5">
                         <p className="text-[10px] uppercase tracking-widest font-body text-gold mb-1.5 flex items-center gap-1">
                           <Palette className="w-3 h-3" /> What changes
