@@ -840,6 +840,41 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_notification_prefs: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          updated_at: string
+          user_id: string
+          wedding_site_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+          wedding_site_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          updated_at?: string
+          user_id?: string
+          wedding_site_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_notification_prefs_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guestbook: {
         Row: {
           created_at: string

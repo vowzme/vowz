@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { ArrowLeft, Bell, Mail, BellOff } from "lucide-react";
 
@@ -31,19 +32,36 @@ export default function ReminderSettings() {
   const [prefs, setPrefs] = useState<Record<Milestone, Channel>>(DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [accountEnabled, setAccountEnabled] = useState(true);
+  const [sites, setSites] = useState<{ id: string; title: string; enabled: boolean }[]>([]);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
-        .from("reminder_preferences")
-        .select("milestone, channel")
-        .eq("user_id", user.id);
+      const [{ data: remData }, { data: sitesData }, { data: prefsData }] = await Promise.all([
+        supabase.from("reminder_preferences").select("milestone, channel").eq("user_id", user.id),
+        supabase.from("wedding_sites").select("id, partner1, partner2").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("guest_notification_prefs").select("wedding_site_id, enabled").eq("user_id", user.id),
+      ]);
       const next = { ...DEFAULTS };
-      (data || []).forEach((r: any) => {
+      (remData || []).forEach((r: any) => {
         if (r.milestone in next) next[r.milestone as Milestone] = r.channel as Channel;
       });
       setPrefs(next);
+
+      const account = (prefsData || []).find((p: any) => p.wedding_site_id === null);
+      setAccountEnabled(account ? account.enabled : true);
+      const byId = new Map<string, boolean>();
+      (prefsData || []).forEach((p: any) => {
+        if (p.wedding_site_id) byId.set(p.wedding_site_id, p.enabled);
+      });
+      setSites(
+        (sitesData || []).map((s: any) => ({
+          id: s.id,
+          title: [s.partner1, s.partner2].filter(Boolean).join(" & ") || "Untitled site",
+          enabled: byId.has(s.id) ? (byId.get(s.id) as boolean) : true,
+        }))
+      );
       setLoading(false);
     })();
   }, [user]);
@@ -59,8 +77,30 @@ export default function ReminderSettings() {
     const { error } = await supabase
       .from("reminder_preferences")
       .upsert(rows, { onConflict: "user_id,milestone" });
+
+    // Account-wide guest notification pref (site_id null)
+    const { error: accErr } = await supabase
+      .from("guest_notification_prefs")
+      .upsert(
+        { user_id: user.id, wedding_site_id: null, enabled: accountEnabled },
+        { onConflict: "user_id", ignoreDuplicates: false }
+      );
+
+    // Per-site prefs
+    const siteRows = sites.map((s) => ({
+      user_id: user.id,
+      wedding_site_id: s.id,
+      enabled: s.enabled,
+    }));
+    const { error: siteErr } = siteRows.length
+      ? await supabase
+          .from("guest_notification_prefs")
+          .upsert(siteRows, { onConflict: "user_id,wedding_site_id" })
+      : { error: null as any };
+
     setSaving(false);
-    if (error) toast.error(error.message);
+    const firstErr = error || accErr || siteErr;
+    if (firstErr) toast.error(firstErr.message);
     else toast.success("Preferences saved");
   };
 
@@ -117,6 +157,44 @@ export default function ReminderSettings() {
                 {saving ? "Saving..." : "Save preferences"}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="font-serif text-2xl text-navy">Guest photo notifications</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Emails to guests when you approve, hide, or delete their photo submissions.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div>
+                <Label className="text-base font-semibold text-navy">All sites</Label>
+                <p className="text-xs text-muted-foreground">Turn off to disable moderation emails across every site.</p>
+              </div>
+              <Switch checked={accountEnabled} onCheckedChange={setAccountEnabled} />
+            </div>
+
+            {sites.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No sites yet.</p>
+            ) : (
+              sites.map((s) => (
+                <div key={s.id} className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-medium">{s.title}</Label>
+                    <p className="text-xs text-muted-foreground">Per-site override</p>
+                  </div>
+                  <Switch
+                    checked={accountEnabled && s.enabled}
+                    disabled={!accountEnabled}
+                    onCheckedChange={(v) =>
+                      setSites((prev) => prev.map((p) => (p.id === s.id ? { ...p, enabled: v } : p)))
+                    }
+                  />
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>

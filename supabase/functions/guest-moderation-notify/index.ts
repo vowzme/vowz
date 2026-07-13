@@ -161,6 +161,25 @@ Deno.serve(async (req) => {
   }
 
   if (guestEmail) {
+    // Owner opt-out: account-wide or per-site
+    const { data: prefs } = await admin
+      .from('guest_notification_prefs')
+      .select('wedding_site_id, enabled')
+      .eq('user_id', site.user_id)
+      .or(`wedding_site_id.is.null,wedding_site_id.eq.${site.id}`)
+
+    const account = (prefs || []).find((p: any) => p.wedding_site_id === null)
+    const siteRow = (prefs || []).find((p: any) => p.wedding_site_id === site.id)
+    const optedOut =
+      (account && account.enabled === false) ||
+      (siteRow && siteRow.enabled === false)
+
+    if (optedOut) {
+      return new Response(JSON.stringify({ ok: true, emailed: false, opted_out: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // Skip if suppressed
     const { data: suppressed } = await admin
       .from('suppressed_emails')
