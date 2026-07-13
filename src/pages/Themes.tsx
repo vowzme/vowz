@@ -601,7 +601,11 @@ export default function Themes() {
                         className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-2xl"
                         aria-label={`Preview and customize ${t.name}`}
                       >
-                        <div className="transition-transform group-hover:-translate-y-1">
+                        <div
+                          data-testid="theme-demo-card"
+                          data-theme-id={t.id}
+                          className="transition-transform group-hover:-translate-y-1"
+                        >
                           <ThemeDemo theme={t} compact />
                         </div>
                         <div className="px-1 pt-4">
