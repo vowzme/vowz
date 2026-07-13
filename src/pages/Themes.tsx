@@ -290,15 +290,14 @@ export default function Themes() {
                         </div>
                       </button>
                       <div className="px-1 mt-3 grid grid-cols-2 gap-2">
-                        <Link
-                          to={`/site/demo-${t.id}`}
-                          target="_blank"
-                          rel="noopener"
+                        <button
+                          type="button"
+                          onClick={() => setPreviewTpl(t)}
                           className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border/60 bg-background hover:bg-muted/40 text-foreground px-3 py-2 text-xs font-body transition-colors"
-                          aria-label={`View live demo of ${t.name}`}
+                          aria-label={`Preview landing page for ${t.name}`}
                         >
-                          <Eye className="w-3.5 h-3.5" /> View demo
-                        </Link>
+                          <Eye className="w-3.5 h-3.5" /> Preview
+                        </button>
                         <button
                           type="button"
                           onClick={() => startFromTemplate(t)}
