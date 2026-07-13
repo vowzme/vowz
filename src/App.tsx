@@ -8,60 +8,68 @@ import { HelmetProvider } from "react-helmet-async";
 import { PricingRegionProvider } from "@/hooks/use-pricing-region";
 import Layout from "@/components/Layout";
 import ScrollToTop from "@/components/ScrollToTop";
+import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Dashboard from "./pages/Dashboard";
-import OnboardingWizard from "./pages/OnboardingWizard";
-import Editor from "./pages/Editor";
-import PublicSite from "./pages/PublicSite";
-import Templates from "./pages/Templates";
-import Themes from "./pages/Themes";
 import NotFound from "./pages/NotFound";
-import Pricing from "./pages/Pricing";
-import Affiliate from "./pages/Affiliate";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import Contact from "./pages/Contact";
-import AboutUs from "./pages/AboutUs";
-import RefundPolicy from "./pages/RefundPolicy";
 import AdminLayout from "./components/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminSites from "./pages/admin/AdminSites";
-import AdminPayments from "./pages/admin/AdminPayments";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminBlog from "./pages/admin/AdminBlog";
-import AdminCoupons from "./pages/admin/AdminCoupons";
-import AdminFeatureRequests from "./pages/admin/AdminFeatureRequests";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminPartners from "./pages/admin/AdminPartners";
-import AdminCardTemplates from "./pages/admin/AdminCardTemplates";
-import AdminCardAnalytics from "./pages/admin/AdminCardAnalytics";
-import AdminStorageCleanup from "./pages/admin/AdminStorageCleanup";
-import AdminEmails from "./pages/admin/AdminEmails";
-import AdminEmailBranding from "./pages/admin/AdminEmailBranding";
-import InvitationCard from "./pages/InvitationCard";
-import CardGallery from "./pages/CardGallery";
-import CardTemplatesPreview from "./pages/CardTemplatesPreview";
-import FranchiseDashboard from "./pages/FranchiseDashboard";
-import FranchiseLanding from "./pages/FranchiseLanding";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import Showcase from "./pages/Showcase";
-import SharePreview from "./pages/SharePreview";
-import Share from "./pages/Share";
-import IconsDebug from "./pages/IconsDebug";
-import PwaDiagnostics from "./pages/PwaDiagnostics";
-import TwaVerify from "./pages/TwaVerify";
-import WidgetSettings from "./pages/WidgetSettings";
-import GuestList from "./pages/GuestList";
 import { IosInstallPrompt } from "./components/IosInstallPrompt";
-import Unsubscribe from "./pages/Unsubscribe";
-import DeleteAccount from "./pages/DeleteAccount";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
+
+const Auth = lazy(() => import("./pages/Auth"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const OnboardingWizard = lazy(() => import("./pages/OnboardingWizard"));
+const Editor = lazy(() => import("./pages/Editor"));
+const PublicSite = lazy(() => import("./pages/PublicSite"));
+const Templates = lazy(() => import("./pages/Templates"));
+const Themes = lazy(() => import("./pages/Themes"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Affiliate = lazy(() => import("./pages/Affiliate"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const Contact = lazy(() => import("./pages/Contact"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminSites = lazy(() => import("./pages/admin/AdminSites"));
+const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminBlog = lazy(() => import("./pages/admin/AdminBlog"));
+const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
+const AdminFeatureRequests = lazy(() => import("./pages/admin/AdminFeatureRequests"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminPartners = lazy(() => import("./pages/admin/AdminPartners"));
+const AdminCardTemplates = lazy(() => import("./pages/admin/AdminCardTemplates"));
+const AdminCardAnalytics = lazy(() => import("./pages/admin/AdminCardAnalytics"));
+const AdminStorageCleanup = lazy(() => import("./pages/admin/AdminStorageCleanup"));
+const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
+const AdminEmailBranding = lazy(() => import("./pages/admin/AdminEmailBranding"));
+const InvitationCard = lazy(() => import("./pages/InvitationCard"));
+const CardGallery = lazy(() => import("./pages/CardGallery"));
+const CardTemplatesPreview = lazy(() => import("./pages/CardTemplatesPreview"));
+const FranchiseDashboard = lazy(() => import("./pages/FranchiseDashboard"));
+const FranchiseLanding = lazy(() => import("./pages/FranchiseLanding"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Showcase = lazy(() => import("./pages/Showcase"));
+const SharePreview = lazy(() => import("./pages/SharePreview"));
+const Share = lazy(() => import("./pages/Share"));
+const IconsDebug = lazy(() => import("./pages/IconsDebug"));
+const PwaDiagnostics = lazy(() => import("./pages/PwaDiagnostics"));
+const TwaVerify = lazy(() => import("./pages/TwaVerify"));
+const WidgetSettings = lazy(() => import("./pages/WidgetSettings"));
+const GuestList = lazy(() => import("./pages/GuestList"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
+
+const RouteFallback = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -146,7 +154,9 @@ const App = () => (
             <BrowserRouter>
               <ScrollToTop />
               <ErrorBoundary>
-                <AppRoutes />
+                <Suspense fallback={<RouteFallback />}>
+                  <AppRoutes />
+                </Suspense>
               </ErrorBoundary>
               <IosInstallPrompt />
             </BrowserRouter>
