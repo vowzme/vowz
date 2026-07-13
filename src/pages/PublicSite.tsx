@@ -1438,6 +1438,15 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                 )}
               </div>
             )}
+            {editHandle && (
+              <button
+                type="button"
+                onClick={() => { setIsEditing(true); setSubmitted(false); }}
+                className="mt-5 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-body text-sm border border-border/60 hover:bg-muted/40"
+              >
+                <Pencil className="w-3.5 h-3.5" /> Edit my RSVP
+              </button>
+            )}
             {showWhatsAppShare && (
               <a
                 href={shareWhatsAppUrl}
