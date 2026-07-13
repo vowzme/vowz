@@ -30,6 +30,7 @@ import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS } from "@/li
 import { MUSIC_CATEGORIES } from "@/lib/music-library";
 import { useR2Upload } from "@/hooks/use-r2-upload";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
+import { parseThemeStyle } from "@/lib/theme-schema";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
@@ -238,17 +239,24 @@ const Editor = () => {
       loader.then((site: any) => {
         if (site) {
           setDbSiteId(site.id);
+          // Validate + coerce theme/palette fields before feeding React state.
+          const safeStyle = parseThemeStyle({
+            theme: site.theme,
+            suggested_colors: site.suggested_colors,
+            display_font: (site as any).display_font,
+            body_font: (site as any).body_font,
+          });
           const siteData: WeddingSiteData = {
             partner1: site.partner1,
             partner2: site.partner2,
             culturalBackground: site.cultural_background,
             howWeMet: site.how_we_met,
             functions: [],
-            theme: site.theme,
-            suggestedColors: (site.suggested_colors as any) || ["#6B1D2A", "#D4A853", "#FFF5E6"],
+            theme: safeStyle.theme,
+            suggestedColors: safeStyle.suggestedColors,
             tagline: site.tagline,
-            displayFont: (site as any).display_font || undefined,
-            bodyFont: (site as any).body_font || undefined,
+            displayFont: safeStyle.displayFont,
+            bodyFont: safeStyle.bodyFont,
             siteLanguage: (site as any).site_language || "en",
             sitePassword: "",
             availableLanguages: Object.keys((site as any).translations || {}).length > 0
@@ -257,7 +265,7 @@ const Editor = () => {
             translations: (site as any).translations || {},
           };
           // Fallback: if the site row has no theme yet, hydrate from the user's saved profile preferences.
-          if (!siteData.theme) {
+          if (!site.theme) {
             (supabase as any)
               .from("profiles")
               .select("preferred_theme, preferred_colors, preferred_display_font, preferred_body_font")
@@ -265,13 +273,17 @@ const Editor = () => {
               .maybeSingle()
               .then(({ data: prof }: any) => {
                 if (!prof) return;
-                const patch: Partial<WeddingSiteData> = {};
-                if (prof.preferred_theme) patch.theme = prof.preferred_theme;
-                if (Array.isArray(prof.preferred_colors) && prof.preferred_colors.length >= 3) patch.suggestedColors = prof.preferred_colors;
-                if (prof.preferred_display_font) patch.displayFont = prof.preferred_display_font;
-                if (prof.preferred_body_font) patch.bodyFont = prof.preferred_body_font;
-                if (Object.keys(patch).length === 0) return;
-                setState((prev) => ({ ...prev, siteData: { ...prev.siteData, ...patch } }));
+                const style = parseThemeStyle(prof);
+                setState((prev) => ({
+                  ...prev,
+                  siteData: {
+                    ...prev.siteData,
+                    theme: style.theme,
+                    suggestedColors: style.suggestedColors,
+                    displayFont: style.displayFont,
+                    bodyFont: style.bodyFont,
+                  },
+                }));
               });
           }
           const rawSections = (site.sections as any[]) || [];
