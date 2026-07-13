@@ -346,9 +346,23 @@ export function getThemeDemoSite(themeId: string) {
         type: "registry",
         visible: true,
         data: {
-          heading: "Gift Registry",
-          description: "Your presence is our greatest gift. If you'd still like to bless us, here are a few options.",
+          heading: "Gift Registry & Shagun",
+          description: "Your presence is our greatest gift. Send Shagun over UPI or pick a gift from the list — every blessing means the world to us.",
+          upi: {
+            vpa: `${tpl.partner1.toLowerCase()}.${tpl.partner2.toLowerCase()}@upi`,
+            name: `${tpl.partner1} & ${tpl.partner2}`,
+            note: "Wedding Shagun 💛",
+          },
           items: defaultRegistry(themeId),
+        },
+      },
+      {
+        id: "blessings",
+        type: "blessings",
+        visible: true,
+        data: {
+          heading: "Share a Photo & Wish",
+          description: "Guests can upload a photo with the couple and leave a blessing — every message shows up on the page.",
         },
       },
       {
