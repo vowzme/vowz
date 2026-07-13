@@ -3,6 +3,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
 
+// Safe fallbacks — used whenever the wizard/editor hasn't captured a theme or
+// palette yet so we never persist blank/short arrays that break the renderer.
+export const DEFAULT_THEME = "modern-minimal";
+export const DEFAULT_COLORS: [string, string, string] = ["#6B1D2A", "#D4A853", "#FFF5E6"];
+export const DEFAULT_DISPLAY_FONT = "Cormorant Garamond";
+export const DEFAULT_BODY_FONT = "Inter";
+
+const sanitizeColors = (colors?: string[] | null): string[] => {
+  const clean = (colors || []).filter((c) => typeof c === "string" && /^#?[0-9a-fA-F]{3,8}$/.test(c.trim()));
+  if (clean.length >= 3) return clean.slice(0, 5);
+  return [...clean, ...DEFAULT_COLORS.slice(clean.length)];
+};
+
 export interface WeddingSiteRow {
   id: string;
   user_id: string;
@@ -43,38 +56,42 @@ export function useWeddingSite() {
       if (!user) return null;
       setSaving(true);
       try {
-        const slug = `${data.partner1.toLowerCase().replace(/\s+/g, "-")}-${data.partner2.toLowerCase().replace(/\s+/g, "-")}-${Date.now().toString(36)}`;
+        const p1 = (data.partner1 || "partner1").trim() || "partner1";
+        const p2 = (data.partner2 || "partner2").trim() || "partner2";
+        const safeColors = sanitizeColors(data.suggestedColors);
+        const safeTheme = (data.theme || "").trim() || DEFAULT_THEME;
+        const safeDisplayFont = data.displayFont || DEFAULT_DISPLAY_FONT;
+        const safeBodyFont = data.bodyFont || DEFAULT_BODY_FONT;
+        const slug = `${p1.toLowerCase().replace(/\s+/g, "-")}-${p2.toLowerCase().replace(/\s+/g, "-")}-${Date.now().toString(36)}`;
         const { data: site, error } = await supabase
           .from("wedding_sites")
           .insert({
             user_id: user.id,
-            partner1: data.partner1,
-            partner2: data.partner2,
+            partner1: data.partner1 || "",
+            partner2: data.partner2 || "",
             cultural_background: data.culturalBackground,
-            how_we_met: data.howWeMet,
-            theme: data.theme,
-            tagline: data.tagline,
-            suggested_colors: data.suggestedColors as any,
+            how_we_met: data.howWeMet || "",
+            theme: safeTheme,
+            tagline: data.tagline || "",
+            suggested_colors: safeColors as any,
             sections: data.sections as any,
             slug,
-            display_font: data.displayFont ?? null,
-            body_font: data.bodyFont ?? null,
+            display_font: safeDisplayFont,
+            body_font: safeBodyFont,
           })
           .select()
           .single();
         if (error) throw error;
         // Remember the user's theme picks on their profile so future sites/editor sessions default to them.
-        if (data.theme || (data.suggestedColors && data.suggestedColors.length)) {
-          await supabase
-            .from("profiles")
-            .update({
-              preferred_theme: data.theme || null,
-              preferred_colors: (data.suggestedColors && data.suggestedColors.length ? data.suggestedColors : null) as any,
-              preferred_display_font: data.displayFont ?? null,
-              preferred_body_font: data.bodyFont ?? null,
-            } as any)
-            .eq("id", user.id);
-        }
+        await supabase
+          .from("profiles")
+          .update({
+            preferred_theme: safeTheme,
+            preferred_colors: safeColors as any,
+            preferred_display_font: safeDisplayFont,
+            preferred_body_font: safeBodyFont,
+          } as any)
+          .eq("id", user.id);
         return site;
       } catch (err: any) {
         toast({ title: "Error saving site", description: err.message, variant: "destructive" });
