@@ -54,10 +54,15 @@ const rsvpSchema = z.object({
   guest_email: z.string().trim().email("Invalid email").max(255),
   attending: z.boolean(),
   guest_count: z.number().int().min(1).max(20),
-  meal_preference: z.string().max(50).nullable(),
+  meal_preference: z.enum(["veg", "non-veg", "vegan"]).nullable(),
   selected_events: z.array(z.string()).nullable(),
-  message: z.string().trim().max(500).nullable(),
+  message: z.string().trim().max(800).nullable(),
 });
+
+// Allowed dietary tag values — anything else is dropped before validation.
+const DIETARY_TAG_WHITELIST = new Set([
+  "gluten-free", "jain", "halal", "kosher", "nut-free", "dairy-free", "vegan", "vegetarian",
+]);
 
 // ─── Translation helper ───────────────────────────────────────────────
 type TranslateFn = (key: string, fallback: string) => string;
