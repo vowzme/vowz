@@ -242,44 +242,6 @@ export default function Themes() {
     }
   };
 
-  // Merge a template section's data on top of a user's existing section data.
-  // Rule: any key the user has authored (even if now empty) is preserved as-is —
-  // we only fill in keys the user has never touched. This guarantees story,
-  // events, and RSVP text the user typed is never overwritten by placeholders.
-  const mergeSectionData = (userData: any, tplData: any) => {
-    if (!userData || typeof userData !== "object") {
-      return tplData && typeof tplData === "object" ? { ...tplData } : (tplData ?? {});
-    }
-    const out: any = { ...userData };
-    if (tplData && typeof tplData === "object") {
-      for (const k of Object.keys(tplData)) {
-        if (!(k in userData)) out[k] = (tplData as any)[k];
-      }
-    }
-    return out;
-  };
-  const mergeSections = (userSections: any[], tplSections: any[]) => {
-    const tplById = new Map<string, any>(tplSections.map((s) => [s.id, s]));
-    const userIds = new Set((userSections || []).map((s) => s.id));
-    // Preserve the user's section order and any custom sections they added.
-    const merged = (userSections || []).map((u) => {
-      const tpl = tplById.get(u.id);
-      if (!tpl) return u;
-      return {
-        ...tpl,
-        ...u,
-        // Keep user's title/visibility choices; fall back to template only if unset.
-        title: u.title || tpl.title,
-        visible: typeof u.visible === "boolean" ? u.visible : tpl.visible,
-        // Keep user's authored content; only fill missing keys from the template.
-        data: mergeSectionData(u.data, tpl.data),
-      };
-    });
-    // Append template sections the user doesn't have yet — these are the
-    // "empty/default" slots the template contributes on top of the existing site.
-    const missing = tplSections.filter((s) => !userIds.has(s.id));
-    return [...merged, ...missing];
-  };
 
   // One-click: seed a whole new site from the theme's tradition-specific template.
   // If the user already has a site, ask whether to replace or merge template content.
