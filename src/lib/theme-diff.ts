@@ -1,15 +1,17 @@
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
 
-// Single source of truth for which wizardData fields `applyTheme` writes
-// during a theme switch/merge. Keep this in lockstep with applyTheme in
-// OnboardingWizard.tsx — the "What changes" summary and token-diff table
-// are both derived from this list.
+type Theme = typeof WEDDING_THEMES[number];
+
+// -----------------------------------------------------------------------------
+// applyTheme fields — source of truth for what OnboardingWizard actually writes
+// to wizardData during a theme switch/merge.
+// -----------------------------------------------------------------------------
 export type ThemeField = {
   key: "theme" | "suggestedColors" | "displayFont" | "bodyFont";
   label: string;
-  get: (t: typeof WEDDING_THEMES[number]) => unknown;
+  get: (t: Theme) => unknown;
   format: (v: unknown) => string;
-  swatch?: (t: typeof WEDDING_THEMES[number]) => string;
+  swatch?: (t: Theme) => string;
 };
 
 export const THEME_FIELDS: ThemeField[] = [
@@ -38,8 +40,8 @@ export type ThemeDiffRow = {
 };
 
 export function diffThemes(
-  current: typeof WEDDING_THEMES[number],
-  next: typeof WEDDING_THEMES[number],
+  current: Theme,
+  next: Theme,
 ): { rows: ThemeDiffRow[]; changedLabels: string[] } {
   const rows: ThemeDiffRow[] = THEME_FIELDS.map((f) => {
     const from = f.get(current);
@@ -54,4 +56,46 @@ export function diffThemes(
     };
   });
   return { rows, changedLabels: rows.filter((r) => r.changed).map((r) => r.label) };
+}
+
+// -----------------------------------------------------------------------------
+// Token diff — the fine-grained visual-token table shown in the theme-switch
+// dialog. This is a superset of THEME_FIELDS (it also surfaces `ink` and
+// `motif`, which are inherited from the applied theme even though we don't
+// mirror them into wizardData columns).
+// -----------------------------------------------------------------------------
+export const THEME_TOKEN_FIELDS = [
+  "primary",
+  "accent",
+  "ink",
+  "displayFont",
+  "bodyFont",
+  "motif",
+] as const;
+export type ThemeTokenField = typeof THEME_TOKEN_FIELDS[number];
+
+const TOKEN_READERS: Record<ThemeTokenField, (t: Theme) => string> = {
+  primary: (t) => t.colors.bg,
+  accent: (t) => t.colors.accent,
+  ink: (t) => t.colors.ink,
+  displayFont: (t) => t.fonts.display,
+  bodyFont: (t) => t.fonts.body,
+  motif: (t) => t.motif,
+};
+const COLOR_FIELDS = new Set<ThemeTokenField>(["primary", "accent", "ink"]);
+
+export type TokenDiffRow = {
+  field: ThemeTokenField;
+  from: string;
+  to: string;
+  changed: boolean;
+  isColor: boolean;
+};
+
+export function computeThemeDiff(a: Theme, b: Theme): TokenDiffRow[] {
+  return THEME_TOKEN_FIELDS.map((field) => {
+    const from = TOKEN_READERS[field](a);
+    const to = TOKEN_READERS[field](b);
+    return { field, from, to, changed: from !== to, isColor: COLOR_FIELDS.has(field) };
+  });
 }
