@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { Check, Sparkles, ArrowRight, X, RotateCcw } from "lucide-react";
+import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
@@ -10,6 +10,7 @@ import { WEDDING_THEMES, type WeddingTheme } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
 import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
+import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 
 const FONT_POOL = [
   "Playfair Display",
@@ -103,8 +104,9 @@ export default function Themes() {
   const [active, setActive] = useState<WeddingTheme | null>(null);
   const [custom, setCustom] = useState<Custom | null>(null);
   const [applying, setApplying] = useState(false);
+  const [starting, setStarting] = useState(false);
   const { user } = useAuth();
-  const { loadUserSite, updateSite } = useWeddingSite();
+  const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -145,6 +147,54 @@ export default function Themes() {
       }
     } finally {
       setApplying(false);
+    }
+  };
+
+  // One-click: seed a whole new site from the theme's tradition-specific template.
+  // If the user already has a site, apply theme + template sections on top of it.
+  const startFromTemplate = async (t: WeddingTheme) => {
+    if (!user) {
+      navigate("/auth", { state: { returnTo: "/themes" } });
+      return;
+    }
+    setStarting(true);
+    try {
+      const c = custom && active?.id === t.id ? custom : customFrom(t);
+      const tpl = buildThemeTemplate(t);
+      const sections = buildThemeSections(t);
+      const existing = await loadUserSite();
+      if (existing) {
+        const ok = await updateSite(existing.id, {
+          theme: t.id,
+          suggested_colors: [c.bg, c.accent, c.surface],
+          display_font: c.displayFont,
+          body_font: c.bodyFont,
+          sections,
+        });
+        if (ok) {
+          toast({ title: "Template applied", description: `Your site was reset to the ${t.name} starter.` });
+          navigate(`/editor/${existing.id}`);
+        }
+        return;
+      }
+      const site = await createSite({
+        partner1: tpl.partner1,
+        partner2: tpl.partner2,
+        culturalBackground: tpl.culturalBackground,
+        howWeMet: tpl.howWeMet,
+        theme: t.id,
+        tagline: tpl.tagline,
+        suggestedColors: [c.bg, c.accent, c.surface],
+        sections,
+        displayFont: c.displayFont,
+        bodyFont: c.bodyFont,
+      });
+      if (site) {
+        toast({ title: "Your site is ready", description: `Started from the ${t.name} template — customize freely.` });
+        navigate(`/editor/${(site as any).id}`);
+      }
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -203,6 +253,16 @@ export default function Themes() {
                       Customize <ArrowRight className="w-3 h-3" />
                     </span>
                   </div>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); startFromTemplate(t); }}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); startFromTemplate(t); } }}
+                    className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-gold/40 bg-gold/10 hover:bg-gold/20 text-gold px-3 py-2 text-xs font-body transition-colors"
+                    aria-label={`Start with the ${t.name} template`}
+                  >
+                    <Wand2 className="w-3.5 h-3.5" /> {starting ? "Starting…" : "Start with this template"}
+                  </div>
                 </div>
               </motion.button>
             ))}
@@ -230,6 +290,9 @@ export default function Themes() {
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={() => setCustom(customFrom(active))}>
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => startFromTemplate(active)} disabled={starting}>
+                    <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
                   </Button>
                   <Button variant="gold" size="sm" onClick={applyTheme} disabled={applying}>
                     <Check className="w-4 h-4 mr-1" /> {applying ? "Applying…" : "Apply to my site"}
