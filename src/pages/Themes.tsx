@@ -679,7 +679,7 @@ export default function Themes() {
           aria-describedby="theme-preview-desc"
         >
           {previewTpl && (
-            <FullScreenPreviewBody
+            <FullScreenThemePreview
               theme={previewTpl}
               starting={starting}
               onClose={() => setPreviewTpl(null)}
@@ -691,7 +691,9 @@ export default function Themes() {
 
       {/* Replace vs. Merge chooser when a site already exists */}
       <Dialog open={!!applyChoice} onOpenChange={(o) => !o && setApplyChoice(null)}>
-              <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0">
+        <DialogContent className="max-w-md p-6 bg-background border-border">
+          {applyChoice && (
+            <div className="hidden">
                 <div className="min-w-0">
                   <DialogTitle className="font-display text-base sm:text-lg font-semibold truncate">
                     {previewTpl.name} · landing preview
@@ -700,42 +702,7 @@ export default function Themes() {
                     {previewTpl.tradition} — press Escape to close.
                   </DialogDescription>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button
-                    variant="gold"
-                    size="sm"
-                    disabled={starting}
-                    onClick={() => { const t = previewTpl; setPreviewTpl(null); startFromTemplate(t); }}
-                  >
-                    <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setPreviewTpl(null)}
-                    aria-label="Close preview"
-                    className="min-h-11 min-w-11"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
               </div>
-              <iframe
-                key={previewTpl.id}
-                src={`/site/demo-${previewTpl.id}`}
-                title={`${previewTpl.name} landing preview`}
-                className="flex-1 w-full border-0 bg-background"
-                tabIndex={0}
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Replace vs. Merge chooser when a site already exists */}
-      <Dialog open={!!applyChoice} onOpenChange={(o) => !o && setApplyChoice(null)}>
-        <DialogContent className="max-w-md p-6 bg-background border-border">
-          {applyChoice && (
             <div className="space-y-4">
               <div>
                 <h3 className="font-display text-lg font-semibold">Apply {applyChoice.theme.name}</h3>
