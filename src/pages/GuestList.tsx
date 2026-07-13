@@ -5,9 +5,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Search, Download, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy } from "lucide-react";
+import { ArrowLeft, Search, Download, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
@@ -25,6 +26,7 @@ type Rsvp = {
 };
 
 type Site = { id: string; partner1: string; partner2: string; slug: string | null };
+type WeddingEvent = { name: string; date?: string; time?: string; venue?: string };
 
 export default function GuestList() {
   const { siteId } = useParams<{ siteId: string }>();
@@ -35,6 +37,13 @@ export default function GuestList() {
   const [rows, setRows] = useState<Rsvp[]>([]);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "yes" | "no">("all");
+  const [events, setEvents] = useState<WeddingEvent[]>([]);
+  const [broadcast, setBroadcast] = useState({
+    eventIdx: -1,
+    audience: "yes" as "all" | "yes" | "no" | "event",
+    subject: "Update about our wedding",
+    message: "",
+  });
 
   useEffect(() => {
     if (!siteId || !user) return;
@@ -42,7 +51,7 @@ export default function GuestList() {
       setLoading(true);
       const { data: s } = await supabase
         .from("wedding_sites")
-        .select("id, partner1, partner2, slug, user_id")
+        .select("id, partner1, partner2, slug, user_id, sections")
         .eq("id", siteId)
         .maybeSingle();
       if (!s || s.user_id !== user.id) {
@@ -51,6 +60,9 @@ export default function GuestList() {
         return;
       }
       setSite(s as any);
+      const ev = ((s as any).sections as any[] || [])
+        .find((sec) => sec.type === "events")?.data?.events as WeddingEvent[] | undefined;
+      setEvents(ev || []);
       const { data: r, error } = await supabase
         .from("rsvps")
         .select("id, guest_name, guest_email, attending, guest_count, meal_preference, selected_events, message, created_at")
@@ -128,6 +140,55 @@ export default function GuestList() {
     toast({ title: "Invite copied", description: "Paste it into any WhatsApp chat or group to broadcast." });
   };
 
+  // ── Mass broadcast (announcements) ────────────────────────────────────
+  const broadcastRecipients = useMemo(() => {
+    let list = rows;
+    if (broadcast.audience === "yes") list = rows.filter((r) => r.attending);
+    else if (broadcast.audience === "no") list = rows.filter((r) => !r.attending);
+    else if (broadcast.audience === "event") {
+      const ev = events[broadcast.eventIdx];
+      if (ev) list = rows.filter((r) => r.attending && (r.selected_events ?? []).includes(ev.name));
+    }
+    return list;
+  }, [rows, broadcast.audience, broadcast.eventIdx, events]);
+
+  const composedMessage = useMemo(() => {
+    const ev = broadcast.eventIdx >= 0 ? events[broadcast.eventIdx] : null;
+    const evLine = ev
+      ? `📢 ${ev.name}${ev.date ? ` — ${ev.date}` : ""}${ev.time ? ` at ${ev.time}` : ""}${ev.venue ? ` (${ev.venue})` : ""}`
+      : "";
+    const signature = site ? `\n— ${site.partner1} & ${site.partner2}` : "";
+    const link = inviteUrl ? `\n${inviteUrl}` : "";
+    return [evLine, broadcast.message.trim(), link, signature].filter(Boolean).join("\n").trim();
+  }, [broadcast, events, site, inviteUrl]);
+
+  const openWhatsAppBroadcast = () => {
+    if (!composedMessage) return;
+    window.open(`https://wa.me/?text=${encodeURIComponent(composedMessage)}`, "_blank");
+    toast({ title: `Opens WhatsApp for ${broadcastRecipients.length} guest${broadcastRecipients.length === 1 ? "" : "s"}`, description: "Pick a WhatsApp Broadcast list or paste into your group." });
+  };
+
+  const openSmsBroadcast = () => {
+    if (!composedMessage) return;
+    window.location.href = `sms:?&body=${encodeURIComponent(composedMessage)}`;
+  };
+
+  const openEmailBroadcast = () => {
+    if (!composedMessage) return;
+    const bcc = broadcastRecipients.map((r) => r.guest_email).filter(Boolean).join(",");
+    if (!bcc) {
+      toast({ title: "No email addresses in this audience", variant: "destructive" });
+      return;
+    }
+    window.location.href = `mailto:?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(broadcast.subject)}&body=${encodeURIComponent(composedMessage)}`;
+  };
+
+  const copyBroadcastMessage = async () => {
+    if (!composedMessage) return;
+    await navigator.clipboard.writeText(composedMessage);
+    toast({ title: "Message copied", description: "Paste into your WhatsApp broadcast list, group, or SMS app." });
+  };
+
   return (
     <>
       <Helmet>
@@ -190,6 +251,72 @@ export default function GuestList() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Announcements broadcast */}
+          <div className="mb-6 rounded-xl border border-border/60 bg-card p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Megaphone className="w-4 h-4 text-gold" />
+              <h2 className="font-display text-lg">Announcement broadcast</h2>
+              <span className="ml-auto text-xs font-body text-muted-foreground">
+                {broadcastRecipients.length} guest{broadcastRecipients.length === 1 ? "" : "s"} · {broadcastRecipients.filter((r) => r.guest_email).length} email{broadcastRecipients.filter((r) => r.guest_email).length === 1 ? "" : "s"}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <select
+                value={broadcast.audience}
+                onChange={(e) => setBroadcast({ ...broadcast, audience: e.target.value as any })}
+                className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+              >
+                <option value="all">Everyone who RSVP'd</option>
+                <option value="yes">Attending only</option>
+                <option value="no">Not attending</option>
+                <option value="event">Guests for a specific event</option>
+              </select>
+              <select
+                value={broadcast.eventIdx}
+                onChange={(e) => setBroadcast({ ...broadcast, eventIdx: parseInt(e.target.value), audience: parseInt(e.target.value) >= 0 ? "event" : broadcast.audience })}
+                disabled={events.length === 0}
+                className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body disabled:opacity-50"
+              >
+                <option value={-1}>{events.length === 0 ? "No events on your site" : "Pick an event (optional)"}</option>
+                {events.map((ev, i) => (
+                  <option key={i} value={i}>{ev.name}{ev.date ? ` — ${ev.date}` : ""}</option>
+                ))}
+              </select>
+              <Input
+                value={broadcast.subject}
+                onChange={(e) => setBroadcast({ ...broadcast, subject: e.target.value })}
+                placeholder="Email subject"
+                className="h-9"
+                maxLength={140}
+              />
+            </div>
+            <Textarea
+              value={broadcast.message}
+              onChange={(e) => setBroadcast({ ...broadcast, message: e.target.value })}
+              placeholder="What do you want to tell your guests? e.g. Sangeet dress code is pastel, bus leaves at 6pm sharp."
+              rows={3}
+              maxLength={1000}
+              className="font-body text-sm"
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button variant="gold" size="sm" onClick={openWhatsAppBroadcast} disabled={!composedMessage.trim()}>
+                <MessageCircle className="w-4 h-4 mr-1" /> WhatsApp
+              </Button>
+              <Button variant="outline" size="sm" onClick={openSmsBroadcast} disabled={!composedMessage.trim()}>
+                <Smartphone className="w-4 h-4 mr-1" /> SMS
+              </Button>
+              <Button variant="outline" size="sm" onClick={openEmailBroadcast} disabled={!composedMessage.trim() || broadcastRecipients.filter((r) => r.guest_email).length === 0}>
+                <Mail className="w-4 h-4 mr-1" /> Email (BCC)
+              </Button>
+              <Button variant="ghost" size="sm" onClick={copyBroadcastMessage} disabled={!composedMessage.trim()}>
+                <Copy className="w-4 h-4 mr-1" /> Copy message
+              </Button>
+            </div>
+            <p className="text-[11px] font-body text-muted-foreground">
+              Announcements open your own WhatsApp / SMS / email app with the message and recipients prefilled — no bulk send from our servers, so guests always see it come from you.
+            </p>
           </div>
 
           {loading ? (
