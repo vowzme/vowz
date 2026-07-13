@@ -47,6 +47,7 @@ const OnboardingWizard = () => {
   const {
     step, setStep, wizardData, updateField, applyCulturalPreset,
     nextStep, prevStep, completeWizard, isComplete, resetDraft,
+    conflict, acceptRemoteDraft, dismissConflict,
   } = useWeddingWizard();
   const { generate, loading: aiLoading } = useAIContentGen();
   const [customEvent, setCustomEvent] = useState("");
