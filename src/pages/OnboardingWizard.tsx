@@ -1119,8 +1119,48 @@ const OnboardingWizard = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Reset your wizard draft?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This clears every answer you've entered — names, story, events, theme, colors — and deletes the autosaved draft from this device. You'll have 15 seconds to undo from the toast that appears.
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p>
+                  You'll be sent back to step 1 with a blank wizard. The following autosaved answers will be permanently removed from this device:
+                </p>
+                <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                  <li>
+                    <span className="text-foreground font-medium">Couple names &amp; tagline</span>
+                    {" — "}{wizardData.partner1 || "—"} &amp; {wizardData.partner2 || "—"}
+                    {wizardData.tagline ? `, "${wizardData.tagline}"` : ""}
+                  </li>
+                  <li>
+                    <span className="text-foreground font-medium">Your love story</span>
+                    {" — "}
+                    {(wizardData.howWeMet || "").trim()
+                      ? `${(wizardData.howWeMet || "").trim().length} characters written`
+                      : "not started"}
+                  </li>
+                  <li>
+                    <span className="text-foreground font-medium">Events &amp; dates</span>
+                    {" — "}{(wizardData.functions || []).length} event
+                    {(wizardData.functions || []).length === 1 ? "" : "s"} selected
+                  </li>
+                  <li>
+                    <span className="text-foreground font-medium">Theme, colors &amp; fonts</span>
+                    {" — "}{wizardData.theme || "default"}
+                    {(wizardData.suggestedColors || []).length
+                      ? `, ${(wizardData.suggestedColors || []).length} colors`
+                      : ""}
+                  </li>
+                  <li>
+                    <span className="text-foreground font-medium">Current step position</span>
+                    {" — you're on step "}{currentStepIdx + 1} of {stepMeta.length}
+                  </li>
+                </ul>
+                <p className="text-xs">
+                  Your published site, uploaded photos, and account settings are <span className="font-medium text-foreground">not</span> affected — this only clears the in-progress wizard draft saved in this browser.
+                </p>
+                <p className="text-xs text-gold">
+                  You'll have 15 seconds to undo from a banner at the top of the wizard.
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
