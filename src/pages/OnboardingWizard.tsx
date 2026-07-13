@@ -1039,8 +1039,8 @@ const OnboardingWizard = () => {
             <AlertDialogAction
               onClick={() => {
                 // Snapshot the current autosaved draft into a backup key so an
-                // Undo action from the toast can restore it, even after the
-                // page reload we perform below.
+                // Undo banner (rendered on next mount) can restore it, even
+                // after the page reload we perform below.
                 const DRAFT_KEY = "vowz_wizard_draft";
                 const BACKUP_KEY = "vowz_wizard_draft_backup";
                 const UNDO_WINDOW_MS = 15000;
@@ -1057,39 +1057,6 @@ const OnboardingWizard = () => {
                 } catch { /* storage disabled — undo simply won't be offered */ }
                 resetDraft();
                 setConfirmReset(false);
-                toast({
-                  title: "Draft cleared",
-                  description: "Your wizard was reset. You have 15 seconds to undo.",
-                  duration: UNDO_WINDOW_MS,
-                  action: (
-                    <ToastAction
-                      altText="Undo draft reset"
-                      onClick={() => {
-                        try {
-                          const raw = localStorage.getItem(BACKUP_KEY);
-                          if (!raw) return;
-                          const { draft, expiresAt } = JSON.parse(raw) as {
-                            draft: string;
-                            expiresAt: number;
-                          };
-                          if (Date.now() > expiresAt) {
-                            localStorage.removeItem(BACKUP_KEY);
-                            return;
-                          }
-                          localStorage.setItem(DRAFT_KEY, draft);
-                          localStorage.removeItem(BACKUP_KEY);
-                        } catch { /* ignore */ }
-                        navigate(0 as any);
-                      }}
-                    >
-                      Undo
-                    </ToastAction>
-                  ),
-                });
-                // Sweep the backup after the undo window expires.
-                setTimeout(() => {
-                  try { localStorage.removeItem(BACKUP_KEY); } catch {}
-                }, UNDO_WINDOW_MS);
                 // Force a fresh mount so the wizard re-reads defaults from storage.
                 navigate(0 as any);
               }}
