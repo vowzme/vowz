@@ -56,6 +56,7 @@ import IconsDebug from "./pages/IconsDebug";
 import PwaDiagnostics from "./pages/PwaDiagnostics";
 import TwaVerify from "./pages/TwaVerify";
 import WidgetSettings from "./pages/WidgetSettings";
+import GuestList from "./pages/GuestList";
 import { IosInstallPrompt } from "./components/IosInstallPrompt";
 import Unsubscribe from "./pages/Unsubscribe";
 import DeleteAccount from "./pages/DeleteAccount";
@@ -86,6 +87,7 @@ const AppRoutes = () => (
     <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/dashboard/widgets" element={<ProtectedRoute><WidgetSettings /></ProtectedRoute>} />
+    <Route path="/dashboard/guests/:siteId" element={<ProtectedRoute><GuestList /></ProtectedRoute>} />
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
