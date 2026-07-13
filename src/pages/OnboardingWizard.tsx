@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, Edit3, AlertCircle } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette, Calendar, Wand2, Loader2, GripVertical, Edit3, AlertCircle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,13 +46,14 @@ const OnboardingWizard = () => {
 
   const {
     step, setStep, wizardData, updateField, applyCulturalPreset,
-    nextStep, prevStep, completeWizard, isComplete,
+    nextStep, prevStep, completeWizard, isComplete, resetDraft,
   } = useWeddingWizard();
   const { generate, loading: aiLoading } = useAIContentGen();
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
   // Confirmation prompt when switching from an already-selected theme.
   const [pendingTheme, setPendingTheme] = useState<typeof WEDDING_THEMES[number] | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
   const applyTheme = (t: typeof WEDDING_THEMES[number]) => {
     updateField("theme", t.id);
     updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
