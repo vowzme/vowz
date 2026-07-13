@@ -6,6 +6,10 @@ import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useWeddingWizard, CULTURAL_PRESETS } from "@/hooks/use-wedding-wizard";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
@@ -43,6 +47,14 @@ const OnboardingWizard = () => {
   const { generate, loading: aiLoading } = useAIContentGen();
   const [customEvent, setCustomEvent] = useState("");
   const [storyPrompts, setStoryPrompts] = useState({ where: "", when: "", firstImpression: "" });
+  // Confirmation prompt when switching from an already-selected theme.
+  const [pendingTheme, setPendingTheme] = useState<typeof WEDDING_THEMES[number] | null>(null);
+  const applyTheme = (t: typeof WEDDING_THEMES[number]) => {
+    updateField("theme", t.id);
+    updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
+    updateField("displayFont", t.fonts.display);
+    updateField("bodyFont", t.fonts.body);
+  };
   // Resume flow: when user clicks "Wedding Wizard" from the dashboard we pass
   // ?resume=1. We hydrate wizardData from their existing site and show a
   // summary screen so they can pick up where they left off.
@@ -526,10 +538,12 @@ const OnboardingWizard = () => {
                           key={t.id}
                           type="button"
                           onClick={() => {
-                            updateField("theme", t.id);
-                            updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
-                            updateField("displayFont", t.fonts.display);
-                            updateField("bodyFont", t.fonts.body);
+                            // Ask before overwriting an existing theme selection.
+                            if (wizardData.theme && wizardData.theme !== t.id) {
+                              setPendingTheme(t);
+                            } else {
+                              applyTheme(t);
+                            }
                           }}
                           className={`text-left rounded-2xl border-2 transition-all overflow-hidden ${
                             isSelected ? "border-gold shadow-md" : "border-transparent hover:border-gold/40"
@@ -840,6 +854,25 @@ const OnboardingWizard = () => {
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={!!pendingTheme} onOpenChange={(o) => !o && setPendingTheme(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Switch to {pendingTheme?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Only the theme, colors, and fonts will change. Your names, story, events, and any other content you've entered stay exactly as they are.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep current theme</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => { if (pendingTheme) applyTheme(pendingTheme); setPendingTheme(null); }}
+            >
+              Switch theme
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
