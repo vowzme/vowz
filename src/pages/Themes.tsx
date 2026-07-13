@@ -107,6 +107,8 @@ export default function Themes() {
   const [applying, setApplying] = useState(false);
   const [starting, setStarting] = useState(false);
   const [previewTpl, setPreviewTpl] = useState<WeddingTheme | null>(null);
+  // When the user already has a site, ask whether to replace or merge template content.
+  const [applyChoice, setApplyChoice] = useState<{ theme: WeddingTheme; existingId: string } | null>(null);
   const { user } = useAuth();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
