@@ -533,6 +533,49 @@ export default function Themes() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Replace vs. Merge chooser when a site already exists */}
+      <Dialog open={!!applyChoice} onOpenChange={(o) => !o && setApplyChoice(null)}>
+        <DialogContent className="max-w-md p-6 bg-background border-border">
+          {applyChoice && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-display text-lg font-semibold">Apply {applyChoice.theme.name}</h3>
+                <p className="text-sm text-muted-foreground font-body mt-1">
+                  You already have a site. Choose how to apply this template.
+                </p>
+              </div>
+              <div className="grid gap-3">
+                <button
+                  type="button"
+                  disabled={starting}
+                  onClick={() => applyTemplateToExisting(applyChoice.theme, applyChoice.existingId, "merge")}
+                  className="text-left rounded-xl border-2 border-gold/60 bg-gold/10 hover:bg-gold/20 p-4 transition-colors disabled:opacity-60"
+                >
+                  <p className="font-body font-semibold text-foreground text-sm">Apply on top of existing (recommended)</p>
+                  <p className="text-xs text-muted-foreground font-body mt-1">
+                    Keeps your story, events, RSVP text, and any custom sections. Only styling changes and empty sections get filled from the template.
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  disabled={starting}
+                  onClick={() => applyTemplateToExisting(applyChoice.theme, applyChoice.existingId, "replace")}
+                  className="text-left rounded-xl border border-border hover:border-destructive/50 p-4 transition-colors disabled:opacity-60"
+                >
+                  <p className="font-body font-semibold text-foreground text-sm">Replace all content</p>
+                  <p className="text-xs text-muted-foreground font-body mt-1">
+                    Resets every section to the template's sample copy. Your custom text will be lost.
+                  </p>
+                </button>
+              </div>
+              <div className="flex justify-end">
+                <Button variant="ghost" size="sm" onClick={() => setApplyChoice(null)} disabled={starting}>Cancel</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
