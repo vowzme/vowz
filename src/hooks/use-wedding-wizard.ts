@@ -138,11 +138,63 @@ export function useWeddingWizard() {
     return ensure(parsed?.data ?? null);
   });
   const [isComplete, setIsComplete] = useState(false);
+  // Cross-tab autosave conflict tracking. When another tab writes a newer draft
+  // to localStorage under WIZARD_STORAGE_KEY, we surface a `conflict` object so
+  // the UI can warn the user and let them keep the latest (remote) or theirs.
+  const [conflict, setConflict] = useState<{
+    remoteStep?: WizardStep;
+    remoteData?: Partial<WeddingData>;
+    savedAt?: number;
+  } | null>(null);
+  const [lastLocalSaveAt, setLastLocalSaveAt] = useState<number>(0);
 
   // Autosave to localStorage on every change so refresh/navigate-away preserves inputs.
   useEffect(() => {
-    if (!isComplete) writeDraft({ step, data: wizardData, savedAt: Date.now() });
+    if (isComplete) return;
+    const savedAt = Date.now();
+    writeDraft({ step, data: wizardData, savedAt });
+    setLastLocalSaveAt(savedAt);
   }, [step, wizardData, isComplete]);
+
+  // Watch for writes to the same key from other tabs. `storage` only fires in
+  // tabs OTHER than the one that made the change, so any event we receive is a
+  // remote edit by definition — flag it as a conflict when it's newer than our
+  // last save.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== WIZARD_STORAGE_KEY || !e.newValue) return;
+      try {
+        const parsed = JSON.parse(e.newValue);
+        if (!parsed || parsed.tabId === TAB_ID) return;
+        const savedAt = typeof parsed.savedAt === "number" ? parsed.savedAt : Date.now();
+        if (savedAt <= lastLocalSaveAt) return;
+        setConflict({ remoteStep: parsed.step, remoteData: parsed.data, savedAt });
+      } catch { /* ignore malformed payloads */ }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [lastLocalSaveAt]);
+
+  // Adopt the remote draft this tab was warned about.
+  const acceptRemoteDraft = useCallback(() => {
+    if (!conflict) return;
+    if (conflict.remoteStep) setStep(conflict.remoteStep);
+    if (conflict.remoteData) {
+      setWizardData((prev) => ({ ...prev, ...conflict.remoteData }));
+    }
+    setLastLocalSaveAt(conflict.savedAt ?? Date.now());
+    setConflict(null);
+  }, [conflict]);
+
+  // Keep this tab's version; the next autosave will overwrite the remote draft.
+  const dismissConflict = useCallback(() => {
+    setConflict(null);
+    // Force an immediate write so other tabs see our version as the latest.
+    const savedAt = Date.now();
+    writeDraft({ step, data: wizardData, savedAt });
+    setLastLocalSaveAt(savedAt);
+  }, [step, wizardData]);
 
   const updateField = useCallback(<K extends keyof WeddingData>(key: K, value: WeddingData[K]) => {
     setWizardData((prev) => ({ ...prev, [key]: value }));
