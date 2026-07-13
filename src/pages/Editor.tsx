@@ -1508,9 +1508,11 @@ function TranslationLanguageBlock({
 function SettingsPanel({
   siteData,
   onUpdate,
+  onRestoreLastSavedStyle,
 }: {
   siteData: WeddingSiteData;
   onUpdate: (data: WeddingSiteData) => void;
+  onRestoreLastSavedStyle?: () => void;
 }) {
   // Apply a theme/style change with a toast-level Undo. Snapshots only the
   // style fields — content (names, story, events, gallery) is never touched.
