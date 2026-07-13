@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Search, Download, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone } from "lucide-react";
+import { ArrowLeft, Search, Download, FileText, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -154,6 +154,77 @@ export default function GuestList() {
     URL.revokeObjectURL(url);
   };
 
+  const exportPdf = () => {
+    const esc = (v: any) =>
+      String(v ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+
+    const couple = site ? `${site.partner1} & ${site.partner2}` : "Wedding";
+    const total = filtered.length;
+    const yes = filtered.filter((r) => r.attending).length;
+    const heads = filtered.filter((r) => r.attending).reduce((n, r) => n + (r.guest_count || 0), 0);
+
+    const rowsHtml = filtered
+      .map((r) => {
+        const { tags, notes, rest } = parseDietary(r.message);
+        return `<tr>
+          <td>${esc(r.guest_name)}<div class="sub">${esc(r.guest_email)}</div></td>
+          <td>${r.attending ? "Yes" : "No"}</td>
+          <td>${esc(r.guest_count)}</td>
+          <td>${esc(r.meal_preference || "—")}</td>
+          <td>${tags.length ? esc(tags.join(", ")) : "—"}</td>
+          <td>${notes ? esc(notes) : "—"}</td>
+          <td>${esc((r.selected_events ?? []).join(", ") || "—")}</td>
+          <td>${rest ? esc(rest) : "—"}</td>
+        </tr>`;
+      })
+      .join("");
+
+    const html = `<!doctype html><html><head><meta charset="utf-8"/>
+<title>Guest List — ${esc(couple)}</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#111;margin:24px}
+  h1{margin:0 0 4px;font-size:20px}
+  .meta{color:#666;font-size:12px;margin-bottom:16px}
+  .stats{display:flex;gap:16px;margin:12px 0 20px;font-size:12px}
+  .stats span b{display:block;font-size:16px;color:#111}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th,td{border:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:#f5f5f5;text-transform:uppercase;font-size:10px;letter-spacing:.04em}
+  .sub{color:#777;font-size:10px;margin-top:2px}
+  @page{size:A4 landscape;margin:12mm}
+</style></head><body>
+<h1>RSVP Guest List — ${esc(couple)}</h1>
+<div class="meta">Generated ${new Date().toLocaleString()}</div>
+<div class="stats">
+  <span><b>${total}</b> Total RSVPs</span>
+  <span><b>${yes}</b> Attending</span>
+  <span><b>${heads}</b> Heads</span>
+</div>
+<table>
+  <thead><tr>
+    <th>Guest</th><th>Attending</th><th>Heads</th><th>Meal</th>
+    <th>Dietary</th><th>Dietary notes</th><th>Events</th><th>Message</th>
+  </tr></thead>
+  <tbody>${rowsHtml}</tbody>
+</table>
+<script>window.onload=()=>{setTimeout(()=>window.print(),200);}</script>
+</body></html>`;
+
+    const w = window.open("", "_blank");
+    if (!w) {
+      toast({ title: "Popup blocked", description: "Allow popups to export the PDF.", variant: "destructive" });
+      return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  };
+
   const copyBroadcast = async () => {
     if (!inviteText) return;
     await navigator.clipboard.writeText(inviteText);
@@ -237,6 +308,9 @@ export default function GuestList() {
               </Button>
               <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
                 <Download className="w-4 h-4 mr-1" /> Export CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportPdf} disabled={filtered.length === 0}>
+                <FileText className="w-4 h-4 mr-1" /> Export PDF
               </Button>
             </div>
           </div>
