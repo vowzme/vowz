@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { parseThemeStyle } from "@/lib/theme-schema";
+import { supabase } from "@/integrations/supabase/client";
 
 const WIZARD_STORAGE_KEY = "vowz_wizard_draft";
 // Unique per-tab id so we can tell our own writes apart from another tab's.
@@ -28,6 +29,56 @@ const writeDraft = (payload: { step?: WizardStep; data?: Partial<WeddingData>; s
 const clearDraft = () => {
   try { localStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
   try { sessionStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
+};
+
+// Server-side wizard draft (wizard_drafts table) — an OPTIONAL cross-device
+// sync layer on top of the localStorage autosave. All calls are best-effort:
+// they fail silently for signed-out users or when the network is unreachable
+// so the local wizard experience never depends on the server.
+const fetchServerDraft = async (): Promise<
+  { step?: WizardStep; data?: Partial<WeddingData>; savedAt?: number } | null
+> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data } = await supabase
+      .from("wizard_drafts")
+      .select("step, data, saved_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!data) return null;
+    return {
+      step: (data as any).step as WizardStep,
+      data: (data as any).data as Partial<WeddingData>,
+      savedAt: new Date((data as any).saved_at).getTime(),
+    };
+  } catch { return null; }
+};
+const upsertServerDraft = async (payload: {
+  step: WizardStep;
+  data: WeddingData;
+  savedAt: number;
+}) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("wizard_drafts").upsert(
+      {
+        user_id: user.id,
+        step: payload.step,
+        data: payload.data as any,
+        saved_at: new Date(payload.savedAt).toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+  } catch { /* best-effort */ }
+};
+const deleteServerDraft = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("wizard_drafts").delete().eq("user_id", user.id);
+  } catch { /* best-effort */ }
 };
 
 export interface WeddingData {
@@ -156,6 +207,41 @@ export function useWeddingWizard() {
     setLastLocalSaveAt(savedAt);
   }, [step, wizardData, isComplete]);
 
+  // Optional server-side sync. On mount we check for a newer draft stored on
+  // the wizard_drafts table (signed-in users) and adopt it if it beats what we
+  // hydrated from localStorage. Every subsequent local autosave is debounced
+  // and mirrored to the server so a second device sees the same state.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const remote = await fetchServerDraft();
+      if (cancelled || !remote) return;
+      const localSavedAt = (() => {
+        try {
+          const raw = localStorage.getItem(WIZARD_STORAGE_KEY);
+          if (!raw) return 0;
+          const parsed = JSON.parse(raw);
+          return typeof parsed?.savedAt === "number" ? parsed.savedAt : 0;
+        } catch { return 0; }
+      })();
+      if ((remote.savedAt ?? 0) > localSavedAt + 500) {
+        if (remote.step) setStep(remote.step);
+        if (remote.data) setWizardData((prev) => ({ ...prev, ...remote.data }));
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Debounced server mirror of the local draft.
+  useEffect(() => {
+    if (isComplete) return;
+    const id = window.setTimeout(() => {
+      upsertServerDraft({ step, data: wizardData, savedAt: Date.now() });
+    }, 1200);
+    return () => window.clearTimeout(id);
+  }, [step, wizardData, isComplete]);
+
   // Watch for writes to the same key from other tabs. `storage` only fires in
   // tabs OTHER than the one that made the change, so any event we receive is a
   // remote edit by definition — flag it as a conflict when it's newer than our
@@ -252,6 +338,9 @@ export function useWeddingWizard() {
     }));
     setIsComplete(true);
     clearDraft();
+    // Clear the server-stored draft too — the wizard has been completed and
+    // a permanent wedding_sites row now owns this state.
+    deleteServerDraft();
   }, [wizardData, generateTagline]);
 
   return {
@@ -265,7 +354,7 @@ export function useWeddingWizard() {
     completeWizard,
     isComplete,
     generateTagline,
-    resetDraft: clearDraft,
+    resetDraft: () => { clearDraft(); deleteServerDraft(); },
     conflict,
     acceptRemoteDraft,
     dismissConflict,
