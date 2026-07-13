@@ -210,7 +210,7 @@ function Swatch({ label, value, onChange }: { label: string; value: string; onCh
   return (
     <label className="flex items-center gap-2 text-xs font-body">
       <span
-        className="relative w-8 h-8 rounded-full border border-border/60 overflow-hidden shadow-sm"
+        className="relative w-8 h-8 rounded-full border border-border/60 overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background"
         style={{ background: value }}
       >
         <input
