@@ -916,13 +916,53 @@ const OnboardingWizard = () => {
       </div>
 
       <AlertDialog open={!!pendingTheme} onOpenChange={(o) => !o && setPendingTheme(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Switch to {pendingTheme?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
               Only the theme, colors, and fonts will change. Your names, story, events, and any other content you've entered stay exactly as they are.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {pendingTheme && (
+            <div className="mt-2">
+              <p className="text-[10px] uppercase tracking-widest font-body text-muted-foreground mb-2">Live preview</p>
+              <div
+                className="rounded-xl border overflow-hidden"
+                style={{ background: pendingTheme.colors.bg, color: pendingTheme.colors.ink }}
+              >
+                <div
+                  className="px-4 py-6 text-center"
+                  style={{ backgroundImage: `radial-gradient(circle at 50% 0%, ${pendingTheme.colors.light}55, transparent 60%)` }}
+                >
+                  <p
+                    className="text-[10px] tracking-[0.3em] uppercase mb-2"
+                    style={{ color: pendingTheme.colors.accent, fontFamily: pendingTheme.fonts.body }}
+                  >
+                    You're invited
+                  </p>
+                  <h3
+                    className="text-2xl font-bold leading-tight"
+                    style={{ fontFamily: pendingTheme.fonts.display, color: pendingTheme.colors.ink }}
+                  >
+                    {(wizardData.partner1 || "Aarav")}{" "}
+                    <span style={{ color: pendingTheme.colors.accent }}>&</span>{" "}
+                    {(wizardData.partner2 || "Isha")}
+                  </h3>
+                  <p className="mt-2 text-xs opacity-80" style={{ fontFamily: pendingTheme.fonts.body }}>
+                    {wizardData.tagline || pendingTheme.tagline}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-2 border-t" style={{ borderColor: `${pendingTheme.colors.ink}22` }}>
+                  {[pendingTheme.colors.bg, pendingTheme.colors.accent, pendingTheme.colors.light, pendingTheme.colors.ink].map((c) => (
+                    <span key={c} className="w-4 h-4 rounded-full border" style={{ background: c, borderColor: `${pendingTheme.colors.ink}22` }} aria-hidden />
+                  ))}
+                  <span className="ml-auto text-[10px] font-body opacity-70" style={{ fontFamily: pendingTheme.fonts.body }}>
+                    {pendingTheme.fonts.display} · {pendingTheme.fonts.body}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel>Keep current theme</AlertDialogCancel>
             <AlertDialogAction
