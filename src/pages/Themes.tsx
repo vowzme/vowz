@@ -138,6 +138,21 @@ const STYLE_OPTIONS = [
   { id: "vibrant", label: "Vibrant" },
 ];
 
+// Tradition + motif options are derived from WEDDING_THEMES so adding a
+// theme auto-populates the filter dropdowns.
+const uniq = <T extends string>(xs: T[]) => Array.from(new Set(xs)).sort();
+const TRADITION_OPTIONS = [
+  { id: "all", label: "All traditions" },
+  ...uniq(WEDDING_THEMES.map((t) => t.tradition)).map((v) => ({ id: v, label: v })),
+];
+const MOTIF_OPTIONS = [
+  { id: "all", label: "All motifs" },
+  ...uniq(WEDDING_THEMES.map((t) => t.motif)).map((v) => ({
+    id: v,
+    label: v.charAt(0).toUpperCase() + v.slice(1),
+  })),
+];
+
 const FONT_POOL = [
   "Playfair Display",
   "Cormorant Garamond",
@@ -239,6 +254,8 @@ export default function Themes() {
   const [region, setRegion] = useState("all");
   const [wtype, setWtype] = useState("all");
   const [style, setStyle] = useState("all");
+  const [tradition, setTradition] = useState("all");
+  const [motif, setMotif] = useState("all");
   const { user } = useAuth();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
@@ -277,7 +294,13 @@ export default function Themes() {
     }
   };
 
-  const filtersActive = query.trim() !== "" || region !== "all" || wtype !== "all" || style !== "all";
+  const filtersActive =
+    query.trim() !== "" ||
+    region !== "all" ||
+    wtype !== "all" ||
+    style !== "all" ||
+    tradition !== "all" ||
+    motif !== "all";
   const filteredThemes = useMemo(() => {
     const q = query.trim().toLowerCase();
     return WEDDING_THEMES.filter((t) => {
@@ -285,14 +308,19 @@ export default function Themes() {
       if (region !== "all" && f?.region !== region) return false;
       if (wtype !== "all" && f?.type !== wtype) return false;
       if (style !== "all" && !f?.styles.includes(style)) return false;
+      if (tradition !== "all" && t.tradition !== tradition) return false;
+      if (motif !== "all" && t.motif !== motif) return false;
       if (!q) return true;
-      const hay = [t.name, t.tradition, t.description, t.tagline, ...(f?.styles ?? [])]
+      const hay = [t.name, t.tradition, t.description, t.tagline, t.motif, ...(f?.styles ?? [])]
         .join(" ").toLowerCase();
       return hay.includes(q);
     });
-  }, [query, region, wtype, style]);
+  }, [query, region, wtype, style, tradition, motif]);
 
-  const resetFilters = () => { setQuery(""); setRegion("all"); setWtype("all"); setStyle("all"); };
+  const resetFilters = () => {
+    setQuery(""); setRegion("all"); setWtype("all"); setStyle("all");
+    setTradition("all"); setMotif("all");
+  };
 
   const applyTheme = async () => {
     if (!active || !custom) return;
@@ -430,7 +458,7 @@ export default function Themes() {
         <div className="max-w-6xl mx-auto px-4 py-10">
           {/* Filter + search bar */}
           <div className="mb-6 rounded-2xl border border-border/60 bg-muted/20 p-4 sm:p-5">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
@@ -442,6 +470,22 @@ export default function Themes() {
                   aria-label="Search themes"
                 />
               </div>
+              <select
+                value={tradition}
+                onChange={(e) => setTradition(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+                aria-label="Filter by tradition"
+              >
+                {TRADITION_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+              <select
+                value={motif}
+                onChange={(e) => setMotif(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+                aria-label="Filter by motif"
+              >
+                {MOTIF_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
               <select
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
