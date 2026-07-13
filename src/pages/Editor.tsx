@@ -2578,6 +2578,26 @@ function SectionEditor({
               Invitation mode uses the first video below as the hero. Guests can watch, share on WhatsApp, or copy the invitation link from the public site.
             </p>
           )}
+          {data.style === "invitation" && (
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex items-center gap-2 rounded-md border border-border/60 px-2.5 py-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={data.autoplay !== false}
+                  onChange={(e) => onUpdateData({ autoplay: e.target.checked })}
+                />
+                <span className="font-body text-xs">Autoplay <span className="text-muted-foreground">(muted on mobile)</span></span>
+              </label>
+              <label className="flex items-center gap-2 rounded-md border border-border/60 px-2.5 py-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={data.loop !== false}
+                  onChange={(e) => onUpdateData({ loop: e.target.checked })}
+                />
+                <span className="font-body text-xs">Loop playback</span>
+              </label>
+            </div>
+          )}
           <div className="space-y-3">
             <label className="font-body text-sm font-medium text-foreground block">Videos</label>
             <div className="text-[11px] text-muted-foreground font-body bg-muted/50 rounded-lg p-2.5 leading-relaxed">
