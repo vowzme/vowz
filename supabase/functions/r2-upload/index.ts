@@ -150,13 +150,13 @@ function sniffMime(bytes: Uint8Array): string | null {
   return null;
 }
 
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-
 Deno.serve(async (req) => {
+  const corsHeaders = buildCors(req);
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
     // referenced R2 URLs, then deleting anything in r2_files that isn't listed.
     if (action === "admin_cleanup") {
       const bearer = authHeader.replace(/^Bearer\s+/i, "").trim();
-      if (bearer !== SUPABASE_SERVICE_ROLE_KEY) {
+      if (!timingSafeEqual(bearer, SUPABASE_SERVICE_ROLE_KEY)) {
         return json({ error: "Forbidden" }, 403);
       }
 
