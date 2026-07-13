@@ -1289,25 +1289,50 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         meal_preference: showMeal ? (form.meal_preference || null) : null,
       });
 
-      const { error } = await supabase.from("rsvps").insert({
-        wedding_site_id: site.id,
-        guest_name: validated.guest_name,
-        guest_email: validated.guest_email,
-        attending: validated.attending,
-        guest_count: validated.guest_count,
-        meal_preference: validated.meal_preference,
-        selected_events: validated.selected_events as any,
-        message: validated.message,
-      });
-
-      if (error) throw error;
+      if (isEditing && editHandle) {
+        const { data: ok, error } = await supabase.rpc("update_rsvp_by_token", {
+          _rsvp_id: editHandle.id,
+          _edit_token: editHandle.token,
+          _attending: validated.attending,
+          _guest_count: validated.guest_count,
+          _meal_preference: validated.meal_preference,
+          _selected_events: (validated.selected_events ?? null) as any,
+          _message: validated.message,
+        });
+        if (error) throw error;
+        if (!ok) throw new Error("This RSVP can no longer be edited from this device.");
+      } else {
+        const newToken = (globalThis.crypto as any)?.randomUUID?.() as string | undefined;
+        const { data: inserted, error } = await supabase
+          .from("rsvps")
+          .insert({
+            wedding_site_id: site.id,
+            guest_name: validated.guest_name,
+            guest_email: validated.guest_email,
+            attending: validated.attending,
+            guest_count: validated.guest_count,
+            meal_preference: validated.meal_preference,
+            selected_events: validated.selected_events as any,
+            message: validated.message,
+            edit_token: newToken,
+          } as any)
+          .select("id")
+          .single();
+        if (error) throw error;
+        if (inserted?.id && newToken) {
+          const handle = { id: inserted.id as string, token: newToken };
+          setEditHandle(handle);
+          try { localStorage.setItem(editStorageKey, JSON.stringify(handle)); } catch {}
+        }
+      }
       setSubmitted(true);
       setSubmittedDietary({
         tags: showDietaryTags ? [...form.dietary_tags] : [],
         notes: showDietaryNotes ? form.dietary_notes.trim() : "",
       });
-      toast({ title: "RSVP submitted! 🎉" });
-      trackEvent("rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
+      toast({ title: isEditing ? "RSVP updated ✨" : "RSVP submitted! 🎉" });
+      trackEvent(isEditing ? "rsvp_update" : "rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
+      setIsEditing(false);
 
       // Fire-and-forget confirmation email (non-blocking, non-fatal on failure).
       try {
