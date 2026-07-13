@@ -3567,19 +3567,26 @@ function InlineEditable({
   className?: string;
   style?: React.CSSProperties;
 }) {
+  const ref = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (el && el.textContent !== value) {
+      el.textContent = value ?? "";
+    }
+  }, [value]);
   const handleBlur = (e: React.FocusEvent<HTMLElement>) => {
     const newVal = e.currentTarget.textContent || "";
     if (newVal !== value) onChange(newVal);
   };
   return (
     <Tag
+      ref={ref as any}
       contentEditable
       suppressContentEditableWarning
       onBlur={handleBlur}
       onClick={(e: React.MouseEvent) => e.stopPropagation()}
       className={`outline-none focus:ring-1 focus:ring-gold/50 focus:rounded px-0.5 cursor-text ${className || ""}`}
       style={style}
-      dangerouslySetInnerHTML={{ __html: value }}
     />
   );
 }
