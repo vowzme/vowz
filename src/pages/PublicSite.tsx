@@ -1328,6 +1328,9 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         });
         if (error) throw error;
         if (!ok) throw new Error("This RSVP can no longer be edited from this device.");
+      let createdHandle: { id: string; token: string } | null = null;
+      if (isEditing && editHandle) {
+        // (edit path already handled above)
       } else {
         const newToken = (globalThis.crypto as any)?.randomUUID?.() as string | undefined;
         const { data: inserted, error } = await supabase
@@ -1348,6 +1351,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         if (error) throw error;
         if (inserted?.id && newToken) {
           const handle = { id: inserted.id as string, token: newToken };
+          createdHandle = handle;
           setEditHandle(handle);
           try { localStorage.setItem(editStorageKey, JSON.stringify(handle)); } catch {}
         }
