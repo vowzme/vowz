@@ -131,6 +131,35 @@ Deno.serve(async (req) => {
   let messageId: string | null = null
   const guestEmail = post.guest_email?.trim()
 
+  // Idempotency: insert the moderation event first. A unique index on
+  // (post_id, action) makes duplicate clicks a no-op — we detect that
+  // via the returned row count and skip enqueueing another email.
+  messageId = crypto.randomUUID()
+  const { data: inserted, error: insertErr } = await admin
+    .from('guest_moderation_events')
+    .insert({
+      post_id: postId,
+      wedding_site_id: site.id,
+      action,
+      guest_email: guestEmail || null,
+      message_id: guestEmail ? messageId : null,
+      actor_user_id: userId,
+    }, { onConflict: 'post_id,action', ignoreDuplicates: true } as never)
+    .select('id')
+
+  if (insertErr) {
+    return new Response(JSON.stringify({ error: 'Failed to record event', detail: insertErr.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  const isDuplicate = !inserted || inserted.length === 0
+  if (isDuplicate) {
+    return new Response(JSON.stringify({ ok: true, emailed: false, duplicate: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   if (guestEmail) {
     // Skip if suppressed
     const { data: suppressed } = await admin
@@ -142,7 +171,6 @@ Deno.serve(async (req) => {
     if (!suppressed) {
       const couple = [site.partner1, site.partner2].filter(Boolean).join(' & ') || 'the couple'
       const { html, text, subject } = render(post.guest_name || 'there', couple, action, post.caption)
-      messageId = crypto.randomUUID()
       const label = `guest_moderation_${action}`
 
       await admin.from('email_send_log').insert({
@@ -177,17 +205,12 @@ Deno.serve(async (req) => {
           error_message: e instanceof Error ? e.message : String(e),
         })
       }
+    } else {
+      messageId = null
     }
+  } else {
+    messageId = null
   }
-
-  await admin.from('guest_moderation_events').insert({
-    post_id: postId,
-    wedding_site_id: site.id,
-    action,
-    guest_email: guestEmail || null,
-    message_id: messageId,
-    actor_user_id: userId,
-  })
 
   return new Response(JSON.stringify({ ok: true, emailed: Boolean(messageId), message_id: messageId }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
