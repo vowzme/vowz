@@ -28,6 +28,7 @@ import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
 import { Sparkles } from "lucide-react";
+import { parseVideoUrl } from "@/lib/video-embed";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
