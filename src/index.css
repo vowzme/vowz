@@ -208,18 +208,18 @@ html {
     animation: none !important;
   }
   /* Radix Dialog (shadcn) — used by the theme customizer and full-screen
-     preview modal. Kill the tailwindcss-animate slide/zoom/fade utilities so
-     the modal appears and dismisses instantly instead of translating in from
-     the top-left. Targets both the overlay and content parts. */
-  [data-radix-dialog-overlay],
-  [data-radix-dialog-content],
-  [data-state][role="dialog"],
-  [data-state][data-radix-popper-content-wrapper] {
+     preview modal. Kill the tailwindcss-animate slide/zoom/fade keyframes
+     so motion-sensitive users get an instant open/close instead of a
+     slide-in-from-top-left with zoom. The Tailwind translate utilities on
+     DialogContent still position it centered; only the animation runs. */
+  [role="dialog"][data-state],
+  [data-state="open"][role="dialog"],
+  [data-state="closed"][role="dialog"] {
     animation: none !important;
-    transition: none !important;
-    transform: translate(-50%, -50%) !important;
   }
-  [data-radix-dialog-overlay] {
-    transform: none !important;
+  /* Overlay fade */
+  [data-state="open"].fixed.inset-0,
+  [data-state="closed"].fixed.inset-0 {
+    animation: none !important;
   }
 }
