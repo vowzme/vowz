@@ -10,11 +10,15 @@ export const DEFAULT_COLORS: [string, string, string] = ["#6B1D2A", "#D4A853", "
 export const DEFAULT_DISPLAY_FONT = "Cormorant Garamond";
 export const DEFAULT_BODY_FONT = "Inter";
 
-const sanitizeColors = (colors?: string[] | null): string[] => {
+export const sanitizeColors = (colors?: string[] | null): string[] => {
   const clean = (colors || []).filter((c) => typeof c === "string" && /^#?[0-9a-fA-F]{3,8}$/.test(c.trim()));
   if (clean.length >= 3) return clean.slice(0, 5);
   return [...clean, ...DEFAULT_COLORS.slice(clean.length)];
 };
+
+// Resolve the theme id to use when the caller may have passed empty/whitespace.
+export const resolveTheme = (theme?: string | null): string =>
+  (theme || "").trim() || DEFAULT_THEME;
 
 export interface WeddingSiteRow {
   id: string;
