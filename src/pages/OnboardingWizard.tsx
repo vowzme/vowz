@@ -6,7 +6,9 @@ import { Heart, ArrowLeft, ArrowRight, Check, Sparkles, Users, BookOpen, Palette
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useWeddingWizard, CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES } from "@/hooks/use-wedding-wizard";
+import { useWeddingWizard, CULTURAL_PRESETS } from "@/hooks/use-wedding-wizard";
+import { WEDDING_THEMES } from "@/lib/wedding-themes";
+import { ThemeDemo } from "@/components/ThemeDemo";
 import WizardPreview from "@/components/WizardPreview";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import { toast } from "@/hooks/use-toast";
@@ -14,8 +16,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
-  { key: "story", icon: BookOpen, label: "Story" },
   { key: "theme", icon: Palette, label: "Theme" },
+  { key: "story", icon: BookOpen, label: "Story" },
   { key: "events", icon: Calendar, label: "Events" },
   { key: "preview", icon: Sparkles, label: "Preview" },
 ] as const;
@@ -114,7 +116,7 @@ const OnboardingWizard = () => {
     events: (wizardData.functions || []).length > 0,
     tagline: Boolean((wizardData.tagline || "").trim()),
   } as const;
-  const firstMissing = (["names", "story", "theme", "events"] as const).find((k) => !completion[k]);
+  const firstMissing = (["names", "theme", "story", "events"] as const).find((k) => !completion[k]);
 
   // Apply template preset if navigated from templates
   useEffect(() => {
