@@ -1809,6 +1809,40 @@ function getVideoEmbedUrl(url: string): string | null {
   return parseVideoUrl(url)?.src ?? null;
 }
 
+// Append provider-specific autoplay/loop/mute params so the invitation hero
+// can play on load. iOS/Android require muted for autoplay to succeed, so
+// autoplay always implies mute here.
+function withPlaybackParams(
+  embed: string,
+  provider: string | undefined,
+  opts: { autoplay: boolean; loop: boolean },
+): string {
+  try {
+    const u = new URL(embed);
+    const set = (k: string, v: string) => u.searchParams.set(k, v);
+    if (provider === "youtube") {
+      if (opts.autoplay) { set("autoplay", "1"); set("mute", "1"); set("playsinline", "1"); }
+      if (opts.loop) {
+        set("loop", "1");
+        const id = u.pathname.split("/").pop() || "";
+        if (id && !u.searchParams.get("playlist")) set("playlist", id);
+      }
+    } else if (provider === "vimeo") {
+      if (opts.autoplay) { set("autoplay", "1"); set("muted", "1"); set("playsinline", "1"); }
+      if (opts.loop) set("loop", "1");
+    } else if (provider === "dailymotion") {
+      if (opts.autoplay) { set("autoplay", "1"); set("mute", "1"); }
+    } else if (provider === "twitch") {
+      if (opts.autoplay) { set("autoplay", "true"); set("muted", "true"); }
+    }
+    // Facebook, Instagram, TikTok, Google Drive don't honor query autoplay
+    // reliably — leave them alone; the user taps to play.
+    return u.toString();
+  } catch {
+    return embed;
+  }
+}
+
 function VideoSection({ data, accent, coupleNames, trackEvent }: { data: any; accent: string; coupleNames: string; trackEvent: (type: string, meta?: Record<string, any>) => void }) {
   const videos = data.videos || [];
   if (videos.length === 0 || !videos.some((v: any) => v.url)) return null;
