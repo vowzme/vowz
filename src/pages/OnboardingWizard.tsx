@@ -764,15 +764,16 @@ const OnboardingWizard = () => {
                   </div>
                   <div className="rounded-2xl border border-border overflow-hidden">
                     {/* Mini preview hero */}
+                    {(() => { return null; })()}
                     <div
                       className="py-12 px-6 text-center"
-                      style={{ background: `linear-gradient(135deg, ${wizardData.suggestedColors[0]}, ${wizardData.suggestedColors[0]}dd)` }}
+                      style={{ background: `linear-gradient(135deg, ${(wizardData.suggestedColors?.[0]) || "#6B1D2A"}, ${((wizardData.suggestedColors?.[0]) || "#6B1D2A")}dd)` }}
                     >
-                      <Heart className="w-6 h-6 mx-auto mb-3" style={{ color: wizardData.suggestedColors[1] }} fill="currentColor" />
-                      <h3 className="font-display text-3xl font-bold" style={{ color: wizardData.suggestedColors[2] }}>
+                      <Heart className="w-6 h-6 mx-auto mb-3" style={{ color: (wizardData.suggestedColors?.[1]) || "#D4A853" }} fill="currentColor" />
+                      <h3 className="font-display text-3xl font-bold" style={{ color: (wizardData.suggestedColors?.[2]) || "#FFF5E6" }}>
                         {wizardData.partner1} & {wizardData.partner2}
                       </h3>
-                      <p className="font-display text-base italic mt-2" style={{ color: wizardData.suggestedColors[1] }}>
+                      <p className="font-display text-base italic mt-2" style={{ color: (wizardData.suggestedColors?.[1]) || "#D4A853" }}>
                         {wizardData.tagline || "Two hearts, one beautiful journey"}
                       </p>
                     </div>

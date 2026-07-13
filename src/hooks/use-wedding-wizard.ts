@@ -95,21 +95,30 @@ export function useWeddingWizard() {
     return "names";
   });
   const [wizardData, setWizardData] = useState<WeddingData>(() => {
+    const safeDefaults: WeddingData = {
+      partner1: "", partner2: "", culturalBackground: "Hindu", howWeMet: "",
+      functions: [], eventDates: {}, theme: "traditional",
+      suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"],
+      displayFont: "Cormorant Garamond", bodyFont: "Inter", tagline: "",
+    };
+    const ensure = (d: Partial<WeddingData> | undefined | null): WeddingData => {
+      const merged = { ...safeDefaults, ...(d || {}) } as WeddingData;
+      if (!merged.theme) merged.theme = safeDefaults.theme;
+      if (!Array.isArray(merged.suggestedColors) || merged.suggestedColors.length < 3) {
+        merged.suggestedColors = safeDefaults.suggestedColors;
+      }
+      if (!merged.displayFont) merged.displayFont = safeDefaults.displayFont;
+      if (!merged.bodyFont) merged.bodyFont = safeDefaults.bodyFont;
+      return merged;
+    };
     try {
       const saved = sessionStorage.getItem(WIZARD_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.data || {
-          partner1: "", partner2: "", culturalBackground: "Hindu", howWeMet: "",
-          functions: [], eventDates: {}, theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"], tagline: "",
-        };
+        return ensure(parsed.data);
       }
     } catch {}
-    return {
-      partner1: "", partner2: "", culturalBackground: "Hindu", howWeMet: "",
-      functions: [], eventDates: {}, theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"],
-      displayFont: "Cormorant Garamond", bodyFont: "Inter", tagline: "",
-    };
+    return ensure(null);
   });
   const [isComplete, setIsComplete] = useState(false);
 
