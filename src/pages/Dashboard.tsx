@@ -1779,6 +1779,28 @@ function ChecklistRow({
 
       {!editing && (
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          {item.due_date && !item.is_completed && (
+            <>
+              <a
+                href={buildGoogleCalendarUrl({ name: item.title, date: item.due_date, description: item.notes || undefined }) || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Add "${item.title}" to Google Calendar`}
+                title="Add to Google Calendar"
+                className="text-muted-foreground hover:text-foreground p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+              >
+                <CalendarPlus className="w-3.5 h-3.5" />
+              </a>
+              <button
+                onClick={() => downloadIcs({ name: item.title, date: item.due_date!, description: item.notes || undefined })}
+                aria-label={`Download calendar file for "${item.title}"`}
+                title="Download .ics (Apple / Outlook)"
+                className="text-muted-foreground hover:text-foreground p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </button>
+            </>
+          )}
           <button
             onClick={() => { setEditTitle(item.title); setEditDate(item.due_date || ""); setEditing(true); }}
             aria-label={`Edit "${item.title}"`}
