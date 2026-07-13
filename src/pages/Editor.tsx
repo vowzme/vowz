@@ -3567,8 +3567,8 @@ function InlineEditable({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const ref = React.useRef<HTMLElement | null>(null);
-  React.useEffect(() => {
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
     const el = ref.current;
     if (el && el.textContent !== value) {
       el.textContent = value ?? "";
