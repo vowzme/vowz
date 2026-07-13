@@ -180,6 +180,21 @@ export function buildThemeSections(theme: WeddingTheme) {
     { id: "events", type: "events", title: "Wedding Events", visible: true, data: { heading: "Wedding Events", events: tpl.events.map((name) => ({ name, date: "", time: "", venue: "", location: "" })) } },
     { id: "gallery", type: "gallery", title: "Photo Gallery", visible: true, data: { heading: "Our Moments" } },
     { id: "travel", type: "travel", title: "Travel & Stay", visible: true, data: { heading: "Travel & Stay", description: tpl.travelDescription, hotels: [{ name: "Add your recommended hotel", description: "Update with your notes for guests.", distance: "Near venue" }], directions: "Add directions, nearest airport, and transport notes here." } },
+    // Gift Registry + Shagun UPI. Add your UPI VPA in the editor to accept blessings by UPI.
+    { id: "registry", type: "registry", title: "Gift Registry & Shagun", visible: true, data: {
+      heading: "Gift Registry & Shagun",
+      description: "Your presence is our greatest gift. If you'd still like to bless us, send Shagun over UPI or pick a gift from the list.",
+      upi: { vpa: "", name: `${tpl.partner1} & ${tpl.partner2}`, note: "Wedding Shagun" },
+      items: [
+        { name: "Honeymoon Fund", description: "Help us plan the trip of a lifetime.", link: "" },
+        { name: "Home Together", description: "A little something for our first home.", link: "" },
+      ],
+    } },
+    // Guest photo wall + wishes. Guests can upload a photo and leave a blessing.
+    { id: "blessings", type: "blessings", title: "Guest Photos & Wishes", visible: true, data: {
+      heading: "Share a Photo & Wish",
+      description: "Upload a photo with the couple and leave a blessing — it'll appear on this page for everyone to enjoy.",
+    } },
     { id: "guestbook", type: "guestbook", title: "Wishes & Blessings", visible: true, data: { heading: tpl.guestbookHeading, description: tpl.guestbookDescription } },
     { id: "rsvp", type: "rsvp", title: "RSVP", visible: true, data: { heading: tpl.rsvpHeading, body: tpl.rsvpBody } },
   ];
