@@ -22,6 +22,48 @@ import { sanitizeColors, DEFAULT_COLORS } from "@/hooks/use-wedding-site";
 // Regex for a valid CSS hex color (3/4/6/8 digits, optional leading #).
 const HEX_RE = /^#?[0-9a-fA-F]{3,8}$/;
 
+// Single source of truth for which wizardData fields `applyTheme` writes
+// during a theme switch/merge. The "What changes" summary and the token
+// diff are both derived from this list so the copy can never drift from
+// the actual mutation. If you add a new field here, applyTheme picks it
+// up automatically AND the dialog will list it.
+type ThemeField = {
+  key: "theme" | "suggestedColors" | "displayFont" | "bodyFont";
+  label: string;
+  get: (t: typeof WEDDING_THEMES[number]) => unknown;
+  format: (v: unknown) => string;
+  swatch?: (t: typeof WEDDING_THEMES[number]) => string;
+};
+const THEME_FIELDS: ThemeField[] = [
+  {
+    key: "theme",
+    label: "Theme preset",
+    get: (t) => t.id,
+    format: (v) => String(v),
+  },
+  {
+    key: "suggestedColors",
+    label: "Color palette",
+    get: (t) => [t.colors.bg, t.colors.accent, t.colors.light],
+    format: (v) => (Array.isArray(v) ? v.join(" · ") : String(v)),
+    swatch: (t) => t.colors.accent,
+  },
+  {
+    key: "displayFont",
+    label: "Display font",
+    get: (t) => t.fonts.display,
+    format: (v) => String(v),
+  },
+  {
+    key: "bodyFont",
+    label: "Body font",
+    get: (t) => t.fonts.body,
+    format: (v) => String(v),
+  },
+];
+const themeValuesEqual = (a: unknown, b: unknown) =>
+  JSON.stringify(a) === JSON.stringify(b);
+
 const stepMeta = [
   { key: "names", icon: Users, label: "Names" },
   { key: "theme", icon: Palette, label: "Theme" },
@@ -61,10 +103,11 @@ const OnboardingWizard = () => {
   const [undoBackup, setUndoBackup] = useState<{ draft: string; expiresAt: number } | null>(null);
   const [undoSecondsLeft, setUndoSecondsLeft] = useState(0);
   const applyTheme = (t: typeof WEDDING_THEMES[number]) => {
-    updateField("theme", t.id);
-    updateField("suggestedColors", [t.colors.bg, t.colors.accent, t.colors.light]);
-    updateField("displayFont", t.fonts.display);
-    updateField("bodyFont", t.fonts.body);
+    // Iterate THEME_FIELDS so the mutation and the "What changes" copy
+    // stay in lockstep — see ThemeField definition above.
+    for (const f of THEME_FIELDS) {
+      updateField(f.key as never, f.get(t) as never);
+    }
   };
   // Resume flow: when user clicks "Wedding Wizard" from the dashboard we pass
   // ?resume=1. We hydrate wizardData from their existing site and show a
