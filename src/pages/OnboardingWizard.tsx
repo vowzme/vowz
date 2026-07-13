@@ -311,6 +311,56 @@ const OnboardingWizard = () => {
     }
   };
 
+  // Check for a pending undo-reset backup on mount. If it exists and hasn't
+  // expired, expose it via the banner. Otherwise sweep it.
+  useEffect(() => {
+    const BACKUP_KEY = "vowz_wizard_draft_backup";
+    let raw: string | null = null;
+    try { raw = localStorage.getItem(BACKUP_KEY); } catch { return; }
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as { draft: string; expiresAt: number };
+      if (!parsed?.draft || typeof parsed.expiresAt !== "number") {
+        localStorage.removeItem(BACKUP_KEY);
+        return;
+      }
+      if (Date.now() > parsed.expiresAt) {
+        localStorage.removeItem(BACKUP_KEY);
+        return;
+      }
+      setUndoBackup(parsed);
+      setUndoSecondsLeft(Math.max(1, Math.ceil((parsed.expiresAt - Date.now()) / 1000)));
+    } catch {
+      try { localStorage.removeItem(BACKUP_KEY); } catch {}
+    }
+  }, []);
+
+  // Countdown + auto-sweep for the undo banner.
+  useEffect(() => {
+    if (!undoBackup) return;
+    const tick = () => {
+      const left = Math.ceil((undoBackup.expiresAt - Date.now()) / 1000);
+      if (left <= 0) {
+        try { localStorage.removeItem("vowz_wizard_draft_backup"); } catch {}
+        setUndoBackup(null);
+        setUndoSecondsLeft(0);
+      } else {
+        setUndoSecondsLeft(left);
+      }
+    };
+    const id = window.setInterval(tick, 500);
+    return () => window.clearInterval(id);
+  }, [undoBackup]);
+
+  const restoreDraftFromBackup = () => {
+    if (!undoBackup) return;
+    try {
+      localStorage.setItem("vowz_wizard_draft", undoBackup.draft);
+      localStorage.removeItem("vowz_wizard_draft_backup");
+    } catch { /* ignore */ }
+    navigate(0 as any);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead title="Wedding Website Wizard – Vowz" description="Create your wedding website step by step." robots="noindex, nofollow" />
