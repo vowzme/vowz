@@ -854,6 +854,25 @@ const OnboardingWizard = () => {
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={!!pendingTheme} onOpenChange={(o) => !o && setPendingTheme(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Switch to {pendingTheme?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Only the theme, colors, and fonts will change. Your names, story, events, and any other content you've entered stay exactly as they are.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep current theme</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => { if (pendingTheme) applyTheme(pendingTheme); setPendingTheme(null); }}
+            >
+              Switch theme
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
