@@ -214,6 +214,15 @@ const Editor = () => {
   const wizardData: WeddingSiteData | null = (location.state as any)?.wizardData || null;
 
   const [dbSiteId, setDbSiteId] = useState<string | null>(siteId || null);
+  // Snapshot of the last-saved styling fields. Used by the theme picker's
+  // "Restore last saved" button to discard unsaved theme/color/font changes
+  // without touching sections or other content.
+  const savedStyleRef = useRef<{
+    theme: string;
+    suggestedColors: string[];
+    displayFont?: string;
+    bodyFont?: string;
+  } | null>(null);
   const [state, setState] = useState<EditorState>({
     siteData: wizardData || FALLBACK_DATA,
     sections: buildSections(wizardData || FALLBACK_DATA),
