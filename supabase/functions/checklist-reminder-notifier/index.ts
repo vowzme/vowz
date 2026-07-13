@@ -254,22 +254,41 @@ Deno.serve(async (req) => {
             event_type: 'sent',
             user_id: site.user_id,
           })
-          await admin.rpc('enqueue_email', {
-            queue_name: 'transactional_emails',
-            payload: {
+          const payload = {
+            message_id: messageId,
+            to: profile.email,
+            from: 'VowZ Planner <noreply@vowz.me>',
+            sender_domain: 'notify.vowz.me',
+            subject,
+            html,
+            text,
+            purpose: 'transactional',
+            label,
+            queued_at: new Date().toISOString(),
+            metadata: { variant },
+          }
+          const result = await enqueueWithRetry(admin, payload)
+          if (!result.ok) {
+            await admin.from('reminder_email_dlq').insert({
               message_id: messageId,
-              to: profile.email,
-              from: 'VowZ Planner <noreply@vowz.me>',
-              sender_domain: 'notify.vowz.me',
-              subject,
-              html,
-              text,
-              purpose: 'transactional',
-              label,
-              queued_at: new Date().toISOString(),
-              metadata: { variant },
-            },
-          })
+              template_name: label,
+              recipient_email: profile.email,
+              variant,
+              attempts: result.attempts,
+              last_error: result.error,
+              payload,
+            })
+            await admin.from('email_send_log').insert({
+              message_id: messageId,
+              template_name: label,
+              recipient_email: profile.email,
+              status: 'failed',
+              error_message: `enqueue_email retry exhausted after ${result.attempts} attempts: ${result.error}`,
+              metadata: { variant, dlq: true },
+            })
+            summary.errors.push(`enqueue DLQ: ${profile.email} (${label}) — ${result.error}`)
+            continue
+          }
         } else if (channel === 'in_app') {
           const { subject } = render(name, couple, bucket.items, bucket.milestone, messageId, 'A')
           await admin.from('notifications').insert({
