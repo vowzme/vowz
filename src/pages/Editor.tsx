@@ -1471,6 +1471,33 @@ function SettingsPanel({
   siteData: WeddingSiteData;
   onUpdate: (data: WeddingSiteData) => void;
 }) {
+  // Apply a theme/style change with a toast-level Undo. Snapshots only the
+  // style fields — content (names, story, events, gallery) is never touched.
+  const applyThemeWithUndo = (
+    patch: Partial<WeddingSiteData>,
+    label: string,
+  ) => {
+    const prev = {
+      theme: siteData.theme,
+      suggestedColors: siteData.suggestedColors,
+      displayFont: (siteData as any).displayFont,
+      bodyFont: (siteData as any).bodyFont,
+    };
+    onUpdate({ ...siteData, ...patch } as WeddingSiteData);
+    toast({
+      title: `Applied ${label}`,
+      description: "Only theme, colors and fonts changed. Tap Undo to revert.",
+      action: (
+        <button
+          type="button"
+          onClick={() => onUpdate({ ...siteData, ...prev } as WeddingSiteData)}
+          className="inline-flex items-center gap-1 rounded-md border border-gold/50 bg-gold/10 hover:bg-gold/20 text-gold px-2.5 py-1 text-xs font-body"
+        >
+          Undo
+        </button>
+      ) as any,
+    });
+  };
   return (
     <div>
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Settings</h3>
