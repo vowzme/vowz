@@ -958,6 +958,21 @@ const OnboardingWizard = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={!!conflict} onOpenChange={(o) => !o && dismissConflict()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Wizard edited in another tab</AlertDialogTitle>
+            <AlertDialogDescription>
+              A newer autosave was just made in another tab or window. Load the latest changes here so both tabs stay consistent, or keep this tab's version and overwrite the other one on your next edit.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => dismissConflict()}>Keep this tab</AlertDialogCancel>
+            <AlertDialogAction onClick={() => acceptRemoteDraft()}>Load latest changes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
