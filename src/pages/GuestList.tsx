@@ -309,6 +309,9 @@ export default function GuestList() {
               <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
                 <Download className="w-4 h-4 mr-1" /> Export CSV
               </Button>
+              <Button variant="outline" size="sm" onClick={exportPdf} disabled={filtered.length === 0}>
+                <FileText className="w-4 h-4 mr-1" /> Export PDF
+              </Button>
             </div>
           </div>
 
