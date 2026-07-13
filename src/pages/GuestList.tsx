@@ -28,6 +28,23 @@ type Rsvp = {
 type Site = { id: string; partner1: string; partner2: string; slug: string | null };
 type WeddingEvent = { name: string; date?: string; time?: string; venue?: string };
 
+// Extract "Dietary: …" and "Dietary notes: …" lines out of the message column.
+function parseDietary(message: string | null): { tags: string[]; notes: string; rest: string } {
+  if (!message) return { tags: [], notes: "", rest: "" };
+  const lines = message.split("\n");
+  let tags: string[] = [];
+  let notes = "";
+  const rest: string[] = [];
+  for (const line of lines) {
+    const t = line.match(/^Dietary:\s*(.*)$/i);
+    const n = line.match(/^Dietary notes:\s*(.*)$/i);
+    if (t) tags = t[1].split(",").map((s) => s.trim()).filter(Boolean);
+    else if (n) notes = n[1].trim();
+    else rest.push(line);
+  }
+  return { tags, notes, rest: rest.join("\n").trim() };
+}
+
 export default function GuestList() {
   const { siteId } = useParams<{ siteId: string }>();
   const { user } = useAuth();
@@ -108,10 +125,11 @@ export default function GuestList() {
     `https://wa.me/?text=${encodeURIComponent(`Hi ${name}, ${inviteText}`)}`;
 
   const exportCsv = () => {
-    const header = ["Name", "Email", "Attending", "Guests", "Meal", "Events", "Message", "Submitted"];
+    const header = ["Name", "Email", "Attending", "Guests", "Meal", "Dietary", "Dietary notes", "Events", "Message", "Submitted"];
     const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const lines = [header.join(",")];
     for (const r of filtered) {
+      const { tags, notes, rest } = parseDietary(r.message);
       lines.push(
         [
           esc(r.guest_name),
@@ -119,8 +137,10 @@ export default function GuestList() {
           esc(r.attending ? "Yes" : "No"),
           esc(r.guest_count),
           esc(r.meal_preference ?? ""),
+          esc(tags.join(" | ")),
+          esc(notes),
           esc((r.selected_events ?? []).join(" | ")),
-          esc(r.message ?? ""),
+          esc(rest),
           esc(new Date(r.created_at).toISOString()),
         ].join(",")
       );
@@ -336,13 +356,16 @@ export default function GuestList() {
                       <th className="text-left px-4 py-2.5">Attending</th>
                       <th className="text-left px-4 py-2.5">Heads</th>
                       <th className="text-left px-4 py-2.5">Meal</th>
+                      <th className="text-left px-4 py-2.5">Dietary</th>
                       <th className="text-left px-4 py-2.5">Events</th>
                       <th className="text-left px-4 py-2.5">Message</th>
                       <th className="text-right px-4 py-2.5">Reach out</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((r) => (
+                    {filtered.map((r) => {
+                      const { tags, notes, rest } = parseDietary(r.message);
+                      return (
                       <tr key={r.id} className="border-t border-border/50 hover:bg-muted/20">
                         <td className="px-4 py-3">
                           <div className="font-medium text-foreground">{r.guest_name}</div>
@@ -357,11 +380,31 @@ export default function GuestList() {
                         </td>
                         <td className="px-4 py-3">{r.guest_count}</td>
                         <td className="px-4 py-3 capitalize text-muted-foreground">{r.meal_preference || "—"}</td>
+                        <td className="px-4 py-3 text-xs max-w-[200px]">
+                          {tags.length === 0 && !notes ? (
+                            <span className="text-muted-foreground">—</span>
+                          ) : (
+                            <div className="space-y-1">
+                              {tags.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {tags.map((tg) => (
+                                    <span key={tg} className="px-1.5 py-0.5 rounded bg-gold/15 text-foreground border border-gold/30">
+                                      {tg}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                              {notes && (
+                                <div className="text-muted-foreground truncate" title={notes}>{notes}</div>
+                              )}
+                            </div>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-xs text-muted-foreground max-w-[180px] truncate" title={(r.selected_events ?? []).join(", ")}>
                           {(r.selected_events ?? []).join(", ") || "—"}
                         </td>
-                        <td className="px-4 py-3 text-muted-foreground max-w-[240px] truncate" title={r.message ?? ""}>
-                          {r.message || "—"}
+                        <td className="px-4 py-3 text-muted-foreground max-w-[240px] truncate" title={rest || r.message || ""}>
+                          {rest || "—"}
                         </td>
                         <td className="px-4 py-3 text-right whitespace-nowrap">
                           <a
@@ -381,7 +424,8 @@ export default function GuestList() {
                           </a>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

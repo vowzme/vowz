@@ -1209,6 +1209,7 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
 // ─── RSVP Form ────────────────────────────────────────────────────────
 function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void; t: TranslateFn }) {
   const [submitted, setSubmitted] = useState(false);
+  const [submittedDietary, setSubmittedDietary] = useState<{ tags: string[]; notes: string }>({ tags: [], notes: "" });
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     guest_name: "",
@@ -1293,6 +1294,10 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
 
       if (error) throw error;
       setSubmitted(true);
+      setSubmittedDietary({
+        tags: showDietaryTags ? [...form.dietary_tags] : [],
+        notes: showDietaryNotes ? form.dietary_notes.trim() : "",
+      });
       toast({ title: "RSVP submitted! 🎉" });
       trackEvent("rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
 
@@ -1376,6 +1381,29 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                 <span className="block mt-1 opacity-90">{confirmBodyLocal}</span>
               )}
             </p>
+            {(submittedDietary.tags.length > 0 || submittedDietary.notes) && (
+              <div className="mt-5 pt-4 border-t border-border/40 text-left">
+                <div className="text-xs uppercase tracking-wide text-muted-foreground font-body mb-2">
+                  Dietary details we received
+                </div>
+                {submittedDietary.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {submittedDietary.tags.map((tg) => (
+                      <span
+                        key={tg}
+                        className="text-xs px-2 py-0.5 rounded-full border font-body"
+                        style={{ borderColor: `${accent}66`, color: accent, backgroundColor: `${accent}12` }}
+                      >
+                        {tg}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {submittedDietary.notes && (
+                  <p className="text-sm text-muted-foreground font-body">{submittedDietary.notes}</p>
+                )}
+              </div>
+            )}
             {showWhatsAppShare && (
               <a
                 href={shareWhatsAppUrl}
