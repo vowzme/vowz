@@ -851,6 +851,10 @@ export type Database = {
           full_name: string
           id: string
           partner_name: string
+          preferred_body_font: string | null
+          preferred_colors: string[] | null
+          preferred_display_font: string | null
+          preferred_theme: string | null
           updated_at: string
           wedding_date: string | null
           wedding_location: string | null
@@ -863,6 +867,10 @@ export type Database = {
           full_name?: string
           id: string
           partner_name?: string
+          preferred_body_font?: string | null
+          preferred_colors?: string[] | null
+          preferred_display_font?: string | null
+          preferred_theme?: string | null
           updated_at?: string
           wedding_date?: string | null
           wedding_location?: string | null
@@ -875,6 +883,10 @@ export type Database = {
           full_name?: string
           id?: string
           partner_name?: string
+          preferred_body_font?: string | null
+          preferred_colors?: string[] | null
+          preferred_display_font?: string | null
+          preferred_theme?: string | null
           updated_at?: string
           wedding_date?: string | null
           wedding_location?: string | null
