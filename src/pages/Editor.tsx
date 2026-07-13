@@ -29,6 +29,7 @@ import MediaManagerPanel from "@/components/MediaManagerPanel";
 import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS } from "@/lib/video-embed";
 import { MUSIC_CATEGORIES } from "@/lib/music-library";
 import { useR2Upload } from "@/hooks/use-r2-upload";
+import { WEDDING_THEMES } from "@/lib/wedding-themes";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
