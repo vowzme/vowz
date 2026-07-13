@@ -23,6 +23,11 @@ import BackgroundMusicPlayer from "@/components/BackgroundMusicPlayer";
 import { DEFAULT_STORY } from "@/lib/default-story";
 import { demoWeddingSite } from "@/lib/demo-site";
 import { getThemeDemoSite } from "@/lib/theme-demo-sites";
+import { WEDDING_THEMES } from "@/lib/wedding-themes";
+import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
+import { useAuth } from "@/hooks/use-auth";
+import { useWeddingSite } from "@/hooks/use-wedding-site";
+import { Sparkles } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────
 interface WeddingSite {
