@@ -242,7 +242,7 @@ const OnboardingWizard = () => {
     switch (step) {
       case "names": return wizardData.partner1.trim() && wizardData.partner2.trim();
       case "story": return true;
-      case "theme": return wizardData.suggestedColors.length >= 3;
+      case "theme": return true;
       case "events": return wizardData.functions.length > 0;
       case "preview": return true;
       default: return false;
@@ -513,6 +513,9 @@ const OnboardingWizard = () => {
                     <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Pick Your Style 🎨</h2>
                     <p className="text-muted-foreground font-body mt-2">
                       Choose a theme — colors and typography are preconfigured for you.
+                    </p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">
+                      Not sure yet? Skip this — you can pick or change your theme later in the editor without losing anything.
                     </p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -823,6 +826,10 @@ const OnboardingWizard = () => {
             ) : step === "story" && wizardData.howWeMet.trim().length < 10 ? (
               <>
                 Skip <ArrowRight className="w-4 h-4 ml-1" />
+              </>
+            ) : step === "theme" && !wizardData.theme ? (
+              <>
+                Skip for now <ArrowRight className="w-4 h-4 ml-1" />
               </>
             ) : (
               <>
