@@ -1217,9 +1217,11 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
     selected_events: [] as string[],
     message: "",
     dietary_notes: "",
+    dietary_tags: [] as string[],
   });
 
   const showMeal = data.show_meal !== false;
+  const showDietaryTags = data.show_dietary_tags === true;
   const showEvents = data.show_events !== false;
   const showDietaryNotes = data.show_dietary_notes === true;
   const showCustomPolls = data.show_custom_polls === true;
@@ -1251,7 +1253,11 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
     setSubmitting(true);
 
     try {
-      const combinedMessage = [form.message?.trim(), form.dietary_notes?.trim() ? `Dietary notes: ${form.dietary_notes.trim()}` : ""]
+      const combinedMessage = [
+        form.message?.trim(),
+        form.dietary_tags.length > 0 ? `Dietary: ${form.dietary_tags.join(", ")}` : "",
+        form.dietary_notes?.trim() ? `Dietary notes: ${form.dietary_notes.trim()}` : "",
+      ]
         .filter(Boolean)
         .join("\n") || null;
 
@@ -1463,6 +1469,42 @@ function RsvpSection({ data, site, bg, accent, trackEvent }: { data: any; site: 
                     ))}
                   </div>
                 </div>}
+
+                {/* Dietary tags */}
+                {showDietaryTags && (
+                  <div>
+                    <label className="font-body text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
+                      <Leaf className="w-3.5 h-3.5 text-muted-foreground" /> Dietary tags
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {["gluten-free", "dairy-free", "nut-free", "jain", "halal", "kosher", "diabetic"].map((tag) => {
+                        const active = form.dietary_tags.includes(tag);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                dietary_tags: active
+                                  ? prev.dietary_tags.filter((t) => t !== tag)
+                                  : [...prev.dietary_tags, tag],
+                              }))
+                            }
+                            className={`px-3 py-1.5 rounded-full font-body text-xs border capitalize transition-colors ${
+                              active
+                                ? "border-gold bg-gold/10 text-foreground font-medium"
+                                : "border-border/50 text-muted-foreground hover:border-border"
+                            }`}
+                          >
+                            {active && <Check className="w-3 h-3 inline mr-1" />}
+                            {tag}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Event selection */}
                 {showEvents && eventNames.length > 0 && (

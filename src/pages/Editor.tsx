@@ -2173,6 +2173,7 @@ function SectionEditor({
             <p className="font-body text-xs font-semibold text-foreground uppercase tracking-wide">Guest polling fields</p>
             {[
               { key: "show_meal", label: "Meal preference (veg / non-veg / vegan)" },
+              { key: "show_dietary_tags", label: "Dietary tags (gluten-free, jain, halal, nut-free…)" },
               { key: "show_events", label: "Per-event attendance (haldi, mehendi, wedding…)" },
               { key: "show_dietary_notes", label: "Dietary notes / allergies (free text)" },
               { key: "show_custom_polls", label: "Link to custom polls the couple defines" },
