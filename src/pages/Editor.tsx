@@ -2169,6 +2169,45 @@ function SectionEditor({
               className="font-body"
             />
           </div>
+          <div className="rounded-lg border border-border/50 p-3 space-y-2">
+            <p className="font-body text-xs font-semibold text-foreground uppercase tracking-wide">Guest polling fields</p>
+            {[
+              { key: "show_meal", label: "Meal preference (veg / non-veg / vegan)" },
+              { key: "show_events", label: "Per-event attendance (haldi, mehendi, wedding…)" },
+              { key: "show_dietary_notes", label: "Dietary notes / allergies (free text)" },
+              { key: "show_custom_polls", label: "Link to custom polls the couple defines" },
+            ].map(({ key, label }) => (
+              <label key={key} className="flex items-center gap-2 font-body text-sm text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={data[key] !== false}
+                  onChange={(e) => onUpdateData({ [key]: e.target.checked })}
+                  className="accent-gold"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          <div className="rounded-lg border border-border/50 p-3 space-y-2">
+            <p className="font-body text-xs font-semibold text-foreground uppercase tracking-wide">WhatsApp sharing</p>
+            <label className="flex items-center gap-2 font-body text-sm text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={data.show_whatsapp_share !== false}
+                onChange={(e) => onUpdateData({ show_whatsapp_share: e.target.checked })}
+                className="accent-gold"
+              />
+              Show "Share on WhatsApp" after a guest RSVPs
+            </label>
+            <label className="font-body text-xs text-muted-foreground block mt-2">Custom WhatsApp invite message (optional)</label>
+            <Textarea
+              value={data.whatsapp_invite_message || ""}
+              onChange={(e) => onUpdateData({ whatsapp_invite_message: e.target.value })}
+              rows={2}
+              placeholder="You're invited to our wedding — please RSVP:"
+              className="font-body"
+            />
+          </div>
         </>
       )}
 
