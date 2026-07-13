@@ -1485,11 +1485,51 @@ function SettingsPanel({
         </div>
         <div>
           <label className="font-body text-sm font-medium text-foreground mb-1 block">Theme</label>
-          <Input
-            value={siteData.theme}
-            onChange={(e) => onUpdate({ ...siteData, theme: e.target.value })}
-            className="font-body"
-          />
+          <p className="font-body text-xs text-muted-foreground mb-2">
+            Switch themes anytime — only colors and typography change, your names, story, events, and gallery stay intact.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => onUpdate({ ...siteData, theme: "", displayFont: undefined, bodyFont: undefined } as any)}
+              className={`rounded-lg border-2 px-3 py-2 text-left transition-all ${
+                !siteData.theme ? "border-gold bg-gold/10" : "border-border hover:border-gold/40"
+              }`}
+            >
+              <p className="font-body text-xs font-semibold text-foreground">No theme</p>
+              <p className="font-body text-[10px] text-muted-foreground">Use my own styling</p>
+            </button>
+            {WEDDING_THEMES.map((t) => {
+              const active = siteData.theme === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() =>
+                    onUpdate({
+                      ...siteData,
+                      theme: t.id,
+                      suggestedColors: [t.colors.bg, t.colors.accent, t.colors.light],
+                      displayFont: t.fonts.display,
+                      bodyFont: t.fonts.body,
+                    } as any)
+                  }
+                  className={`rounded-lg border-2 px-3 py-2 text-left transition-all ${
+                    active ? "border-gold bg-gold/10" : "border-border hover:border-gold/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="w-3 h-3 rounded-full border" style={{ background: t.colors.bg }} />
+                    <span className="w-3 h-3 rounded-full border" style={{ background: t.colors.accent }} />
+                    <span className="w-3 h-3 rounded-full border" style={{ background: t.colors.light }} />
+                    {active && <Check className="w-3 h-3 text-gold ml-auto" />}
+                  </div>
+                  <p className="font-body text-xs font-semibold text-foreground truncate">{t.name}</p>
+                  <p className="font-body text-[10px] text-muted-foreground truncate">{t.tradition}</p>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Featured Image for Social Sharing */}
