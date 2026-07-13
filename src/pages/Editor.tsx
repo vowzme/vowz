@@ -624,7 +624,19 @@ const Editor = () => {
                     />
                   )}
                   {activePanel === "settings" && (
-                    <SettingsPanel siteData={siteData} onUpdate={(d) => updateState({ siteData: d })} />
+                    <SettingsPanel
+                      siteData={siteData}
+                      onUpdate={(d) => updateState({ siteData: d })}
+                      onRestoreLastSavedStyle={() => {
+                        const snap = savedStyleRef.current;
+                        if (!snap) {
+                          toast({ title: "Nothing to restore yet", description: "Save the site once to create a restore point." });
+                          return;
+                        }
+                        updateState({ siteData: { ...siteData, ...snap } });
+                        toast({ title: "Styling restored", description: "Reverted theme, colors, and fonts to the last saved version." });
+                      }}
+                    />
                   )}
                   {activePanel === "templates" && (
                     <TemplateSwitcherPanel
