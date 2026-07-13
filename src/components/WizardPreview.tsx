@@ -102,6 +102,8 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
       tagline: data.tagline,
       suggestedColors: data.suggestedColors,
       sections,
+      displayFont: data.displayFont,
+      bodyFont: data.bodyFont,
     }).then((site) => {
       if (site) setSiteId(site.id);
     });

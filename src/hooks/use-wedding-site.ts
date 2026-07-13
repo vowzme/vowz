@@ -37,6 +37,8 @@ export function useWeddingSite() {
       tagline: string;
       suggestedColors: string[];
       sections: any[];
+      displayFont?: string;
+      bodyFont?: string;
     }) => {
       if (!user) return null;
       setSaving(true);
@@ -55,6 +57,8 @@ export function useWeddingSite() {
             suggested_colors: data.suggestedColors as any,
             sections: data.sections as any,
             slug,
+            display_font: data.displayFont ?? null,
+            body_font: data.bodyFont ?? null,
           })
           .select()
           .single();

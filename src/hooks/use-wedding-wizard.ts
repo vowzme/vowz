@@ -11,6 +11,8 @@ export interface WeddingData {
   eventDates: Record<string, { date?: string; time?: string; venue?: string }>;
   theme: string;
   suggestedColors: string[];
+  displayFont?: string;
+  bodyFont?: string;
   tagline: string;
   countdownLabel?: string;
   travelInfo?: {
@@ -23,6 +25,8 @@ export interface WeddingData {
 }
 
 export type WizardStep = "names" | "story" | "theme" | "events" | "preview";
+
+const WIZARD_STEPS: WizardStep[] = ["names", "theme", "story", "events", "preview"];
 
 const CULTURAL_PRESETS: Record<string, { events: string[]; colors: string[]; theme: string }> = {
   Hindu: {
@@ -103,7 +107,8 @@ export function useWeddingWizard() {
     } catch {}
     return {
       partner1: "", partner2: "", culturalBackground: "Hindu", howWeMet: "",
-      functions: [], eventDates: {}, theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"], tagline: "",
+      functions: [], eventDates: {}, theme: "traditional", suggestedColors: ["#6B1D2A", "#D4A853", "#FFF5E6"],
+      displayFont: "Cormorant Garamond", bodyFont: "Inter", tagline: "",
     };
   });
   const [isComplete, setIsComplete] = useState(false);
@@ -143,15 +148,13 @@ export function useWeddingWizard() {
   }, [wizardData]);
 
   const nextStep = useCallback(() => {
-    const steps: WizardStep[] = ["names", "story", "theme", "events", "preview"];
-    const idx = steps.indexOf(step);
-    if (idx < steps.length - 1) setStep(steps[idx + 1]);
+    const idx = WIZARD_STEPS.indexOf(step);
+    if (idx < WIZARD_STEPS.length - 1) setStep(WIZARD_STEPS[idx + 1]);
   }, [step]);
 
   const prevStep = useCallback(() => {
-    const steps: WizardStep[] = ["names", "story", "theme", "events", "preview"];
-    const idx = steps.indexOf(step);
-    if (idx > 0) setStep(steps[idx - 1]);
+    const idx = WIZARD_STEPS.indexOf(step);
+    if (idx > 0) setStep(WIZARD_STEPS[idx - 1]);
   }, [step]);
 
   const completeWizard = useCallback(() => {
