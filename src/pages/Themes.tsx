@@ -310,7 +310,7 @@ export default function Themes() {
         toast({
           title: mode === "merge" ? "Template merged" : "Template applied",
           description: mode === "merge"
-            ? `Kept your story, events, and RSVP text — applied ${t.name} styling and filled missing sections.`
+            ? `Kept your story, event details, RSVP settings, and gallery media — applied ${t.name} colors and fonts and filled only missing sections.`
             : `Your site was reset to the ${t.name} starter.`,
         });
         setApplyChoice(null);
