@@ -7,7 +7,7 @@ import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
-  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail, Download, CalendarPlus, RotateCcw
+  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail, Download, CalendarPlus, RotateCcw, SlidersHorizontal
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { buildGoogleCalendarUrl, buildOutlookCalendarUrl, downloadIcs, downloadAllEventsIcs, parseEventStart } from "@/lib/calendar-invite";
