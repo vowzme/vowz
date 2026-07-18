@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useSitePermissions } from "@/hooks/use-site-permissions";
 import { GuestModerationTemplatesDialog } from "@/components/GuestModerationTemplatesDialog";
 
 type Status = "pending" | "approved" | "hidden";
@@ -28,6 +29,7 @@ const AlbumModeration = () => {
   const { siteId = "" } = useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const perms = useSitePermissions(siteId);
   const [posts, setPosts] = useState<Post[]>([]);
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -68,7 +70,8 @@ const AlbumModeration = () => {
         .eq("id", siteId)
         .maybeSingle();
 
-      if (!site || site.user_id !== user.id) {
+      const allowed = site && (site.user_id === user.id || perms.can("manage_album"));
+      if (!site || !allowed) {
         toast({ title: "Not found", description: "This album isn't yours to moderate.", variant: "destructive" });
         navigate("/dashboard");
         return;
@@ -105,7 +108,7 @@ const AlbumModeration = () => {
     })();
 
     return () => { cancelled = true; };
-  }, [siteId, user, authLoading, navigate]);
+  }, [siteId, user, authLoading, navigate, perms.loading]);
 
   const byStatus = useMemo(() => {
     const map: Record<Status, Post[]> = { pending: [], approved: [], hidden: [] };
