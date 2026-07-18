@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
+import InviteLinksPanel from "@/components/InviteLinksPanel";
 
 type Rsvp = {
   id: string;
@@ -321,6 +322,14 @@ export default function GuestList() {
             <Stat label="Regrets" value={stats.no} icon={<XIcon className="w-4 h-4 text-destructive" />} />
             <Stat label="Total heads" value={stats.heads} icon={<Users className="w-4 h-4 text-gold" />} />
           </div>
+
+          {site && (
+            <InviteLinksPanel
+              siteId={site.id}
+              siteSlug={site.slug}
+              coupleNames={`${site.partner1} & ${site.partner2}`}
+            />
+          )}
 
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <div className="relative flex-1 min-w-[220px]">
