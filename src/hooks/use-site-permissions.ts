@@ -44,7 +44,7 @@ export function useSitePermissions(siteId: string | undefined | null): SitePermi
       return;
     }
     setState((s) => ({ ...s, loading: true }));
-    const { data, error } = await supabase.rpc("get_my_site_permissions", { _site_id: siteId });
+    const { data, error } = await (supabase as any).rpc("get_my_site_permissions", { _site_id: siteId });
     if (error || !data || !Array.isArray(data) || data.length === 0) {
       setState({ ...EMPTY, loading: false, refresh: load });
       return;
