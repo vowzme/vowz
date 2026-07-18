@@ -1592,6 +1592,26 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                 )}
               </div>
             )}
+            {submittedPlusOnes.length > 0 && (
+              <div className="mt-5 pt-4 border-t border-border/40 text-left">
+                <div className="text-xs uppercase tracking-wide text-muted-foreground font-body mb-2">
+                  Companions ({submittedPlusOnes.length})
+                </div>
+                <ul className="space-y-1.5">
+                  {submittedPlusOnes.map((p, i) => (
+                    <li key={i} className="text-sm font-body text-foreground">
+                      <span className="font-medium">{p.name}</span>
+                      {(p.meal_preference || p.dietary_tags.length > 0) && (
+                        <span className="text-muted-foreground">
+                          {" — "}
+                          {[p.meal_preference, ...p.dietary_tags].filter(Boolean).join(", ")}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {editHandle && (
               <button
                 type="button"
