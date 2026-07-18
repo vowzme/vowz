@@ -70,7 +70,7 @@ export interface WeddingSiteData {
 interface EditorState {
   siteData: WeddingSiteData;
   sections: WeddingSection[];
-  activePanel: "sections" | "style" | "settings" | "ai" | "templates" | "media" | null;
+  activePanel: "sections" | "style" | "settings" | "ai" | "templates" | "media" | "features" | null;
   selectedSectionId: string | null;
   previewMode: boolean;
 }
