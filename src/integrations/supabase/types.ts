@@ -564,6 +564,44 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json
+          feature_type: string
+          id: string
+          user_id: string
+          wedding_site_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json
+          feature_type: string
+          id?: string
+          user_id: string
+          wedding_site_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json
+          feature_type?: string
+          id?: string
+          user_id?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_audit_log_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feature_requests: {
         Row: {
           admin_reply: string | null
