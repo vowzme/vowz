@@ -1526,6 +1526,7 @@ export type Database = {
           id: string
           meal_preference: string | null
           message: string | null
+          plus_ones: Json
           selected_events: Json | null
           wedding_site_id: string
         }
@@ -1539,6 +1540,7 @@ export type Database = {
           id?: string
           meal_preference?: string | null
           message?: string | null
+          plus_ones?: Json
           selected_events?: Json | null
           wedding_site_id: string
         }
@@ -1552,6 +1554,7 @@ export type Database = {
           id?: string
           meal_preference?: string | null
           message?: string | null
+          plus_ones?: Json
           selected_events?: Json | null
           wedding_site_id?: string
         }
@@ -2417,6 +2420,7 @@ export type Database = {
           rsvp_id: string
           rsvp_meal_preference: string
           rsvp_message: string
+          rsvp_plus_ones: Json
           rsvp_selected_events: Json
           wedding_site_id: string
         }[]
@@ -2478,6 +2482,7 @@ export type Database = {
           _guest_count: number
           _meal_preference: string
           _message: string
+          _plus_ones?: Json
           _selected_events: Json
           _token: string
         }
@@ -2493,6 +2498,7 @@ export type Database = {
           _guest_count: number
           _meal_preference: string
           _message: string
+          _plus_ones?: Json
           _rsvp_id: string
           _selected_events: Json
         }
