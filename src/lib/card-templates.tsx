@@ -508,6 +508,42 @@ const NEW_PREMIUM_TEMPLATES: NewTpl[] = [
   { slug: "vienna-opera", name: "Vienna Opera", category: "royal_traditional", description: "Opera red with champagne ornament",
     theme: { bg: "#6B0E18", panel: "#7C1322", ink: "#FFF1C9", accent: "#E1C896", muted: "#C9B98A", ornament: "damask", display: "'Cinzel', serif", body: "'Cormorant Garamond', serif", photoShape: "oval", photoAspect: "4:5", headingScale: 1.05 },
     facets: { tags: ["royal", "opera", "red", "champagne"], orientation: "portrait", focus: "photo-first" } },
+
+  // ─── Amora-inspired premium series ───────────────────────────────
+  // Editorial storytelling & cinematic script looks inspired by leading
+  // international wedding-invite studios (AmoraRSVP, AmoraWeds).
+  { slug: "amora-burgundy-editorial", name: "Amora Burgundy", category: "modern_minimal",
+    description: "Cream paper with burgundy editorial chapter headings",
+    theme: { bg: "#F6EFE4", panel: "#FBF5EA", ink: "#2A1A1A", accent: "#7A1220", muted: "#8B6A5E", ornament: "editorial", display: "'Playfair Display', serif", body: "'Inter', sans-serif", photoShape: "arch", photoAspect: "3:4", headingLetterSpacing: 0.5, headingScale: 1.05 },
+    facets: { tags: ["editorial", "burgundy", "chapter", "romantic"], orientation: "portrait", focus: "text-first" } },
+  { slug: "amora-noir-script", name: "Amora Noir", category: "modern_minimal",
+    description: "Cinematic black stage with glowing gold script monogram",
+    theme: { bg: "#0A0A0A", panel: "#111111", ink: "#F2E6BD", accent: "#D4AF37", muted: "#B8993A", ornament: "noir", display: "'Great Vibes', cursive", body: "'Cormorant Garamond', serif", photoShape: "oval", photoAspect: "4:5", headingLetterSpacing: 0, headingScale: 1.35 },
+    facets: { tags: ["dark", "cinematic", "script", "luxe"], orientation: "portrait", focus: "text-first" } },
+  { slug: "amora-blush-cinema", name: "Amora Blush", category: "modern_minimal",
+    description: "Warm cream with rose-pink script names, cinematic hero",
+    theme: { bg: "#FBF2E4", panel: "#FFF8EE", ink: "#3A2229", accent: "#C25E7A", muted: "#8E6474", ornament: "editorial", display: "'Great Vibes', cursive", body: "'Cormorant Garamond', serif", photoShape: "rounded", photoAspect: "3:4", photoRadius: 22, headingScale: 1.4 },
+    facets: { tags: ["romantic", "blush", "script", "cinematic"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "amora-navy-together", name: "Amora Together", category: "modern_minimal",
+    description: "Warm cream with navy script and coral diamond accent",
+    theme: { bg: "#FDF5E4", panel: "#FFFAEA", ink: "#243A5A", accent: "#DB6A48", muted: "#5A6B85", ornament: "editorial", display: "'Great Vibes', cursive", body: "'Inter', sans-serif", photoShape: "circle", photoAspect: "1:1", headingScale: 1.35 },
+    facets: { tags: ["romantic", "navy", "coral", "script"], orientation: "portrait", focus: "text-first" } },
+  { slug: "amora-parchment-chapter", name: "Amora Parchment", category: "modern_minimal",
+    description: "Old-book parchment with Roman chapter numerals",
+    theme: { bg: "#EFE6D2", panel: "#F8F0DA", ink: "#2A1F14", accent: "#8A5A1A", muted: "#6E5436", ornament: "editorial", display: "'Cormorant Garamond', serif", body: "'Inter', sans-serif", photoShape: "arch", photoAspect: "3:4", headingLetterSpacing: 2, headingScale: 0.95 },
+    facets: { tags: ["editorial", "parchment", "chapter", "vintage"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "amora-plum-luxe", name: "Amora Plum", category: "royal_traditional",
+    description: "Deep plum velvet with soft-gold script names",
+    theme: { bg: "#2A0E22", panel: "#3A122E", ink: "#F5E6C8", accent: "#E1B84B", muted: "#C8A16A", ornament: "damask", display: "'Great Vibes', cursive", body: "'Cormorant Garamond', serif", photoShape: "oval", photoAspect: "4:5", headingScale: 1.4 },
+    facets: { tags: ["royal", "plum", "script", "luxe"], orientation: "portrait", focus: "photo-first" } },
+  { slug: "amora-ivory-hero", name: "Amora Ivory", category: "modern_minimal",
+    description: "All-ivory with italic accent word and hairline rules",
+    theme: { bg: "#F8F2E6", panel: "#FFFBF0", ink: "#1A1A1A", accent: "#7A1220", muted: "#6E6452", ornament: "editorial", display: "'Playfair Display', serif", body: "'Inter', sans-serif", photoShape: "square", photoAspect: "1:1", headingLetterSpacing: 0.8, headingScale: 1.1 },
+    facets: { tags: ["minimal", "ivory", "editorial", "italic"], orientation: "portrait", focus: "text-first" } },
+  { slug: "amora-forest-cinema", name: "Amora Forest", category: "royal_traditional",
+    description: "Deep forest with gold script and cinematic arch",
+    theme: { bg: "#0E2A22", panel: "#153A2E", ink: "#F5EBC8", accent: "#E1B84B", muted: "#B8A374", ornament: "arch", display: "'Great Vibes', cursive", body: "'Cormorant Garamond', serif", photoShape: "arch", photoAspect: "3:4", headingScale: 1.35 },
+    facets: { tags: ["dark", "forest", "script", "cinematic"], orientation: "portrait", focus: "ornament-first" } },
 ];
 
 // Merge into the exported maps so every consumer sees the new templates.
