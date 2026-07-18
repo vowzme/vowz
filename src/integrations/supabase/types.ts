@@ -807,6 +807,57 @@ export type Database = {
           },
         ]
       }
+      guest_invite_sends: {
+        Row: {
+          channel: string
+          created_at: string
+          error: string | null
+          id: string
+          invite_id: string
+          message_id: string | null
+          recipient: string | null
+          status: string
+          wedding_site_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          invite_id: string
+          message_id?: string | null
+          recipient?: string | null
+          status?: string
+          wedding_site_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          invite_id?: string
+          message_id?: string | null
+          recipient?: string | null
+          status?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_invite_sends_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "guest_invites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_invite_sends_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_invites: {
         Row: {
           created_at: string
