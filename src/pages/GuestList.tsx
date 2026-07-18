@@ -148,41 +148,107 @@ export default function GuestList() {
   const waLink = (name: string) =>
     `https://wa.me/?text=${encodeURIComponent(`Hi ${name}, ${inviteText}`)}`;
 
-  const exportCsv = () => {
-    const header = ["Name", "Email", "Attending", "Guests", "Meal", "Dietary", "Dietary notes", "Events", "Message", "Companions", "Submitted"];
-    const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const lines = [header.join(",")];
-    for (const r of filtered) {
+  // Canonical roster shape shared across CSV + Excel exports.
+  const buildRoster = () => {
+    const lookupMeta = (r: Rsvp): InviteMeta => {
+      const byEmail = r.guest_email ? inviteMeta[`e:${r.guest_email.trim().toLowerCase()}`] : undefined;
+      const byName = !byEmail && r.guest_name ? inviteMeta[`n:${r.guest_name.trim().toLowerCase()}`] : undefined;
+      return byEmail || byName || { guest_phone: null, plus_ones_allowed: null };
+    };
+    return filtered.map((r) => {
       const { tags, notes, rest } = parseDietary(r.message);
-      const companions = (r.plus_ones ?? [])
-        .map((p) => {
-          const bits = [p.meal_preference, ...(p.dietary_tags ?? [])].filter(Boolean).join("/");
-          return bits ? `${p.name} (${bits})` : p.name;
-        })
-        .join(" | ");
-      lines.push(
-        [
-          esc(r.guest_name),
-          esc(r.guest_email),
-          esc(r.attending ? "Yes" : "No"),
-          esc(r.guest_count),
-          esc(r.meal_preference ?? ""),
-          esc(tags.join(" | ")),
-          esc(notes),
-          esc((r.selected_events ?? []).join(" | ")),
-          esc(rest),
-          esc(companions),
-          esc(new Date(r.created_at).toISOString()),
-        ].join(",")
-      );
-    }
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const meta = lookupMeta(r);
+      const companions = (r.plus_ones ?? []).map((p) => ({
+        name: p.name,
+        meal: p.meal_preference || "",
+        dietary: (p.dietary_tags ?? []).join(", "),
+      }));
+      return {
+        "Guest name": r.guest_name,
+        Email: r.guest_email,
+        Phone: meta.guest_phone ?? "",
+        Status: r.attending ? "Attending" : "Regrets",
+        "Total heads": r.guest_count,
+        "Plus-ones allowed": meta.plus_ones_allowed ?? "",
+        Meal: r.meal_preference ?? "",
+        "Dietary tags": tags.join(", "),
+        "Dietary notes": notes,
+        Events: (r.selected_events ?? []).join(", "),
+        Message: rest,
+        "Companion count": companions.length,
+        Companions: companions
+          .map((c) => {
+            const bits = [c.meal, c.dietary].filter(Boolean).join(" / ");
+            return bits ? `${c.name} (${bits})` : c.name;
+          })
+          .join(" | "),
+        "Companion names": companions.map((c) => c.name).join(" | "),
+        "Companion meals": companions.map((c) => c.meal).join(" | "),
+        "Companion dietary": companions.map((c) => c.dietary).join(" | "),
+        Submitted: new Date(r.created_at).toISOString(),
+      };
+    });
+  };
+
+  const exportCsv = () => {
+    const roster = buildRoster();
+    if (roster.length === 0) return;
+    const headers = Object.keys(roster[0]);
+    const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = [headers.join(",")];
+    for (const row of roster) lines.push(headers.map((h) => esc((row as any)[h])).join(","));
+    // Prepend UTF-8 BOM so Excel opens accented names + emoji correctly.
+    const blob = new Blob(["\ufeff" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = `guest-list-${site?.slug || site?.id}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const exportXlsx = () => {
+    const roster = buildRoster();
+    if (roster.length === 0) return;
+    const summary = [
+      { Metric: "Total RSVPs", Value: stats.total },
+      { Metric: "Attending", Value: stats.yes },
+      { Metric: "Regrets", Value: stats.no },
+      { Metric: "Total heads (attending)", Value: stats.heads },
+      { Metric: "Exported", Value: new Date().toLocaleString() },
+      { Metric: "Wedding", Value: site ? `${site.partner1} & ${site.partner2}` : "" },
+    ];
+    // One row per companion — useful for seating + catering counts.
+    const companionRows: any[] = [];
+    for (const r of filtered) {
+      (r.plus_ones ?? []).forEach((p, idx) => {
+        companionRows.push({
+          "Primary guest": r.guest_name,
+          "Primary email": r.guest_email,
+          "Companion #": idx + 1,
+          "Companion name": p.name,
+          Meal: p.meal_preference ?? "",
+          "Dietary tags": (p.dietary_tags ?? []).join(", "),
+        });
+      });
+    }
+    const wb = XLSX.utils.book_new();
+    const wsRoster = XLSX.utils.json_to_sheet(roster);
+    // Set column widths based on header + longest cell for readability.
+    const headers = Object.keys(roster[0]);
+    (wsRoster as any)["!cols"] = headers.map((h) => ({
+      wch: Math.min(
+        48,
+        Math.max(h.length + 2, ...roster.map((r) => String((r as any)[h] ?? "").length + 2)),
+      ),
+    }));
+    XLSX.utils.book_append_sheet(wb, wsRoster, "RSVPs");
+    if (companionRows.length) {
+      const wsPlus = XLSX.utils.json_to_sheet(companionRows);
+      XLSX.utils.book_append_sheet(wb, wsPlus, "Companions");
+    }
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), "Summary");
+    XLSX.writeFile(wb, `guest-list-${site?.slug || site?.id}.xlsx`);
   };
 
   const exportPdf = () => {
