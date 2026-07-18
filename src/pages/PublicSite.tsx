@@ -1660,7 +1660,15 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                     min={1}
                     max={maxGuestCount}
                     value={form.guest_count}
-                    onChange={(e) => setForm({ ...form, guest_count: Math.min(maxGuestCount, Math.max(1, parseInt(e.target.value) || 1)) })}
+                    onChange={(e) => {
+                      const next = Math.min(maxGuestCount, Math.max(1, parseInt(e.target.value) || 1));
+                      setForm((prev) => {
+                        const wanted = Math.max(0, next - 1);
+                        let plus_ones = prev.plus_ones.slice(0, wanted);
+                        while (plus_ones.length < wanted) plus_ones.push(emptyPlusOne());
+                        return { ...prev, guest_count: next, plus_ones };
+                      });
+                    }}
                     className="font-body w-24"
                   />
                   {invite && (
