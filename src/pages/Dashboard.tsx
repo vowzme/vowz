@@ -651,6 +651,22 @@ const Dashboard = () => {
           </Link>
         </div>
 
+        <div className="mb-6">
+          <Link
+            to="/dashboard/payments"
+            className="flex items-center justify-between gap-4 p-4 rounded-xl border border-border/50 bg-card hover:bg-accent/40 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Receipt className="w-5 h-5 text-gold" />
+              <div>
+                <div className="font-display font-semibold text-foreground">Payments & Receipts</div>
+                <div className="text-sm text-muted-foreground">See your Razorpay and PayPal transactions and download receipts.</div>
+              </div>
+            </div>
+            <span className="text-sm text-primary font-medium">View →</span>
+          </Link>
+        </div>
+
         {!site ? (
           /* No site yet */
           <>

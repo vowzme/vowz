@@ -69,6 +69,7 @@ const GuestList = lazy(() => import("./pages/GuestList"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ReminderSettings = lazy(() => import("./pages/ReminderSettings"));
+const Payments = lazy(() => import("./pages/Payments"));
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
@@ -103,6 +104,7 @@ const AppRoutes = () => (
     <Route path="/dashboard/guests/:siteId" element={<ProtectedRoute><GuestList /></ProtectedRoute>} />
     <Route path="/dashboard/album/:siteId" element={<ProtectedRoute><AlbumModeration /></ProtectedRoute>} />
     <Route path="/dashboard/reminders" element={<ProtectedRoute><ReminderSettings /></ProtectedRoute>} />
+    <Route path="/dashboard/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
