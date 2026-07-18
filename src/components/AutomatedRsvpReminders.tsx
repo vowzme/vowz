@@ -7,7 +7,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MailCheck, Clock, Send } from "lucide-react";
+import { Loader2, MailCheck, Clock, Send, Eye, Beaker } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 type Schedule = {
   id?: string;
@@ -29,6 +30,11 @@ export default function AutomatedRsvpReminders({ siteId }: { siteId: string }) {
   const [triggering, setTriggering] = useState(false);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
   const [recentSends, setRecentSends] = useState<Array<{ recipient: string; offset_day: number; status: string; created_at: string }>>([]);
+  const [previewOffset, setPreviewOffset] = useState<number | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewData, setPreviewData] = useState<{ subject: string; html: string } | null>(null);
+  const [testEmail, setTestEmail] = useState<string>("");
+  const [testingOffset, setTestingOffset] = useState<number | null>(null);
   const [schedule, setSchedule] = useState<Schedule>({
     wedding_site_id: siteId,
     enabled: false,
@@ -125,6 +131,41 @@ export default function AutomatedRsvpReminders({ siteId }: { siteId: string }) {
     setRecentSends((sends ?? []) as any);
   };
 
+  const openPreview = async (offset: number) => {
+    setPreviewOffset(offset);
+    setPreviewData(null);
+    setPreviewLoading(true);
+    const { data, error } = await supabase.functions.invoke("rsvp-reminder-sender", {
+      body: { site_id: siteId, action: "preview", force_offset: offset },
+    });
+    setPreviewLoading(false);
+    if (error) {
+      toast({ title: "Preview failed", description: error.message, variant: "destructive" });
+      setPreviewOffset(null);
+      return;
+    }
+    const p = (data as any)?.preview;
+    if (p) setPreviewData({ subject: p.subject, html: p.html });
+  };
+
+  const sendTest = async (offset: number) => {
+    const to = testEmail.trim();
+    if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      toast({ title: "Enter a valid test email", variant: "destructive" });
+      return;
+    }
+    setTestingOffset(offset);
+    const { data, error } = await supabase.functions.invoke("rsvp-reminder-sender", {
+      body: { site_id: siteId, action: "test_send", force_offset: offset, test_email: to },
+    });
+    setTestingOffset(null);
+    if (error) {
+      toast({ title: "Test send failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Test email queued", description: `Sent to ${(data as any)?.test_send?.to || to} for -${offset}d` });
+  };
+
   if (loading) {
     return (
       <div className="bg-card border border-border/50 rounded-2xl p-6 flex items-center gap-2 text-sm text-muted-foreground">
@@ -190,6 +231,42 @@ export default function AutomatedRsvpReminders({ siteId }: { siteId: string }) {
           })}
         </div>
         <p className="text-[11px] text-muted-foreground">Selected: {schedule.offsets_days.join(", ") || "none"}</p>
+
+        {schedule.offsets_days.length > 0 && (
+          <div className="mt-3 rounded-lg border border-border/50 bg-muted/30 p-3 space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Label className="text-xs shrink-0">Test recipient</Label>
+              <Input
+                type="email"
+                placeholder="you@example.com"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                className="h-8 text-xs max-w-[240px]"
+              />
+              <span className="text-[11px] text-muted-foreground">Preview or send a real test email for each offset before turning the schedule on.</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[...schedule.offsets_days].sort((a, b) => b - a).map((n) => (
+                <div key={n} className="flex items-center gap-1 rounded-full border border-border bg-background px-1 py-1">
+                  <span className="text-[11px] px-2 font-medium">-{n}d</span>
+                  <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => openPreview(n)}>
+                    <Eye className="w-3 h-3 mr-1" /> Preview
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => sendTest(n)}
+                    disabled={testingOffset === n}
+                  >
+                    {testingOffset === n ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Beaker className="w-3 h-3 mr-1" />}
+                    Test send
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
@@ -248,6 +325,42 @@ export default function AutomatedRsvpReminders({ siteId }: { siteId: string }) {
           </div>
         </div>
       )}
+
+      <Dialog open={previewOffset !== null} onOpenChange={(o) => { if (!o) { setPreviewOffset(null); setPreviewData(null); } }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Reminder preview — {previewOffset ?? 0} day{previewOffset === 1 ? "" : "s"} before</DialogTitle>
+          </DialogHeader>
+          {previewLoading || !previewData ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center">
+              <Loader2 className="w-4 h-4 animate-spin" /> Rendering preview…
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="rounded-md border border-border/50 bg-muted/40 px-3 py-2 text-xs">
+                <span className="text-muted-foreground">Subject: </span>
+                <span className="font-medium">{previewData.subject}</span>
+              </div>
+              <iframe
+                title="Reminder preview"
+                sandbox=""
+                srcDoc={previewData.html}
+                className="w-full h-[520px] rounded-md border border-border/50 bg-white"
+              />
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => previewOffset !== null && sendTest(previewOffset)}
+              disabled={previewOffset === null || testingOffset === previewOffset}
+            >
+              {testingOffset === previewOffset ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Beaker className="w-4 h-4 mr-1" />}
+              Send test to {testEmail || "…"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
