@@ -576,6 +576,7 @@ const OCCASION_BASE_THEMES: Record<Occasion, string[]> = {
     // modern_minimal
     "modern-typographic", "modern-noir", "paris-blanc", "scandi-mist", "tokyo-ink",
     "monaco-marble", "atelier-sand", "copenhagen-rose",
+    "amora-ivory-hero", "amora-blush-cinema", "amora-parchment-chapter",
     // royal_traditional
     "agra-marble", "versailles-cream",
   ],
@@ -589,6 +590,7 @@ const OCCASION_BASE_THEMES: Record<Occasion, string[]> = {
   engagement: [
     "chapel-rose", "sacred-dove", "lace-pearl", "crescent-ivory", "vatican-cream",
     "copenhagen-rose", "modern-typographic", "paris-blanc", "monaco-marble", "modern-blush",
+    "amora-blush-cinema", "amora-burgundy-editorial", "amora-navy-together",
     "hindu-om-ivory", "hindu-saffron-marigold", "hindu-lotus-pond", "hindu-tilak-gold", "hindu-rangoli-bloom",
     "versailles-cream", "agra-marble", "kerala-temple", "tuscany-villa", "bengal-jamdani",
   ],
@@ -618,11 +620,15 @@ const OCCASION_BASE_THEMES: Record<Occasion, string[]> = {
     "hindu-ganesha-classic", "hindu-royal-mandala", "hindu-banarasi-silk", "hindu-kanjivaram", "hindu-marigold-arch",
     "christian-floral-cross", "muslim-emerald-arch", "cathedral-arch", "mehrab-gold", "nikah-noor",
     "modern-typographic", "modern-noir", "monaco-marble", "noir-monogram", "milano-mono",
+    "amora-burgundy-editorial", "amora-noir-script", "amora-blush-cinema", "amora-navy-together",
+    "amora-parchment-chapter", "amora-ivory-hero", "amora-forest-cinema",
     "royal-peacock", "royal-velvet", "mughal-court", "venetian-rouge", "baroque-emerald",
+    "amora-plum-luxe",
   ],
   reception: [
     "modern-noir", "monaco-marble", "paris-blanc", "tokyo-ink", "noir-monogram",
     "milano-mono", "berlin-graphite", "new-york-ink", "linen-fold",
+    "amora-noir-script", "amora-plum-luxe", "amora-forest-cinema",
     "venetian-rouge", "royal-velvet", "baroque-emerald", "mughal-court", "ottoman-court",
     "hyderabad-nawab", "vienna-opera",
     "hindu-banarasi-silk", "hindu-paisley-noir",
