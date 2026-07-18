@@ -59,6 +59,15 @@ const rsvpSchema = z.object({
   message: z.string().trim().max(800).nullable(),
 });
 
+// One extra guest that came with the primary RSVP.
+const plusOneSchema = z.object({
+  name: z.string().trim().min(1, "Companion name is required").max(80),
+  meal_preference: z.enum(["veg", "non-veg", "vegan"]).nullable(),
+  dietary_tags: z.array(z.string()).max(8),
+});
+type PlusOne = z.infer<typeof plusOneSchema>;
+const emptyPlusOne = (): PlusOne => ({ name: "", meal_preference: null, dietary_tags: [] });
+
 // Allowed dietary tag values — anything else is dropped before validation.
 const DIETARY_TAG_WHITELIST = new Set([
   "gluten-free", "jain", "halal", "kosher", "nut-free", "dairy-free", "vegan", "vegetarian",
