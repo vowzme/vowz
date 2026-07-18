@@ -2085,6 +2085,7 @@ export type Database = {
           email: string | null
           id: string
           name: string
+          permissions: Json
           phone: string | null
           role: string
           wedding_site_id: string
@@ -2096,6 +2097,7 @@ export type Database = {
           email?: string | null
           id?: string
           name: string
+          permissions?: Json
           phone?: string | null
           role?: string
           wedding_site_id: string
@@ -2107,6 +2109,7 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string
+          permissions?: Json
           phone?: string | null
           role?: string
           wedding_site_id?: string
@@ -2564,6 +2567,15 @@ export type Database = {
           wedding_site_id: string
         }[]
       }
+      get_my_site_permissions: {
+        Args: { _site_id: string }
+        Returns: {
+          can_edit: boolean
+          is_admin: boolean
+          is_owner: boolean
+          permissions: Json
+        }[]
+      }
       get_template_popularity: {
         Args: never
         Returns: {
@@ -2584,6 +2596,10 @@ export type Database = {
           total_quota_bytes: number
           used_bytes: number
         }[]
+      }
+      has_site_permission: {
+        Args: { _feature: string; _site_id: string; _user_id: string }
+        Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       lookup_affiliate_by_code: {

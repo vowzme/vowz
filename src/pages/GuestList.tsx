@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useSitePermissions } from "@/hooks/use-site-permissions";
 import { toast } from "@/hooks/use-toast";
 import InviteLinksPanel from "@/components/InviteLinksPanel";
 
@@ -53,6 +54,7 @@ function parseDietary(message: string | null): { tags: string[]; notes: string; 
 export default function GuestList() {
   const { siteId } = useParams<{ siteId: string }>();
   const { user } = useAuth();
+  const perms = useSitePermissions(siteId);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [site, setSite] = useState<Site | null>(null);
@@ -77,7 +79,8 @@ export default function GuestList() {
         .select("id, partner1, partner2, slug, user_id, sections")
         .eq("id", siteId)
         .maybeSingle();
-      if (!s || s.user_id !== user.id) {
+      const allowed = s && (s.user_id === user.id || perms.can("manage_guests"));
+      if (!s || !allowed) {
         toast({ title: "Not found", description: "This site doesn't exist or isn't yours.", variant: "destructive" });
         navigate("/dashboard");
         return;
@@ -116,7 +119,7 @@ export default function GuestList() {
       }
       setLoading(false);
     })();
-  }, [siteId, user, navigate]);
+  }, [siteId, user, navigate, perms.loading]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
