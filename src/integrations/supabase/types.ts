@@ -807,6 +807,63 @@ export type Database = {
           },
         ]
       }
+      guest_invites: {
+        Row: {
+          created_at: string
+          guest_email: string | null
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          notes: string | null
+          plus_ones_allowed: number
+          rsvp_id: string | null
+          token: string
+          updated_at: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          guest_email?: string | null
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          notes?: string | null
+          plus_ones_allowed?: number
+          rsvp_id?: string | null
+          token?: string
+          updated_at?: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          guest_email?: string | null
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          notes?: string | null
+          plus_ones_allowed?: number
+          rsvp_id?: string | null
+          token?: string
+          updated_at?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_invites_rsvp_id_fkey"
+            columns: ["rsvp_id"]
+            isOneToOne: false
+            referencedRelation: "rsvps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_invites_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_moderation_events: {
         Row: {
           action: string
@@ -2295,6 +2352,24 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_invite_by_token: {
+        Args: { _token: string }
+        Returns: {
+          guest_email: string
+          guest_name: string
+          guest_phone: string
+          invite_id: string
+          plus_ones_allowed: number
+          rsvp_attending: boolean
+          rsvp_edit_token: string
+          rsvp_guest_count: number
+          rsvp_id: string
+          rsvp_meal_preference: string
+          rsvp_message: string
+          rsvp_selected_events: Json
+          wedding_site_id: string
+        }[]
+      }
       get_template_popularity: {
         Args: never
         Returns: {
@@ -2346,6 +2421,20 @@ export type Database = {
         }[]
       }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }
+      submit_rsvp_by_invite: {
+        Args: {
+          _attending: boolean
+          _guest_count: number
+          _meal_preference: string
+          _message: string
+          _selected_events: Json
+          _token: string
+        }
+        Returns: {
+          edit_token: string
+          rsvp_id: string
+        }[]
+      }
       update_rsvp_by_token: {
         Args: {
           _attending: boolean
