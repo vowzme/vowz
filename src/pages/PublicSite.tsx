@@ -1577,6 +1577,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                 required
                 maxLength={100}
                 className="font-body"
+                readOnly={!!invite}
               />
             </div>
 
@@ -1634,11 +1635,16 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                   <Input
                     type="number"
                     min={1}
-                    max={20}
+                    max={maxGuestCount}
                     value={form.guest_count}
-                    onChange={(e) => setForm({ ...form, guest_count: parseInt(e.target.value) || 1 })}
+                    onChange={(e) => setForm({ ...form, guest_count: Math.min(maxGuestCount, Math.max(1, parseInt(e.target.value) || 1)) })}
                     className="font-body w-24"
                   />
+                  {invite && (
+                    <p className="text-xs text-muted-foreground font-body mt-1">
+                      You're invited with up to {maxGuestCount} {maxGuestCount === 1 ? "seat" : "seats"} total.
+                    </p>
+                  )}
                 </div>
 
                 {/* Meal preference */}
