@@ -1224,6 +1224,7 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
 function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void; t: TranslateFn }) {
   const [submitted, setSubmitted] = useState(false);
   const [submittedDietary, setSubmittedDietary] = useState<{ tags: string[]; notes: string }>({ tags: [], notes: "" });
+  const [submittedPlusOnes, setSubmittedPlusOnes] = useState<PlusOne[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const editStorageKey = `vowz_rsvp_edit_${site.id}`;
   // Per-guest tokenized invite (?g=<token>). When present, the form is locked
