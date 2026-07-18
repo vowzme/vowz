@@ -5,6 +5,15 @@ const PAYPAL_BASE =
     ? "https://api-m.sandbox.paypal.com"
     : "https://api-m.paypal.com";
 
+const PREMIUM_PLAN = "premium_6mo";
+const STORAGE_ADDON_BYTES = 2 * 1024 * 1024 * 1024;
+
+const plusMonthsISO = (months: number) => {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString();
+};
+
 async function getAccessToken(): Promise<string> {
   const id = Deno.env.get("PAYPAL_CLIENT_ID");
   const secret = Deno.env.get("PAYPAL_CLIENT_SECRET");
@@ -54,23 +63,128 @@ Deno.serve(async (req) => {
     const event = JSON.parse(rawBody);
     const eventType = event?.event_type as string;
     const resource = event?.resource || {};
+    const eventId = event?.id as string;
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // On refund, cancel the matching subscription (best-effort)
-    if (eventType === "PAYMENT.CAPTURE.REFUNDED" || eventType === "PAYMENT.CAPTURE.REVERSED") {
-      const captureId =
-        resource?.links?.find((l: any) => l.rel === "up")?.href?.split("/")?.pop() ||
-        resource?.id;
-      if (captureId) {
-        await admin
-          .from("user_subscriptions")
-          .update({ status: "cancelled", metadata: { refunded_capture_id: captureId } })
-          .contains("metadata", { paypal_capture_id: captureId });
+    // Idempotency: skip if we've already processed this event id
+    if (eventId) {
+      const { data: existing } = await admin
+        .from("paypal_webhook_events")
+        .select("id, processed")
+        .eq("event_id", eventId)
+        .maybeSingle();
+      if (existing?.processed) {
+        return new Response(JSON.stringify({ received: true, duplicate: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
       }
+      await admin.from("paypal_webhook_events").upsert(
+        {
+          event_id: eventId,
+          event_type: eventType,
+          resource_id: resource?.id || null,
+          payload: event,
+        },
+        { onConflict: "event_id" },
+      );
+    }
+
+    let handlerError: string | null = null;
+    try {
+      // Successful capture — write subscription/addon (authoritative, idempotent).
+      if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
+        let custom: any = {};
+        try {
+          custom = JSON.parse(resource?.custom_id || "{}");
+        } catch { /* ignore */ }
+        const userId = custom?.user_id as string | undefined;
+        const productType = (custom?.product_type as string) || "premium";
+        const captureId = resource?.id as string | undefined;
+        const paidAmount = Number(resource?.amount?.value || "0");
+        const paidCurrency = resource?.amount?.currency_code || "USD";
+
+        if (userId && captureId) {
+          if (productType === "storage_addon") {
+            const { data: dup } = await admin
+              .from("user_storage_addons")
+              .select("id")
+              .contains("metadata", { paypal_capture_id: captureId })
+              .maybeSingle();
+            if (!dup) {
+              await admin.from("user_storage_addons").insert({
+                user_id: userId,
+                bytes_added: STORAGE_ADDON_BYTES,
+                status: "active",
+                provider: "paypal",
+                amount_paid: paidAmount,
+                currency: paidCurrency,
+                expires_at: plusMonthsISO(6),
+                metadata: { paypal_capture_id: captureId },
+              });
+            }
+          } else {
+            const { data: dup } = await admin
+              .from("user_subscriptions")
+              .select("id")
+              .contains("metadata", { paypal_capture_id: captureId })
+              .maybeSingle();
+            if (!dup) {
+              await admin
+                .from("user_subscriptions")
+                .update({ status: "cancelled" })
+                .eq("user_id", userId)
+                .eq("status", "active");
+              await admin.from("user_subscriptions").insert({
+                user_id: userId,
+                plan: PREMIUM_PLAN,
+                provider: "paypal",
+                status: "active",
+                amount_paid: paidAmount,
+                currency: paidCurrency,
+                started_at: new Date().toISOString(),
+                expires_at: plusMonthsISO(6),
+                duration_months: 6,
+                metadata: { paypal_capture_id: captureId },
+              });
+            }
+          }
+        }
+      }
+
+      // Refund or reversal — cancel matching subscription or addon.
+      if (eventType === "PAYMENT.CAPTURE.REFUNDED" || eventType === "PAYMENT.CAPTURE.REVERSED") {
+        const captureId =
+          resource?.links?.find((l: any) => l.rel === "up")?.href?.split("/")?.pop() ||
+          resource?.id;
+        if (captureId) {
+          await admin
+            .from("user_subscriptions")
+            .update({ status: "cancelled" })
+            .contains("metadata", { paypal_capture_id: captureId });
+          await admin
+            .from("user_storage_addons")
+            .update({ status: "refunded", expires_at: new Date().toISOString() })
+            .contains("metadata", { paypal_capture_id: captureId });
+        }
+      }
+    } catch (e) {
+      handlerError = (e as Error).message;
+    }
+
+    if (eventId) {
+      await admin
+        .from("paypal_webhook_events")
+        .update({
+          processed: !handlerError,
+          processed_at: new Date().toISOString(),
+          error: handlerError,
+        })
+        .eq("event_id", eventId);
     }
 
     return new Response(JSON.stringify({ received: true }), {
