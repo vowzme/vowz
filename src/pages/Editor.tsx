@@ -1027,6 +1027,12 @@ function FeaturesPanel({
         Every module below is optional. Flip a switch anytime to enable or hide it on your site.
       </p>
 
+      {siteId && (
+        <div className="mb-3">
+          <CollaboratorPermissions siteId={siteId} ownerOnly={true} />
+        </div>
+      )}
+
       <div className="space-y-2">
         {OPTIONAL_FEATURES.map((f) => {
           const on = isOn(f.type);
