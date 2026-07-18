@@ -436,6 +436,20 @@ const Editor = () => {
     setState((prev) => ({ ...prev, ...patch }));
   }, []);
 
+  // Debounced auto-persist for feature switches — computes the next sections
+  // array synchronously and pushes it to the DB so toggles survive reloads
+  // without requiring the user to click "Save".
+  const featureSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const persistSectionsSoon = useCallback((nextSections: WeddingSection[]) => {
+    if (!dbSiteId) return;
+    if (featureSaveTimer.current) clearTimeout(featureSaveTimer.current);
+    featureSaveTimer.current = setTimeout(() => {
+      updateSite(dbSiteId, { sections: nextSections as any }).catch(() => {
+        toast({ title: "Couldn't save feature switch", variant: "destructive" });
+      });
+    }, 400);
+  }, [dbSiteId, updateSite]);
+
   const updateSection = useCallback((id: string, patch: Partial<WeddingSection>) => {
     setState((prev) => ({
       ...prev,
