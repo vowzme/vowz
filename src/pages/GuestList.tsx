@@ -470,6 +470,19 @@ export default function GuestList() {
                         <td className="px-4 py-3">
                           <div className="font-medium text-foreground">{r.guest_name}</div>
                           <div className="text-xs text-muted-foreground">{r.guest_email}</div>
+                          {(r.plus_ones ?? []).length > 0 && (
+                            <div className="mt-1.5 space-y-0.5">
+                              {(r.plus_ones ?? []).map((p, i) => {
+                                const bits = [p.meal_preference, ...(p.dietary_tags ?? [])].filter(Boolean).join(", ");
+                                return (
+                                  <div key={i} className="text-xs text-muted-foreground">
+                                    <span className="text-foreground/80">+ {p.name}</span>
+                                    {bits && <span> — {bits}</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           {r.attending ? (
