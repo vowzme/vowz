@@ -967,6 +967,52 @@ export default function InvitationCard() {
                 </div>
               )}
 
+              {currentPage.showQr && (
+                <div className="space-y-2 pt-3 border-t border-border/40">
+                  <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">QR & RSVP styling</div>
+                  <div>
+                    <Label className="text-xs">Style preset</Label>
+                    <Select
+                      value={theme.qrStyle ?? "classic"}
+                      onValueChange={(v) => setThemeOverrides((t) => ({ ...t, qrStyle: v as QrStyle }))}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {QR_STYLE_PRESETS.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.label} — <span className="text-muted-foreground text-xs">{p.description}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">RSVP caption</Label>
+                    <Input
+                      value={theme.qrCaption ?? ""}
+                      placeholder="e.g. Scan to RSVP"
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, qrCaption: e.target.value }))}
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Leave blank to use the preset's default caption. Guests scan the QR to open your RSVP page.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {colorField("qrFg", "QR ink")}
+                    {colorField("qrBg", "QR background")}
+                  </div>
+                  <Button
+                    variant="ghost" size="sm" className="w-full h-7 text-xs"
+                    onClick={() => setThemeOverrides((t) => {
+                      const { qrStyle, qrCaption, qrFg, qrBg, ...rest } = t;
+                      return rest;
+                    })}
+                  >
+                    Reset QR styling to template default
+                  </Button>
+                </div>
+              )}
+
               <div className="pt-3 border-t border-border/40 space-y-3">
                 <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Per-page export</div>
                 <div>
