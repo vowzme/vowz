@@ -1295,6 +1295,18 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           meal_preference: row.rsvp_meal_preference || prev.meal_preference,
           selected_events: Array.isArray(row.rsvp_selected_events) ? row.rsvp_selected_events : prev.selected_events,
           message: row.rsvp_message || prev.message,
+          plus_ones: Array.isArray(row.rsvp_plus_ones)
+            ? (row.rsvp_plus_ones as any[])
+                .filter((p) => p && typeof p === "object")
+                .map((p: any) => ({
+                  name: typeof p.name === "string" ? p.name.slice(0, 80) : "",
+                  meal_preference: ["veg", "non-veg", "vegan"].includes(p.meal_preference) ? p.meal_preference : null,
+                  dietary_tags: Array.isArray(p.dietary_tags)
+                    ? p.dietary_tags.filter((t: any) => typeof t === "string" && DIETARY_TAG_WHITELIST.has(t)).slice(0, 8)
+                    : [],
+                }))
+                .slice(0, 19)
+            : prev.plus_ones,
         }));
         if (row.rsvp_id && row.rsvp_edit_token) {
           const handle = { id: row.rsvp_id, token: row.rsvp_edit_token };
