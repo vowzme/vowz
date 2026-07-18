@@ -768,6 +768,7 @@ const Editor = () => {
                   {activePanel === "features" && (
                     <FeaturesPanel
                       sections={sections}
+                      siteId={dbSiteId}
                       onToggleSection={(type, on) => {
                         const existing = sections.find((s) => s.type === type);
                         let nextSections = sections;
