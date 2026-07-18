@@ -1390,6 +1390,30 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         meal_preference: includeMeal ? (form.meal_preference || null) : null,
       });
 
+      // Sanitize plus-ones: only when attending, capped to guest_count - 1,
+      // dropping empty names, meal + tags gated by the same section toggles.
+      const cleanPlusOnes: PlusOne[] = form.attending
+        ? form.plus_ones
+            .slice(0, Math.max(0, validated.guest_count - 1))
+            .map((p) => ({
+              name: (p.name || "").trim().slice(0, 80),
+              meal_preference: includeMeal
+                ? (["veg", "non-veg", "vegan"].includes(p.meal_preference as any) ? p.meal_preference : null)
+                : null,
+              dietary_tags: includeDietaryTags
+                ? Array.from(new Set((p.dietary_tags || []).filter((t) => DIETARY_TAG_WHITELIST.has(t)))).slice(0, 8)
+                : [],
+            }))
+            .filter((p) => p.name.length > 0)
+        : [];
+
+      // If any expected companion is missing a name, ask for it before submit.
+      if (form.attending && form.plus_ones.length > 0 && cleanPlusOnes.length < form.plus_ones.length) {
+        throw new z.ZodError([
+          { code: "custom", path: ["plus_ones"], message: "Please enter a name for every companion." } as any,
+        ]);
+      }
+
       let createdHandle: { id: string; token: string } | null = null;
       if (invite) {
         // Tokenized invite flow — server enforces one RSVP per invite and caps guest_count.
@@ -1400,7 +1424,8 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           _meal_preference: validated.meal_preference,
           _selected_events: (validated.selected_events ?? null) as any,
           _message: validated.message,
-        });
+          _plus_ones: cleanPlusOnes as any,
+        } as any);
         if (error) throw error;
         const row: any = Array.isArray(res) ? res[0] : res;
         if (row?.rsvp_id && row?.edit_token) {
@@ -1418,7 +1443,8 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           _meal_preference: validated.meal_preference,
           _selected_events: (validated.selected_events ?? null) as any,
           _message: validated.message,
-        });
+          _plus_ones: cleanPlusOnes as any,
+        } as any);
         if (error) throw error;
         if (!ok) throw new Error("This RSVP can no longer be edited from this device.");
       } else {
@@ -1435,6 +1461,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
             selected_events: validated.selected_events as any,
             message: validated.message,
             edit_token: newToken,
+            plus_ones: cleanPlusOnes as any,
           } as any)
           .select("id")
           .single();
@@ -1453,6 +1480,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           : [],
         notes: showDietaryNotes && form.attending ? (form.dietary_notes || "").trim().slice(0, 200) : "",
       });
+      setSubmittedPlusOnes(cleanPlusOnes);
       const wasEditing = isEditing;
       toast({ title: wasEditing ? "RSVP updated ✨" : "RSVP submitted! 🎉" });
       trackEvent(wasEditing ? "rsvp_update" : "rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
