@@ -186,6 +186,8 @@ Deno.serve(async (req) => {
   let mode: 'cron' | 'user' = 'cron'
   let requestedSiteId: string | null = null
   let forcedOffset: number | null = null
+  let action: 'send' | 'preview' | 'test_send' = 'send'
+  let testEmail: string | null = null
 
   if (req.method === 'POST') {
     try {
@@ -195,6 +197,8 @@ Deno.serve(async (req) => {
         mode = 'user'
       }
       if (typeof body?.force_offset === 'number') forcedOffset = body.force_offset
+      if (body?.action === 'preview' || body?.action === 'test_send') action = body.action
+      if (typeof body?.test_email === 'string') testEmail = body.test_email.trim()
     } catch { /* empty body OK for cron */ }
   }
 
@@ -215,6 +219,76 @@ Deno.serve(async (req) => {
       .eq('wedding_site_id', requestedSiteId)
       .maybeSingle()
     if (!schedule) return new Response(JSON.stringify({ error: 'No schedule configured' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+
+    // Preview / test-send do not persist reminder sends and use sample data.
+    if (action === 'preview' || action === 'test_send') {
+      const offset = forcedOffset ?? 7
+      const { data: siteRow } = await admin
+        .from('wedding_sites')
+        .select('id, partner1, partner2, slug')
+        .eq('id', requestedSiteId)
+        .maybeSingle()
+      const coupleNames = [siteRow?.partner1, siteRow?.partner2].filter(Boolean).join(' & ') || 'our wedding'
+      const baseUrl = siteRow?.slug ? `https://vowz.me/site/${siteRow.slug}` : 'https://vowz.me'
+      const weddingDateLabel = schedule.wedding_date
+        ? new Date(schedule.wedding_date + 'T00:00:00Z').toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
+          })
+        : null
+      const messageId = crypto.randomUUID()
+      const { html, text, subject } = render({
+        guestName: 'Sample Guest',
+        coupleNames,
+        weddingDate: weddingDateLabel,
+        inviteUrl: `${baseUrl}?g=preview`,
+        daysLeft: Math.max(0, offset),
+        messageId,
+        subjectOverride: schedule.subject_override,
+        bodyOverride: schedule.body_override,
+      })
+
+      if (action === 'preview') {
+        return new Response(JSON.stringify({ ok: true, preview: { subject, html, text, offset } }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // test_send — send a real email to the requested address (defaults to owner's).
+      const to = testEmail || u.user.email || ''
+      if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+        return new Response(JSON.stringify({ error: 'Invalid test email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+      const testSubject = `[TEST] ${subject}`
+      await admin.from('email_send_log').insert({
+        message_id: messageId,
+        template_name: 'rsvp_reminder',
+        recipient_email: to,
+        status: 'pending',
+        metadata: { test: true, offset_day: offset, site_id: requestedSiteId },
+      })
+      const { error: qErr } = await admin.rpc('enqueue_email', {
+        queue_name: 'transactional_emails',
+        payload: {
+          message_id: messageId,
+          to,
+          from: 'VowZ Invites <noreply@vowz.me>',
+          sender_domain: 'notify.vowz.me',
+          subject: testSubject,
+          html, text,
+          purpose: 'transactional',
+          label: 'rsvp_reminder_test',
+          queued_at: new Date().toISOString(),
+          metadata: { test: true, site_id: requestedSiteId, offset_day: offset },
+        },
+      })
+      if (qErr) {
+        return new Response(JSON.stringify({ error: qErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+      return new Response(JSON.stringify({ ok: true, test_send: { to, offset, subject: testSubject } }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const result = await processSchedule(admin, schedule, forcedOffset)
     return new Response(JSON.stringify({ ok: true, result }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
