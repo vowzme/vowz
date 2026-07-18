@@ -770,11 +770,9 @@ const Editor = () => {
                             nextSections = sections.map((s) => (s.id === existing.id ? { ...s, visible: true } : s));
                           } else {
                             addSection(type);
-                            // addSection appends a new section; recompute below via setState callback isn't
-                            // available synchronously, so just skip persist here — the next toggle or an
-                            // explicit Save will flush it. We still persist a placeholder update to hint
-                            // the change by re-saving current sections.
-                            nextSections = sections;
+                            // addSection appends via setState; flag the next sections change to persist.
+                            persistNextSectionsChange.current = true;
+                            return;
                           }
                         } else if (existing) {
                           updateSection(existing.id, { visible: false });
