@@ -1264,6 +1264,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
     message: "",
     dietary_notes: "",
     dietary_tags: [] as string[],
+    plus_ones: [] as PlusOne[],
   });
 
   // Hydrate from personal invite link ?g=<token>
