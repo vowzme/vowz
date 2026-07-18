@@ -436,6 +436,32 @@ const Editor = () => {
     setState((prev) => ({ ...prev, ...patch }));
   }, []);
 
+  // Debounced auto-persist for feature switches — computes the next sections
+  // array synchronously and pushes it to the DB so toggles survive reloads
+  // without requiring the user to click "Save".
+  const featureSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const persistSectionsSoon = useCallback((nextSections: WeddingSection[]) => {
+    if (!dbSiteId) return;
+    if (featureSaveTimer.current) clearTimeout(featureSaveTimer.current);
+    featureSaveTimer.current = setTimeout(() => {
+      updateSite(dbSiteId, { sections: nextSections as any }).catch(() => {
+        toast({ title: "Couldn't save feature switch", variant: "destructive" });
+      });
+    }, 400);
+  }, [dbSiteId, updateSite]);
+
+  // When a feature toggle enables a brand-new section (via addSection), the
+  // next sections array is only available after setState. This flag persists
+  // the next sections mutation once, then resets.
+  const persistNextSectionsChange = useRef(false);
+
+  useEffect(() => {
+    if (persistNextSectionsChange.current) {
+      persistNextSectionsChange.current = false;
+      persistSectionsSoon(sections);
+    }
+  }, [sections, persistSectionsSoon]);
+
   const updateSection = useCallback((id: string, patch: Partial<WeddingSection>) => {
     setState((prev) => ({
       ...prev,
@@ -744,19 +770,32 @@ const Editor = () => {
                       sections={sections}
                       onToggleSection={(type, on) => {
                         const existing = sections.find((s) => s.type === type);
+                        let nextSections = sections;
                         if (on) {
                           if (existing) {
                             updateSection(existing.id, { visible: true });
+                            nextSections = sections.map((s) => (s.id === existing.id ? { ...s, visible: true } : s));
                           } else {
                             addSection(type);
+                            // addSection appends via setState; flag the next sections change to persist.
+                            persistNextSectionsChange.current = true;
+                            return;
                           }
                         } else if (existing) {
                           updateSection(existing.id, { visible: false });
+                          nextSections = sections.map((s) => (s.id === existing.id ? { ...s, visible: false } : s));
                         }
+                        persistSectionsSoon(nextSections);
                       }}
                       onUpdateSectionData={(type, patch) => {
                         const existing = sections.find((s) => s.type === type);
-                        if (existing) updateSectionData(existing.id, patch);
+                        if (existing) {
+                          updateSectionData(existing.id, patch);
+                          const nextSections = sections.map((s) =>
+                            s.id === existing.id ? { ...s, data: { ...s.data, ...patch } } : s
+                          );
+                          persistSectionsSoon(nextSections);
+                        }
                       }}
                       onJumpTo={(type) => {
                         const existing = sections.find((s) => s.type === type);
