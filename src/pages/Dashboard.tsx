@@ -41,6 +41,7 @@ import DashboardMusicCard from "@/components/DashboardMusicCard";
 import HelpTip from "@/components/HelpTip";
 import { subscribeWithLogging } from "@/lib/realtime-logger";
 import { validateVideoUrl } from "@/lib/video-embed";
+import AutomatedRsvpReminders from "@/components/AutomatedRsvpReminders";
 
 // Walk a wedding site's sections and return any video URLs that fail validation.
 function collectVideoProblems(sections: any): { where: string; error: string; hint?: string }[] {
@@ -917,6 +918,9 @@ const Dashboard = () => {
             {/* ─── RSVPs / Guest List Tab ─── */}
             <TabsContent value="rsvps">
               <RsvpReminderCard site={site} />
+              <div className="mt-4">
+                <AutomatedRsvpReminders siteId={site.id} />
+              </div>
               <GuestListPanel rsvps={rsvps} rsvpLoading={rsvpLoading} onDelete={handleDeleteRsvp} site={site} copyLink={copyLink} />
             </TabsContent>
 

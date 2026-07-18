@@ -1515,6 +1515,107 @@ export type Database = {
         }
         Relationships: []
       }
+      rsvp_reminder_schedules: {
+        Row: {
+          body_override: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          last_run_at: string | null
+          offsets_days: number[]
+          send_hour: number
+          subject_override: string | null
+          updated_at: string
+          wedding_date: string | null
+          wedding_site_id: string
+        }
+        Insert: {
+          body_override?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          offsets_days?: number[]
+          send_hour?: number
+          subject_override?: string | null
+          updated_at?: string
+          wedding_date?: string | null
+          wedding_site_id: string
+        }
+        Update: {
+          body_override?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          offsets_days?: number[]
+          send_hour?: number
+          subject_override?: string | null
+          updated_at?: string
+          wedding_date?: string | null
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvp_reminder_schedules_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: true
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rsvp_reminder_sends: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          invite_id: string
+          message_id: string | null
+          offset_day: number
+          recipient: string
+          status: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          invite_id: string
+          message_id?: string | null
+          offset_day: number
+          recipient: string
+          status?: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          invite_id?: string
+          message_id?: string | null
+          offset_day?: number
+          recipient?: string
+          status?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvp_reminder_sends_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "guest_invites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rsvp_reminder_sends_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rsvps: {
         Row: {
           attending: boolean
