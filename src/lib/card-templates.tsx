@@ -942,6 +942,36 @@ export function InvitationCardArtwork({
     "top-right": { position: "absolute", right: pad * 0.8, top: pad * 0.8 },
     hidden: { display: "none" },
   };
+  // ── QR block styling
+  const qrPreset = getQrStylePreset(theme.qrStyle);
+  const qrCaption = theme.qrCaption ?? qrPreset.defaultCaption;
+  const qrBg = theme.qrBg ?? "#ffffff";
+  const qrBorderColor = qrPreset.useAccentBorder ? theme.accent : theme.muted;
+  const qrFrameRadius =
+    qrPreset.frame === "circle" ? "50%" :
+    qrPreset.frame === "rounded" ? "14px" :
+    qrPreset.frame === "ticket" ? "10px" :
+    qrPreset.frame === "ribbon" ? "10px" :
+    "4px";
+  const qrBadgeStyle: React.CSSProperties = {
+    background: qrBg,
+    padding: qrPreset.padding,
+    borderRadius: qrFrameRadius,
+    border: qrPreset.borderStyle === "none" ? "none" : `${qrPreset.borderWidth}px ${qrPreset.borderStyle} ${qrBorderColor}${qrPreset.useAccentBorder ? "" : "88"}`,
+    display: "inline-block",
+    boxShadow: qrPreset.id === "noir" ? `0 0 0 6px ${theme.bg}, 0 0 0 7px ${theme.accent}66` : undefined,
+    position: "relative",
+  };
+  const qrCaptionStyle: React.CSSProperties = {
+    marginTop: 4,
+    fontFamily: qrPreset.captionSerif ? theme.display : theme.body,
+    color: theme.muted,
+    fontSize: Math.max(9, Math.round(width * 0.020)),
+    letterSpacing: qrPreset.captionUppercase ? 2 : 0.4,
+    textTransform: qrPreset.captionUppercase ? "uppercase" : "none",
+    textAlign: "center",
+    lineHeight: 1.2,
+  };
   return (
     <div
       style={{
