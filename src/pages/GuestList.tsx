@@ -24,6 +24,7 @@ type Rsvp = {
   selected_events: string[] | null;
   message: string | null;
   created_at: string;
+  plus_ones: Array<{ name: string; meal_preference: string | null; dietary_tags: string[] }> | null;
 };
 
 type Site = { id: string; partner1: string; partner2: string; slug: string | null };
@@ -83,7 +84,7 @@ export default function GuestList() {
       setEvents(ev || []);
       const { data: r, error } = await supabase
         .from("rsvps")
-        .select("id, guest_name, guest_email, attending, guest_count, meal_preference, selected_events, message, created_at")
+        .select("id, guest_name, guest_email, attending, guest_count, meal_preference, selected_events, message, created_at, plus_ones")
         .eq("wedding_site_id", siteId)
         .order("created_at", { ascending: false });
       if (error) {
