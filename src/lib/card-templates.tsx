@@ -1161,16 +1161,32 @@ export function InvitationCardArtwork({
         {/* Absolutely-positioned QR overlay */}
         {qrSlot && qrPosition !== "hidden" && (
           <div style={qrAnchorStyle[qrPosition]}>
-            <div
-              style={{
-                background: "#fff",
-                padding: 6,
-                borderRadius: 4,
-                border: `1px solid ${theme.accent}55`,
-                display: "inline-block",
-              }}
-            >
-              {qrSlot}
+            <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={qrBadgeStyle}>
+                {qrPreset.frame === "ticket" && (
+                  <>
+                    <span style={{ position: "absolute", left: -6, top: "50%", width: 10, height: 10, marginTop: -5, background: theme.bg, borderRadius: "50%" }} />
+                    <span style={{ position: "absolute", right: -6, top: "50%", width: 10, height: 10, marginTop: -5, background: theme.bg, borderRadius: "50%" }} />
+                  </>
+                )}
+                {qrSlot}
+              </div>
+              {qrCaption && qrPreset.id !== "ribbon" && (
+                <div style={qrCaptionStyle}>{qrCaption}</div>
+              )}
+              {qrCaption && qrPreset.id === "ribbon" && (
+                <div style={{
+                  marginTop: 6,
+                  background: theme.accent,
+                  color: theme.bg,
+                  padding: "3px 12px",
+                  fontFamily: theme.display,
+                  fontSize: Math.max(9, Math.round(width * 0.020)),
+                  letterSpacing: 3,
+                  textTransform: "uppercase",
+                  borderRadius: 2,
+                }}>{qrCaption}</div>
+              )}
             </div>
           </div>
         )}
