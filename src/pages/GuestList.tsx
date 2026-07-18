@@ -5,7 +5,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Search, Download, FileText, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone } from "lucide-react";
+import { ArrowLeft, Search, Download, FileText, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone, FileSpreadsheet } from "lucide-react";
+import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +27,8 @@ type Rsvp = {
   created_at: string;
   plus_ones: Array<{ name: string; meal_preference: string | null; dietary_tags: string[] }> | null;
 };
+
+type InviteMeta = { guest_phone: string | null; plus_ones_allowed: number | null };
 
 type Site = { id: string; partner1: string; partner2: string; slug: string | null };
 type WeddingEvent = { name: string; date?: string; time?: string; venue?: string };
@@ -54,6 +57,7 @@ export default function GuestList() {
   const [loading, setLoading] = useState(true);
   const [site, setSite] = useState<Site | null>(null);
   const [rows, setRows] = useState<Rsvp[]>([]);
+  const [inviteMeta, setInviteMeta] = useState<Record<string, InviteMeta>>({});
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "yes" | "no">("all");
   const [events, setEvents] = useState<WeddingEvent[]>([]);
@@ -91,6 +95,24 @@ export default function GuestList() {
         toast({ title: "Couldn't load RSVPs", description: error.message, variant: "destructive" });
       } else {
         setRows((r ?? []) as any);
+      }
+      // Best-effort enrichment with per-guest phone + plus-ones-allowed from invites.
+      const { data: invites } = await supabase
+        .from("guest_invites")
+        .select("guest_name, guest_email, guest_phone, plus_ones_allowed")
+        .eq("wedding_site_id", siteId);
+      if (invites && invites.length) {
+        const map: Record<string, InviteMeta> = {};
+        for (const inv of invites as any[]) {
+          const keys = [
+            inv.guest_email ? `e:${String(inv.guest_email).trim().toLowerCase()}` : "",
+            inv.guest_name ? `n:${String(inv.guest_name).trim().toLowerCase()}` : "",
+          ].filter(Boolean);
+          for (const k of keys) {
+            map[k] = { guest_phone: inv.guest_phone ?? null, plus_ones_allowed: inv.plus_ones_allowed ?? null };
+          }
+        }
+        setInviteMeta(map);
       }
       setLoading(false);
     })();
