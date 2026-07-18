@@ -127,11 +127,17 @@ export default function GuestList() {
     `https://wa.me/?text=${encodeURIComponent(`Hi ${name}, ${inviteText}`)}`;
 
   const exportCsv = () => {
-    const header = ["Name", "Email", "Attending", "Guests", "Meal", "Dietary", "Dietary notes", "Events", "Message", "Submitted"];
+    const header = ["Name", "Email", "Attending", "Guests", "Meal", "Dietary", "Dietary notes", "Events", "Message", "Companions", "Submitted"];
     const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const lines = [header.join(",")];
     for (const r of filtered) {
       const { tags, notes, rest } = parseDietary(r.message);
+      const companions = (r.plus_ones ?? [])
+        .map((p) => {
+          const bits = [p.meal_preference, ...(p.dietary_tags ?? [])].filter(Boolean).join("/");
+          return bits ? `${p.name} (${bits})` : p.name;
+        })
+        .join(" | ");
       lines.push(
         [
           esc(r.guest_name),
@@ -143,6 +149,7 @@ export default function GuestList() {
           esc(notes),
           esc((r.selected_events ?? []).join(" | ")),
           esc(rest),
+          esc(companions),
           esc(new Date(r.created_at).toISOString()),
         ].join(",")
       );
@@ -172,6 +179,14 @@ export default function GuestList() {
     const rowsHtml = filtered
       .map((r) => {
         const { tags, notes, rest } = parseDietary(r.message);
+        const companionsHtml = (r.plus_ones ?? []).length
+          ? (r.plus_ones ?? [])
+              .map((p) => {
+                const bits = [p.meal_preference, ...(p.dietary_tags ?? [])].filter(Boolean).join(", ");
+                return `<div>${esc(p.name)}${bits ? ` <span style="color:#777">— ${esc(bits)}</span>` : ""}</div>`;
+              })
+              .join("")
+          : "—";
         return `<tr>
           <td>${esc(r.guest_name)}<div class="sub">${esc(r.guest_email)}</div></td>
           <td>${r.attending ? "Yes" : "No"}</td>
@@ -181,6 +196,7 @@ export default function GuestList() {
           <td>${notes ? esc(notes) : "—"}</td>
           <td>${esc((r.selected_events ?? []).join(", ") || "—")}</td>
           <td>${rest ? esc(rest) : "—"}</td>
+          <td>${companionsHtml}</td>
         </tr>`;
       })
       .join("");
@@ -210,7 +226,7 @@ export default function GuestList() {
 <table>
   <thead><tr>
     <th>Guest</th><th>Attending</th><th>Heads</th><th>Meal</th>
-    <th>Dietary</th><th>Dietary notes</th><th>Events</th><th>Message</th>
+    <th>Dietary</th><th>Dietary notes</th><th>Events</th><th>Message</th><th>Companions</th>
   </tr></thead>
   <tbody>${rowsHtml}</tbody>
 </table>
