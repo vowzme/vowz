@@ -739,6 +739,31 @@ const Editor = () => {
                   {activePanel === "media" && (
                     <MediaManagerPanel sections={sections} siteData={siteData as any} />
                   )}
+                  {activePanel === "features" && (
+                    <FeaturesPanel
+                      sections={sections}
+                      onToggleSection={(type, on) => {
+                        const existing = sections.find((s) => s.type === type);
+                        if (on) {
+                          if (existing) {
+                            updateSection(existing.id, { visible: true });
+                          } else {
+                            addSection(type);
+                          }
+                        } else if (existing) {
+                          updateSection(existing.id, { visible: false });
+                        }
+                      }}
+                      onUpdateSectionData={(type, patch) => {
+                        const existing = sections.find((s) => s.type === type);
+                        if (existing) updateSectionData(existing.id, patch);
+                      }}
+                      onJumpTo={(type) => {
+                        const existing = sections.find((s) => s.type === type);
+                        if (existing) updateState({ selectedSectionId: existing.id, activePanel: null });
+                      }}
+                    />
+                  )}
                   {activePanel === "ai" && (
                     <AIAssistantPanel
                       siteData={siteData}
