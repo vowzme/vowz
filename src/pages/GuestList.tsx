@@ -323,6 +323,14 @@ export default function GuestList() {
             <Stat label="Total heads" value={stats.heads} icon={<Users className="w-4 h-4 text-gold" />} />
           </div>
 
+          {site && (
+            <InviteLinksPanel
+              siteId={site.id}
+              siteSlug={site.slug}
+              coupleNames={`${site.partner1} & ${site.partner2}`}
+            />
+          )}
+
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <div className="relative flex-1 min-w-[220px]">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
