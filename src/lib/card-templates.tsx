@@ -101,7 +101,47 @@ export interface CardTheme {
   headingLetterSpacing?: number;
   bodyLetterSpacing?: number;
   headingScale?: number; // multiplier on h1/h2 font-size
+  // QR + RSVP block styling
+  qrStyle?: QrStyle;      // frame preset for the QR badge
+  qrCaption?: string;     // e.g. "Scan to RSVP" — small caption under the QR
+  qrFg?: string;          // QR module color (overrides preset)
+  qrBg?: string;          // QR background color (overrides preset)
 }
+
+// ─── QR + RSVP block styling ────────────────────────────────────────
+export type QrStyle = "classic" | "framed" | "rounded" | "ticket" | "ribbon" | "minimal" | "noir";
+export interface QrStylePreset {
+  id: QrStyle;
+  label: string;
+  description: string;
+  // How the badge around the QR is drawn — colors resolve against theme.
+  frame: "square" | "rounded" | "circle" | "ticket" | "ribbon" | "none";
+  padding: number;         // px
+  borderWidth: number;     // px
+  borderStyle: "solid" | "dashed" | "double" | "none";
+  useAccentBorder: boolean;
+  captionUppercase: boolean;
+  captionSerif: boolean;   // caption in display serif vs body sans
+  defaultCaption: string;
+}
+export const QR_STYLE_PRESETS: QrStylePreset[] = [
+  { id: "classic",  label: "Classic",       description: "Thin accent border, clean caption",
+    frame: "square",  padding: 6,  borderWidth: 1, borderStyle: "solid",  useAccentBorder: true,  captionUppercase: true,  captionSerif: false, defaultCaption: "Scan to RSVP" },
+  { id: "framed",   label: "Framed",        description: "Double accent frame, editorial",
+    frame: "square",  padding: 10, borderWidth: 3, borderStyle: "double", useAccentBorder: true,  captionUppercase: true,  captionSerif: true,  defaultCaption: "Scan · RSVP · Reply by return" },
+  { id: "rounded",  label: "Rounded card",  description: "Soft rounded badge",
+    frame: "rounded", padding: 10, borderWidth: 1, borderStyle: "solid",  useAccentBorder: true,  captionUppercase: false, captionSerif: true,  defaultCaption: "Scan to reply" },
+  { id: "ticket",   label: "Ticket stub",   description: "Punched-ticket look",
+    frame: "ticket",  padding: 12, borderWidth: 1, borderStyle: "dashed", useAccentBorder: true,  captionUppercase: true,  captionSerif: false, defaultCaption: "Admit · Scan to RSVP" },
+  { id: "ribbon",   label: "Ribbon caption",description: "Accent ribbon banner beneath QR",
+    frame: "rounded", padding: 8,  borderWidth: 0, borderStyle: "none",   useAccentBorder: false, captionUppercase: true,  captionSerif: true,  defaultCaption: "R S V P" },
+  { id: "minimal",  label: "Minimal",       description: "No border, quiet caption",
+    frame: "none",    padding: 4,  borderWidth: 0, borderStyle: "none",   useAccentBorder: false, captionUppercase: false, captionSerif: false, defaultCaption: "Scan to RSVP" },
+  { id: "noir",     label: "Noir gold",     description: "Dark card with gold rim (cinematic)",
+    frame: "rounded", padding: 12, borderWidth: 2, borderStyle: "solid",  useAccentBorder: true,  captionUppercase: true,  captionSerif: true,  defaultCaption: "Scan · RSVP" },
+];
+export const getQrStylePreset = (id?: QrStyle): QrStylePreset =>
+  QR_STYLE_PRESETS.find((p) => p.id === id) ?? QR_STYLE_PRESETS[0];
 
 export type QrPosition = "bottom" | "bottom-left" | "bottom-right" | "top-right" | "hidden";
 
