@@ -964,11 +964,13 @@ const OPTIONAL_FEATURES: { type: WeddingSection["type"]; label: string; desc: st
 
 function FeaturesPanel({
   sections,
+  siteId,
   onToggleSection,
   onUpdateSectionData,
   onJumpTo,
 }: {
   sections: WeddingSection[];
+  siteId: string | null;
   onToggleSection: (type: WeddingSection["type"], on: boolean) => void;
   onUpdateSectionData: (type: WeddingSection["type"], patch: Record<string, any>) => void;
   onJumpTo: (type: WeddingSection["type"]) => void;
@@ -993,6 +995,30 @@ function FeaturesPanel({
     { key: "show_whatsapp_share", label: "\"Share on WhatsApp\" after RSVP" },
     { key: "allow_edit", label: "Let guests edit their RSVP later" },
   ];
+
+  const [showLog, setShowLog] = useState(false);
+  const [logEntries, setLogEntries] = useState<Array<{ id: string; feature_type: string; action: string; created_at: string; user_id: string }> | null>(null);
+  const [logLoading, setLogLoading] = useState(false);
+  const featureLabel = (t: string) => OPTIONAL_FEATURES.find((f) => f.type === t)?.label || t;
+
+  const loadLog = async () => {
+    if (!siteId) return;
+    setLogLoading(true);
+    const { data, error } = await supabase
+      .from("feature_audit_log")
+      .select("id, feature_type, action, created_at, user_id")
+      .eq("wedding_site_id", siteId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) console.warn("audit log load failed", error);
+    setLogEntries((data as any) || []);
+    setLogLoading(false);
+  };
+
+  useEffect(() => {
+    if (showLog && logEntries === null) loadLog();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showLog]);
 
   return (
     <div>
@@ -1082,6 +1108,60 @@ function FeaturesPanel({
       <p className="text-[11px] text-muted-foreground font-body mt-4">
         Tip: turning a feature off hides it from your public site immediately — data is preserved, so you can re-enable it any time.
       </p>
+
+      {/* ─── Audit log ─────────────────────────────────────────── */}
+      <div className="mt-4 rounded-lg border border-border/50 bg-background/40">
+        <button
+          type="button"
+          onClick={() => setShowLog((v) => !v)}
+          className="w-full flex items-center justify-between px-3 py-2 font-body text-sm text-foreground"
+        >
+          <span>Change log</span>
+          <span className="text-xs text-muted-foreground">{showLog ? "Hide" : "Show"}</span>
+        </button>
+        {showLog && (
+          <div className="border-t border-border/40 px-3 py-2 max-h-64 overflow-y-auto">
+            {logLoading && (
+              <p className="text-xs text-muted-foreground font-body">Loading…</p>
+            )}
+            {!logLoading && logEntries && logEntries.length === 0 && (
+              <p className="text-xs text-muted-foreground font-body">No feature changes yet.</p>
+            )}
+            {!logLoading && logEntries && logEntries.length > 0 && (
+              <ul className="space-y-1.5">
+                {logEntries.map((e) => (
+                  <li key={e.id} className="text-[11px] font-body text-foreground/90 flex items-start justify-between gap-2">
+                    <span>
+                      <span
+                        className={`inline-block px-1.5 py-0.5 rounded mr-1.5 text-[10px] uppercase tracking-wide ${
+                          e.action === "enabled"
+                            ? "bg-emerald-500/15 text-emerald-600"
+                            : e.action === "disabled"
+                            ? "bg-rose-500/15 text-rose-600"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {e.action}
+                      </span>
+                      {featureLabel(e.feature_type)}
+                    </span>
+                    <span className="text-muted-foreground shrink-0 whitespace-nowrap">
+                      {new Date(e.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <button
+              type="button"
+              onClick={loadLog}
+              className="mt-2 font-body text-[11px] text-gold hover:underline"
+            >
+              Refresh
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
