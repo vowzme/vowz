@@ -7,7 +7,7 @@ import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
   Calendar, MapPin, ChevronDown, ChevronUp, Image, Upload, Loader2,
-  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail, Download, CalendarPlus, RotateCcw
+  MessageCircle, Send, Bot, Wand2, LayoutTemplate, Check, Search, HardDrive, Mail, Download, CalendarPlus, RotateCcw, SlidersHorizontal
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { buildGoogleCalendarUrl, buildOutlookCalendarUrl, downloadIcs, downloadAllEventsIcs, parseEventStart } from "@/lib/calendar-invite";
@@ -70,7 +70,7 @@ export interface WeddingSiteData {
 interface EditorState {
   siteData: WeddingSiteData;
   sections: WeddingSection[];
-  activePanel: "sections" | "style" | "settings" | "ai" | "templates" | "media" | null;
+  activePanel: "sections" | "style" | "settings" | "ai" | "templates" | "media" | "features" | null;
   selectedSectionId: string | null;
   previewMode: boolean;
 }
@@ -638,6 +638,7 @@ const Editor = () => {
             { id: "templates" as const, icon: LayoutTemplate, label: "Templates" },
             { id: "style" as const, icon: Palette, label: "Style" },
             { id: "media" as const, icon: HardDrive, label: "Media" },
+            { id: "features" as const, icon: SlidersHorizontal, label: "Features" },
             { id: "settings" as const, icon: Settings, label: "Settings" },
             { id: "ai" as const, icon: Wand2, label: "AI Assistant" },
           ]).map(({ id, icon: Icon, label }) => (
@@ -737,6 +738,31 @@ const Editor = () => {
                   )}
                   {activePanel === "media" && (
                     <MediaManagerPanel sections={sections} siteData={siteData as any} />
+                  )}
+                  {activePanel === "features" && (
+                    <FeaturesPanel
+                      sections={sections}
+                      onToggleSection={(type, on) => {
+                        const existing = sections.find((s) => s.type === type);
+                        if (on) {
+                          if (existing) {
+                            updateSection(existing.id, { visible: true });
+                          } else {
+                            addSection(type);
+                          }
+                        } else if (existing) {
+                          updateSection(existing.id, { visible: false });
+                        }
+                      }}
+                      onUpdateSectionData={(type, patch) => {
+                        const existing = sections.find((s) => s.type === type);
+                        if (existing) updateSectionData(existing.id, patch);
+                      }}
+                      onJumpTo={(type) => {
+                        const existing = sections.find((s) => s.type === type);
+                        if (existing) updateState({ selectedSectionId: existing.id, activePanel: null });
+                      }}
+                    />
                   )}
                   {activePanel === "ai" && (
                     <AIAssistantPanel
@@ -853,6 +879,148 @@ const Editor = () => {
     </div>
   );
 };
+
+// ─── Features Panel (unified enable/disable for optional modules) ─────
+const OPTIONAL_FEATURES: { type: WeddingSection["type"]; label: string; desc: string; icon: string }[] = [
+  { type: "rsvp", label: "RSVP form", desc: "Collect attendance, meal, dietary, plus-ones", icon: "✉️" },
+  { type: "guest_album", label: "Guest photo album", desc: "Crowdsourced photos & reactions", icon: "📸" },
+  { type: "blessings", label: "Blessings wall", desc: "Guest messages (moderated)", icon: "💕" },
+  { type: "guestbook", label: "Guestbook", desc: "Simple sign-in book", icon: "📖" },
+  { type: "polls", label: "Guest polls", desc: "Fun voting for songs, outfits, etc.", icon: "🗳️" },
+  { type: "video", label: "Video invitation", desc: "YouTube / Vimeo / uploaded video", icon: "🎬" },
+  { type: "livestream", label: "Live stream", desc: "Virtual attendance link", icon: "📡" },
+  { type: "registry", label: "Gift registry", desc: "External registry links", icon: "🎁" },
+  { type: "music", label: "Background music", desc: "Ambient soundtrack", icon: "🎵" },
+  { type: "ecotips", label: "Eco tips", desc: "Sustainability messaging", icon: "🌿" },
+  { type: "couple_profiles", label: "Couple profiles", desc: "Bios for bride & groom", icon: "💑" },
+  { type: "travel", label: "Travel & hotels", desc: "Directions and stay info", icon: "🧳" },
+  { type: "gallery", label: "Photo gallery", desc: "Curated couple photos", icon: "🖼️" },
+  { type: "countdown", label: "Countdown timer", desc: "Days until the wedding", icon: "⏳" },
+];
+
+function FeaturesPanel({
+  sections,
+  onToggleSection,
+  onUpdateSectionData,
+  onJumpTo,
+}: {
+  sections: WeddingSection[];
+  onToggleSection: (type: WeddingSection["type"], on: boolean) => void;
+  onUpdateSectionData: (type: WeddingSection["type"], patch: Record<string, any>) => void;
+  onJumpTo: (type: WeddingSection["type"]) => void;
+}) {
+  const isOn = (type: WeddingSection["type"]) => {
+    const s = sections.find((sec) => sec.type === type);
+    return !!s && s.visible !== false;
+  };
+  const dataOf = (type: WeddingSection["type"]) => sections.find((s) => s.type === type)?.data || {};
+  const rsvp = dataOf("rsvp");
+  const rsvpOn = isOn("rsvp");
+  const album = dataOf("guest_album");
+  const albumOn = isOn("guest_album");
+
+  const RSVP_SUB = [
+    { key: "show_meal", label: "Meal preference" },
+    { key: "show_dietary_tags", label: "Dietary tags" },
+    { key: "show_events", label: "Per-event attendance" },
+    { key: "show_dietary_notes", label: "Dietary notes / allergies" },
+    { key: "show_custom_polls", label: "Custom polls link" },
+    { key: "show_plus_ones", label: "Plus-one names & details" },
+    { key: "show_whatsapp_share", label: "\"Share on WhatsApp\" after RSVP" },
+    { key: "allow_edit", label: "Let guests edit their RSVP later" },
+  ];
+
+  return (
+    <div>
+      <h3 className="font-display text-lg font-semibold text-foreground mb-1">Features</h3>
+      <p className="text-xs text-muted-foreground font-body mb-4">
+        Every module below is optional. Flip a switch anytime to enable or hide it on your site.
+      </p>
+
+      <div className="space-y-2">
+        {OPTIONAL_FEATURES.map((f) => {
+          const on = isOn(f.type);
+          return (
+            <div key={f.type} className="rounded-lg border border-border/50 bg-background/40">
+              <div className="flex items-center gap-2 p-2.5">
+                <span className="text-lg leading-none shrink-0" aria-hidden>{f.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-body text-sm text-foreground truncate">{f.label}</p>
+                  <p className="font-body text-[11px] text-muted-foreground truncate">{f.desc}</p>
+                </div>
+                {on && (
+                  <button
+                    onClick={() => onJumpTo(f.type)}
+                    className="font-body text-[11px] text-gold hover:underline shrink-0"
+                  >
+                    Edit
+                  </button>
+                )}
+                <Switch checked={on} onCheckedChange={(v) => onToggleSection(f.type, v)} className="scale-90" />
+              </div>
+
+              {f.type === "rsvp" && rsvpOn && (
+                <div className="border-t border-border/40 px-2.5 py-2 space-y-1.5">
+                  {RSVP_SUB.map(({ key, label }) => (
+                    <label key={key} className="flex items-center justify-between gap-2 font-body text-xs text-muted-foreground cursor-pointer">
+                      <span className="truncate">{label}</span>
+                      <Switch
+                        checked={rsvp[key] !== false}
+                        onCheckedChange={(v) => onUpdateSectionData("rsvp", { [key]: v })}
+                        className="scale-75"
+                      />
+                    </label>
+                  ))}
+                  <label className="flex items-center justify-between gap-2 font-body text-xs text-muted-foreground cursor-pointer">
+                    <span className="truncate">Automated RSVP reminders</span>
+                    <Switch
+                      checked={Array.isArray(rsvp.reminder_offsets_days) ? rsvp.reminder_offsets_days.length > 0 : true}
+                      onCheckedChange={(v) => onUpdateSectionData("rsvp", { reminder_offsets_days: v ? [14, 7, 2] : [] })}
+                      className="scale-75"
+                    />
+                  </label>
+                </div>
+              )}
+
+              {f.type === "guest_album" && albumOn && (
+                <div className="border-t border-border/40 px-2.5 py-2 space-y-1.5">
+                  <label className="flex items-center justify-between gap-2 font-body text-xs text-muted-foreground cursor-pointer">
+                    <span className="truncate">Allow guest uploads</span>
+                    <Switch
+                      checked={album.allow_uploads !== false}
+                      onCheckedChange={(v) => onUpdateSectionData("guest_album", { allow_uploads: v })}
+                      className="scale-75"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between gap-2 font-body text-xs text-muted-foreground cursor-pointer">
+                    <span className="truncate">Require approval before posts show</span>
+                    <Switch
+                      checked={album.require_approval !== false}
+                      onCheckedChange={(v) => onUpdateSectionData("guest_album", { require_approval: v })}
+                      className="scale-75"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between gap-2 font-body text-xs text-muted-foreground cursor-pointer">
+                    <span className="truncate">Allow emoji reactions</span>
+                    <Switch
+                      checked={album.allow_reactions !== false}
+                      onCheckedChange={(v) => onUpdateSectionData("guest_album", { allow_reactions: v })}
+                      className="scale-75"
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="text-[11px] text-muted-foreground font-body mt-4">
+        Tip: turning a feature off hides it from your public site immediately — data is preserved, so you can re-enable it any time.
+      </p>
+    </div>
+  );
+}
 
 // ─── Sections Panel (with drag-and-drop reorder) ──────────────────────
 function SectionsPanel({
