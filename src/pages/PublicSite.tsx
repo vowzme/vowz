@@ -1678,6 +1678,116 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                   )}
                 </div>
 
+                {/* Plus-ones — one card per additional companion */}
+                {form.guest_count > 1 && (
+                  <div className="space-y-3">
+                    <div className="text-left">
+                      <div className="font-body text-sm font-medium text-foreground">
+                        Companions ({form.plus_ones.length})
+                      </div>
+                      <div className="font-body text-xs text-muted-foreground">
+                        Tell us who's joining you so we can seat and cater for everyone.
+                      </div>
+                    </div>
+                    {form.plus_ones.map((po, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-border/50 bg-muted/10 p-4 text-left space-y-3"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-body text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Guest {idx + 2}
+                          </span>
+                        </div>
+                        <Input
+                          placeholder="Full name"
+                          value={po.name}
+                          maxLength={80}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setForm((prev) => {
+                              const next = prev.plus_ones.slice();
+                              next[idx] = { ...next[idx], name: val };
+                              return { ...prev, plus_ones: next };
+                            });
+                          }}
+                          className="font-body"
+                        />
+                        {showMeal && (
+                          <div>
+                            <div className="font-body text-xs text-muted-foreground mb-1.5">Meal preference</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {(["veg", "non-veg", "vegan"] as const).map((pref) => {
+                                const active = po.meal_preference === pref;
+                                return (
+                                  <button
+                                    key={pref}
+                                    type="button"
+                                    onClick={() =>
+                                      setForm((prev) => {
+                                        const next = prev.plus_ones.slice();
+                                        next[idx] = {
+                                          ...next[idx],
+                                          meal_preference: active ? null : pref,
+                                        };
+                                        return { ...prev, plus_ones: next };
+                                      })
+                                    }
+                                    className={`px-3 py-1 rounded-full font-body text-xs border capitalize transition-colors ${
+                                      active
+                                        ? "border-gold bg-gold/10 text-foreground font-medium"
+                                        : "border-border/50 text-muted-foreground hover:border-border"
+                                    }`}
+                                  >
+                                    {pref}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {showDietaryTags && (
+                          <div>
+                            <div className="font-body text-xs text-muted-foreground mb-1.5">Dietary tags</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {["gluten-free", "dairy-free", "nut-free", "jain", "halal", "kosher"].map((tag) => {
+                                const active = po.dietary_tags.includes(tag);
+                                return (
+                                  <button
+                                    key={tag}
+                                    type="button"
+                                    onClick={() =>
+                                      setForm((prev) => {
+                                        const next = prev.plus_ones.slice();
+                                        const cur = next[idx].dietary_tags;
+                                        next[idx] = {
+                                          ...next[idx],
+                                          dietary_tags: active
+                                            ? cur.filter((t) => t !== tag)
+                                            : [...cur, tag].slice(0, 8),
+                                        };
+                                        return { ...prev, plus_ones: next };
+                                      })
+                                    }
+                                    className={`px-2.5 py-1 rounded-full font-body text-xs border capitalize transition-colors ${
+                                      active
+                                        ? "border-gold bg-gold/10 text-foreground font-medium"
+                                        : "border-border/50 text-muted-foreground hover:border-border"
+                                    }`}
+                                  >
+                                    {active && <Check className="w-3 h-3 inline mr-0.5" />}
+                                    {tag}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* Meal preference */}
                 {showMeal && <div>
                   <label className="font-body text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
