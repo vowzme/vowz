@@ -455,6 +455,13 @@ const Editor = () => {
   // the next sections mutation once, then resets.
   const persistNextSectionsChange = useRef(false);
 
+  useEffect(() => {
+    if (persistNextSectionsChange.current) {
+      persistNextSectionsChange.current = false;
+      persistSectionsSoon(sections);
+    }
+  }, [sections, persistSectionsSoon]);
+
   const updateSection = useCallback((id: string, patch: Partial<WeddingSection>) => {
     setState((prev) => ({
       ...prev,
