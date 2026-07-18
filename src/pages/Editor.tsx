@@ -638,6 +638,7 @@ const Editor = () => {
             { id: "templates" as const, icon: LayoutTemplate, label: "Templates" },
             { id: "style" as const, icon: Palette, label: "Style" },
             { id: "media" as const, icon: HardDrive, label: "Media" },
+            { id: "features" as const, icon: SlidersHorizontal, label: "Features" },
             { id: "settings" as const, icon: Settings, label: "Settings" },
             { id: "ai" as const, icon: Wand2, label: "AI Assistant" },
           ]).map(({ id, icon: Icon, label }) => (
