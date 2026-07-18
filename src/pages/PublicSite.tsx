@@ -59,6 +59,15 @@ const rsvpSchema = z.object({
   message: z.string().trim().max(800).nullable(),
 });
 
+// One extra guest that came with the primary RSVP.
+const plusOneSchema = z.object({
+  name: z.string().trim().min(1, "Companion name is required").max(80),
+  meal_preference: z.enum(["veg", "non-veg", "vegan"]).nullable(),
+  dietary_tags: z.array(z.string()).max(8),
+});
+type PlusOne = z.infer<typeof plusOneSchema>;
+const emptyPlusOne = (): PlusOne => ({ name: "", meal_preference: null, dietary_tags: [] });
+
 // Allowed dietary tag values — anything else is dropped before validation.
 const DIETARY_TAG_WHITELIST = new Set([
   "gluten-free", "jain", "halal", "kosher", "nut-free", "dairy-free", "vegan", "vegetarian",
@@ -1215,6 +1224,7 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
 function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void; t: TranslateFn }) {
   const [submitted, setSubmitted] = useState(false);
   const [submittedDietary, setSubmittedDietary] = useState<{ tags: string[]; notes: string }>({ tags: [], notes: "" });
+  const [submittedPlusOnes, setSubmittedPlusOnes] = useState<PlusOne[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const editStorageKey = `vowz_rsvp_edit_${site.id}`;
   // Per-guest tokenized invite (?g=<token>). When present, the form is locked
@@ -1255,6 +1265,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
     message: "",
     dietary_notes: "",
     dietary_tags: [] as string[],
+    plus_ones: [] as PlusOne[],
   });
 
   // Hydrate from personal invite link ?g=<token>
@@ -1284,6 +1295,18 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           meal_preference: row.rsvp_meal_preference || prev.meal_preference,
           selected_events: Array.isArray(row.rsvp_selected_events) ? row.rsvp_selected_events : prev.selected_events,
           message: row.rsvp_message || prev.message,
+          plus_ones: Array.isArray(row.rsvp_plus_ones)
+            ? (row.rsvp_plus_ones as any[])
+                .filter((p) => p && typeof p === "object")
+                .map((p: any) => ({
+                  name: typeof p.name === "string" ? p.name.slice(0, 80) : "",
+                  meal_preference: ["veg", "non-veg", "vegan"].includes(p.meal_preference) ? p.meal_preference : null,
+                  dietary_tags: Array.isArray(p.dietary_tags)
+                    ? p.dietary_tags.filter((t: any) => typeof t === "string" && DIETARY_TAG_WHITELIST.has(t)).slice(0, 8)
+                    : [],
+                }))
+                .slice(0, 19)
+            : prev.plus_ones,
         }));
         if (row.rsvp_id && row.rsvp_edit_token) {
           const handle = { id: row.rsvp_id, token: row.rsvp_edit_token };
@@ -1367,6 +1390,30 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         meal_preference: includeMeal ? (form.meal_preference || null) : null,
       });
 
+      // Sanitize plus-ones: only when attending, capped to guest_count - 1,
+      // dropping empty names, meal + tags gated by the same section toggles.
+      const cleanPlusOnes: PlusOne[] = form.attending
+        ? form.plus_ones
+            .slice(0, Math.max(0, validated.guest_count - 1))
+            .map((p) => ({
+              name: (p.name || "").trim().slice(0, 80),
+              meal_preference: includeMeal
+                ? (["veg", "non-veg", "vegan"].includes(p.meal_preference as any) ? p.meal_preference : null)
+                : null,
+              dietary_tags: includeDietaryTags
+                ? Array.from(new Set((p.dietary_tags || []).filter((t) => DIETARY_TAG_WHITELIST.has(t)))).slice(0, 8)
+                : [],
+            }))
+            .filter((p) => p.name.length > 0)
+        : [];
+
+      // If any expected companion is missing a name, ask for it before submit.
+      if (form.attending && form.plus_ones.length > 0 && cleanPlusOnes.length < form.plus_ones.length) {
+        throw new z.ZodError([
+          { code: "custom", path: ["plus_ones"], message: "Please enter a name for every companion." } as any,
+        ]);
+      }
+
       let createdHandle: { id: string; token: string } | null = null;
       if (invite) {
         // Tokenized invite flow — server enforces one RSVP per invite and caps guest_count.
@@ -1377,7 +1424,8 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           _meal_preference: validated.meal_preference,
           _selected_events: (validated.selected_events ?? null) as any,
           _message: validated.message,
-        });
+          _plus_ones: cleanPlusOnes as any,
+        } as any);
         if (error) throw error;
         const row: any = Array.isArray(res) ? res[0] : res;
         if (row?.rsvp_id && row?.edit_token) {
@@ -1395,7 +1443,8 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           _meal_preference: validated.meal_preference,
           _selected_events: (validated.selected_events ?? null) as any,
           _message: validated.message,
-        });
+          _plus_ones: cleanPlusOnes as any,
+        } as any);
         if (error) throw error;
         if (!ok) throw new Error("This RSVP can no longer be edited from this device.");
       } else {
@@ -1412,6 +1461,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
             selected_events: validated.selected_events as any,
             message: validated.message,
             edit_token: newToken,
+            plus_ones: cleanPlusOnes as any,
           } as any)
           .select("id")
           .single();
@@ -1430,6 +1480,7 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           : [],
         notes: showDietaryNotes && form.attending ? (form.dietary_notes || "").trim().slice(0, 200) : "",
       });
+      setSubmittedPlusOnes(cleanPlusOnes);
       const wasEditing = isEditing;
       toast({ title: wasEditing ? "RSVP updated ✨" : "RSVP submitted! 🎉" });
       trackEvent(wasEditing ? "rsvp_update" : "rsvp_submit", { attending: form.attending, guest_count: form.guest_count });
@@ -1541,6 +1592,26 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                 )}
               </div>
             )}
+            {submittedPlusOnes.length > 0 && (
+              <div className="mt-5 pt-4 border-t border-border/40 text-left">
+                <div className="text-xs uppercase tracking-wide text-muted-foreground font-body mb-2">
+                  Companions ({submittedPlusOnes.length})
+                </div>
+                <ul className="space-y-1.5">
+                  {submittedPlusOnes.map((p, i) => (
+                    <li key={i} className="text-sm font-body text-foreground">
+                      <span className="font-medium">{p.name}</span>
+                      {(p.meal_preference || p.dietary_tags.length > 0) && (
+                        <span className="text-muted-foreground">
+                          {" — "}
+                          {[p.meal_preference, ...p.dietary_tags].filter(Boolean).join(", ")}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {editHandle && (
               <button
                 type="button"
@@ -1637,7 +1708,15 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                     min={1}
                     max={maxGuestCount}
                     value={form.guest_count}
-                    onChange={(e) => setForm({ ...form, guest_count: Math.min(maxGuestCount, Math.max(1, parseInt(e.target.value) || 1)) })}
+                    onChange={(e) => {
+                      const next = Math.min(maxGuestCount, Math.max(1, parseInt(e.target.value) || 1));
+                      setForm((prev) => {
+                        const wanted = Math.max(0, next - 1);
+                        let plus_ones = prev.plus_ones.slice(0, wanted);
+                        while (plus_ones.length < wanted) plus_ones.push(emptyPlusOne());
+                        return { ...prev, guest_count: next, plus_ones };
+                      });
+                    }}
                     className="font-body w-24"
                   />
                   {invite && (
@@ -1646,6 +1725,116 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
                     </p>
                   )}
                 </div>
+
+                {/* Plus-ones — one card per additional companion */}
+                {form.guest_count > 1 && (
+                  <div className="space-y-3">
+                    <div className="text-left">
+                      <div className="font-body text-sm font-medium text-foreground">
+                        Companions ({form.plus_ones.length})
+                      </div>
+                      <div className="font-body text-xs text-muted-foreground">
+                        Tell us who's joining you so we can seat and cater for everyone.
+                      </div>
+                    </div>
+                    {form.plus_ones.map((po, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-border/50 bg-muted/10 p-4 text-left space-y-3"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-body text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Guest {idx + 2}
+                          </span>
+                        </div>
+                        <Input
+                          placeholder="Full name"
+                          value={po.name}
+                          maxLength={80}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setForm((prev) => {
+                              const next = prev.plus_ones.slice();
+                              next[idx] = { ...next[idx], name: val };
+                              return { ...prev, plus_ones: next };
+                            });
+                          }}
+                          className="font-body"
+                        />
+                        {showMeal && (
+                          <div>
+                            <div className="font-body text-xs text-muted-foreground mb-1.5">Meal preference</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {(["veg", "non-veg", "vegan"] as const).map((pref) => {
+                                const active = po.meal_preference === pref;
+                                return (
+                                  <button
+                                    key={pref}
+                                    type="button"
+                                    onClick={() =>
+                                      setForm((prev) => {
+                                        const next = prev.plus_ones.slice();
+                                        next[idx] = {
+                                          ...next[idx],
+                                          meal_preference: active ? null : pref,
+                                        };
+                                        return { ...prev, plus_ones: next };
+                                      })
+                                    }
+                                    className={`px-3 py-1 rounded-full font-body text-xs border capitalize transition-colors ${
+                                      active
+                                        ? "border-gold bg-gold/10 text-foreground font-medium"
+                                        : "border-border/50 text-muted-foreground hover:border-border"
+                                    }`}
+                                  >
+                                    {pref}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {showDietaryTags && (
+                          <div>
+                            <div className="font-body text-xs text-muted-foreground mb-1.5">Dietary tags</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {["gluten-free", "dairy-free", "nut-free", "jain", "halal", "kosher"].map((tag) => {
+                                const active = po.dietary_tags.includes(tag);
+                                return (
+                                  <button
+                                    key={tag}
+                                    type="button"
+                                    onClick={() =>
+                                      setForm((prev) => {
+                                        const next = prev.plus_ones.slice();
+                                        const cur = next[idx].dietary_tags;
+                                        next[idx] = {
+                                          ...next[idx],
+                                          dietary_tags: active
+                                            ? cur.filter((t) => t !== tag)
+                                            : [...cur, tag].slice(0, 8),
+                                        };
+                                        return { ...prev, plus_ones: next };
+                                      })
+                                    }
+                                    className={`px-2.5 py-1 rounded-full font-body text-xs border capitalize transition-colors ${
+                                      active
+                                        ? "border-gold bg-gold/10 text-foreground font-medium"
+                                        : "border-border/50 text-muted-foreground hover:border-border"
+                                    }`}
+                                  >
+                                    {active && <Check className="w-3 h-3 inline mr-0.5" />}
+                                    {tag}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Meal preference */}
                 {showMeal && <div>
