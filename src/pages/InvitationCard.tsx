@@ -560,7 +560,24 @@ export default function InvitationCard() {
 
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); }, []);
 
-  const handleExport = async (type: "png" | "pdf") => {
+  const rasterizePages = async (): Promise<HTMLCanvasElement[]> => {
+    if (!exportContainerRef.current) return [];
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
+    const nodes = Array.from(exportContainerRef.current.children) as HTMLElement[];
+    const out: HTMLCanvasElement[] = [];
+    for (const node of nodes) {
+      const canvas = await html2canvas(node, { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
+      out.push(canvas);
+    }
+    return out;
+  };
+
+  const downloadDataUrl = (href: string, name: string) => {
+    const a = document.createElement("a");
+    a.href = href; a.download = name; a.click();
+  };
+
+  const handleExport = async (type: "png" | "jpg" | "pdf" | "bundle") => {
     if (requiresUpgrade) {
       toast({ title: "Premium template", description: "Upgrade to download this design.", variant: "destructive" });
       return;
@@ -569,19 +586,27 @@ export default function InvitationCard() {
     try {
       setExporting(type);
       const filename = `${(form.partner1 || "wedding").replace(/\s+/g, "-")}-${(form.partner2 || "card").replace(/\s+/g, "-")}-invitation`;
-      if (type === "png") {
-        await new Promise((r) => requestAnimationFrame(() => r(null)));
-        const nodes = Array.from(exportContainerRef.current.children) as HTMLElement[];
-        for (let i = 0; i < nodes.length; i++) {
-          const canvas = await html2canvas(nodes[i], { scale: 1, backgroundColor: null, useCORS: true, allowTaint: true });
-          const a = document.createElement("a");
-          a.href = canvas.toDataURL("image/png");
-          a.download = nodes.length === 1 ? `${filename}.png` : `${filename}-p${i + 1}.png`;
-          a.click();
-        }
-      } else {
+      if (type === "png" || type === "jpg") {
+        const canvases = await rasterizePages();
+        const mime = type === "png" ? "image/png" : "image/jpeg";
+        const ext = type === "png" ? "png" : "jpg";
+        canvases.forEach((canvas, i) => {
+          const url = canvas.toDataURL(mime, type === "jpg" ? 0.95 : undefined);
+          downloadDataUrl(url, canvases.length === 1 ? `${filename}.${ext}` : `${filename}-p${i + 1}.${ext}`);
+        });
+      } else if (type === "pdf") {
         const pdf = await buildPdf();
         if (pdf) pdf.save(`${filename}.pdf`);
+      } else {
+        // Bundle: PDF + PNG + JPG for each page
+        const pdf = await buildPdf();
+        if (pdf) pdf.save(`${filename}.pdf`);
+        const canvases = await rasterizePages();
+        canvases.forEach((canvas, i) => {
+          const suffix = canvases.length === 1 ? "" : `-p${i + 1}`;
+          downloadDataUrl(canvas.toDataURL("image/png"), `${filename}${suffix}.png`);
+          downloadDataUrl(canvas.toDataURL("image/jpeg", 0.95), `${filename}${suffix}.jpg`);
+        });
       }
       toast({ title: `Downloaded ${type.toUpperCase()}`, description: `${pages.length} page${pages.length > 1 ? "s" : ""} exported.` });
     } catch (e: any) {
