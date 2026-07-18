@@ -450,6 +450,11 @@ const Editor = () => {
     }, 400);
   }, [dbSiteId, updateSite]);
 
+  // When a feature toggle enables a brand-new section (via addSection), the
+  // next sections array is only available after setState. This flag persists
+  // the next sections mutation once, then resets.
+  const persistNextSectionsChange = useRef(false);
+
   const updateSection = useCallback((id: string, patch: Partial<WeddingSection>) => {
     setState((prev) => ({
       ...prev,
