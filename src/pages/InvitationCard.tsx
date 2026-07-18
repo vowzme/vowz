@@ -109,7 +109,7 @@ export default function InvitationCard() {
   const [galleryOrientation, setGalleryOrientation] = useState<TemplateOrientation | "all">("all");
   const [galleryFocus, setGalleryFocus] = useState<TemplateFocus | "all">("all");
   const [galleryShowPremium, setGalleryShowPremium] = useState<"all" | "free" | "premium">("all");
-  const [exporting, setExporting] = useState<null | "png" | "pdf">(null);
+  const [exporting, setExporting] = useState<null | "png" | "jpg" | "pdf" | "bundle">(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   // Saved variants
