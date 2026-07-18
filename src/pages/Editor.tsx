@@ -786,6 +786,18 @@ const Editor = () => {
                           nextSections = sections.map((s) => (s.id === existing.id ? { ...s, visible: false } : s));
                         }
                         persistSectionsSoon(nextSections);
+                        // Fire-and-forget audit log entry
+                        if (dbSiteId && user) {
+                          supabase.from("feature_audit_log").insert({
+                            wedding_site_id: dbSiteId,
+                            user_id: user.id,
+                            feature_type: type,
+                            action: on ? "enabled" : "disabled",
+                            details: {},
+                          }).then(({ error }) => {
+                            if (error) console.warn("audit log insert failed", error);
+                          });
+                        }
                       }}
                       onUpdateSectionData={(type, patch) => {
                         const existing = sections.find((s) => s.type === type);
