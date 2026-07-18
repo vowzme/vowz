@@ -31,6 +31,7 @@ import { MUSIC_CATEGORIES } from "@/lib/music-library";
 import { useR2Upload } from "@/hooks/use-r2-upload";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { parseThemeStyle } from "@/lib/theme-schema";
+import CollaboratorPermissions from "@/components/CollaboratorPermissions";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
