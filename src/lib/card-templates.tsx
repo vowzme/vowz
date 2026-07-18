@@ -101,7 +101,47 @@ export interface CardTheme {
   headingLetterSpacing?: number;
   bodyLetterSpacing?: number;
   headingScale?: number; // multiplier on h1/h2 font-size
+  // QR + RSVP block styling
+  qrStyle?: QrStyle;      // frame preset for the QR badge
+  qrCaption?: string;     // e.g. "Scan to RSVP" — small caption under the QR
+  qrFg?: string;          // QR module color (overrides preset)
+  qrBg?: string;          // QR background color (overrides preset)
 }
+
+// ─── QR + RSVP block styling ────────────────────────────────────────
+export type QrStyle = "classic" | "framed" | "rounded" | "ticket" | "ribbon" | "minimal" | "noir";
+export interface QrStylePreset {
+  id: QrStyle;
+  label: string;
+  description: string;
+  // How the badge around the QR is drawn — colors resolve against theme.
+  frame: "square" | "rounded" | "circle" | "ticket" | "ribbon" | "none";
+  padding: number;         // px
+  borderWidth: number;     // px
+  borderStyle: "solid" | "dashed" | "double" | "none";
+  useAccentBorder: boolean;
+  captionUppercase: boolean;
+  captionSerif: boolean;   // caption in display serif vs body sans
+  defaultCaption: string;
+}
+export const QR_STYLE_PRESETS: QrStylePreset[] = [
+  { id: "classic",  label: "Classic",       description: "Thin accent border, clean caption",
+    frame: "square",  padding: 6,  borderWidth: 1, borderStyle: "solid",  useAccentBorder: true,  captionUppercase: true,  captionSerif: false, defaultCaption: "Scan to RSVP" },
+  { id: "framed",   label: "Framed",        description: "Double accent frame, editorial",
+    frame: "square",  padding: 10, borderWidth: 3, borderStyle: "double", useAccentBorder: true,  captionUppercase: true,  captionSerif: true,  defaultCaption: "Scan · RSVP · Reply by return" },
+  { id: "rounded",  label: "Rounded card",  description: "Soft rounded badge",
+    frame: "rounded", padding: 10, borderWidth: 1, borderStyle: "solid",  useAccentBorder: true,  captionUppercase: false, captionSerif: true,  defaultCaption: "Scan to reply" },
+  { id: "ticket",   label: "Ticket stub",   description: "Punched-ticket look",
+    frame: "ticket",  padding: 12, borderWidth: 1, borderStyle: "dashed", useAccentBorder: true,  captionUppercase: true,  captionSerif: false, defaultCaption: "Admit · Scan to RSVP" },
+  { id: "ribbon",   label: "Ribbon caption",description: "Accent ribbon banner beneath QR",
+    frame: "rounded", padding: 8,  borderWidth: 0, borderStyle: "none",   useAccentBorder: false, captionUppercase: true,  captionSerif: true,  defaultCaption: "R S V P" },
+  { id: "minimal",  label: "Minimal",       description: "No border, quiet caption",
+    frame: "none",    padding: 4,  borderWidth: 0, borderStyle: "none",   useAccentBorder: false, captionUppercase: false, captionSerif: false, defaultCaption: "Scan to RSVP" },
+  { id: "noir",     label: "Noir gold",     description: "Dark card with gold rim (cinematic)",
+    frame: "rounded", padding: 12, borderWidth: 2, borderStyle: "solid",  useAccentBorder: true,  captionUppercase: true,  captionSerif: true,  defaultCaption: "Scan · RSVP" },
+];
+export const getQrStylePreset = (id?: QrStyle): QrStylePreset =>
+  QR_STYLE_PRESETS.find((p) => p.id === id) ?? QR_STYLE_PRESETS[0];
 
 export type QrPosition = "bottom" | "bottom-left" | "bottom-right" | "top-right" | "hidden";
 
@@ -902,6 +942,36 @@ export function InvitationCardArtwork({
     "top-right": { position: "absolute", right: pad * 0.8, top: pad * 0.8 },
     hidden: { display: "none" },
   };
+  // ── QR block styling
+  const qrPreset = getQrStylePreset(theme.qrStyle);
+  const qrCaption = theme.qrCaption ?? qrPreset.defaultCaption;
+  const qrBg = theme.qrBg ?? "#ffffff";
+  const qrBorderColor = qrPreset.useAccentBorder ? theme.accent : theme.muted;
+  const qrFrameRadius =
+    qrPreset.frame === "circle" ? "50%" :
+    qrPreset.frame === "rounded" ? "14px" :
+    qrPreset.frame === "ticket" ? "10px" :
+    qrPreset.frame === "ribbon" ? "10px" :
+    "4px";
+  const qrBadgeStyle: React.CSSProperties = {
+    background: qrBg,
+    padding: qrPreset.padding,
+    borderRadius: qrFrameRadius,
+    border: qrPreset.borderStyle === "none" ? "none" : `${qrPreset.borderWidth}px ${qrPreset.borderStyle} ${qrBorderColor}${qrPreset.useAccentBorder ? "" : "88"}`,
+    display: "inline-block",
+    boxShadow: qrPreset.id === "noir" ? `0 0 0 6px ${theme.bg}, 0 0 0 7px ${theme.accent}66` : undefined,
+    position: "relative",
+  };
+  const qrCaptionStyle: React.CSSProperties = {
+    marginTop: 4,
+    fontFamily: qrPreset.captionSerif ? theme.display : theme.body,
+    color: theme.muted,
+    fontSize: Math.max(9, Math.round(width * 0.020)),
+    letterSpacing: qrPreset.captionUppercase ? 2 : 0.4,
+    textTransform: qrPreset.captionUppercase ? "uppercase" : "none",
+    textAlign: "center",
+    lineHeight: 1.2,
+  };
   return (
     <div
       style={{
@@ -1091,16 +1161,32 @@ export function InvitationCardArtwork({
         {/* Absolutely-positioned QR overlay */}
         {qrSlot && qrPosition !== "hidden" && (
           <div style={qrAnchorStyle[qrPosition]}>
-            <div
-              style={{
-                background: "#fff",
-                padding: 6,
-                borderRadius: 4,
-                border: `1px solid ${theme.accent}55`,
-                display: "inline-block",
-              }}
-            >
-              {qrSlot}
+            <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={qrBadgeStyle}>
+                {qrPreset.frame === "ticket" && (
+                  <>
+                    <span style={{ position: "absolute", left: -6, top: "50%", width: 10, height: 10, marginTop: -5, background: theme.bg, borderRadius: "50%" }} />
+                    <span style={{ position: "absolute", right: -6, top: "50%", width: 10, height: 10, marginTop: -5, background: theme.bg, borderRadius: "50%" }} />
+                  </>
+                )}
+                {qrSlot}
+              </div>
+              {qrCaption && qrPreset.id !== "ribbon" && (
+                <div style={qrCaptionStyle}>{qrCaption}</div>
+              )}
+              {qrCaption && qrPreset.id === "ribbon" && (
+                <div style={{
+                  marginTop: 6,
+                  background: theme.accent,
+                  color: theme.bg,
+                  padding: "3px 12px",
+                  fontFamily: theme.display,
+                  fontSize: Math.max(9, Math.round(width * 0.020)),
+                  letterSpacing: 3,
+                  textTransform: "uppercase",
+                  borderRadius: 2,
+                }}>{qrCaption}</div>
+              )}
             </div>
           </div>
         )}

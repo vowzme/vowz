@@ -26,6 +26,7 @@ import {
   DISPLAY_FONTS, BODY_FONTS, PRESET_PALETTES,
   PAPER_SIZES, PaperSize, PageScaling,
   TYPOGRAPHY_PRESETS, PHOTO_SHAPES, PHOTO_ASPECTS,
+  QR_STYLE_PRESETS, QrStyle,
   TEMPLATE_FACETS, ALL_TEMPLATE_TAGS, ORIENTATION_LABELS, FOCUS_LABELS,
   TemplateOrientation, TemplateFocus,
 } from "@/lib/card-templates";
@@ -482,7 +483,7 @@ export default function InvitationCard() {
               qrPosition={page.showQr ? page.qrPosition : "hidden"}
               qrSlot={
                 page.showQr ? (
-                  <QRCodeSVG value={siteUrl} size={Math.round(cardWpx * 0.17)} level="H" bgColor="#ffffff" fgColor="#001F3F" />
+                  <QRCodeSVG value={siteUrl} size={Math.round(cardWpx * 0.17)} level="H" bgColor={theme.qrBg ?? "#ffffff"} fgColor={theme.qrFg ?? "#001F3F"} />
                 ) : undefined
               }
             />
@@ -758,7 +759,7 @@ export default function InvitationCard() {
                 qrPosition={currentPage.showQr ? currentPage.qrPosition : "hidden"}
                 qrSlot={
                   currentPage.showQr ? (
-                    <QRCodeSVG value={siteUrl} size={84} level="H" bgColor="#ffffff" fgColor="#001F3F" />
+                    <QRCodeSVG value={siteUrl} size={84} level="H" bgColor={theme.qrBg ?? "#ffffff"} fgColor={theme.qrFg ?? "#001F3F"} />
                   ) : undefined
                 }
               />
@@ -963,6 +964,52 @@ export default function InvitationCard() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+              )}
+
+              {currentPage.showQr && (
+                <div className="space-y-2 pt-3 border-t border-border/40">
+                  <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">QR & RSVP styling</div>
+                  <div>
+                    <Label className="text-xs">Style preset</Label>
+                    <Select
+                      value={theme.qrStyle ?? "classic"}
+                      onValueChange={(v) => setThemeOverrides((t) => ({ ...t, qrStyle: v as QrStyle }))}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {QR_STYLE_PRESETS.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.label} — <span className="text-muted-foreground text-xs">{p.description}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">RSVP caption</Label>
+                    <Input
+                      value={theme.qrCaption ?? ""}
+                      placeholder="e.g. Scan to RSVP"
+                      onChange={(e) => setThemeOverrides((t) => ({ ...t, qrCaption: e.target.value }))}
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Leave blank to use the preset's default caption. Guests scan the QR to open your RSVP page.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {colorField("qrFg", "QR ink")}
+                    {colorField("qrBg", "QR background")}
+                  </div>
+                  <Button
+                    variant="ghost" size="sm" className="w-full h-7 text-xs"
+                    onClick={() => setThemeOverrides((t) => {
+                      const { qrStyle, qrCaption, qrFg, qrBg, ...rest } = t;
+                      return rest;
+                    })}
+                  >
+                    Reset QR styling to template default
+                  </Button>
                 </div>
               )}
 
