@@ -69,6 +69,7 @@ const GuestList = lazy(() => import("./pages/GuestList"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ReminderSettings = lazy(() => import("./pages/ReminderSettings"));
+const Payments = lazy(() => import("./pages/Payments"));
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
