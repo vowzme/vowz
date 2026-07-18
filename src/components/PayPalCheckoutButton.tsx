@@ -46,53 +46,7 @@ const PayPalCheckoutButton = ({ productType, currency, onSuccess, disabled }: Pr
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-
-    (async () => {
-      try {
-        // Fetch client_id via a lightweight create-order preflight is heavy;
-        // instead expose client id through a tiny call. We use create_order at click time,
-        // so first we need the client id from env via an unauthenticated echo? We'll
-        // reuse create_order to get client_id in advance is wasteful. Instead pass client id
-        // through a dedicated action-less approach: call a tiny "config" call.
-        // Simpler: PayPal client_id is public — read from a small edge invocation.
-        const { data, error: cfgErr } = await supabase.functions.invoke("paypal-payment", {
-          body: { action: "config" },
-        });
-        // The function currently doesn't handle 'config'; fall back to create_order lazily on click.
-        let clientId: string | null = data?.client_id || null;
-        if (cfgErr || !clientId) {
-          // Ask a create_order in "dry" mode is not supported; do the real one — but only on click.
-          // We'll defer SDK load until click using placeholder here.
-        }
-
-        if (!clientId) {
-          // Load will happen in click handler
-          if (!cancelled) setLoading(false);
-          return;
-        }
-
-        const ok = await loadPaypalSdk(clientId, currency);
-        if (cancelled) return;
-        if (!ok || !window.paypal) throw new Error("Unable to load PayPal SDK.");
-        renderButtons(clientId);
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message || "Failed to initialize PayPal.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currency, productType]);
-
-  const renderButtons = (clientId: string) => {
+  const renderButtons = () => {
     if (!containerRef.current || !window.paypal) return;
     containerRef.current.innerHTML = "";
     try {
@@ -152,41 +106,38 @@ const PayPalCheckoutButton = ({ productType, currency, onSuccess, disabled }: Pr
     }
   };
 
-  // Fallback: if SDK didn't load (no client_id from config), we need to fetch it via a stub call.
-  // On first click, create_order returns client_id; but we need SDK first. Do a preflight now.
+  // Preflight: fetch client_id (returned by create_order) then load SDK. The order returned
+  // here is discarded — PayPal Buttons will createOrder again on user click.
   useEffect(() => {
     let cancelled = false;
-    if (!loading || error) return;
-    // If already rendered, skip
-    if (containerRef.current && containerRef.current.childElementCount > 0) return;
-
+    setLoading(true);
+    setError(null);
     (async () => {
       try {
-        // Trigger a create_order to get client_id, but we can't consume it — so use a dummy strategy:
-        // Ask edge for config via a benign create_order that always returns client_id. Since our
-        // function returns client_id inside create_order, we can't fully avoid an order create.
-        // Simpler UX: we DO create a real order on button click, driven by paypal SDK. So load
-        // the SDK by first hitting create_order to fetch client_id — then discard the returned order id.
         const { data } = await supabase.functions.invoke("paypal-payment", {
           body: { action: "create_order", product_type: productType, currency },
         });
+        if (data?.already_premium) {
+          toast({ title: "Premium already active", description: "Your account is already upgraded." });
+          onSuccess?.();
+          if (!cancelled) setLoading(false);
+          return;
+        }
         const clientId = data?.client_id;
         if (!clientId) throw new Error("PayPal is not configured.");
         const ok = await loadPaypalSdk(clientId, currency);
         if (cancelled) return;
         if (!ok || !window.paypal) throw new Error("Unable to load PayPal SDK.");
-        // Render buttons which will create a fresh order on click (previous order will just expire).
-        renderButtons(clientId);
+        renderButtons();
       } catch (e: any) {
         if (!cancelled) setError(e?.message || "Failed to initialize PayPal.");
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currency, productType]);
 
   if (error) {
     return <p className="text-xs text-destructive text-center">{error}</p>;
