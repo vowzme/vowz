@@ -915,6 +915,18 @@ const Editor = () => {
           ))}
         </div>
       </div>
+
+      {/* ─── Real-time live preview (visible while Features panel is open) ── */}
+      {activePanel === "features" && (
+        <FeaturesLivePreview
+          sections={sections.filter((s) => s.visible)}
+          bg={bg}
+          accent={accent}
+          light={light}
+          displayFont={displayFont}
+          bodyFont={bodyFont}
+        />
+      )}
     </div>
   );
 };
