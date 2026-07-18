@@ -104,6 +104,7 @@ const AppRoutes = () => (
     <Route path="/dashboard/guests/:siteId" element={<ProtectedRoute><GuestList /></ProtectedRoute>} />
     <Route path="/dashboard/album/:siteId" element={<ProtectedRoute><AlbumModeration /></ProtectedRoute>} />
     <Route path="/dashboard/reminders" element={<ProtectedRoute><ReminderSettings /></ProtectedRoute>} />
+    <Route path="/dashboard/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
