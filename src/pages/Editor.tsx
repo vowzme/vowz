@@ -915,6 +915,18 @@ const Editor = () => {
           ))}
         </div>
       </div>
+
+      {/* ─── Real-time live preview (visible while Features panel is open) ── */}
+      {activePanel === "features" && (
+        <FeaturesLivePreview
+          sections={sections.filter((s) => s.visible)}
+          bg={bg}
+          accent={accent}
+          light={light}
+          displayFont={displayFont}
+          bodyFont={bodyFont}
+        />
+      )}
     </div>
   );
 };
@@ -4376,6 +4388,113 @@ function SitePreview({
           <SectionRenderer section={section} bg={bg} accent={accent} light={light} displayFont={displayFont} bodyFont={bodyFont} />
         </div>
       ))}
+    </div>
+  );
+}
+
+// ─── Real-time Features live preview ────────────────────────────────
+// Floating phone-frame preview that renders only currently-visible
+// sections. Because it reads from the same `sections` state that the
+// Features panel mutates, every toggle reflects instantly.
+function FeaturesLivePreview({
+  sections,
+  bg,
+  accent,
+  light,
+  displayFont,
+  bodyFont,
+}: {
+  sections: WeddingSection[];
+  bg: string;
+  accent: string;
+  light: string;
+  displayFont: string;
+  bodyFont: string;
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
+
+  if (collapsed) {
+    return (
+      <button
+        onClick={() => setCollapsed(false)}
+        className="hidden lg:flex fixed bottom-6 right-6 z-40 items-center gap-2 rounded-full bg-gold text-white px-4 py-2 shadow-lg hover:opacity-90 transition font-body text-sm"
+        aria-label="Show live preview"
+      >
+        <Eye className="w-4 h-4" /> Live preview
+      </button>
+    );
+  }
+
+  const frameW = device === "mobile" ? 300 : 520;
+  const frameH = device === "mobile" ? 560 : 620;
+
+  return (
+    <div
+      className="hidden lg:flex fixed bottom-6 right-6 z-40 flex-col rounded-2xl border border-border/60 bg-card shadow-2xl overflow-hidden"
+      style={{ width: frameW + 24 }}
+      aria-label="Real-time site preview"
+    >
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border/40 bg-background/60">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
+          <span className="font-body text-xs text-foreground">Live preview</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="flex gap-0.5 rounded-md bg-muted p-0.5">
+            {(["mobile", "desktop"] as const).map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setDevice(d)}
+                aria-pressed={device === d}
+                className={`px-2 py-0.5 text-[10px] font-body rounded ${
+                  device === d ? "bg-gold text-white" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {d === "mobile" ? "Phone" : "Wide"}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setCollapsed(true)}
+            className="p-1 text-muted-foreground hover:text-foreground"
+            aria-label="Collapse preview"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+      <div className="p-3">
+        <div
+          className="bg-background rounded-xl border border-border/50 overflow-hidden mx-auto"
+          style={{ width: frameW, height: frameH }}
+        >
+          <div className="w-full h-full overflow-y-auto">
+            {sections.length === 0 ? (
+              <div className="h-full flex items-center justify-center p-6 text-center">
+                <p className="font-body text-xs text-muted-foreground">
+                  All features are turned off. Enable one to see it appear here in real time.
+                </p>
+              </div>
+            ) : (
+              <div style={{ zoom: device === "mobile" ? 0.55 : 0.7 } as any}>
+                <SitePreview
+                  sections={sections}
+                  bg={bg}
+                  accent={accent}
+                  light={light}
+                  displayFont={displayFont}
+                  bodyFont={bodyFont}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+        <p className="font-body text-[10px] text-muted-foreground text-center mt-2">
+          Reflects every Features toggle instantly · {sections.length} section{sections.length === 1 ? "" : "s"} enabled
+        </p>
+      </div>
     </div>
   );
 }
