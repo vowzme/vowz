@@ -1217,6 +1217,15 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
   const [submittedDietary, setSubmittedDietary] = useState<{ tags: string[]; notes: string }>({ tags: [], notes: "" });
   const [submitting, setSubmitting] = useState(false);
   const editStorageKey = `vowz_rsvp_edit_${site.id}`;
+  // Per-guest tokenized invite (?g=<token>). When present, the form is locked
+  // to the invited guest's name and capped at 1 + plus_ones_allowed.
+  const [invite, setInvite] = useState<{
+    invite_id: string;
+    guest_name: string;
+    guest_email: string | null;
+    plus_ones_allowed: number;
+    token: string;
+  } | null>(null);
   const [editHandle, setEditHandle] = useState<{ id: string; token: string } | null>(() => {
     // Prefer ?rsvp=<id>&t=<token> from the confirmation email link, so a guest
     // can edit their RSVP from any device (not just the browser that submitted).
@@ -1247,6 +1256,48 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
     dietary_notes: "",
     dietary_tags: [] as string[],
   });
+
+  // Hydrate from personal invite link ?g=<token>
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const gtok = params.get("g");
+      if (!gtok) return;
+      (async () => {
+        const { data: rows, error } = await supabase.rpc("get_invite_by_token", { _token: gtok });
+        if (error || !rows || !rows.length) return;
+        const row: any = Array.isArray(rows) ? rows[0] : rows;
+        if (!row || row.wedding_site_id !== site.id) return;
+        setInvite({
+          invite_id: row.invite_id,
+          guest_name: row.guest_name,
+          guest_email: row.guest_email,
+          plus_ones_allowed: row.plus_ones_allowed ?? 0,
+          token: gtok,
+        });
+        setForm((prev) => ({
+          ...prev,
+          guest_name: row.guest_name || prev.guest_name,
+          guest_email: row.guest_email || prev.guest_email,
+          attending: row.rsvp_attending ?? prev.attending,
+          guest_count: row.rsvp_guest_count ?? prev.guest_count,
+          meal_preference: row.rsvp_meal_preference || prev.meal_preference,
+          selected_events: Array.isArray(row.rsvp_selected_events) ? row.rsvp_selected_events : prev.selected_events,
+          message: row.rsvp_message || prev.message,
+        }));
+        if (row.rsvp_id && row.rsvp_edit_token) {
+          const handle = { id: row.rsvp_id, token: row.rsvp_edit_token };
+          setEditHandle(handle);
+          try { localStorage.setItem(editStorageKey, JSON.stringify(handle)); } catch {}
+          // Show confirmation view — guest can Edit from there.
+          setSubmitted(true);
+        }
+      })();
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [site.id]);
+
+  const maxGuestCount = invite ? Math.max(1, 1 + (invite.plus_ones_allowed || 0)) : 20;
 
   const showMeal = data.show_meal !== false;
   const showDietaryTags = data.show_dietary_tags === true;
@@ -1317,7 +1368,25 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
       });
 
       let createdHandle: { id: string; token: string } | null = null;
-      if (isEditing && editHandle) {
+      if (invite) {
+        // Tokenized invite flow — server enforces one RSVP per invite and caps guest_count.
+        const { data: res, error } = await supabase.rpc("submit_rsvp_by_invite", {
+          _token: invite.token,
+          _attending: validated.attending,
+          _guest_count: validated.guest_count,
+          _meal_preference: validated.meal_preference,
+          _selected_events: (validated.selected_events ?? null) as any,
+          _message: validated.message,
+        });
+        if (error) throw error;
+        const row: any = Array.isArray(res) ? res[0] : res;
+        if (row?.rsvp_id && row?.edit_token) {
+          const handle = { id: row.rsvp_id as string, token: row.edit_token as string };
+          createdHandle = handle;
+          setEditHandle(handle);
+          try { localStorage.setItem(editStorageKey, JSON.stringify(handle)); } catch {}
+        }
+      } else if (isEditing && editHandle) {
         const { data: ok, error } = await supabase.rpc("update_rsvp_by_token", {
           _rsvp_id: editHandle.id,
           _edit_token: editHandle.token,
