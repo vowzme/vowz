@@ -917,6 +917,9 @@ const Dashboard = () => {
             {/* ─── RSVPs / Guest List Tab ─── */}
             <TabsContent value="rsvps">
               <RsvpReminderCard site={site} />
+              <div className="mt-4">
+                <AutomatedRsvpReminders siteId={site.id} />
+              </div>
               <GuestListPanel rsvps={rsvps} rsvpLoading={rsvpLoading} onDelete={handleDeleteRsvp} site={site} copyLink={copyLink} />
             </TabsContent>
 
