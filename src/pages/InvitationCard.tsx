@@ -483,7 +483,7 @@ export default function InvitationCard() {
               qrPosition={page.showQr ? page.qrPosition : "hidden"}
               qrSlot={
                 page.showQr ? (
-                  <QRCodeSVG value={siteUrl} size={Math.round(cardWpx * 0.17)} level="H" bgColor="#ffffff" fgColor="#001F3F" />
+                  <QRCodeSVG value={siteUrl} size={Math.round(cardWpx * 0.17)} level="H" bgColor={theme.qrBg ?? "#ffffff"} fgColor={theme.qrFg ?? "#001F3F"} />
                 ) : undefined
               }
             />
@@ -759,7 +759,7 @@ export default function InvitationCard() {
                 qrPosition={currentPage.showQr ? currentPage.qrPosition : "hidden"}
                 qrSlot={
                   currentPage.showQr ? (
-                    <QRCodeSVG value={siteUrl} size={84} level="H" bgColor="#ffffff" fgColor="#001F3F" />
+                    <QRCodeSVG value={siteUrl} size={84} level="H" bgColor={theme.qrBg ?? "#ffffff"} fgColor={theme.qrFg ?? "#001F3F"} />
                   ) : undefined
                 }
               />
