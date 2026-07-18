@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
 import { usePricingRegion } from "@/hooks/use-pricing-region";
+import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
 
 declare global {
   interface Window { Razorpay?: any; }
@@ -133,6 +134,26 @@ const BuyStorageAddonButton = ({ variant = "outline", size = "sm", className, la
             <Button className="w-full" onClick={handlePay} disabled={loading}>
               {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${symbol}${price}`}
             </Button>
+            {region === "INTL" && (
+              <div className="space-y-2">
+                <div className="relative py-1">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">or</span>
+                  </div>
+                </div>
+                <PayPalCheckoutButton
+                  productType="storage_addon"
+                  currency="USD"
+                  onSuccess={() => {
+                    setOpen(false);
+                    onPurchased?.();
+                  }}
+                />
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
