@@ -34,6 +34,7 @@ import FreePlanCountdown from "@/components/FreePlanCountdown";
 import StorageUsageCard from "@/components/StorageUsageCard";
 import StorageBreakdownCard from "@/components/StorageBreakdownCard";
 import StorageQuotaBanner from "@/components/StorageQuotaBanner";
+import ExpiryReminderBanner from "@/components/ExpiryReminderBanner";
 import FeatureSuggestionDialog from "@/components/FeatureSuggestionDialog";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import DashboardTour from "@/components/DashboardTour";
