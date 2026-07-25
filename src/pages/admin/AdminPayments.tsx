@@ -1029,9 +1029,11 @@ export default function AdminPayments() {
               )}
             </CardContent>
           </Card>
+          </>
+          )}
         </TabsContent>
 
-        {/* ─── Gateways Tab ─── */}
+        {/* ─── Refunds Tab ─── */}
         <TabsContent value="refunds">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             <Card className="border-border/50">
