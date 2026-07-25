@@ -613,6 +613,19 @@ export default function AdminPayments() {
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="expired">Expired</SelectItem>
                 <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="refunded">Refunded</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={providerFilter} onValueChange={setProviderFilter}>
+              <SelectTrigger className="w-[150px] font-body text-sm">
+                <SelectValue placeholder="Provider" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All providers</SelectItem>
+                <SelectItem value="razorpay">Razorpay</SelectItem>
+                <SelectItem value="paypal">PayPal</SelectItem>
+                <SelectItem value="dodo">Dodo</SelectItem>
               </SelectContent>
             </Select>
             <div className="flex gap-1">
