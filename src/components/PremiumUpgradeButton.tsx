@@ -338,7 +338,7 @@ const PremiumUpgradeButton = ({
                 />
                 <DodoCheckoutButton
                   productType="premium"
-                  currency={currency === "USD" || currency === "EUR" || currency === "GBP" ? currency : "USD"}
+                  currency="USD"
                   finalAmount={finalPrice}
                   couponCode={couponResult?.valid ? couponResult.code : undefined}
                   affiliateRef={affiliateRef}
