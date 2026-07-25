@@ -312,21 +312,26 @@ const PremiumUpgradeButton = ({
                 </Button>
               </div>
             ) : (
-              <Button className="w-full" onClick={handlePay} disabled={loading}>
-                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `🇮🇳 Pay with Razorpay (India) · ${symbol}${finalPrice}`}
-              </Button>
+              <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold flex items-center gap-1.5">
+                    <span className="text-base">🇮🇳</span> Paying from India?
+                  </p>
+                  <span className="text-[10px] uppercase tracking-wide bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">Recommended</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Use UPI, Netbanking, Cards or Wallets via Razorpay.</p>
+                <Button className="w-full" onClick={handlePay} disabled={loading}>
+                  {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay with Razorpay · ${symbol}${finalPrice}`}
+                </Button>
+              </div>
             )}
 
             {payStatus !== "verifying" && payStatus !== "syncing" && (
-              <div className="space-y-2">
-                <div className="relative py-1">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">🌍 International payments</span>
-                  </div>
-                </div>
+              <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                <p className="text-sm font-semibold flex items-center gap-1.5">
+                  <span className="text-base">🌍</span> Paying from outside India?
+                </p>
+                <p className="text-xs text-muted-foreground">Use your international card or PayPal account.</p>
                 <PayPalCheckoutButton
                   productType="premium"
                   currency={currency === "INR" ? "USD" : currency}
@@ -346,7 +351,7 @@ const PremiumUpgradeButton = ({
                     onUpgraded?.();
                     setCheckoutOpen(false);
                   }}
-                  label={`Pay with Dodo · ${symbol}${finalPrice}`}
+                  label={`Pay with Card (Dodo) · ${symbol}${finalPrice}`}
                 />
               </div>
             )}
