@@ -11,6 +11,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ApplePayVerificationChecklist from "@/components/admin/ApplePayVerificationChecklist";
+import BillingTermsCard from "@/components/admin/BillingTermsCard";
 
 interface AdminEmail {
   id: string;
@@ -104,6 +105,8 @@ export default function AdminSettings() {
       <div className="mb-6">
         <ApplePayVerificationChecklist />
       </div>
+
+      <BillingTermsCard />
 
       <Card className="border-border/50 max-w-2xl">
         <CardHeader>
