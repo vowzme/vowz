@@ -612,7 +612,7 @@ const Dashboard = () => {
               variant="gold"
               size="sm"
               className="shrink-0 w-full sm:w-auto"
-              label={`${formatPrice(pricing, "premium")}/yr`}
+              label={`${formatPrice(pricing, "premium")}/6mo`}
               onUpgraded={() => setSubscription({ status: "active", expires_at: null })}
             />
           </motion.div>
@@ -620,6 +620,7 @@ const Dashboard = () => {
 
         {/* Storage Usage */}
         <StorageQuotaBanner />
+        <ExpiryReminderBanner />
         <div className="mb-6 grid gap-4 md:grid-cols-2">
           <StorageUsageCard />
           <StorageBreakdownCard />
