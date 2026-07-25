@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import SEOHead from "@/components/SEOHead";
 import { toast } from "@/hooks/use-toast";
 
+type Provider = "razorpay" | "paypal" | "dodo";
+
 type Txn = {
   id: string;
   kind: "subscription" | "storage_addon";
-  provider: "razorpay" | "paypal" | string;
+  provider: Provider | string;
   description: string;
   amount: number;
   currency: string;
@@ -98,7 +100,7 @@ export default function Payments() {
   const [subs, setSubs] = useState<any[]>([]);
   const [addons, setAddons] = useState<any[]>([]);
   const [refunds, setRefunds] = useState<any[]>([]);
-  const [filter, setFilter] = useState<"all" | "razorpay" | "paypal">("all");
+  const [filter, setFilter] = useState<"all" | Provider>("all");
 
   async function load() {
     if (!user) return;
