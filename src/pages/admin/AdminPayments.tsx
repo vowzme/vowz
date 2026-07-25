@@ -60,6 +60,17 @@ interface WebhookEvent {
   payload: any;
 }
 
+interface GenericWebhookEvent {
+  id: string;
+  created_at: string;
+  event_type: string | null;
+  event_id: string | null;
+  resource_id?: string | null;
+  processed: boolean;
+  error?: string | null;
+  payload: any;
+}
+
 interface RefundRecord {
   id: string;
   created_at: string;
@@ -125,6 +136,7 @@ export default function AdminPayments() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [paymentsLoading, setPaymentsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [providerFilter, setProviderFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange>("30d");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -132,6 +144,10 @@ export default function AdminPayments() {
   const [webhookEvents, setWebhookEvents] = useState<WebhookEvent[]>([]);
   const [webhookLoading, setWebhookLoading] = useState(true);
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
+  const [webhookProvider, setWebhookProvider] = useState<"razorpay" | "paypal" | "dodo">("razorpay");
+  const [dodoEvents, setDodoEvents] = useState<GenericWebhookEvent[]>([]);
+  const [paypalEvents, setPaypalEvents] = useState<GenericWebhookEvent[]>([]);
+  const [altWebhookLoading, setAltWebhookLoading] = useState(false);
 
   // Refunds state
   const [refunds, setRefunds] = useState<RefundRecord[]>([]);
@@ -333,6 +349,40 @@ export default function AdminPayments() {
     fetchWebhookEvents();
   }, []);
 
+  const fetchAltWebhookEvents = async (provider: "paypal" | "dodo") => {
+    setAltWebhookLoading(true);
+    const table = provider === "paypal" ? "paypal_webhook_events" : "dodo_webhook_events";
+    const { data } = await supabase
+      .from(table as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    const rows = ((data as any[]) ?? []).map((r) => ({
+      id: r.id,
+      created_at: r.created_at,
+      event_type: r.event_type ?? null,
+      event_id: r.event_id ?? null,
+      resource_id: r.resource_id ?? null,
+      processed: !!r.processed,
+      error: r.error ?? null,
+      payload: r.payload,
+    })) as GenericWebhookEvent[];
+    if (provider === "paypal") setPaypalEvents(rows);
+    else setDodoEvents(rows);
+    setAltWebhookLoading(false);
+  };
+
+  useEffect(() => {
+    if (webhookProvider === "paypal" && paypalEvents.length === 0) fetchAltWebhookEvents("paypal");
+    if (webhookProvider === "dodo" && dodoEvents.length === 0) fetchAltWebhookEvents("dodo");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [webhookProvider]);
+
+  // Cross-provider refunded subscriptions (Dodo/PayPal don't populate razorpay_refunds)
+  const crossProviderRefunds = useMemo(() => {
+    return payments.filter((p) => p.status === "refunded" && p.provider !== "razorpay");
+  }, [payments]);
+
   const webhookStats = useMemo(() => {
     const total = webhookEvents.length;
     const sigFail = webhookEvents.filter((e) => !e.signature_valid).length;
@@ -393,6 +443,11 @@ export default function AdminPayments() {
       result = result.filter((p) => p.status === statusFilter);
     }
 
+    // Provider filter
+    if (providerFilter !== "all") {
+      result = result.filter((p) => (p.provider || "").toLowerCase() === providerFilter);
+    }
+
     // Date range filter
     const rangeStart = getDateRangeStart(dateRange);
     if (rangeStart) {
@@ -412,7 +467,7 @@ export default function AdminPayments() {
     }
 
     return result;
-  }, [payments, statusFilter, dateRange, searchQuery]);
+  }, [payments, statusFilter, providerFilter, dateRange, searchQuery]);
 
   // Stats
   const stats = useMemo(() => {
@@ -558,6 +613,19 @@ export default function AdminPayments() {
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="expired">Expired</SelectItem>
                 <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="refunded">Refunded</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={providerFilter} onValueChange={setProviderFilter}>
+              <SelectTrigger className="w-[150px] font-body text-sm">
+                <SelectValue placeholder="Provider" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All providers</SelectItem>
+                <SelectItem value="razorpay">Razorpay</SelectItem>
+                <SelectItem value="paypal">PayPal</SelectItem>
+                <SelectItem value="dodo">Dodo</SelectItem>
               </SelectContent>
             </Select>
             <div className="flex gap-1">
@@ -692,10 +760,177 @@ export default function AdminPayments() {
               )}
             </CardContent>
           </Card>
+
+          {/* Cross-provider refunded subscriptions (PayPal / Dodo) */}
+          <Card className="border-border/50 mt-6">
+            <CardHeader>
+              <CardTitle className="font-display text-base">Refunded subscriptions (PayPal & Dodo)</CardTitle>
+              <CardDescription className="font-body text-xs">
+                PayPal and Dodo refunds are tracked on the subscription itself rather than in the Razorpay refunds table.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              {crossProviderRefunds.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="font-body text-sm text-muted-foreground">No refunded PayPal or Dodo subscriptions.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-body text-xs">User</TableHead>
+                        <TableHead className="font-body text-xs">Provider</TableHead>
+                        <TableHead className="font-body text-xs">Plan</TableHead>
+                        <TableHead className="font-body text-xs">Amount</TableHead>
+                        <TableHead className="font-body text-xs">Payment ID</TableHead>
+                        <TableHead className="font-body text-xs">Refunded on</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {crossProviderRefunds.map((p) => (
+                        <TableRow key={p.id}>
+                          <TableCell className="font-body text-sm">
+                            <div className="truncate max-w-[180px]">{p.user_name || "—"}</div>
+                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">{p.user_email || "—"}</div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="font-body text-[10px] capitalize">
+                              {p.provider}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-body text-xs capitalize">
+                            {(p.plan || "").replace(/_/g, " ")}
+                          </TableCell>
+                          <TableCell className="font-display text-sm font-semibold">
+                            {p.currency === "INR" ? "₹" : `${p.currency || ""} `}
+                            {Number(p.amount_paid || 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="font-mono text-[11px] text-muted-foreground">
+                            {p.payment_id ? p.payment_id.slice(-16) : "—"}
+                          </TableCell>
+                          <TableCell className="font-body text-xs text-muted-foreground">
+                            {p.expires_at ? format(new Date(p.expires_at), "dd MMM yyyy") : "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ─── Webhooks Tab ─── */}
         <TabsContent value="webhooks">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="font-body text-xs text-muted-foreground mr-1">Provider:</span>
+            {(["razorpay", "paypal", "dodo"] as const).map((prov) => (
+              <Button
+                key={prov}
+                size="sm"
+                variant={webhookProvider === prov ? "default" : "outline"}
+                className={`font-body text-xs h-8 capitalize ${webhookProvider === prov ? "bg-gold text-primary-foreground hover:bg-gold/90" : ""}`}
+                onClick={() => setWebhookProvider(prov)}
+              >
+                {prov}
+              </Button>
+            ))}
+            <Button
+              size="sm"
+              variant="outline"
+              className="font-body text-xs h-8 ml-auto"
+              onClick={() =>
+                webhookProvider === "razorpay"
+                  ? fetchWebhookEvents()
+                  : fetchAltWebhookEvents(webhookProvider)
+              }
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh
+            </Button>
+          </div>
+
+          {webhookProvider !== "razorpay" && (
+            <Card className="border-border/50">
+              <CardContent className="p-0">
+                {altWebhookLoading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : (webhookProvider === "paypal" ? paypalEvents : dodoEvents).length === 0 ? (
+                  <div className="text-center py-12">
+                    <Webhook className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="font-body text-sm text-muted-foreground">
+                      No {webhookProvider === "paypal" ? "PayPal" : "Dodo"} webhook events received yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="font-body text-xs">Received</TableHead>
+                          <TableHead className="font-body text-xs">Event</TableHead>
+                          <TableHead className="font-body text-xs">Event / Resource ID</TableHead>
+                          <TableHead className="font-body text-xs">Processed</TableHead>
+                          <TableHead className="font-body text-xs">Details</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(webhookProvider === "paypal" ? paypalEvents : dodoEvents).map((e) => {
+                          const isOpen = expandedEvent === e.id;
+                          return (
+                            <>
+                              <TableRow key={e.id} className="cursor-pointer" onClick={() => setExpandedEvent(isOpen ? null : e.id)}>
+                                <TableCell className="font-body text-xs text-muted-foreground whitespace-nowrap">
+                                  {format(new Date(e.created_at), "dd MMM HH:mm:ss")}
+                                </TableCell>
+                                <TableCell className="font-mono text-[11px]">{e.event_type || "—"}</TableCell>
+                                <TableCell className="font-mono text-[11px] text-muted-foreground">
+                                  <div>{e.event_id ? e.event_id.slice(-16) : "—"}</div>
+                                  <div className="text-[10px]">{e.resource_id ? e.resource_id.slice(-16) : ""}</div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant="secondary"
+                                    className={`font-body text-[10px] ${
+                                      e.processed
+                                        ? "bg-emerald/15 text-emerald border-emerald/30"
+                                        : e.error
+                                        ? "bg-destructive/15 text-destructive border-destructive/30"
+                                        : "bg-gold/15 text-gold border-gold/30"
+                                    }`}
+                                  >
+                                    {e.processed ? "yes" : e.error ? "error" : "pending"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="font-body text-xs text-muted-foreground max-w-[280px] truncate">
+                                  {e.error || (isOpen ? "Hide payload" : "View payload")}
+                                </TableCell>
+                              </TableRow>
+                              {isOpen && (
+                                <TableRow key={`${e.id}-payload`}>
+                                  <TableCell colSpan={5} className="bg-muted/30">
+                                    <pre className="font-mono text-[11px] whitespace-pre-wrap break-all max-h-72 overflow-auto p-2">
+                                      {JSON.stringify(e.payload, null, 2)}
+                                    </pre>
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {webhookProvider === "razorpay" && (
+          <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             <Card className="border-border/50">
               <CardContent className="p-4">
@@ -854,9 +1089,11 @@ export default function AdminPayments() {
               )}
             </CardContent>
           </Card>
+          </>
+          )}
         </TabsContent>
 
-        {/* ─── Gateways Tab ─── */}
+        {/* ─── Refunds Tab ─── */}
         <TabsContent value="refunds">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             <Card className="border-border/50">
