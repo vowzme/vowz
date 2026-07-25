@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getBillingTerms } from "../_shared/billing-terms.ts";
 
 const PAYPAL_BASE =
   (Deno.env.get("PAYPAL_ENV") || "live").toLowerCase() === "sandbox"
@@ -98,6 +99,7 @@ Deno.serve(async (req) => {
     try {
       // Successful capture — write subscription/addon (authoritative, idempotent).
       if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
+        const terms = await getBillingTerms(admin);
         let custom: any = {};
         try {
           custom = JSON.parse(resource?.custom_id || "{}");
@@ -123,7 +125,7 @@ Deno.serve(async (req) => {
                 provider: "paypal",
                 amount_paid: paidAmount,
                 currency: paidCurrency,
-                expires_at: plusMonthsISO(6),
+                expires_at: plusMonthsISO(terms.storage_months),
                 metadata: { paypal_capture_id: captureId },
               });
             }
@@ -147,8 +149,8 @@ Deno.serve(async (req) => {
                 amount_paid: paidAmount,
                 currency: paidCurrency,
                 started_at: new Date().toISOString(),
-                expires_at: plusMonthsISO(6),
-                duration_months: 6,
+                expires_at: plusMonthsISO(terms.premium_months),
+                duration_months: terms.premium_months,
                 metadata: { paypal_capture_id: captureId },
               });
             }
