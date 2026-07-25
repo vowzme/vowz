@@ -23,3 +23,5 @@ project_id = "qkjuywqrncsbxjzwtlzm"
     verify_jwt = false
   [functions.paypal-webhook]
     verify_jwt = false
+  [functions.dodo-webhook]
+    verify_jwt = false
