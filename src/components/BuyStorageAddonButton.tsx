@@ -133,16 +133,16 @@ const BuyStorageAddonButton = ({ variant = "outline", size = "sm", className, la
               <p className="text-xs text-muted-foreground mt-1">One-time, 6 months validity</p>
             </div>
             <Button className="w-full" onClick={handlePay} disabled={loading}>
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay from India · ${symbol}${price}`}
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `🇮🇳 Pay with Razorpay (India) · ${symbol}${price}`}
             </Button>
-            {region === "INTL" && (
+            {(
               <div className="space-y-2">
                 <div className="relative py-1">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">International payments</span>
+                    <span className="bg-background px-2 text-muted-foreground">🌍 International payments</span>
                   </div>
                 </div>
                 <PayPalCheckoutButton
