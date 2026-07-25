@@ -38,15 +38,15 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Pricing – Vowz Wedding Invitation Maker | Free & Paid Plans"
-        description={`Choose from Free and Premium (${formatPrice(pricing, "premium")}/year) plans. Create digital invites, wedding websites, RSVP, gallery and more.`}
+        description={`Choose from Free and Premium (${formatPrice(pricing, "premium")}/6 months) plans. Create digital invites, wedding websites, RSVP, gallery and more.`}
         ogTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        ogDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/year. Unlimited invites, premium themes, no watermarks & more.`}
+        ogDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/6 months. Unlimited invites, premium themes, no watermarks & more.`}
         ogImage="https://vowz.me/og-pricing.jpg"
         ogUrl="https://vowz.me/pricing"
         ogType="website"
         twitterCard="summary_large_image"
         twitterTitle="Vowz Pricing – Affordable Wedding Invites & Websites"
-        twitterDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/year. Unlimited invites, premium themes, no watermarks & more.`}
+        twitterDescription={`Free plan available. Premium ${formatPrice(pricing, "premium")}/6 months. Unlimited invites, premium themes, no watermarks & more.`}
         twitterImage="https://vowz.me/og-pricing.jpg"
         canonical="https://vowz.me/pricing"
         robots="index, follow"
@@ -68,7 +68,7 @@ const Pricing = () => {
                 Start Free, <span className="text-gradient-gold italic">Upgrade Anytime</span>
               </h1>
               <p className="text-muted-foreground max-w-xl mx-auto font-body mb-6">
-                All features included in every plan. Free trial gives you 7 days of full access — upgrade to keep your site live forever.
+                All features included in every plan. Free trial gives you 7 days of full access — upgrade to keep your site live for 6 months. Renew every 6 months to keep it live.
               </p>
               <RegionSelector showNote />
             </motion.div>
@@ -112,13 +112,16 @@ const Pricing = () => {
                   Best Value
                 </div>
                 <h2 className="font-display text-2xl font-bold text-foreground">Premium</h2>
-                <p className="text-muted-foreground font-body text-sm mt-1">Keep your site live forever</p>
+                <p className="text-muted-foreground font-body text-sm mt-1">6 months — renew to keep live</p>
                 <div className="mt-6 mb-2 flex items-baseline gap-2">
                   <span className="font-display text-5xl font-bold text-foreground">{formatPrice(pricing, "premium")}</span>
                   <span className="font-display text-xl text-muted-foreground line-through">{formatPrice(pricing, "original")}</span>
-                  <span className="text-muted-foreground font-body text-sm">/year</span>
+                  <span className="text-muted-foreground font-body text-sm">/6 months</span>
                 </div>
-                <p className="text-xs text-gold font-body mb-6 font-semibold">Launch offer — save {pricing.symbol}{pricing.premiumOriginal - pricing.premiumPrice}!</p>
+                <p className="text-xs text-gold font-body mb-2 font-semibold">Launch offer — save {pricing.symbol}{pricing.premiumOriginal - pricing.premiumPrice}!</p>
+                <p className="text-xs text-muted-foreground font-body mb-6">
+                  Need more storage? Add <strong>+2 GB for {pricing.storageAddonLabel}</strong> (6-month validity, stackable)
+                </p>
                 <PremiumUpgradeButton
                   variant="gold"
                   size="lg"
