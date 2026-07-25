@@ -396,16 +396,18 @@ const PremiumUpgradeButton = ({
               </div>
             )}
 
-            <p className="text-[11px] text-center text-muted-foreground">
-              Not the right region?{" "}
-              <button
-                type="button"
-                className="underline hover:text-foreground"
-                onClick={() => setRegion(region === "IN" ? "INTL" : "IN")}
-              >
-                Switch to {region === "IN" ? "International 🌍" : "India 🇮🇳"}
-              </button>
-            </p>
+            {payStatus !== "verifying" && payStatus !== "syncing" && (
+              <p className="text-[11px] text-center text-muted-foreground">
+                Not the right region?{" "}
+                <button
+                  type="button"
+                  className="underline hover:text-foreground"
+                  onClick={() => setRegion(region === "IN" ? "INTL" : "IN")}
+                >
+                  Switch to {region === "IN" ? "International 🌍" : "India 🇮🇳"}
+                </button>
+              </p>
+            )}
           </div>
         </DialogContent>
       </Dialog>
