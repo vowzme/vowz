@@ -89,9 +89,10 @@ const BuyStorageAddonButton = ({ variant = "outline", size = "sm", className, la
             });
             if (vErr) throw new Error(vErr.message);
             if (!verify?.success) throw new Error(verify?.error || "Verification failed.");
-            toast({ title: "+2 GB added 🎉", description: "Your storage add-on is active for 6 months." });
+            toast({ title: "Payment successful 🎉", description: "+2 GB added. Redirecting to your dashboard…" });
             setOpen(false);
             onPurchased?.();
+            navigate("/dashboard");
           } catch (e: any) {
             toast({ title: "Verification failed", description: e?.message, variant: "destructive" });
           }
@@ -198,6 +199,7 @@ const BuyStorageAddonButton = ({ variant = "outline", size = "sm", className, la
                   onSuccess={() => {
                     setOpen(false);
                     onPurchased?.();
+                    navigate("/dashboard");
                   }}
                 />
                 <DodoCheckoutButton
