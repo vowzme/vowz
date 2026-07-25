@@ -760,6 +760,66 @@ export default function AdminPayments() {
               )}
             </CardContent>
           </Card>
+
+          {/* Cross-provider refunded subscriptions (PayPal / Dodo) */}
+          <Card className="border-border/50 mt-6">
+            <CardHeader>
+              <CardTitle className="font-display text-base">Refunded subscriptions (PayPal & Dodo)</CardTitle>
+              <CardDescription className="font-body text-xs">
+                PayPal and Dodo refunds are tracked on the subscription itself rather than in the Razorpay refunds table.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              {crossProviderRefunds.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="font-body text-sm text-muted-foreground">No refunded PayPal or Dodo subscriptions.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-body text-xs">User</TableHead>
+                        <TableHead className="font-body text-xs">Provider</TableHead>
+                        <TableHead className="font-body text-xs">Plan</TableHead>
+                        <TableHead className="font-body text-xs">Amount</TableHead>
+                        <TableHead className="font-body text-xs">Payment ID</TableHead>
+                        <TableHead className="font-body text-xs">Refunded on</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {crossProviderRefunds.map((p) => (
+                        <TableRow key={p.id}>
+                          <TableCell className="font-body text-sm">
+                            <div className="truncate max-w-[180px]">{p.user_name || "—"}</div>
+                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">{p.user_email || "—"}</div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="font-body text-[10px] capitalize">
+                              {p.provider}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-body text-xs capitalize">
+                            {(p.plan || "").replace(/_/g, " ")}
+                          </TableCell>
+                          <TableCell className="font-display text-sm font-semibold">
+                            {p.currency === "INR" ? "₹" : `${p.currency || ""} `}
+                            {Number(p.amount_paid || 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="font-mono text-[11px] text-muted-foreground">
+                            {p.payment_id ? p.payment_id.slice(-16) : "—"}
+                          </TableCell>
+                          <TableCell className="font-body text-xs text-muted-foreground">
+                            {p.expires_at ? format(new Date(p.expires_at), "dd MMM yyyy") : "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ─── Webhooks Tab ─── */}
