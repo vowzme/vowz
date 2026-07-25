@@ -240,6 +240,7 @@ const PremiumUpgradeButton = ({
             <DialogTitle className="font-display">Upgrade to Premium</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <CheckoutSteps current={1} />
             {/* Country toggle */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
