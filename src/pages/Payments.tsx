@@ -75,7 +75,7 @@ function openReceipt(t: Txn, userEmail: string | null) {
     <div style="text-align:right"><span class="status">${t.status}</span><br/><small class="muted">${format(new Date(t.created_at), "dd MMM yyyy, HH:mm")}</small></div>
   </div>
   <div class="row"><span class="label">Receipt No.</span><span class="value">${t.payment_id || t.order_id || t.id}</span></div>
-  <div class="row"><span class="label">Provider</span><span class="value">${t.provider === "paypal" ? "PayPal" : t.provider === "razorpay" ? "Razorpay" : t.provider}</span></div>
+  <div class="row"><span class="label">Provider</span><span class="value">${t.provider === "paypal" ? "PayPal" : t.provider === "razorpay" ? "Razorpay" : t.provider === "dodo" ? "Dodo Payments" : t.provider}</span></div>
   <div class="row"><span class="label">Description</span><span class="value">${t.description}</span></div>
   <div class="row"><span class="label">Billed to</span><span class="value">${userEmail || "—"}</span></div>
   ${t.order_id ? `<div class="row"><span class="label">Order ID</span><span class="value">${t.order_id}</span></div>` : ""}
@@ -137,7 +137,11 @@ export default function Payments() {
     const addonTx: Txn[] = addons.map((a) => ({
       id: a.id,
       kind: "storage_addon",
-      provider: a.payment_id?.startsWith?.("PAYPAL:") ? "paypal" : "razorpay",
+      provider: a.payment_id?.startsWith?.("PAYPAL:")
+        ? "paypal"
+        : a.payment_id?.startsWith?.("DODO:")
+          ? "dodo"
+          : "razorpay",
       description: `Storage add-on · ${(a.bytes_added / (1024 * 1024 * 1024)).toFixed(1)} GB`,
       amount: Number(a.amount_paid || 0),
       currency: a.currency,
@@ -166,7 +170,7 @@ export default function Payments() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Payments & receipts · vowz.me" description="View your Razorpay and PayPal transaction history and download receipts." />
+      <SEOHead title="Payments & receipts · vowz.me" description="View your Razorpay, PayPal and Dodo Payments transaction history and download receipts." />
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -175,7 +179,7 @@ export default function Payments() {
             </Button>
             <div>
               <h1 className="font-display text-3xl text-navy dark:text-ivory">Payments & receipts</h1>
-              <p className="text-sm text-muted-foreground">Your Razorpay and PayPal transactions across subscriptions and storage add-ons.</p>
+              <p className="text-sm text-muted-foreground">Your Razorpay, PayPal and Dodo Payments transactions across subscriptions and storage add-ons.</p>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
@@ -206,10 +210,10 @@ export default function Payments() {
           </div>
         )}
 
-        <div className="flex gap-2 mb-4">
-          {(["all", "razorpay", "paypal"] as const).map((f) => (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {(["all", "razorpay", "paypal", "dodo"] as const).map((f) => (
             <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>
-              {f === "all" ? "All providers" : f === "razorpay" ? "Razorpay" : "PayPal"}
+              {f === "all" ? "All providers" : f === "razorpay" ? "Razorpay" : f === "paypal" ? "PayPal" : "Dodo"}
             </Button>
           ))}
         </div>
@@ -220,7 +224,7 @@ export default function Payments() {
           <div className="border rounded-xl p-12 text-center bg-card">
             <CreditCard className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
             <div className="font-medium">No transactions yet</div>
-            <p className="text-sm text-muted-foreground mt-1">Your Razorpay and PayPal payments will show up here.</p>
+            <p className="text-sm text-muted-foreground mt-1">Your Razorpay, PayPal and Dodo Payments will show up here.</p>
           </div>
         ) : (
           <div className="border rounded-xl overflow-hidden bg-card">
@@ -255,7 +259,7 @@ export default function Payments() {
         )}
 
         <p className="text-xs text-muted-foreground mt-6">
-          Need a GST invoice or refund? <Link to="/contact" className="underline">Contact support</Link>. Refund status shown here reflects the latest webhook update from Razorpay/PayPal.
+          Need a GST invoice or refund? <Link to="/contact" className="underline">Contact support</Link>. Refund status shown here reflects the latest webhook update from Razorpay, PayPal or Dodo Payments.
         </p>
       </div>
     </div>
