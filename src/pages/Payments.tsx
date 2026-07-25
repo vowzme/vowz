@@ -10,6 +10,28 @@ import SEOHead from "@/components/SEOHead";
 import { toast } from "@/hooks/use-toast";
 
 type Provider = "razorpay" | "paypal" | "dodo";
+type Region = "india" | "international";
+
+const PROVIDER_META: Record<Provider, { label: string; region: Region; tone: string; regionTone: string }> = {
+  razorpay: {
+    label: "Razorpay",
+    region: "india",
+    tone: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30",
+    regionTone: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+  },
+  paypal: {
+    label: "PayPal",
+    region: "international",
+    tone: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30",
+    regionTone: "bg-gold/15 text-gold border-gold/40",
+  },
+  dodo: {
+    label: "Dodo Payments",
+    region: "international",
+    tone: "bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300 border-fuchsia-500/30",
+    regionTone: "bg-gold/15 text-gold border-gold/40",
+  },
+};
 
 type Txn = {
   id: string;
@@ -101,7 +123,7 @@ export default function Payments() {
   const [subs, setSubs] = useState<any[]>([]);
   const [addons, setAddons] = useState<any[]>([]);
   const [refunds, setRefunds] = useState<any[]>([]);
-  const [filter, setFilter] = useState<"all" | Provider>("all");
+  const [filter, setFilter] = useState<"all" | "india" | "international" | Provider>("all");
 
   useEffect(() => {
     if (searchParams.get("dodo") === "return") {
@@ -167,6 +189,8 @@ export default function Payments() {
       (x, y) => new Date(y.created_at).getTime() - new Date(x.created_at).getTime()
     );
     if (filter === "all") return merged;
+    if (filter === "india") return merged.filter((t) => PROVIDER_META[t.provider as Provider]?.region === "india");
+    if (filter === "international") return merged.filter((t) => PROVIDER_META[t.provider as Provider]?.region === "international");
     return merged.filter((t) => t.provider === filter);
   }, [subs, addons, refunds, filter]);
 
@@ -222,12 +246,33 @@ export default function Payments() {
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {(["all", "razorpay", "paypal", "dodo"] as const).map((f) => (
-            <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>
-              {f === "all" ? "All providers" : f === "razorpay" ? "Razorpay" : f === "paypal" ? "PayPal" : "Dodo"}
+        <div className="mb-4 space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")}>All providers</Button>
+            <Button
+              size="sm"
+              variant={filter === "india" ? "default" : "outline"}
+              onClick={() => setFilter("india")}
+              className={filter === "india" ? "" : "border-emerald-500/40 text-emerald-700 dark:text-emerald-300"}
+            >
+              🇮🇳 India (Razorpay)
             </Button>
-          ))}
+            <Button
+              size="sm"
+              variant={filter === "international" ? "default" : "outline"}
+              onClick={() => setFilter("international")}
+              className={filter === "international" ? "" : "border-gold/50 text-gold"}
+            >
+              🌍 International (PayPal & Dodo)
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(["razorpay", "paypal", "dodo"] as const).map((f) => (
+              <Button key={f} size="sm" variant={filter === f ? "default" : "ghost"} onClick={() => setFilter(f)} className="h-7 text-xs">
+                {PROVIDER_META[f].label}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
@@ -241,10 +286,11 @@ export default function Payments() {
         ) : (
           <div className="border rounded-xl overflow-hidden bg-card">
             <div className="hidden md:grid grid-cols-[1.6fr_0.9fr_0.9fr_0.8fr_auto] gap-4 px-5 py-3 text-xs uppercase tracking-wide text-muted-foreground bg-muted/30 border-b">
-              <div>Description</div><div>Provider</div><div>Amount</div><div>Status</div><div className="text-right">Receipt</div>
+              <div>Description</div><div>Provider & region</div><div>Amount</div><div>Status</div><div className="text-right">Receipt</div>
             </div>
             {txns.map((t) => {
               const tone = STATUS_TONE[t.refunded ? "refunded" : t.status] || "bg-muted text-muted-foreground border-border";
+              const meta = PROVIDER_META[t.provider as Provider];
               return (
                 <div key={`${t.kind}-${t.id}`} className="grid grid-cols-1 md:grid-cols-[1.6fr_0.9fr_0.9fr_0.8fr_auto] gap-2 md:gap-4 px-5 py-4 border-b last:border-0 items-center">
                   <div>
@@ -254,7 +300,18 @@ export default function Payments() {
                       {t.payment_id && <> · <span className="font-mono">{t.payment_id.slice(0, 24)}</span></>}
                     </div>
                   </div>
-                  <div className="text-sm capitalize">{t.provider}</div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {meta ? (
+                      <>
+                        <Badge variant="outline" className={meta.tone}>{meta.label}</Badge>
+                        <Badge variant="outline" className={meta.regionTone}>
+                          {meta.region === "india" ? "🇮🇳 India" : "🌍 International"}
+                        </Badge>
+                      </>
+                    ) : (
+                      <span className="text-sm capitalize">{t.provider}</span>
+                    )}
+                  </div>
                   <div className="text-sm font-semibold">{fmtMoney(t.amount, t.currency)}</div>
                   <div>
                     <Badge variant="outline" className={`${tone} capitalize`}>{t.refunded ? "refunded" : t.status}</Badge>
