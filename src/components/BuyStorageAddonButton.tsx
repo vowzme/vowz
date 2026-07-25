@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
 import { usePricingRegion } from "@/hooks/use-pricing-region";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
+import DodoCheckoutButton from "@/components/DodoCheckoutButton";
 
 declare global {
   interface Window { Razorpay?: any; }
