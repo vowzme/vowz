@@ -764,6 +764,113 @@ export default function AdminPayments() {
 
         {/* ─── Webhooks Tab ─── */}
         <TabsContent value="webhooks">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="font-body text-xs text-muted-foreground mr-1">Provider:</span>
+            {(["razorpay", "paypal", "dodo"] as const).map((prov) => (
+              <Button
+                key={prov}
+                size="sm"
+                variant={webhookProvider === prov ? "default" : "outline"}
+                className={`font-body text-xs h-8 capitalize ${webhookProvider === prov ? "bg-gold text-primary-foreground hover:bg-gold/90" : ""}`}
+                onClick={() => setWebhookProvider(prov)}
+              >
+                {prov}
+              </Button>
+            ))}
+            <Button
+              size="sm"
+              variant="outline"
+              className="font-body text-xs h-8 ml-auto"
+              onClick={() =>
+                webhookProvider === "razorpay"
+                  ? fetchWebhookEvents()
+                  : fetchAltWebhookEvents(webhookProvider)
+              }
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh
+            </Button>
+          </div>
+
+          {webhookProvider !== "razorpay" && (
+            <Card className="border-border/50">
+              <CardContent className="p-0">
+                {altWebhookLoading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : (webhookProvider === "paypal" ? paypalEvents : dodoEvents).length === 0 ? (
+                  <div className="text-center py-12">
+                    <Webhook className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="font-body text-sm text-muted-foreground">
+                      No {webhookProvider === "paypal" ? "PayPal" : "Dodo"} webhook events received yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="font-body text-xs">Received</TableHead>
+                          <TableHead className="font-body text-xs">Event</TableHead>
+                          <TableHead className="font-body text-xs">Event / Resource ID</TableHead>
+                          <TableHead className="font-body text-xs">Processed</TableHead>
+                          <TableHead className="font-body text-xs">Details</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(webhookProvider === "paypal" ? paypalEvents : dodoEvents).map((e) => {
+                          const isOpen = expandedEvent === e.id;
+                          return (
+                            <>
+                              <TableRow key={e.id} className="cursor-pointer" onClick={() => setExpandedEvent(isOpen ? null : e.id)}>
+                                <TableCell className="font-body text-xs text-muted-foreground whitespace-nowrap">
+                                  {format(new Date(e.created_at), "dd MMM HH:mm:ss")}
+                                </TableCell>
+                                <TableCell className="font-mono text-[11px]">{e.event_type || "—"}</TableCell>
+                                <TableCell className="font-mono text-[11px] text-muted-foreground">
+                                  <div>{e.event_id ? e.event_id.slice(-16) : "—"}</div>
+                                  <div className="text-[10px]">{e.resource_id ? e.resource_id.slice(-16) : ""}</div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant="secondary"
+                                    className={`font-body text-[10px] ${
+                                      e.processed
+                                        ? "bg-emerald/15 text-emerald border-emerald/30"
+                                        : e.error
+                                        ? "bg-destructive/15 text-destructive border-destructive/30"
+                                        : "bg-gold/15 text-gold border-gold/30"
+                                    }`}
+                                  >
+                                    {e.processed ? "yes" : e.error ? "error" : "pending"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="font-body text-xs text-muted-foreground max-w-[280px] truncate">
+                                  {e.error || (isOpen ? "Hide payload" : "View payload")}
+                                </TableCell>
+                              </TableRow>
+                              {isOpen && (
+                                <TableRow key={`${e.id}-payload`}>
+                                  <TableCell colSpan={5} className="bg-muted/30">
+                                    <pre className="font-mono text-[11px] whitespace-pre-wrap break-all max-h-72 overflow-auto p-2">
+                                      {JSON.stringify(e.payload, null, 2)}
+                                    </pre>
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {webhookProvider === "razorpay" && (
+          <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             <Card className="border-border/50">
               <CardContent className="p-4">
