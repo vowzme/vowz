@@ -10,6 +10,7 @@ import { getStoredAffiliateRef } from "@/hooks/use-affiliate";
 import CouponCodeInput from "@/components/CouponCodeInput";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
 import DodoCheckoutButton from "@/components/DodoCheckoutButton";
+import CheckoutSteps from "@/components/CheckoutSteps";
 import { MapPin, Sparkles } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
