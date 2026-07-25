@@ -9,6 +9,7 @@ import { usePricingRegion } from "@/hooks/use-pricing-region";
 import { getStoredAffiliateRef } from "@/hooks/use-affiliate";
 import CouponCodeInput from "@/components/CouponCodeInput";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
+import DodoCheckoutButton from "@/components/DodoCheckoutButton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
