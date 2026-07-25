@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { usePricingRegion } from "@/hooks/use-pricing-region";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
 import DodoCheckoutButton from "@/components/DodoCheckoutButton";
+import CheckoutSteps from "@/components/CheckoutSteps";
 
 declare global {
   interface Window { Razorpay?: any; }
@@ -129,6 +130,7 @@ const BuyStorageAddonButton = ({ variant = "outline", size = "sm", className, la
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            <CheckoutSteps current={1} />
             {/* Country toggle */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">

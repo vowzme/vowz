@@ -10,6 +10,7 @@ import { getStoredAffiliateRef } from "@/hooks/use-affiliate";
 import CouponCodeInput from "@/components/CouponCodeInput";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
 import DodoCheckoutButton from "@/components/DodoCheckoutButton";
+import CheckoutSteps from "@/components/CheckoutSteps";
 import { MapPin, Sparkles } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -240,6 +241,7 @@ const PremiumUpgradeButton = ({
             <DialogTitle className="font-display">Upgrade to Premium</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <CheckoutSteps current={1} />
             {/* Country toggle */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
