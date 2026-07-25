@@ -313,23 +313,23 @@ const PremiumUpgradeButton = ({
               </div>
             ) : (
               <Button className="w-full" onClick={handlePay} disabled={loading}>
-                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay from India · ${symbol}${finalPrice}`}
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `🇮🇳 Pay with Razorpay (India) · ${symbol}${finalPrice}`}
               </Button>
             )}
 
-            {region === "INTL" && payStatus !== "verifying" && payStatus !== "syncing" && (
+            {payStatus !== "verifying" && payStatus !== "syncing" && (
               <div className="space-y-2">
                 <div className="relative py-1">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">International payments</span>
+                    <span className="bg-background px-2 text-muted-foreground">🌍 International payments</span>
                   </div>
                 </div>
                 <PayPalCheckoutButton
                   productType="premium"
-                  currency="USD"
+                  currency={currency === "INR" ? "USD" : currency}
                   onSuccess={() => {
                     onUpgraded?.();
                     setCheckoutOpen(false);
@@ -338,7 +338,7 @@ const PremiumUpgradeButton = ({
                 />
                 <DodoCheckoutButton
                   productType="premium"
-                  currency="USD"
+                  currency={currency === "INR" ? "USD" : currency}
                   finalAmount={finalPrice}
                   couponCode={couponResult?.valid ? couponResult.code : undefined}
                   affiliateRef={affiliateRef}
