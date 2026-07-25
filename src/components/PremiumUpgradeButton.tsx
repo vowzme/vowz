@@ -9,6 +9,7 @@ import { usePricingRegion } from "@/hooks/use-pricing-region";
 import { getStoredAffiliateRef } from "@/hooks/use-affiliate";
 import CouponCodeInput from "@/components/CouponCodeInput";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
+import DodoCheckoutButton from "@/components/DodoCheckoutButton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -312,7 +313,7 @@ const PremiumUpgradeButton = ({
               </div>
             ) : (
               <Button className="w-full" onClick={handlePay} disabled={loading}>
-                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${symbol}${finalPrice}`}
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay from India · ${symbol}${finalPrice}`}
               </Button>
             )}
 
@@ -323,7 +324,7 @@ const PremiumUpgradeButton = ({
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">or</span>
+                    <span className="bg-background px-2 text-muted-foreground">International payments</span>
                   </div>
                 </div>
                 <PayPalCheckoutButton
@@ -334,6 +335,18 @@ const PremiumUpgradeButton = ({
                     setCheckoutOpen(false);
                     navigate("/dashboard");
                   }}
+                />
+                <DodoCheckoutButton
+                  productType="premium"
+                  currency="USD"
+                  finalAmount={finalPrice}
+                  couponCode={couponResult?.valid ? couponResult.code : undefined}
+                  affiliateRef={affiliateRef}
+                  onSuccess={() => {
+                    onUpgraded?.();
+                    setCheckoutOpen(false);
+                  }}
+                  label={`Pay with Dodo · ${symbol}${finalPrice}`}
                 />
               </div>
             )}
