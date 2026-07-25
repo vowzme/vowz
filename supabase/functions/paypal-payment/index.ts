@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getBillingTerms } from "../_shared/billing-terms.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -88,6 +89,10 @@ Deno.serve(async (req) => {
     const pricingTable = isAddon ? STORAGE_ADDON_PRICING : PREMIUM_PRICING;
     const tier = pricingTable[requestedCurrency] || pricingTable.USD;
 
+    const terms = await getBillingTerms(adminClient);
+    const premiumMonths = terms.premium_months;
+    const storageMonths = terms.storage_months;
+
     if (action === "create_order") {
       // Already premium guard (for premium purchases)
       if (!isAddon) {
@@ -103,7 +108,9 @@ Deno.serve(async (req) => {
       }
 
       const token = await getAccessToken();
-      const description = isAddon ? "Vowz +2 GB Storage (6 months)" : "Vowz Premium (6 months)";
+      const description = isAddon
+        ? `Vowz +2 GB Storage (${storageMonths} months)`
+        : `Vowz Premium (${premiumMonths} months)`;
 
       const orderRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders`, {
         method: "POST",
@@ -182,7 +189,7 @@ Deno.serve(async (req) => {
           provider: "paypal",
           amount_paid: paidAmount,
           currency: paidCurrency,
-          expires_at: plusMonthsISO(6),
+          expires_at: plusMonthsISO(storageMonths),
           metadata: { paypal_order_id: orderId, paypal_capture_id: capture?.id },
         });
       } else {
@@ -201,8 +208,8 @@ Deno.serve(async (req) => {
           amount_paid: paidAmount,
           currency: paidCurrency,
           started_at: new Date().toISOString(),
-          expires_at: plusMonthsISO(6),
-          duration_months: 6,
+          expires_at: plusMonthsISO(premiumMonths),
+          duration_months: premiumMonths,
           metadata: { paypal_order_id: orderId, paypal_capture_id: capture?.id },
         });
       }
