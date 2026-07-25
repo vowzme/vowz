@@ -72,6 +72,10 @@ Deno.serve(async (req) => {
     const productType = (body?.product_type as string) || "premium"; // "premium" | "storage_addon"
     const requestedCurrency = ((body?.currency as string) || "INR").toUpperCase();
 
+    const terms = await getBillingTerms(adminClient);
+    const premiumMonths = terms.premium_months;
+    const storageMonths = terms.storage_months;
+
     const isAddon = productType === "storage_addon";
     const pricingTable = isAddon ? STORAGE_ADDON_PRICING : PREMIUM_PRICING;
     const pricingTier = pricingTable[requestedCurrency] || pricingTable.INR;
@@ -192,8 +196,8 @@ Deno.serve(async (req) => {
             amount_paid: 0,
             currency: pricingTier.currency,
             payment_order_id: order.id,
-            duration_months: 6,
-            expires_at: plus6MonthsISO(),
+            duration_months: premiumMonths,
+            expires_at: plusMonthsISO(premiumMonths),
             metadata: { receipt, created_via: "razorpay_checkout", requested_currency: pricingTier.currency },
           },
           { onConflict: "payment_order_id" }
@@ -208,7 +212,9 @@ Deno.serve(async (req) => {
         amount: order.amount,
         currency: order.currency,
         name: "Vowz",
-        description: isAddon ? "Storage Add-on (+2 GB / 6 months)" : "Premium Plan (6 Months)",
+        description: isAddon
+          ? `Storage Add-on (+2 GB / ${storageMonths} months)`
+          : `Premium Plan (${premiumMonths} Months)`,
         prefill: {
           name: user.user_metadata?.full_name || "",
           email: user.email || "",
@@ -257,11 +263,10 @@ Deno.serve(async (req) => {
       const amountPaid = Number(payment.amount || pricingTier.amount) / 100;
       const currencySymbol = (PREMIUM_PRICING[paymentCurrency]?.symbol) || paymentCurrency;
       const nowISO = new Date().toISOString();
-      const expiresAt = plus6MonthsISO();
+      const expiresAt = plusMonthsISO(isAddonPayment ? storageMonths : premiumMonths);
 
       // Determine product type from notes (server-side authoritative)
-      const notesType = (payment.notes?.product_type as string) || "premium";
-      const isAddonPayment = notesType === "storage_addon";
+      // isAddonPayment already declared above
 
       if (isAddonPayment) {
         // Insert a stackable storage addon
