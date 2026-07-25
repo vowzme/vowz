@@ -56,16 +56,16 @@ serve(async (req) => {
     }
 
     // Upgrade: insert a new active premium sub (comp — no charge)
+    // Platform standard is a 6-month billing cycle. Admin comp defaults to
+    // premium_6mo / 6 months unless the caller explicitly overrides.
     const selectedPlan = plan && ["premium", "premium_6mo", "premium_yearly"].includes(plan)
       ? plan
-      : "premium_yearly";
+      : "premium_6mo";
     const months = Number.isFinite(durationMonths) && (durationMonths as number) > 0
       ? Math.floor(durationMonths as number)
       : selectedPlan === "premium_yearly"
         ? 12
-        : selectedPlan === "premium_6mo"
-          ? 6
-          : 1;
+        : 6;
 
     const now = new Date();
     const expires = new Date(now);
