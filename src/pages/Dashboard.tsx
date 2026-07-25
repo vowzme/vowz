@@ -34,6 +34,7 @@ import FreePlanCountdown from "@/components/FreePlanCountdown";
 import StorageUsageCard from "@/components/StorageUsageCard";
 import StorageBreakdownCard from "@/components/StorageBreakdownCard";
 import StorageQuotaBanner from "@/components/StorageQuotaBanner";
+import ExpiryReminderBanner from "@/components/ExpiryReminderBanner";
 import FeatureSuggestionDialog from "@/components/FeatureSuggestionDialog";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import DashboardTour from "@/components/DashboardTour";
@@ -612,7 +613,7 @@ const Dashboard = () => {
               variant="gold"
               size="sm"
               className="shrink-0 w-full sm:w-auto"
-              label={`${formatPrice(pricing, "premium")}/yr`}
+              label={`${formatPrice(pricing, "premium")}/6mo`}
               onUpgraded={() => setSubscription({ status: "active", expires_at: null })}
             />
           </motion.div>
@@ -620,6 +621,7 @@ const Dashboard = () => {
 
         {/* Storage Usage */}
         <StorageQuotaBanner />
+        <ExpiryReminderBanner />
         <div className="mb-6 grid gap-4 md:grid-cols-2">
           <StorageUsageCard />
           <StorageBreakdownCard />
