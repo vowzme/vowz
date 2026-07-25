@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as React from "npm:react@18.3.1";
 import { renderAsync } from "npm:@react-email/components@0.0.22";
 import { PaymentSuccessEmail } from "../_shared/email-templates/payment-success.tsx";
+import { getBillingTerms, plusMonthsISO } from "../_shared/billing-terms.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,11 +43,7 @@ const signPayment = async (secret: string, payload: string) => {
   return toHex(signature);
 };
 
-const plus6MonthsISO = () => {
-  const d = new Date();
-  d.setMonth(d.getMonth() + 6);
-  return d.toISOString();
-};
+// term length now read from billing_terms at request time
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
