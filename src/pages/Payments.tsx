@@ -96,11 +96,23 @@ function openReceipt(t: Txn, userEmail: string | null) {
 
 export default function Payments() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [subs, setSubs] = useState<any[]>([]);
   const [addons, setAddons] = useState<any[]>([]);
   const [refunds, setRefunds] = useState<any[]>([]);
   const [filter, setFilter] = useState<"all" | Provider>("all");
+
+  useEffect(() => {
+    if (searchParams.get("dodo") === "return") {
+      toast({
+        title: "Welcome back",
+        description: "If your Dodo payment was successful, it will appear here within a minute.",
+      });
+      setSearchParams({}, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   async function load() {
     if (!user) return;
