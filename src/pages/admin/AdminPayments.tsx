@@ -60,6 +60,17 @@ interface WebhookEvent {
   payload: any;
 }
 
+interface GenericWebhookEvent {
+  id: string;
+  created_at: string;
+  event_type: string | null;
+  event_id: string | null;
+  resource_id?: string | null;
+  processed: boolean;
+  error?: string | null;
+  payload: any;
+}
+
 interface RefundRecord {
   id: string;
   created_at: string;
@@ -125,6 +136,7 @@ export default function AdminPayments() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [paymentsLoading, setPaymentsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [providerFilter, setProviderFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange>("30d");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -132,6 +144,10 @@ export default function AdminPayments() {
   const [webhookEvents, setWebhookEvents] = useState<WebhookEvent[]>([]);
   const [webhookLoading, setWebhookLoading] = useState(true);
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
+  const [webhookProvider, setWebhookProvider] = useState<"razorpay" | "paypal" | "dodo">("razorpay");
+  const [dodoEvents, setDodoEvents] = useState<GenericWebhookEvent[]>([]);
+  const [paypalEvents, setPaypalEvents] = useState<GenericWebhookEvent[]>([]);
+  const [altWebhookLoading, setAltWebhookLoading] = useState(false);
 
   // Refunds state
   const [refunds, setRefunds] = useState<RefundRecord[]>([]);
@@ -393,6 +409,11 @@ export default function AdminPayments() {
       result = result.filter((p) => p.status === statusFilter);
     }
 
+    // Provider filter
+    if (providerFilter !== "all") {
+      result = result.filter((p) => (p.provider || "").toLowerCase() === providerFilter);
+    }
+
     // Date range filter
     const rangeStart = getDateRangeStart(dateRange);
     if (rangeStart) {
@@ -412,7 +433,7 @@ export default function AdminPayments() {
     }
 
     return result;
-  }, [payments, statusFilter, dateRange, searchQuery]);
+  }, [payments, statusFilter, providerFilter, dateRange, searchQuery]);
 
   // Stats
   const stats = useMemo(() => {
