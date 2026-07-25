@@ -324,7 +324,7 @@ const PremiumUpgradeButton = ({
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">or</span>
+                    <span className="bg-background px-2 text-muted-foreground">International payments</span>
                   </div>
                 </div>
                 <PayPalCheckoutButton
@@ -335,6 +335,18 @@ const PremiumUpgradeButton = ({
                     setCheckoutOpen(false);
                     navigate("/dashboard");
                   }}
+                />
+                <DodoCheckoutButton
+                  productType="premium"
+                  currency={currency === "USD" || currency === "EUR" || currency === "GBP" ? currency : "USD"}
+                  finalAmount={finalPrice}
+                  couponCode={couponResult?.valid ? couponResult.code : undefined}
+                  affiliateRef={affiliateRef}
+                  onSuccess={() => {
+                    onUpgraded?.();
+                    setCheckoutOpen(false);
+                  }}
+                  label={`Pay with Dodo · ${symbol}${finalPrice}`}
                 />
               </div>
             )}
