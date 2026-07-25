@@ -349,6 +349,40 @@ export default function AdminPayments() {
     fetchWebhookEvents();
   }, []);
 
+  const fetchAltWebhookEvents = async (provider: "paypal" | "dodo") => {
+    setAltWebhookLoading(true);
+    const table = provider === "paypal" ? "paypal_webhook_events" : "dodo_webhook_events";
+    const { data } = await supabase
+      .from(table as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    const rows = ((data as any[]) ?? []).map((r) => ({
+      id: r.id,
+      created_at: r.created_at,
+      event_type: r.event_type ?? null,
+      event_id: r.event_id ?? null,
+      resource_id: r.resource_id ?? null,
+      processed: !!r.processed,
+      error: r.error ?? null,
+      payload: r.payload,
+    })) as GenericWebhookEvent[];
+    if (provider === "paypal") setPaypalEvents(rows);
+    else setDodoEvents(rows);
+    setAltWebhookLoading(false);
+  };
+
+  useEffect(() => {
+    if (webhookProvider === "paypal" && paypalEvents.length === 0) fetchAltWebhookEvents("paypal");
+    if (webhookProvider === "dodo" && dodoEvents.length === 0) fetchAltWebhookEvents("dodo");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [webhookProvider]);
+
+  // Cross-provider refunded subscriptions (Dodo/PayPal don't populate razorpay_refunds)
+  const crossProviderRefunds = useMemo(() => {
+    return payments.filter((p) => p.status === "refunded" && p.provider !== "razorpay");
+  }, [payments]);
+
   const webhookStats = useMemo(() => {
     const total = webhookEvents.length;
     const sigFail = webhookEvents.filter((e) => !e.signature_valid).length;
