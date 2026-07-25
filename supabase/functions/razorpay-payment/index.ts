@@ -263,10 +263,10 @@ Deno.serve(async (req) => {
       const amountPaid = Number(payment.amount || pricingTier.amount) / 100;
       const currencySymbol = (PREMIUM_PRICING[paymentCurrency]?.symbol) || paymentCurrency;
       const nowISO = new Date().toISOString();
-      const expiresAt = plusMonthsISO(isAddonPayment ? storageMonths : premiumMonths);
-
       // Determine product type from notes (server-side authoritative)
-      // isAddonPayment already declared above
+      const notesType = (payment.notes?.product_type as string) || "premium";
+      const isAddonPayment = notesType === "storage_addon";
+      const expiresAt = plusMonthsISO(isAddonPayment ? storageMonths : premiumMonths);
 
       if (isAddonPayment) {
         // Insert a stackable storage addon
@@ -300,7 +300,7 @@ Deno.serve(async (req) => {
           payment_signature: signature,
           started_at: nowISO,
           expires_at: expiresAt,
-          duration_months: 6,
+          duration_months: premiumMonths,
           metadata: {
             payment_status: payment.status,
             method: payment.method,
