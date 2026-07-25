@@ -10,6 +10,7 @@ import { getStoredAffiliateRef } from "@/hooks/use-affiliate";
 import CouponCodeInput from "@/components/CouponCodeInput";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
 import DodoCheckoutButton from "@/components/DodoCheckoutButton";
+import { MapPin, Sparkles } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -55,7 +56,7 @@ const PremiumUpgradeButton = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
-  const { region, pricing } = usePricingRegion();
+  const { region, setRegion, detectedRegion, isManualOverride, pricing } = usePricingRegion();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [couponResult, setCouponResult] = useState<any>(null);
   const [affiliateRef, setAffiliateRef] = useState<string | null>(null);
@@ -239,6 +240,44 @@ const PremiumUpgradeButton = ({
             <DialogTitle className="font-display">Upgrade to Premium</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Country toggle */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" /> Where are you paying from?
+                </label>
+                {detectedRegion && !isManualOverride && (
+                  <span className="text-[10px] inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                    <Sparkles className="w-3 h-3" /> Auto-detected
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-muted/40 rounded-lg border border-border">
+                <button
+                  type="button"
+                  onClick={() => setRegion("IN")}
+                  className={`text-sm py-2 rounded-md font-medium transition-all ${
+                    region === "IN"
+                      ? "bg-background shadow-sm text-foreground ring-1 ring-primary/40"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  🇮🇳 India
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRegion("INTL")}
+                  className={`text-sm py-2 rounded-md font-medium transition-all ${
+                    region === "INTL"
+                      ? "bg-background shadow-sm text-foreground ring-1 ring-primary/40"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  🌍 International
+                </button>
+              </div>
+            </div>
+
             <div className="text-center py-3">
               <p className="text-sm text-muted-foreground">Premium Plan (6 Months)</p>
 
@@ -311,26 +350,27 @@ const PremiumUpgradeButton = ({
                   )}
                 </Button>
               </div>
-            ) : (
+            ) : region === "IN" ? (
               <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold flex items-center gap-1.5">
-                    <span className="text-base">🇮🇳</span> Paying from India?
+                    <span className="text-base">🇮🇳</span> India payment
                   </p>
-                  <span className="text-[10px] uppercase tracking-wide bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">Recommended</span>
+                  <span className="text-[10px] uppercase tracking-wide bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">Best for you</span>
                 </div>
                 <p className="text-xs text-muted-foreground">Use UPI, Netbanking, Cards or Wallets via Razorpay.</p>
                 <Button className="w-full" onClick={handlePay} disabled={loading}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay with Razorpay · ${symbol}${finalPrice}`}
                 </Button>
               </div>
-            )}
-
-            {payStatus !== "verifying" && payStatus !== "syncing" && (
-              <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-                <p className="text-sm font-semibold flex items-center gap-1.5">
-                  <span className="text-base">🌍</span> Paying from outside India?
-                </p>
+            ) : (
+              <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold flex items-center gap-1.5">
+                    <span className="text-base">🌍</span> International payment
+                  </p>
+                  <span className="text-[10px] uppercase tracking-wide bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">Best for you</span>
+                </div>
                 <p className="text-xs text-muted-foreground">Use your international card or PayPal account.</p>
                 <PayPalCheckoutButton
                   productType="premium"
@@ -355,6 +395,17 @@ const PremiumUpgradeButton = ({
                 />
               </div>
             )}
+
+            <p className="text-[11px] text-center text-muted-foreground">
+              Not the right region?{" "}
+              <button
+                type="button"
+                className="underline hover:text-foreground"
+                onClick={() => setRegion(region === "IN" ? "INTL" : "IN")}
+              >
+                Switch to {region === "IN" ? "International 🌍" : "India 🇮🇳"}
+              </button>
+            </p>
           </div>
         </DialogContent>
       </Dialog>
