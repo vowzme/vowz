@@ -313,7 +313,7 @@ const PremiumUpgradeButton = ({
               </div>
             ) : (
               <Button className="w-full" onClick={handlePay} disabled={loading}>
-                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${symbol}${finalPrice}`}
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay from India · ${symbol}${finalPrice}`}
               </Button>
             )}
 
