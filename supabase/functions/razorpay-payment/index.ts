@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as React from "npm:react@18.3.1";
 import { renderAsync } from "npm:@react-email/components@0.0.22";
 import { PaymentSuccessEmail } from "../_shared/email-templates/payment-success.tsx";
+import { getBillingTerms, plusMonthsISO } from "../_shared/billing-terms.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,11 +43,7 @@ const signPayment = async (secret: string, payload: string) => {
   return toHex(signature);
 };
 
-const plus6MonthsISO = () => {
-  const d = new Date();
-  d.setMonth(d.getMonth() + 6);
-  return d.toISOString();
-};
+// term length now read from billing_terms at request time
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -74,6 +71,10 @@ Deno.serve(async (req) => {
     const action = body?.action as string;
     const productType = (body?.product_type as string) || "premium"; // "premium" | "storage_addon"
     const requestedCurrency = ((body?.currency as string) || "INR").toUpperCase();
+
+    const terms = await getBillingTerms(adminClient);
+    const premiumMonths = terms.premium_months;
+    const storageMonths = terms.storage_months;
 
     const isAddon = productType === "storage_addon";
     const pricingTable = isAddon ? STORAGE_ADDON_PRICING : PREMIUM_PRICING;
@@ -195,8 +196,8 @@ Deno.serve(async (req) => {
             amount_paid: 0,
             currency: pricingTier.currency,
             payment_order_id: order.id,
-            duration_months: 6,
-            expires_at: plus6MonthsISO(),
+            duration_months: premiumMonths,
+            expires_at: plusMonthsISO(premiumMonths),
             metadata: { receipt, created_via: "razorpay_checkout", requested_currency: pricingTier.currency },
           },
           { onConflict: "payment_order_id" }
@@ -211,7 +212,9 @@ Deno.serve(async (req) => {
         amount: order.amount,
         currency: order.currency,
         name: "Vowz",
-        description: isAddon ? "Storage Add-on (+2 GB / 6 months)" : "Premium Plan (6 Months)",
+        description: isAddon
+          ? `Storage Add-on (+2 GB / ${storageMonths} months)`
+          : `Premium Plan (${premiumMonths} Months)`,
         prefill: {
           name: user.user_metadata?.full_name || "",
           email: user.email || "",
@@ -260,11 +263,10 @@ Deno.serve(async (req) => {
       const amountPaid = Number(payment.amount || pricingTier.amount) / 100;
       const currencySymbol = (PREMIUM_PRICING[paymentCurrency]?.symbol) || paymentCurrency;
       const nowISO = new Date().toISOString();
-      const expiresAt = plus6MonthsISO();
-
       // Determine product type from notes (server-side authoritative)
       const notesType = (payment.notes?.product_type as string) || "premium";
       const isAddonPayment = notesType === "storage_addon";
+      const expiresAt = plusMonthsISO(isAddonPayment ? storageMonths : premiumMonths);
 
       if (isAddonPayment) {
         // Insert a stackable storage addon
@@ -298,7 +300,7 @@ Deno.serve(async (req) => {
           payment_signature: signature,
           started_at: nowISO,
           expires_at: expiresAt,
-          duration_months: 6,
+          duration_months: premiumMonths,
           metadata: {
             payment_status: payment.status,
             method: payment.method,

@@ -1,6 +1,7 @@
 // Dodo Payments webhook. Verifies HMAC signature (Standard Webhooks spec),
 // records events for idempotency, and fulfills premium / storage add-on orders.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getBillingTerms } from "../_shared/billing-terms.ts";
 
 const PREMIUM_PLAN = "premium_6mo";
 const STORAGE_ADDON_BYTES = 2 * 1024 * 1024 * 1024;
@@ -97,6 +98,7 @@ Deno.serve(async (req) => {
 
     if (eventType === "payment.succeeded" && userId && paymentId) {
       const marker = `DODO:${paymentId}`;
+      const terms = await getBillingTerms(admin);
 
       if (productType === "premium") {
         await admin
@@ -114,8 +116,8 @@ Deno.serve(async (req) => {
           payment_id: marker,
           payment_order_id: paymentId,
           started_at: new Date().toISOString(),
-          expires_at: plusMonthsISO(6),
-          duration_months: 6,
+          expires_at: plusMonthsISO(terms.premium_months),
+          duration_months: terms.premium_months,
           metadata: {
             dodo_payment_id: paymentId,
             original_amount_cents: metadata.original_amount_cents,
@@ -135,7 +137,7 @@ Deno.serve(async (req) => {
           payment_id: marker,
           payment_order_id: paymentId,
           purchased_at: new Date().toISOString(),
-          expires_at: plusMonthsISO(6),
+          expires_at: plusMonthsISO(terms.storage_months),
           metadata: {
             dodo_payment_id: paymentId,
             original_amount_cents: metadata.original_amount_cents,

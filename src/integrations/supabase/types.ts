@@ -217,6 +217,30 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_terms: {
+        Row: {
+          id: number
+          premium_months: number
+          storage_months: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: number
+          premium_months?: number
+          storage_months?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: number
+          premium_months?: number
+          storage_months?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_name: string
@@ -2613,6 +2637,13 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_billing_terms: {
+        Args: never
+        Returns: {
+          premium_months: number
+          storage_months: number
+        }[]
       }
       get_invite_by_token: {
         Args: { _token: string }
