@@ -11,12 +11,15 @@ export const Scene4Card: React.FC = () => {
   const float = Math.sin(frame / 24) * 10;
   const qr = spring({ frame: frame - 44, fps, config: { damping: 14, stiffness: 150 } });
 
-  const cells = [...Array(64)].map((_, i) => ((i * 2654435761) % 97) % 2 === 0);
+  const cells = [...Array(64)].map((_, i) => {
+    const r = Math.sin(i * 12.9898) * 43758.5453;
+    return r - Math.floor(r) > 0.45;
+  });
 
   return (
     <AbsoluteFill>
       <Backdrop />
-      <AbsoluteFill style={{ padding: "150px 80px", alignItems: "center" }}>
+      <AbsoluteFill style={{ padding: "0 80px", alignItems: "center", justifyContent: "center" }}>
         <Eyebrow delay={2} font={body}>
           Digital invitations
         </Eyebrow>
