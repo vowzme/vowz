@@ -24,7 +24,7 @@ export const Scene5CTA: React.FC = () => {
         <Img
           src={staticFile("images/logo.png")}
           style={{
-            width: 620, opacity: logo,
+            width: 620, opacity: logo, filter: "brightness(0) invert(1)",
             transform: `translateY(${interpolate(logo, [0, 1], [40, 0])}px) scale(${interpolate(logo, [0, 1], [0.9, 1])})`,
           }}
         />

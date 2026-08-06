@@ -20,7 +20,7 @@ export const Scene2Templates: React.FC = () => {
   return (
     <AbsoluteFill>
       <Backdrop />
-      <AbsoluteFill style={{ padding: "150px 70px", alignItems: "center" }}>
+      <AbsoluteFill style={{ padding: "0 70px", alignItems: "center", justifyContent: "center" }}>
         <Eyebrow delay={4} font={body}>
           35+ Templates
         </Eyebrow>

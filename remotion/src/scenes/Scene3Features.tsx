@@ -19,7 +19,7 @@ export const Scene3Features: React.FC = () => {
   return (
     <AbsoluteFill>
       <Backdrop />
-      <AbsoluteFill style={{ padding: "170px 80px", justifyContent: "flex-start" }}>
+      <AbsoluteFill style={{ padding: "0 80px", justifyContent: "center" }}>
         <Eyebrow delay={2} font={body}>
           One platform
         </Eyebrow>
