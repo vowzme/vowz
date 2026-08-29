@@ -366,28 +366,23 @@ Deno.serve(async (req) => {
         const emailText = await renderAsync(React.createElement(PaymentSuccessEmail, emailProps), { plainText: true });
         const messageId = crypto.randomUUID();
 
-        await adminClient.from("email_send_log").insert({
+        const sendResult = await sendRawEmail({
+          to: user.email || "",
+          subject: "Payment Confirmed — VowZ Premium Activated 🎉",
+          html: emailHtml,
+          text: emailText,
+          label: "payment_success",
+          idempotencyKey: `payment-success-${paymentId}`,
+        });
+
+        const { error: logError } = await adminClient.from("email_send_log").insert({
           message_id: messageId,
           template_name: "payment_success",
           recipient_email: user.email || "",
-          status: "pending",
+          status: sendResult.sent ? "sent" : "suppressed",
         });
+        if (logError) console.error("email_send_log insert failed", logError.message);
 
-        await adminClient.rpc("enqueue_email", {
-          queue_name: "auth_emails",
-          payload: {
-            message_id: messageId,
-            to: user.email,
-            from: "VowZ <noreply@vowz.me>",
-            sender_domain: "notify.vowz.me",
-            subject: "Payment Confirmed — VowZ Premium Activated 🎉",
-            html: emailHtml,
-            text: emailText,
-            purpose: "transactional",
-            label: "payment_success",
-            queued_at: new Date().toISOString(),
-          },
-        });
       } catch (emailErr) {
         console.error("Failed to send payment success email (non-blocking)", emailErr);
       }
