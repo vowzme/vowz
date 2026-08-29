@@ -139,38 +139,44 @@ async function processSchedule(admin: any, schedule: any, forcedOffset: number |
       bodyOverride: schedule.body_override,
     })
 
-    const payload = {
-      message_id: messageId,
-      to: inv.guest_email,
-      from: 'VowZ Invites <noreply@vowz.me>',
-      sender_domain: 'notify.vowz.me',
-      subject, html, text,
-      purpose: 'transactional',
-      label: 'rsvp_reminder',
-      queued_at: new Date().toISOString(),
-      metadata: { invite_id: inv.id, site_id: site.id, offset_day: offset },
+    let sendError: string | null = null
+    let suppressed = false
+    try {
+      const result = await sendRawEmail({
+        to: inv.guest_email,
+        fromName: 'VowZ Invites',
+        subject,
+        html,
+        text,
+        label: 'rsvp_reminder',
+        idempotencyKey: messageId,
+      })
+      suppressed = !result.sent
+    } catch (e) {
+      sendError = e instanceof Error ? e.message : String(e)
     }
-    await admin.from('email_send_log').insert({
+
+    const { error: logError } = await admin.from('email_send_log').insert({
       message_id: messageId,
       template_name: 'rsvp_reminder',
       recipient_email: inv.guest_email,
-      status: 'pending',
+      status: sendError ? 'failed' : suppressed ? 'suppressed' : 'sent',
+      error_message: sendError ? sendError.slice(0, 1000) : null,
       metadata: { invite_id: inv.id, offset_day: offset },
     })
-    const { error: qErr } = await admin.rpc('enqueue_email', {
-      queue_name: 'transactional_emails',
-      payload,
-    })
-    if (qErr) {
+    if (logError) console.error('email_send_log insert failed', logError.message)
+
+    if (sendError) {
       failed++
       await admin
         .from('rsvp_reminder_sends')
-        .update({ status: 'failed', error: qErr.message })
+        .update({ status: 'failed', error: sendError })
         .eq('message_id', messageId)
     } else {
       sent++
     }
   }
+
 
   await admin
     .from('rsvp_reminder_schedules')
