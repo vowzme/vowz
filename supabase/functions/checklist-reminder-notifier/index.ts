@@ -17,16 +17,31 @@ const BASE_DELAY_MS = 250
 
 function sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)) }
 
-async function enqueueWithRetry(admin: any, payload: Record<string, unknown>): Promise<{ ok: true } | { ok: false; attempts: number; error: string }> {
+interface ReminderEmail {
+  to: string
+  subject: string
+  html: string
+  text: string
+  label: string
+  messageId: string
+}
+
+async function sendWithRetry(
+  email: ReminderEmail,
+): Promise<{ ok: true; suppressed: boolean } | { ok: false; attempts: number; error: string }> {
   let lastErr = 'unknown error'
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      const { error } = await admin.rpc('enqueue_email', {
-        queue_name: 'transactional_emails',
-        payload,
+      const result = await sendRawEmail({
+        to: email.to,
+        fromName: 'VowZ Planner',
+        subject: email.subject,
+        html: email.html,
+        text: email.text,
+        label: email.label,
+        idempotencyKey: email.messageId,
       })
-      if (!error) return { ok: true }
-      lastErr = error.message || String(error)
+      return { ok: true, suppressed: !result.sent }
     } catch (e) {
       lastErr = e instanceof Error ? e.message : String(e)
     }
@@ -39,6 +54,7 @@ async function enqueueWithRetry(admin: any, payload: Record<string, unknown>): P
   }
   return { ok: false, attempts: MAX_ATTEMPTS, error: lastErr }
 }
+
 
 type Milestone = 'd7' | 'd3' | 'd1' | 'overdue'
 type Variant = 'A' | 'B'
