@@ -257,13 +257,6 @@ Deno.serve(async (req) => {
         if (channel === 'email') {
           const variant: Variant = Math.random() < 0.5 ? 'A' : 'B'
           const { html, text, subject } = render(name, couple, bucket.items, bucket.milestone, messageId, variant)
-          await admin.from('email_send_log').insert({
-            message_id: messageId,
-            template_name: label,
-            recipient_email: profile.email,
-            status: 'pending',
-            metadata: { variant },
-          })
           await admin.from('email_ab_events').insert({
             message_id: messageId,
             template_name: label,
@@ -271,20 +264,14 @@ Deno.serve(async (req) => {
             event_type: 'sent',
             user_id: site.user_id,
           })
-          const payload = {
-            message_id: messageId,
+          const result = await sendWithRetry({
             to: profile.email,
-            from: 'VowZ Planner <noreply@vowz.me>',
-            sender_domain: 'notify.vowz.me',
             subject,
             html,
             text,
-            purpose: 'transactional',
             label,
-            queued_at: new Date().toISOString(),
-            metadata: { variant },
-          }
-          const result = await enqueueWithRetry(admin, payload)
+            messageId,
+          })
           if (!result.ok) {
             await admin.from('reminder_email_dlq').insert({
               message_id: messageId,
@@ -293,19 +280,28 @@ Deno.serve(async (req) => {
               variant,
               attempts: result.attempts,
               last_error: result.error,
-              payload,
+              payload: { subject, label, variant },
             })
             await admin.from('email_send_log').insert({
               message_id: messageId,
               template_name: label,
               recipient_email: profile.email,
               status: 'failed',
-              error_message: `enqueue_email retry exhausted after ${result.attempts} attempts: ${result.error}`,
+              error_message: `send retry exhausted after ${result.attempts} attempts: ${result.error}`,
               metadata: { variant, dlq: true },
             })
-            summary.errors.push(`enqueue DLQ: ${profile.email} (${label}) — ${result.error}`)
+            summary.errors.push(`send DLQ: ${profile.email} (${label}) — ${result.error}`)
             continue
           }
+          const { error: logError } = await admin.from('email_send_log').insert({
+            message_id: messageId,
+            template_name: label,
+            recipient_email: profile.email,
+            status: result.suppressed ? 'suppressed' : 'sent',
+            metadata: { variant },
+          })
+          if (logError) console.error('email_send_log insert failed', logError.message)
+
         } else if (channel === 'in_app') {
           const { subject } = render(name, couple, bucket.items, bucket.milestone, messageId, 'A')
           await admin.from('notifications').insert({
