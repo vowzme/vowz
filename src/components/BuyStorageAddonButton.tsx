@@ -174,6 +174,25 @@ const BuyStorageAddonButton = ({ variant = "outline", size = "sm", className, la
               <p className="text-3xl font-display font-bold text-foreground">{symbol}{price}</p>
               <p className="text-xs text-muted-foreground mt-1">One-time, 6 months validity</p>
             </div>
+
+            <div className="rounded-md bg-muted/40 border border-border p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                  {region === "IN" ? (
+                    <><span>🇮🇳</span> India payments</>
+                  ) : (
+                    <><span>🌍</span> International payments</>
+                  )}
+                </p>
+                <PaymentHelpModal />
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {region === "IN"
+                  ? "Razorpay is recommended for India because it supports UPI, NetBanking, and local wallets at lower cost. If Razorpay doesn't work, switch to International above."
+                  : "PayPal and Dodo are for cards and accounts outside India. Choose PayPal if you already have an account, or Dodo to pay by card directly."}
+              </p>
+            </div>
+
             {region === "IN" ? (
             <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
               <div className="flex items-center justify-between">
