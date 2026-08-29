@@ -21,6 +21,7 @@ const staticEntries: Entry[] = [
   { path: "/pricing", changefreq: "monthly", priority: "0.9" },
   { path: "/templates", changefreq: "weekly", priority: "0.9" },
   { path: "/showcase", changefreq: "weekly", priority: "0.8" },
+  { path: "/themes", changefreq: "weekly", priority: "0.8" },
   { path: "/card-gallery", changefreq: "monthly", priority: "0.7" },
   { path: "/card-templates-preview", changefreq: "monthly", priority: "0.6" },
   { path: "/domain-demo", changefreq: "monthly", priority: "0.6" },
@@ -34,10 +35,8 @@ const staticEntries: Entry[] = [
   { path: "/refund-policy", changefreq: "yearly", priority: "0.3" },
 ];
 
-const TODAY = new Date().toISOString().slice(0, 10);
-for (const e of staticEntries) {
-  if (!e.lastmod) e.lastmod = TODAY;
-}
+// No <lastmod> for static routes: the build date is not a page-specific
+// "last significant change" timestamp, so we omit it rather than fake it.
 
 async function fetchBlogEntries(): Promise<Entry[]> {
   try {

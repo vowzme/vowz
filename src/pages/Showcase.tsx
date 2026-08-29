@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, MapPin, Heart, Sparkles, Users, Camera, Mail, X, Wand2 } from "lucide-react";
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -197,6 +198,17 @@ export default function Showcase() {
   if (demo) {
     return (
       <Layout>
+        <SEOHead
+          title={`${demo.bride} & ${demo.groom} — Wedding Website Example | Vowz`}
+          description={`Explore a ${demo.style.toLowerCase()} ${demo.category.toLowerCase()} wedding website example with RSVP, events, gallery and maps — built on Vowz.`}
+          ogTitle={`${demo.bride} & ${demo.groom} — Wedding Website Example`}
+          ogDescription={`A ${demo.style.toLowerCase()} sample wedding website with RSVP, schedule, gallery and directions.`}
+          ogUrl={`https://vowz.me/showcase?demo=${demo.slug}`}
+          ogType="website"
+          twitterCard="summary_large_image"
+          canonical="https://vowz.me/showcase"
+        />
+
         <div className="bg-muted/30 border-b">
           <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
             <Button
@@ -245,6 +257,17 @@ export default function Showcase() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Wedding Website Examples & Showcase — Vowz"
+        description="Browse real-feel wedding website examples across Hindu, Christian, Muslim, beach and modern styles — with RSVP, events, gallery and maps."
+        ogTitle="Wedding Website Examples & Showcase — Vowz"
+        ogDescription="See fully designed sample wedding websites you can recreate in minutes with Vowz."
+        ogUrl="https://vowz.me/showcase"
+        ogType="website"
+        twitterCard="summary_large_image"
+        canonical="https://vowz.me/showcase"
+      />
+
       <section className="bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container mx-auto px-4 py-14 text-center max-w-3xl">
           <Badge variant="secondary" className="mb-4 gap-1">
