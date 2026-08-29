@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, HardDrive, Plus, MapPin, Sparkles } from "lucide-react";
+import { Loader2, HardDrive, Plus, MapPin, Sparkles, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -12,6 +12,7 @@ import { usePricingRegion } from "@/hooks/use-pricing-region";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
 import DodoCheckoutButton from "@/components/DodoCheckoutButton";
 import CheckoutSteps from "@/components/CheckoutSteps";
+import PaymentHelpModal from "@/components/PaymentHelpModal";
 
 declare global {
   interface Window { Razorpay?: any; }

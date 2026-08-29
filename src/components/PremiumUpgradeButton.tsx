@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Crown, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Crown, Loader2, AlertCircle, CheckCircle2, HelpCircle } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -11,6 +11,7 @@ import CouponCodeInput from "@/components/CouponCodeInput";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
 import DodoCheckoutButton from "@/components/DodoCheckoutButton";
 import CheckoutSteps from "@/components/CheckoutSteps";
+import PaymentHelpModal from "@/components/PaymentHelpModal";
 import { MapPin, Sparkles } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
