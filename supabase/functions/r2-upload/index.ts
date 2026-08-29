@@ -57,28 +57,37 @@ async function sendAdminAlert(
     const text = bodyLines.join("\n");
     for (const to of recipients) {
       const messageId = `r2-alert-${crypto.randomUUID()}`;
-      await admin.from("email_send_log").insert({
-        message_id: messageId,
-        template_name: "r2_cleanup_alert",
-        recipient_email: to,
-        status: "pending",
-      });
-      await admin.rpc("enqueue_email", {
-        queue_name: "transactional_emails",
-        payload: {
-          message_id: messageId,
+      try {
+        const result = await sendRawEmail({
           to,
-          from: "VowZ Alerts <noreply@vowz.me>",
-          sender_domain: "notify.vowz.me",
+          fromName: "VowZ Alerts",
           subject,
           html,
           text,
-          purpose: "transactional",
           label: "r2_cleanup_alert",
-          queued_at: new Date().toISOString(),
-        },
-      });
+          idempotencyKey: messageId,
+        });
+        const { error: logError } = await admin.from("email_send_log").insert({
+          message_id: messageId,
+          template_name: "r2_cleanup_alert",
+          recipient_email: to,
+          status: result.sent ? "sent" : "suppressed",
+        });
+        if (logError) console.error("email_send_log insert failed", logError.message);
+      } catch (sendErr) {
+        const message = sendErr instanceof Error ? sendErr.message : String(sendErr);
+        const { error: logError } = await admin.from("email_send_log").insert({
+          message_id: messageId,
+          template_name: "r2_cleanup_alert",
+          recipient_email: to,
+          status: "failed",
+          error_message: message.slice(0, 1000),
+        });
+        if (logError) console.error("email_send_log insert failed", logError.message);
+        console.error("Admin alert send failed:", message);
+      }
     }
+
   } catch (e) {
     // Never let alerting failures mask the underlying issue.
     console.error("sendAdminAlert failed:", (e as Error).message);
