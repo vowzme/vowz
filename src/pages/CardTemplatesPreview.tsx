@@ -33,6 +33,7 @@ import { Download, ImageIcon, FileText, Eye, ArrowLeft, Lock, Heart, Share2, QrC
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 
 const BASE_SAMPLE: CardData = {
   partner1: "Aanya",
