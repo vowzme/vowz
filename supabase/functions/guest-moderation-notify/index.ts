@@ -235,38 +235,36 @@ Deno.serve(async (req) => {
       }
       const label = `guest_moderation_${action}`
 
-      await admin.from('email_send_log').insert({
-        message_id: messageId,
-        template_name: label,
-        recipient_email: guestEmail,
-        status: 'pending',
-      })
-
       try {
-        await admin.rpc('enqueue_email', {
-          queue_name: 'transactional_emails',
-          payload: {
-            message_id: messageId,
-            to: guestEmail,
-            from: 'VowZ Album <noreply@vowz.me>',
-            sender_domain: 'notify.vowz.me',
-            subject,
-            html,
-            text,
-            purpose: 'transactional',
-            label,
-            queued_at: new Date().toISOString(),
-          },
+        const result = await sendRawEmail({
+          to: guestEmail,
+          fromName: 'VowZ Album',
+          subject,
+          html,
+          text,
+          label,
+          idempotencyKey: messageId,
         })
+        const { error: logError } = await admin.from('email_send_log').insert({
+          message_id: messageId,
+          template_name: label,
+          recipient_email: guestEmail,
+          status: result.sent ? 'sent' : 'suppressed',
+        })
+        if (logError) console.error('email_send_log insert failed', logError.message)
       } catch (e) {
-        await admin.from('email_send_log').insert({
+        const message = e instanceof Error ? e.message : String(e)
+        const { error: logError } = await admin.from('email_send_log').insert({
           message_id: messageId,
           template_name: label,
           recipient_email: guestEmail,
           status: 'failed',
-          error_message: e instanceof Error ? e.message : String(e),
+          error_message: message.slice(0, 1000),
         })
+        if (logError) console.error('email_send_log insert failed', logError.message)
+        console.error('Guest moderation email send failed', message)
       }
+
     } else {
       messageId = null
     }
