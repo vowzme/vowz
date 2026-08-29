@@ -256,6 +256,17 @@ export default function Showcase() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Wedding Website Examples & Showcase — Vowz"
+        description="Browse real-feel wedding website examples across Hindu, Christian, Muslim, beach and modern styles — with RSVP, events, gallery and maps."
+        ogTitle="Wedding Website Examples & Showcase — Vowz"
+        ogDescription="See fully designed sample wedding websites you can recreate in minutes with Vowz."
+        ogUrl="https://vowz.me/showcase"
+        ogType="website"
+        twitterCard="summary_large_image"
+        canonical="https://vowz.me/showcase"
+      />
+
       <section className="bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container mx-auto px-4 py-14 text-center max-w-3xl">
           <Badge variant="secondary" className="mb-4 gap-1">
