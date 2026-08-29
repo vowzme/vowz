@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HelpCircle, X, Wallet, Globe, RefreshCw, AlertTriangle } from "lucide-react";
+import { HelpCircle, Wallet, Globe, RefreshCw, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
