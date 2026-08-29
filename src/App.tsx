@@ -66,7 +66,6 @@ const PwaDiagnostics = lazy(() => import("./pages/PwaDiagnostics"));
 const TwaVerify = lazy(() => import("./pages/TwaVerify"));
 const WidgetSettings = lazy(() => import("./pages/WidgetSettings"));
 const GuestList = lazy(() => import("./pages/GuestList"));
-const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ReminderSettings = lazy(() => import("./pages/ReminderSettings"));
 const Payments = lazy(() => import("./pages/Payments"));
@@ -149,7 +148,6 @@ const AppRoutes = () => (
     <Route path="/admin/guest-moderation" element={<AdminLayout><AdminGuestModeration /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
-    <Route path="/unsubscribe" element={<Unsubscribe />} />
     <Route path="/delete-account" element={<Layout><DeleteAccount /></Layout>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>

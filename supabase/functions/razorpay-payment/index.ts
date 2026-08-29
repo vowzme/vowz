@@ -3,6 +3,7 @@ import * as React from "npm:react@18.3.1";
 import { renderAsync } from "npm:@react-email/components@0.0.22";
 import { PaymentSuccessEmail } from "../_shared/email-templates/payment-success.tsx";
 import { getBillingTerms, plusMonthsISO } from "../_shared/billing-terms.ts";
+import { sendRawEmail } from '../_shared/managed-email.ts'
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -365,31 +366,36 @@ Deno.serve(async (req) => {
         const emailText = await renderAsync(React.createElement(PaymentSuccessEmail, emailProps), { plainText: true });
         const messageId = crypto.randomUUID();
 
-        await adminClient.from("email_send_log").insert({
+        const sendResult = await sendRawEmail({
+          to: user.email || "",
+          subject: "Payment Confirmed — VowZ Premium Activated 🎉",
+          html: emailHtml,
+          text: emailText,
+          label: "payment_success",
+          idempotencyKey: `payment-success-${paymentId}`,
+        });
+
+        const { error: logError } = await adminClient.from("email_send_log").insert({
           message_id: messageId,
           template_name: "payment_success",
           recipient_email: user.email || "",
-          status: "pending",
+          status: sendResult.sent ? "sent" : "suppressed",
         });
+        if (logError) console.error("email_send_log insert failed", logError.message);
 
-        await adminClient.rpc("enqueue_email", {
-          queue_name: "auth_emails",
-          payload: {
-            message_id: messageId,
-            to: user.email,
-            from: "VowZ <noreply@vowz.me>",
-            sender_domain: "notify.vowz.me",
-            subject: "Payment Confirmed — VowZ Premium Activated 🎉",
-            html: emailHtml,
-            text: emailText,
-            purpose: "transactional",
-            label: "payment_success",
-            queued_at: new Date().toISOString(),
-          },
-        });
       } catch (emailErr) {
-        console.error("Failed to send payment success email (non-blocking)", emailErr);
+        const message = emailErr instanceof Error ? emailErr.message : String(emailErr);
+        const { error: logError } = await adminClient.from("email_send_log").insert({
+          message_id: crypto.randomUUID(),
+          template_name: "payment_success",
+          recipient_email: user.email || "",
+          status: "failed",
+          error_message: message.slice(0, 1000),
+        });
+        if (logError) console.error("email_send_log insert failed", logError.message);
+        console.error("Failed to send payment success email (non-blocking)", message);
       }
+
 
       // Affiliate & Franchise commissions (use 6mo amount basis)
       try {

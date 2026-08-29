@@ -176,7 +176,7 @@ export default function AdminEmails() {
     if (!r.template_name || !r.recipient_email) return;
     setRetryingId(r.id);
     try {
-      const { data, error } = await supabase.functions.invoke("send-transactional-email", {
+      const { data, error } = await supabase.functions.invoke("admin-resend-email", {
         body: {
           templateName: r.template_name,
           recipientEmail: r.recipient_email,

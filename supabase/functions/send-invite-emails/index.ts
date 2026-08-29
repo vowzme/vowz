@@ -1,5 +1,6 @@
 /// <reference lib="deno.ns" />
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
+import { sendRawEmail } from '../_shared/managed-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -138,20 +139,6 @@ Deno.serve(async (req) => {
       messageId,
     })
 
-    const payload = {
-      message_id: messageId,
-      to: inv.guest_email,
-      from: 'VowZ Invites <noreply@vowz.me>',
-      sender_domain: 'notify.vowz.me',
-      subject,
-      html,
-      text,
-      purpose: 'transactional',
-      label: 'rsvp_invite',
-      queued_at: new Date().toISOString(),
-      metadata: { invite_id: inv.id, site_id: siteId },
-    }
-
     await admin.from('email_send_log').insert({
       message_id: messageId,
       template_name: 'rsvp_invite',
@@ -167,10 +154,32 @@ Deno.serve(async (req) => {
       user_id: userId,
     })
 
-    const { error: qErr } = await admin.rpc('enqueue_email', {
-      queue_name: 'transactional_emails',
-      payload,
+    let sendError: string | null = null
+    let suppressed = false
+    try {
+      const result = await sendRawEmail({
+        to: inv.guest_email,
+        fromName: 'VowZ Invites',
+        subject,
+        html,
+        text,
+        label: 'rsvp_invite',
+        idempotencyKey: messageId,
+      })
+      suppressed = !result.sent
+    } catch (e) {
+      sendError = e instanceof Error ? e.message : String(e)
+    }
+
+    const { error: logError } = await admin.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: 'rsvp_invite',
+      recipient_email: inv.guest_email,
+      status: sendError ? 'failed' : suppressed ? 'suppressed' : 'sent',
+      error_message: sendError ? sendError.slice(0, 1000) : null,
+      metadata: { invite_id: inv.id },
     })
+    if (logError) console.error('email_send_log insert failed', logError.message)
 
     await admin.from('guest_invite_sends').insert({
       invite_id: inv.id,
@@ -178,18 +187,19 @@ Deno.serve(async (req) => {
       channel: 'email',
       recipient: inv.guest_email,
       message_id: messageId,
-      status: qErr ? 'failed' : 'queued',
-      error: qErr ? (qErr.message || String(qErr)) : null,
+      status: sendError ? 'failed' : suppressed ? 'suppressed' : 'sent',
+      error: sendError,
     })
 
-    if (qErr) {
+    if (sendError) {
       failed++
-      results.push({ invite_id: inv.id, status: 'failed', error: qErr.message })
+      results.push({ invite_id: inv.id, status: 'failed', error: sendError })
     } else {
       sent++
-      results.push({ invite_id: inv.id, status: 'queued' })
+      results.push({ invite_id: inv.id, status: suppressed ? 'suppressed' : 'sent' })
     }
   }
+
 
   return new Response(JSON.stringify({ sent, failed, skipped, results }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },

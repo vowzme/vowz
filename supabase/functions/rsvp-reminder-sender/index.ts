@@ -1,5 +1,6 @@
 /// <reference lib="deno.ns" />
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
+import { sendRawEmail } from '../_shared/managed-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -138,38 +139,44 @@ async function processSchedule(admin: any, schedule: any, forcedOffset: number |
       bodyOverride: schedule.body_override,
     })
 
-    const payload = {
-      message_id: messageId,
-      to: inv.guest_email,
-      from: 'VowZ Invites <noreply@vowz.me>',
-      sender_domain: 'notify.vowz.me',
-      subject, html, text,
-      purpose: 'transactional',
-      label: 'rsvp_reminder',
-      queued_at: new Date().toISOString(),
-      metadata: { invite_id: inv.id, site_id: site.id, offset_day: offset },
+    let sendError: string | null = null
+    let suppressed = false
+    try {
+      const result = await sendRawEmail({
+        to: inv.guest_email,
+        fromName: 'VowZ Invites',
+        subject,
+        html,
+        text,
+        label: 'rsvp_reminder',
+        idempotencyKey: messageId,
+      })
+      suppressed = !result.sent
+    } catch (e) {
+      sendError = e instanceof Error ? e.message : String(e)
     }
-    await admin.from('email_send_log').insert({
+
+    const { error: logError } = await admin.from('email_send_log').insert({
       message_id: messageId,
       template_name: 'rsvp_reminder',
       recipient_email: inv.guest_email,
-      status: 'pending',
+      status: sendError ? 'failed' : suppressed ? 'suppressed' : 'sent',
+      error_message: sendError ? sendError.slice(0, 1000) : null,
       metadata: { invite_id: inv.id, offset_day: offset },
     })
-    const { error: qErr } = await admin.rpc('enqueue_email', {
-      queue_name: 'transactional_emails',
-      payload,
-    })
-    if (qErr) {
+    if (logError) console.error('email_send_log insert failed', logError.message)
+
+    if (sendError) {
       failed++
       await admin
         .from('rsvp_reminder_sends')
-        .update({ status: 'failed', error: qErr.message })
+        .update({ status: 'failed', error: sendError })
         .eq('message_id', messageId)
     } else {
       sent++
     }
   }
+
 
   await admin
     .from('rsvp_reminder_schedules')
@@ -259,31 +266,37 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Invalid test email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
       }
       const testSubject = `[TEST] ${subject}`
-      await admin.from('email_send_log').insert({
+      let testError: string | null = null
+      let testSuppressed = false
+      try {
+        const testResult = await sendRawEmail({
+          to,
+          fromName: 'VowZ Invites',
+          subject: testSubject,
+          html,
+          text,
+          label: 'rsvp_reminder_test',
+          idempotencyKey: messageId,
+        })
+        testSuppressed = !testResult.sent
+      } catch (e) {
+        testError = e instanceof Error ? e.message : String(e)
+      }
+
+      const { error: logError } = await admin.from('email_send_log').insert({
         message_id: messageId,
         template_name: 'rsvp_reminder',
         recipient_email: to,
-        status: 'pending',
+        status: testError ? 'failed' : testSuppressed ? 'suppressed' : 'sent',
+        error_message: testError ? testError.slice(0, 1000) : null,
         metadata: { test: true, offset_day: offset, site_id: requestedSiteId },
       })
-      const { error: qErr } = await admin.rpc('enqueue_email', {
-        queue_name: 'transactional_emails',
-        payload: {
-          message_id: messageId,
-          to,
-          from: 'VowZ Invites <noreply@vowz.me>',
-          sender_domain: 'notify.vowz.me',
-          subject: testSubject,
-          html, text,
-          purpose: 'transactional',
-          label: 'rsvp_reminder_test',
-          queued_at: new Date().toISOString(),
-          metadata: { test: true, site_id: requestedSiteId, offset_day: offset },
-        },
-      })
-      if (qErr) {
-        return new Response(JSON.stringify({ error: qErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      if (logError) console.error('email_send_log insert failed', logError.message)
+
+      if (testError) {
+        return new Response(JSON.stringify({ error: testError }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
       }
+
       return new Response(JSON.stringify({ ok: true, test_send: { to, offset, subject: testSubject } }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
