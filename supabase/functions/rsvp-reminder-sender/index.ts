@@ -266,31 +266,37 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Invalid test email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
       }
       const testSubject = `[TEST] ${subject}`
-      await admin.from('email_send_log').insert({
+      let testError: string | null = null
+      let testSuppressed = false
+      try {
+        const testResult = await sendRawEmail({
+          to,
+          fromName: 'VowZ Invites',
+          subject: testSubject,
+          html,
+          text,
+          label: 'rsvp_reminder_test',
+          idempotencyKey: messageId,
+        })
+        testSuppressed = !testResult.sent
+      } catch (e) {
+        testError = e instanceof Error ? e.message : String(e)
+      }
+
+      const { error: logError } = await admin.from('email_send_log').insert({
         message_id: messageId,
         template_name: 'rsvp_reminder',
         recipient_email: to,
-        status: 'pending',
+        status: testError ? 'failed' : testSuppressed ? 'suppressed' : 'sent',
+        error_message: testError ? testError.slice(0, 1000) : null,
         metadata: { test: true, offset_day: offset, site_id: requestedSiteId },
       })
-      const { error: qErr } = await admin.rpc('enqueue_email', {
-        queue_name: 'transactional_emails',
-        payload: {
-          message_id: messageId,
-          to,
-          from: 'VowZ Invites <noreply@vowz.me>',
-          sender_domain: 'notify.vowz.me',
-          subject: testSubject,
-          html, text,
-          purpose: 'transactional',
-          label: 'rsvp_reminder_test',
-          queued_at: new Date().toISOString(),
-          metadata: { test: true, site_id: requestedSiteId, offset_day: offset },
-        },
-      })
-      if (qErr) {
-        return new Response(JSON.stringify({ error: qErr.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      if (logError) console.error('email_send_log insert failed', logError.message)
+
+      if (testError) {
+        return new Response(JSON.stringify({ error: testError }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
       }
+
       return new Response(JSON.stringify({ ok: true, test_send: { to, offset, subject: testSubject } }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
