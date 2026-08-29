@@ -40,28 +40,37 @@ async function alertAdmins(
 
   for (const to of recipients) {
     const messageId = `r2-watchdog-${crypto.randomUUID()}`;
-    await admin.from("email_send_log").insert({
-      message_id: messageId,
-      template_name: "r2_cleanup_watchdog",
-      recipient_email: to,
-      status: "pending",
-    });
-    await admin.rpc("enqueue_email", {
-      queue_name: "transactional_emails",
-      payload: {
-        message_id: messageId,
+    try {
+      const result = await sendRawEmail({
         to,
-        from: "VowZ Alerts <noreply@vowz.me>",
-        sender_domain: "notify.vowz.me",
+        fromName: "VowZ Alerts",
         subject,
         html,
         text,
-        purpose: "transactional",
         label: "r2_cleanup_watchdog",
-        queued_at: new Date().toISOString(),
-      },
-    });
+        idempotencyKey: messageId,
+      });
+      const { error: logError } = await admin.from("email_send_log").insert({
+        message_id: messageId,
+        template_name: "r2_cleanup_watchdog",
+        recipient_email: to,
+        status: result.sent ? "sent" : "suppressed",
+      });
+      if (logError) console.error("email_send_log insert failed", logError.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      const { error: logError } = await admin.from("email_send_log").insert({
+        message_id: messageId,
+        template_name: "r2_cleanup_watchdog",
+        recipient_email: to,
+        status: "failed",
+        error_message: message.slice(0, 1000),
+      });
+      if (logError) console.error("email_send_log insert failed", logError.message);
+      console.error("Watchdog alert send failed", message);
+    }
   }
+
   return recipients.length;
 }
 
