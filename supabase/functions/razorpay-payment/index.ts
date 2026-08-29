@@ -384,8 +384,18 @@ Deno.serve(async (req) => {
         if (logError) console.error("email_send_log insert failed", logError.message);
 
       } catch (emailErr) {
-        console.error("Failed to send payment success email (non-blocking)", emailErr);
+        const message = emailErr instanceof Error ? emailErr.message : String(emailErr);
+        const { error: logError } = await adminClient.from("email_send_log").insert({
+          message_id: crypto.randomUUID(),
+          template_name: "payment_success",
+          recipient_email: user.email || "",
+          status: "failed",
+          error_message: message.slice(0, 1000),
+        });
+        if (logError) console.error("email_send_log insert failed", logError.message);
+        console.error("Failed to send payment success email (non-blocking)", message);
       }
+
 
       // Affiliate & Franchise commissions (use 6mo amount basis)
       try {
