@@ -1499,7 +1499,6 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
           : undefined;
         void supabase.functions.invoke("send-rsvp-confirmation", {
           body: {
-            templateName: "rsvp-confirmation",
             recipientEmail: validated.guest_email,
             idempotencyKey: `rsvp-${site.id}-${validated.guest_email.toLowerCase()}-${Date.now()}`,
             templateData: {
