@@ -122,29 +122,36 @@ async function enqueueExpiryEmail(
   const prefix = product === 'storage_addon' ? 'storage_addon' : 'subscription'
   const label = daysLeft <= 0 ? `${prefix}_expired` : `${prefix}_expiry_${daysLeft}d`
 
-  await admin.from('email_send_log').insert({
-    message_id: messageId,
-    template_name: label,
-    recipient_email: toEmail,
-    status: 'pending',
-  })
-
-  await admin.rpc('enqueue_email', {
-    queue_name: 'transactional_emails',
-    payload: {
-      message_id: messageId,
+  try {
+    const result = await sendRawEmail({
       to: toEmail,
-      from: 'VowZ <noreply@vowz.me>',
-      sender_domain: 'notify.vowz.me',
       subject,
       html,
       text,
-      purpose: 'transactional',
       label,
-      queued_at: new Date().toISOString(),
-    },
-  })
+      idempotencyKey: messageId,
+    })
+    const { error: logError } = await admin.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: label,
+      recipient_email: toEmail,
+      status: result.sent ? 'sent' : 'suppressed',
+    })
+    if (logError) console.error('email_send_log insert failed', logError.message)
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    const { error: logError } = await admin.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: label,
+      recipient_email: toEmail,
+      status: 'failed',
+      error_message: message.slice(0, 1000),
+    })
+    if (logError) console.error('email_send_log insert failed', logError.message)
+    console.error('Expiry email send failed', message)
+  }
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
