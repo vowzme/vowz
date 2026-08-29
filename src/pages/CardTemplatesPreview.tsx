@@ -638,6 +638,17 @@ export default function CardTemplatesPreview() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Invitation Card Templates — Download & Share | Vowz"
+        description="Browse printable digital invitation card templates. Download as PDF or PNG with a QR code and share instantly on WhatsApp."
+        ogTitle="Invitation Card Templates — Vowz"
+        ogDescription="Printable wedding invitation card designs with QR codes, ready to download and share on WhatsApp."
+        ogUrl="https://vowz.me/card-templates-preview"
+        ogType="website"
+        twitterCard="summary_large_image"
+        canonical="https://vowz.me/card-templates-preview"
+      />
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">Invitation Card Templates</h1>
