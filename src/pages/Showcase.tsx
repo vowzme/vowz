@@ -197,6 +197,17 @@ export default function Showcase() {
   if (demo) {
     return (
       <Layout>
+        <SEOHead
+          title={`${demo.bride} & ${demo.groom} — Wedding Website Example | Vowz`}
+          description={`Explore a ${demo.style.toLowerCase()} ${demo.category.toLowerCase()} wedding website example with RSVP, events, gallery and maps — built on Vowz.`}
+          ogTitle={`${demo.bride} & ${demo.groom} — Wedding Website Example`}
+          ogDescription={`A ${demo.style.toLowerCase()} sample wedding website with RSVP, schedule, gallery and directions.`}
+          ogUrl={`https://vowz.me/showcase?demo=${demo.slug}`}
+          ogType="website"
+          twitterCard="summary_large_image"
+          canonical="https://vowz.me/showcase"
+        />
+
         <div className="bg-muted/30 border-b">
           <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
             <Button
