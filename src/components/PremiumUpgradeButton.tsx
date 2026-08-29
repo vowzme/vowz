@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Crown, Loader2, AlertCircle, CheckCircle2, HelpCircle } from "lucide-react";
+import { Crown, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
