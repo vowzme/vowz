@@ -11,6 +11,7 @@ import CouponCodeInput from "@/components/CouponCodeInput";
 import PayPalCheckoutButton from "@/components/PayPalCheckoutButton";
 import DodoCheckoutButton from "@/components/DodoCheckoutButton";
 import CheckoutSteps from "@/components/CheckoutSteps";
+import PaymentHelpModal from "@/components/PaymentHelpModal";
 import { MapPin, Sparkles } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -314,6 +315,24 @@ const PremiumUpgradeButton = ({
               currency={currency}
               onApply={setCouponResult}
             />
+
+            <div className="rounded-md bg-muted/40 border border-border p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                  {region === "IN" ? (
+                    <><span>🇮🇳</span> India payments</>
+                  ) : (
+                    <><span>🌍</span> International payments</>
+                  )}
+                </p>
+                <PaymentHelpModal />
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {region === "IN"
+                  ? "Razorpay is recommended for India because it supports UPI, NetBanking, and local wallets at lower cost. If Razorpay doesn't work, switch to International above."
+                  : "PayPal and Dodo are for cards and accounts outside India. Choose PayPal if you already have an account, or Dodo to pay by card directly."}
+              </p>
+            </div>
 
             {payStatus === "verifying" || payStatus === "syncing" ? (
               <div className="flex items-start gap-2 p-3 rounded-md bg-muted/50 border border-border text-sm">
