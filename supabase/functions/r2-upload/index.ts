@@ -1,6 +1,7 @@
 // Cloudflare R2 upload edge function with per-user storage quotas + auto-WebP reduction
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 import { AwsClient } from "npm:aws4fetch@1.0.20";
+import { sendRawEmail } from '../_shared/managed-email.ts'
 import { buildCors as sharedBuildCors } from "../_shared/cors.ts";
 
 const buildCors = (req: Request) =>

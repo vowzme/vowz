@@ -1,5 +1,6 @@
 /// <reference lib="deno.ns" />
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
+import { sendRawEmail } from '../_shared/managed-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

@@ -5,6 +5,7 @@
 // Auth: requires the service-role bearer (invoked only from pg_cron).
 
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
+import { sendRawEmail } from '../_shared/managed-email.ts'
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

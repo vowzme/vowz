@@ -3,6 +3,7 @@ import * as React from "npm:react@18.3.1";
 import { renderAsync } from "npm:@react-email/components@0.0.22";
 import { PaymentSuccessEmail } from "../_shared/email-templates/payment-success.tsx";
 import { getBillingTerms, plusMonthsISO } from "../_shared/billing-terms.ts";
+import { sendRawEmail } from '../_shared/managed-email.ts'
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
