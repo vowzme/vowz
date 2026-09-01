@@ -113,6 +113,7 @@ const AppRoutes = () => (
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
     <Route path="/themes" element={<Layout><Themes /></Layout>} />
+    <Route path="/online-wedding-card-maker" element={<Layout><OnlineWeddingCardMaker /></Layout>} />
     <Route path="/showcase" element={<Showcase />} />
     <Route path="/share-preview" element={<Layout><SharePreview /></Layout>} />
     <Route path="/share" element={<Share />} />
