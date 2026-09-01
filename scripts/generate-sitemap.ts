@@ -20,6 +20,7 @@ const staticEntries: Entry[] = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/pricing", changefreq: "monthly", priority: "0.9" },
   { path: "/templates", changefreq: "weekly", priority: "0.9" },
+  { path: "/online-wedding-card-maker", changefreq: "monthly", priority: "0.9" },
   { path: "/showcase", changefreq: "weekly", priority: "0.8" },
   { path: "/themes", changefreq: "weekly", priority: "0.8" },
   { path: "/card-gallery", changefreq: "monthly", priority: "0.7" },
