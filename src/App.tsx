@@ -51,6 +51,7 @@ const AdminEmailAbTests = lazy(() => import("./pages/admin/AdminEmailAbTests"));
 const AdminReminderRuns = lazy(() => import("./pages/admin/AdminReminderRuns"));
 const AdminEmailBranding = lazy(() => import("./pages/admin/AdminEmailBranding"));
 const AdminGuestModeration = lazy(() => import("./pages/admin/AdminGuestModeration"));
+const AdminRsvps = lazy(() => import("./pages/admin/AdminRsvps"));
 const InvitationCard = lazy(() => import("./pages/InvitationCard"));
 const CardGallery = lazy(() => import("./pages/CardGallery"));
 const CardTemplatesPreview = lazy(() => import("./pages/CardTemplatesPreview"));
@@ -148,6 +149,7 @@ const AppRoutes = () => (
     <Route path="/admin/reminder-runs" element={<AdminLayout><AdminReminderRuns /></AdminLayout>} />
     <Route path="/admin/email-branding" element={<AdminLayout><AdminEmailBranding /></AdminLayout>} />
     <Route path="/admin/guest-moderation" element={<AdminLayout><AdminGuestModeration /></AdminLayout>} />
+    <Route path="/admin/rsvps" element={<AdminLayout><AdminRsvps /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
     <Route path="/delete-account" element={<Layout><DeleteAccount /></Layout>} />

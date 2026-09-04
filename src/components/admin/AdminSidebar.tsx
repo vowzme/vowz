@@ -13,6 +13,7 @@ import {
   Mail,
   HardDrive,
   Palette,
+  Heart,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -33,6 +34,7 @@ const items = [
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Sites", url: "/admin/sites", icon: Globe },
+  { title: "RSVPs", url: "/admin/rsvps", icon: Heart },
   { title: "Payments", url: "/admin/payments", icon: CreditCard },
   { title: "Coupons", url: "/admin/coupons", icon: Ticket },
   { title: "Feature Requests", url: "/admin/feature-requests", icon: Lightbulb },
