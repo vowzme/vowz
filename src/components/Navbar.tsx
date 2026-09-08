@@ -1,14 +1,11 @@
-import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, LayoutDashboard } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
 import VowzLogo from "@/components/VowzLogo";
 import { useAuth } from "@/hooks/use-auth";
 import NotificationsBell from "@/components/NotificationsBell";
 
 const Navbar = () => {
-  const [open, setOpen] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,7 +43,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-6">
           {links.map((l) =>
             l.isRoute ? (
               <Link
@@ -93,75 +90,27 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden text-foreground"
-          onClick={() => setOpen(!open)}
-          aria-label={open ? "Close menu" : "Open menu"}
-        >
-          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile / tablet quick actions — full menu lives in the bottom bar */}
+        <div className="flex lg:hidden items-center gap-2">
+          {!loading && (
+            user ? (
+              <>
+                <NotificationsBell />
+                <Button variant="gold" size="sm" asChild>
+                  <Link to="/dashboard" aria-label="Go to dashboard">
+                    <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" /> Dashboard
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <Button variant="gold" size="sm" asChild>
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            )
+          )}
+        </div>
       </div>
 
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background border-b border-border/30 overflow-hidden"
-          >
-            <div className="px-4 py-4 flex flex-col gap-1">
-              {links.map((l) =>
-                l.isRoute ? (
-                  <Link
-                    key={l.label}
-                    to={l.href}
-                    className="font-body text-sm text-muted-foreground py-3 min-h-[44px] flex items-center"
-                    onClick={() => setOpen(false)}
-                  >
-                    {l.label}
-                  </Link>
-                ) : (
-                  <a
-                    key={l.label}
-                    href={l.href}
-                    onClick={(e) => { handleAnchorClick(e, l.href); setOpen(false); }}
-                    className="font-body text-sm text-muted-foreground py-3 min-h-[44px] flex items-center cursor-pointer"
-                  >
-                    {l.label}
-                  </a>
-                )
-              )}
-              {!loading && (
-                user ? (
-                  <Button variant="gold" size="sm" className="mt-2" asChild>
-                    <Link to="/dashboard" onClick={() => setOpen(false)}>
-                      <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" /> Dashboard
-                    </Link>
-                  </Button>
-                ) : (
-                  <>
-                    <Link
-                      to="/auth"
-                    className="font-body text-sm text-muted-foreground py-3 min-h-[44px] flex items-center"
-                      onClick={() => setOpen(false)}
-                    >
-                      Log In
-                    </Link>
-                    <Button variant="gold" size="sm" className="mt-2" asChild>
-                      <Link to="/auth" onClick={() => setOpen(false)}>
-                        Get Started
-                      </Link>
-                    </Button>
-                  </>
-                )
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </nav>
   );
 };

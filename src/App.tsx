@@ -13,6 +13,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
 import { IosInstallPrompt } from "./components/IosInstallPrompt";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -172,6 +173,7 @@ const App = () => (
                   <AppRoutes />
                 </Suspense>
               </ErrorBoundary>
+              <MobileBottomNav />
               <IosInstallPrompt />
             </BrowserRouter>
           </AuthProvider>
