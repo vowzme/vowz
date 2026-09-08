@@ -46,7 +46,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-6">
           {links.map((l) =>
             l.isRoute ? (
               <Link
@@ -93,14 +93,25 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden text-foreground"
-          onClick={() => setOpen(!open)}
-          aria-label={open ? "Close menu" : "Open menu"}
-        >
-          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile / tablet quick actions — full menu lives in the bottom bar */}
+        <div className="flex lg:hidden items-center gap-2">
+          {!loading && (
+            user ? (
+              <>
+                <NotificationsBell />
+                <Button variant="gold" size="sm" asChild>
+                  <Link to="/dashboard" aria-label="Go to dashboard">
+                    <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" /> Dashboard
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <Button variant="gold" size="sm" asChild>
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            )
+          )}
+        </div>
       </div>
 
       {/* Mobile menu */}
