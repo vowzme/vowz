@@ -507,9 +507,9 @@ const PublicSite = () => {
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 1.5, type: "spring", stiffness: 200 }}
-        className="fixed right-3 sm:right-6 z-40 flex flex-col items-end gap-2"
-        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 4.5rem)" }}
+        className="fixed right-3 sm:right-6 z-40 flex flex-col items-end gap-2 bottom-[calc(env(safe-area-inset-bottom,0px)+4.5rem)] sm:bottom-6"
       >
+
         <button
           type="button"
           onClick={() => setShareOpen((v) => !v)}
