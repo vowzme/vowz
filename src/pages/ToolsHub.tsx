@@ -36,7 +36,7 @@ const ToolsHub = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
 
-        <section className="py-14 sm:py-20 px-4 bg-gradient-warm">
+        <section className="pt-28 pb-14 sm:pt-32 sm:pb-20 px-4 bg-gradient-warm">
           <div className="max-w-5xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-3">Free Tools · No sign-up</p>

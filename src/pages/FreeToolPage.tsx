@@ -129,7 +129,7 @@ const FreeToolPage = () => {
           <Navbar />
         </div>
 
-        <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
+        <div className="mx-auto max-w-3xl px-4 pt-24 pb-12 sm:pt-28">
           <Link to="/tools" className="print:hidden mb-6 inline-flex items-center gap-1.5 font-body text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> All free tools
           </Link>

@@ -215,7 +215,7 @@ const WeddingReport = () => {
         </div>
 
         {!done ? (
-          <div className="mx-auto max-w-2xl px-4 py-10 sm:py-16">
+          <div className="mx-auto max-w-2xl px-4 pt-24 pb-14 sm:pt-28">
             <div className="text-center mb-8">
               <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-2">Free · No sign-up</p>
               <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
@@ -311,7 +311,7 @@ const WeddingReport = () => {
           </div>
         ) : (
           report && (
-            <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
+            <div className="mx-auto max-w-3xl px-4 pt-24 pb-14 sm:pt-28">
               <div className="print:hidden mb-6 flex items-center justify-between">
                 <button onClick={() => { setDone(false); setStep(0); }} className="inline-flex items-center gap-1.5 font-body text-sm text-muted-foreground hover:text-foreground">
                   <ArrowLeft className="h-4 w-4" /> Change my answers
