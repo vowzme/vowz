@@ -51,8 +51,8 @@ function FullScreenThemePreview({
     : `Loading ${theme.name} landing preview…`;
   const frameWidth = DEVICE_WIDTHS[device];
   return (
-    <div className="flex flex-col w-full h-full">
-      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0">
+    <div className="flex flex-col w-full h-full max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0 max-w-full overflow-hidden">
         <div className="min-w-0">
           <DialogTitle
             id="theme-preview-title"
@@ -69,7 +69,7 @@ function FullScreenThemePreview({
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {/* Device switcher — visible on tablet and larger where there is room. */}
-          <div className="hidden md:flex items-center rounded-full border border-border/60 p-0.5">
+          <div className="hidden lg:flex items-center rounded-full border border-border/60 p-0.5">
             {(["phone", "tablet", "desktop"] as PreviewDevice[]).map((d) => (
               <button
                 key={d}
@@ -113,7 +113,7 @@ function FullScreenThemePreview({
       >
         {status}
       </div>
-      <div className="flex-1 min-h-0 w-full flex justify-center bg-muted/30 overflow-auto">
+      <div className="flex-1 min-h-0 w-full max-w-full flex justify-center bg-muted/30 overflow-x-hidden overflow-y-auto">
         <iframe
           key={`${theme.id}-${device}`}
           src={`/site/demo-${theme.id}`}
