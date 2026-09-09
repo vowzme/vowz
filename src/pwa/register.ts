@@ -5,10 +5,9 @@
  * Never registers in Lovable preview, dev servers, iframes, or when the
  * URL carries `?sw=off` (kill switch). See docs/pwabuilder-android.md.
  *
- * When a new SW is installed and waiting, shows a sonner toast prompting
- * the user to reload so the fresh offline cache and app shell take effect.
+ * New versions install and activate silently, then the page refreshes
+ * once so users always run the latest build without any prompt.
  */
-import { toast } from "sonner";
 import { trackPwaEvent, wireConnectivityAnalytics } from "@/lib/pwa-analytics";
 
 const SW_PATH = "/sw.js";
@@ -56,39 +55,36 @@ export async function registerPwa() {
   }
 }
 
-function promptReload(worker: ServiceWorker) {
-  trackPwaEvent("pwa_update_prompt_shown");
-  toast("Update available", {
-    description: "A new version of Vowz is ready. Reload to get the latest.",
-    duration: Infinity,
-    action: {
-      label: "Reload",
-      onClick: () => {
-        trackPwaEvent("pwa_update_prompt_accepted");
-        // Ask the waiting SW to activate; reload once it takes control.
-        worker.postMessage({ type: "SKIP_WAITING" });
-        navigator.serviceWorker.addEventListener(
-          "controllerchange",
-          () => window.location.reload(),
-          { once: true },
-        );
-      },
-    },
-  });
+let reloading = false;
+
+/**
+ * Silently activate the new worker and refresh once it controls the page.
+ * No toast, no user action — the app just becomes the latest version.
+ */
+function applyUpdate(worker: ServiceWorker) {
+  trackPwaEvent("pwa_update_prompt_accepted");
+  worker.postMessage({ type: "SKIP_WAITING" });
 }
 
 function watchForUpdate(reg: ServiceWorkerRegistration) {
+  // Reload exactly once when a new worker takes control of this page.
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloading) return;
+    reloading = true;
+    window.location.reload();
+  });
+
   // Case 1: A waiting worker was already present at registration time.
   if (reg.waiting && navigator.serviceWorker.controller) {
-    promptReload(reg.waiting);
+    applyUpdate(reg.waiting);
   }
-  // Case 2: An update is found — wait for it to install, then prompt.
+  // Case 2: An update is found — activate it as soon as it is installed.
   reg.addEventListener("updatefound", () => {
     const installing = reg.installing;
     if (!installing) return;
     installing.addEventListener("statechange", () => {
       if (installing.state === "installed" && navigator.serviceWorker.controller) {
-        promptReload(installing);
+        applyUpdate(installing);
       }
     });
   });
