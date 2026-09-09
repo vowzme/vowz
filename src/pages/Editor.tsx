@@ -32,11 +32,12 @@ import { useR2Upload } from "@/hooks/use-r2-upload";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { parseThemeStyle } from "@/lib/theme-schema";
 import CollaboratorPermissions from "@/components/CollaboratorPermissions";
+import { RITUALS, FAITH_LABELS, DEFAULT_RITUAL_SETS, ritualsByFaith, type RitualFaith } from "@/lib/rituals";
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "music" | "guest_album";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "music" | "guest_album" | "rituals";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -493,6 +494,7 @@ const Editor = () => {
       custom: { type: "custom", title: "New Section", data: { heading: "New Section", body: "Add your content here..." } },
       polls: { type: "polls", title: "Guest Polls", data: { heading: "Have Your Say! 🗳️", polls: [{ question: "Vote for your favourite Sangeet song!", options: ["Gallan Goodiyaan", "London Thumakda", "Nachde Ne Saare"] }] } },
       ecotips: { type: "ecotips", title: "Eco Wedding", data: { heading: "Our Green Wedding 🌿", description: "We're committed to celebrating responsibly.", tips: ["Digital invites — saving 200+ paper cards", "Locally sourced flowers & décor", "Carpooling encouraged — share rides with fellow guests", "Plant a sapling as your blessing to us"], showDigitalInviteTracker: true } },
+      rituals: { type: "rituals", title: "Rituals & Traditions", data: { heading: "Rituals & Traditions", description: "A short guide to each ceremony — what happens, how long it takes, and what to wear.", faith: "hindu", rituals: DEFAULT_RITUAL_SETS.hindu } },
       video: { type: "video", title: "Videos", data: { heading: "Our Moments 🎬", videos: [{ url: "", caption: "Pre-wedding video" }] } },
       livestream: { type: "livestream", title: "Live Stream", data: { heading: "Watch Live 📡", description: "Join us virtually from anywhere in the world!", embedUrl: "" } },
       blessings: { type: "blessings", title: "Guest Blessings", data: { heading: "Guest Blessings 💕", description: "Share your heartfelt blessings and wishes for the couple!" } },
@@ -957,6 +959,7 @@ const OPTIONAL_FEATURES: { type: WeddingSection["type"]; label: string; desc: st
   { type: "registry", label: "Gift registry", desc: "External registry links", icon: "🎁" },
   { type: "music", label: "Background music", desc: "Ambient soundtrack", icon: "🎵" },
   { type: "ecotips", label: "Eco tips", desc: "Sustainability messaging", icon: "🌿" },
+  { type: "rituals", label: "Rituals & traditions", desc: "Explain each ceremony to your guests", icon: "🪔" },
   { type: "couple_profiles", label: "Couple profiles", desc: "Bios for bride & groom", icon: "💑" },
   { type: "travel", label: "Travel & hotels", desc: "Directions and stay info", icon: "🧳" },
   { type: "gallery", label: "Photo gallery", desc: "Curated couple photos", icon: "🖼️" },
@@ -1216,7 +1219,7 @@ function SectionsPanel({
                 onClick={(e) => e.stopPropagation()}
                 className="scale-75"
               />
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "guest_album" || section.type === "registry" || section.type === "couple_profiles" || section.type === "music") && (
+              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "rituals" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "guest_album" || section.type === "registry" || section.type === "couple_profiles" || section.type === "music") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
                   className="text-muted-foreground hover:text-destructive p-1"
@@ -1239,6 +1242,7 @@ function SectionsPanel({
               { id: "custom", label: "📝 Custom Section", desc: "Text content" },
               { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting" },
               { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability" },
+              { id: "rituals", label: "🪔 Rituals & Traditions", desc: "Explain each ceremony to guests" },
               { id: "video", label: "🎬 Video Embed", desc: "YouTube/Vimeo" },
               { id: "livestream", label: "📡 Live Stream", desc: "Virtual attendance" },
               { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
@@ -2888,6 +2892,70 @@ function SectionEditor({
         </>
       )}
 
+      {type === "rituals" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input
+              value={data.heading || ""}
+              onChange={(e) => onUpdateData({ heading: e.target.value })}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Intro for guests</label>
+            <Textarea
+              value={data.description || ""}
+              onChange={(e) => onUpdateData({ description: e.target.value })}
+              rows={2}
+              className="font-body"
+            />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Tradition</label>
+            <select
+              value={data.faith || "hindu"}
+              onChange={(e) => {
+                const faith = e.target.value as RitualFaith;
+                onUpdateData({ faith, rituals: DEFAULT_RITUAL_SETS[faith] || [] });
+              }}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+            >
+              {(Object.keys(FAITH_LABELS) as RitualFaith[]).map((f) => (
+                <option key={f} value={f}>{FAITH_LABELS[f]}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="font-body text-sm font-medium text-foreground block">Ceremonies to explain</label>
+            <div className="max-h-56 overflow-y-auto rounded-md border border-border/60 p-2 space-y-1">
+              {ritualsByFaith((data.faith || "hindu") as RitualFaith).map((r) => {
+                const selected: string[] = Array.isArray(data.rituals) ? data.rituals : [];
+                const on = selected.includes(r.id);
+                return (
+                  <label key={r.id} className="flex items-start gap-2 text-xs font-body cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={on}
+                      onChange={() =>
+                        onUpdateData({
+                          rituals: on ? selected.filter((id) => id !== r.id) : [...selected, r.id],
+                        })
+                      }
+                      className="mt-0.5"
+                    />
+                    <span>
+                      <span className="text-foreground">{r.emoji} {r.name}</span>
+                      <span className="block text-muted-foreground">{r.short}</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
+
       {type === "ecotips" && (
         <>
           <div>
@@ -4325,6 +4393,31 @@ function SectionRenderer({
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-2" style={{ fontFamily: bFont }}>Voting available when published</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "rituals") {
+    const faith = (data.faith || "hindu") as RitualFaith;
+    const ids: string[] = Array.isArray(data.rituals) && data.rituals.length ? data.rituals : (DEFAULT_RITUAL_SETS[faith] || []);
+    const items = ids.map((id) => RITUALS.find((r) => r.id === id)).filter(Boolean) as typeof RITUALS;
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <h2 className="text-2xl font-bold text-foreground text-center mb-2" style={{ fontFamily: dFont }}>
+          {data.heading || "Rituals & Traditions"}
+        </h2>
+        <div className="w-10 h-0.5 mx-auto mb-4" style={{ backgroundColor: accent }} />
+        <p className="text-sm text-muted-foreground text-center mb-5" style={{ fontFamily: bFont }}>
+          {data.description || "A short guide to each ceremony."}
+        </p>
+        <div className="max-w-xl mx-auto space-y-2">
+          {items.map((r) => (
+            <div key={r.id} className="rounded-lg p-3 bg-muted/40">
+              <div className="text-base text-foreground" style={{ fontFamily: dFont }}>{r.emoji} {r.name}</div>
+              <div className="text-xs text-muted-foreground" style={{ fontFamily: bFont }}>{r.short}</div>
             </div>
           ))}
         </div>

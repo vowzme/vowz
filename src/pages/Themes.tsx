@@ -142,7 +142,20 @@ const THEME_FACETS: Record<string, Facet> = {
   "boho-destination":   { region: "destination",  type: "boho",      styles: ["boho", "modern", "nature"] },
   "christian-chapel":   { region: "any",          type: "christian", styles: ["classic", "chapel"] },
   "modern-minimal":     { region: "any",          type: "civil",     styles: ["modern", "minimal", "editorial"] },
+  "nikah-emerald":      { region: "any",          type: "muslim",    styles: ["traditional", "regal", "ornate"] },
+  "walima-rose":        { region: "any",          type: "muslim",    styles: ["classic", "modern"] },
 };
+
+// Religion-first browsing: the way most couples actually search.
+const FAITH_CHIPS = [
+  { id: "all", label: "All weddings", emoji: "💐" },
+  { id: "hindu", label: "Hindu", emoji: "🕉️" },
+  { id: "muslim", label: "Muslim · Nikah", emoji: "🌙" },
+  { id: "sikh", label: "Sikh · Anand Karaj", emoji: "🪯" },
+  { id: "christian", label: "Christian", emoji: "⛪" },
+  { id: "beach", label: "Destination", emoji: "🌊" },
+  { id: "civil", label: "Civil · Modern", emoji: "✨" },
+];
 const REGION_OPTIONS = [
   { id: "all", label: "All regions" },
   { id: "north-indian", label: "North Indian" },
@@ -154,6 +167,7 @@ const REGION_OPTIONS = [
 const TYPE_OPTIONS = [
   { id: "all", label: "All wedding types" },
   { id: "hindu", label: "Hindu" },
+  { id: "muslim", label: "Muslim · Nikah" },
   { id: "sikh", label: "Sikh · Anand Karaj" },
   { id: "christian", label: "Christian · Chapel" },
   { id: "beach", label: "Beach" },
@@ -519,6 +533,28 @@ export default function Themes() {
         </div>
 
         <div className="max-w-6xl mx-auto px-4 py-10">
+          {/* Religion-first quick browse */}
+          <div className="mb-5">
+            <p className="font-body text-sm text-muted-foreground mb-2">Browse by wedding tradition</p>
+            <div className="flex flex-wrap gap-2">
+              {FAITH_CHIPS.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setWtype(c.id)}
+                  aria-pressed={wtype === c.id}
+                  className={`rounded-full border px-3.5 py-1.5 text-sm font-body transition-colors ${
+                    wtype === c.id
+                      ? "border-gold bg-gold/15 text-foreground"
+                      : "border-border/60 bg-background hover:bg-muted/50 text-muted-foreground"
+                  }`}
+                >
+                  <span className="mr-1.5">{c.emoji}</span>
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Filter + search bar */}
           <div className="mb-6 rounded-2xl border border-border/60 bg-muted/20 p-4 sm:p-5">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">

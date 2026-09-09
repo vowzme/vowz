@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getPlatformVisitorId, trackPlatformEvent } from "@/lib/platform-analytics";
+import { DEFAULT_RITUAL_SETS, getRitual, type RitualFaith } from "@/lib/rituals";
 
 type Q = {
   id: string;
@@ -23,7 +24,6 @@ type Q = {
 };
 
 const QUESTIONS: Q[] = [
-  { id: "stage", question: "Where are you in the planning?", type: "single", options: ["Just got engaged", "Date fixed, nothing booked", "Venue booked, vendors pending", "Most things booked", "Final month"] },
   { id: "date", question: "When is the wedding?", type: "date", help: "An approximate date is fine." },
   { id: "city", question: "Which city or town?", type: "text", placeholder: "Udaipur" },
   { id: "tradition", question: "What kind of wedding is it?", type: "single", options: ["Hindu", "Muslim · Nikah", "Sikh · Anand Karaj", "Christian", "Inter-faith / fusion", "Civil / registry"] },
@@ -31,7 +31,7 @@ const QUESTIONS: Q[] = [
   { id: "budget", question: "What is your total budget in ₹?", type: "number", placeholder: "1500000", help: "A rough figure is enough — we only use it to size the split." },
   { id: "functions", question: "Which functions are you planning?", type: "multi", options: ["Roka / Engagement", "Haldi", "Mehendi", "Sangeet", "Wedding ceremony", "Reception", "Walima", "Next-day brunch"] },
   { id: "booked", question: "What have you already booked?", type: "multi", options: ["Venue", "Caterer", "Photographer", "Decorator", "Makeup artist", "DJ / Band", "Priest / officiant", "Outfits", "Nothing yet"] },
-  { id: "invites", question: "How are you inviting people?", type: "single", options: ["Printed cards only", "WhatsApp images", "A wedding website", "Not decided yet"] },
+  
   { id: "worry", question: "What worries you most right now?", type: "multi", options: ["Going over budget", "Guest list & RSVPs", "Finding good vendors", "Family expectations", "Outstation guests", "Running out of time", "Nothing — we're calm"] },
 ];
 
@@ -129,7 +129,21 @@ function buildReport(a: Record<string, any>) {
         ? ["Boutique resort with rooms for outstation guests", "Heritage haveli or palace courtyard", "Farmhouse lawn with a marquee", "Four-star hotel banquet with valet parking"]
         : ["Intimate heritage homestay", "Beach or backwater resort for a destination wedding", "Rooftop venue with a city view", "Garden restaurant taken over for the evening"];
 
-  return { score, split, perGuest, budget, guests, timeline, gaps, venueIdeas, daysLeft };
+  // ── Rituals your guests will need explained ────────────────────────
+  const faithMap: Record<string, RitualFaith> = {
+    "Hindu": "hindu",
+    "Muslim · Nikah": "muslim",
+    "Sikh · Anand Karaj": "sikh",
+    "Christian": "christian",
+  };
+  const faith: RitualFaith = faithMap[a.tradition as string] || "common";
+  const ritualIds = DEFAULT_RITUAL_SETS[faith] || DEFAULT_RITUAL_SETS.common;
+  const rituals = ritualIds
+    .map((id) => getRitual(id))
+    .filter(Boolean)
+    .slice(0, 6) as NonNullable<ReturnType<typeof getRitual>>[];
+
+  return { score, split, perGuest, budget, guests, timeline, gaps, venueIdeas, daysLeft, rituals, faith };
 }
 
 const WeddingReport = () => {
@@ -403,6 +417,23 @@ const WeddingReport = () => {
                   ))}
                 </ul>
               </section>
+
+              {/* Rituals */}
+              {report.rituals.length > 0 && (
+                <section className="mt-6 rounded-2xl border border-border/60 bg-card p-6 shadow-card">
+                  <h2 className="font-display text-xl font-bold text-foreground mb-1">Ceremonies your guests will ask about</h2>
+                  <p className="font-body text-sm text-muted-foreground mb-3">
+                    Put a short explanation of each on your wedding website so outstation and first-time guests know what happens and what to wear.
+                  </p>
+                  <ul className="space-y-2">
+                    {report.rituals.map((r) => (
+                      <li key={r.id} className="font-body text-sm text-foreground/90">
+                        <strong>{r.emoji} {r.name}</strong> — {r.short} <span className="text-muted-foreground">({r.dress})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
 
               {/* Email capture */}
               <section className="print:hidden mt-8 rounded-2xl border border-accent/40 bg-accent/5 p-6">

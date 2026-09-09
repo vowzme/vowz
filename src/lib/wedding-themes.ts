@@ -153,6 +153,32 @@ export const WEDDING_THEMES: WeddingTheme[] = [
     sampleCouple: ["Kabir", "Ira"],
     sampleTagline: "Wandering hearts, finally home",
   },
+  {
+    id: "nikah-emerald",
+    name: "Nikah Emerald",
+    tradition: "Muslim · Nikah",
+    tagline: "Emerald green, ivory & antique gold",
+    description: "Deep emerald with antique gold jaali arches and ivory calligraphy space — made for a Nikah, Mehendi and Walima.",
+    colors: { bg: "#0B3B2E", accent: "#D4AF37", light: "#FFF8E8", surface: "#FFFCF3", ink: "#06211A" },
+    fonts: { display: "Cormorant Garamond", body: "Lora" },
+    motif: "arch",
+    heroGradient: "linear-gradient(135deg,#0B3B2E 0%,#125645 55%,#06251D 100%)",
+    sampleCouple: ["Zayn", "Ayesha"],
+    sampleTagline: "Qubool hai — from this day, together",
+  },
+  {
+    id: "walima-rose",
+    name: "Walima Rose",
+    tradition: "Muslim · Walima",
+    tagline: "Dusty rose, pearl & soft gold",
+    description: "A softer Nikah palette — dusty rose and pearl with fine gold crescents, ideal for the Walima reception.",
+    colors: { bg: "#7C4257", accent: "#E6C79C", light: "#FFF4F0", surface: "#FFFAF7", ink: "#33131F" },
+    fonts: { display: "Fraunces", body: "Inter" },
+    motif: "arch",
+    heroGradient: "linear-gradient(135deg,#7C4257 0%,#9E5A70 55%,#54293A 100%)",
+    sampleCouple: ["Imran", "Fatima"],
+    sampleTagline: "Two families, one dua",
+  },
 ];
 
 export function getTheme(id: string): WeddingTheme | undefined {
