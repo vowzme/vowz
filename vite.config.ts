@@ -142,7 +142,9 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("@tanstack")) return "vendor-query";
           if (id.includes("lucide-react")) return "vendor-icons";
           if (id.includes("date-fns")) return "vendor-date";
-          return "vendor";
+          // Everything else keeps Rollup's automatic per-route splitting so
+          // heavy one-off libraries (PDF, charts, canvas) stay lazy.
+          return undefined;
         },
       },
     },
