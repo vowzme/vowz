@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Image,
@@ -25,7 +26,10 @@ import {
   Gift,
   Link2,
   Clock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const allFeatures = [
   { icon: Sparkles, title: "Easy Wedding Wizard", desc: "Answer a few simple questions and get a complete wedding site draft instantly" },
