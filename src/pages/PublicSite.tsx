@@ -28,7 +28,7 @@ import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Share2, X as CloseIcon } from "lucide-react";
 import { parseVideoUrl } from "@/lib/video-embed";
 
 // ─── Types ────────────────────────────────────────────────────────────
