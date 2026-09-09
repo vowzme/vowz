@@ -28,7 +28,7 @@ import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { useAuth } from "@/hooks/use-auth";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Share2, X as CloseIcon } from "lucide-react";
 import { parseVideoUrl } from "@/lib/video-embed";
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -105,6 +105,10 @@ const PublicSite = () => {
   const { user } = useAuth();
   const { createSite } = useWeddingSite();
   const [cloning, setCloning] = useState(false);
+  // On phones the share buttons collapse into a single button so they never
+  // cover the invitation content.
+  const [shareOpen, setShareOpen] = useState(false);
+
   const themedDemoId = slug && slug.startsWith("demo-") && slug !== "demo" ? slug.slice("demo-".length) : null;
   const cloneThemeDemo = async () => {
     if (!themedDemoId) return;
@@ -425,15 +429,18 @@ const PublicSite = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative pb-24 sm:pb-0">
       {themedDemoId && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-50 w-[min(20rem,calc(100vw-6rem))] sm:w-auto"
+          style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}
+        >
           <Button
             variant="gold"
             size="lg"
             onClick={cloneThemeDemo}
             disabled={cloning}
-            className="shadow-xl h-12 px-5 rounded-full"
+            className="shadow-xl h-12 px-5 rounded-full w-full sm:w-auto"
             aria-label="Clone this demo to start a new wedding site"
           >
             <Sparkles className="w-4 h-4 mr-2" />
@@ -441,6 +448,7 @@ const PublicSite = () => {
           </Button>
         </div>
       )}
+
       {seoData && (
         <SEOHead
           title={`${seoData.coupleNames} Wedding Invitation | Vowz`}
@@ -494,13 +502,26 @@ const PublicSite = () => {
           />
         );
       })()}
-      {/* Floating share bar */}
+      {/* Floating share bar — collapsed behind one button on phones */}
       <motion.div
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 1.5, type: "spring", stiffness: 200 }}
-        className="fixed bottom-6 right-6 z-40 flex flex-col gap-2"
+        className="fixed right-3 sm:right-6 z-40 flex flex-col items-end gap-2 bottom-[calc(env(safe-area-inset-bottom,0px)+4.5rem)] sm:bottom-6"
       >
+
+        <button
+          type="button"
+          onClick={() => setShareOpen((v) => !v)}
+          aria-expanded={shareOpen}
+          aria-label={shareOpen ? "Hide sharing options" : "Show sharing options"}
+          className="sm:hidden w-12 h-12 rounded-full shadow-lg flex items-center justify-center"
+          style={{ backgroundColor: accent, color: light }}
+        >
+          {shareOpen ? <CloseIcon className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
+        </button>
+        <div className={`${shareOpen ? "flex" : "hidden"} sm:flex flex-col gap-2 items-end`}>
+
         <a
           href={whatsappUrl}
           target="_blank"
@@ -566,7 +587,9 @@ const PublicSite = () => {
         >
           <Mail className="w-5 h-5" style={{ color: light }} />
         </a>
+        </div>
       </motion.div>
+
 
       {/* Footer */}
       <footer className="py-8 text-center border-t border-border/30">

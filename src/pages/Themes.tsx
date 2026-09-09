@@ -22,6 +22,9 @@ import { mergeSections } from "@/lib/theme-merge";
  * loads, and provides a clear DialogTitle/DialogDescription pair for the
  * accessible name and description of the modal.
  */
+const DEVICE_WIDTHS = { phone: 390, tablet: 834, desktop: 0 } as const;
+type PreviewDevice = keyof typeof DEVICE_WIDTHS;
+
 function FullScreenThemePreview({
   theme,
   starting,
@@ -34,19 +37,28 @@ function FullScreenThemePreview({
   onStart: (t: WeddingTheme) => void;
 }) {
   const [loaded, setLoaded] = useState(false);
-  useEffect(() => { setLoaded(false); }, [theme.id]);
+  // Default to the device the visitor is actually holding, so a preview
+  // opened on a phone shows the phone layout, not a shrunken desktop page.
+  const [device, setDevice] = useState<PreviewDevice>(() => {
+    if (typeof window === "undefined") return "desktop";
+    if (window.innerWidth < 768) return "phone";
+    if (window.innerWidth < 1280) return "tablet";
+    return "desktop";
+  });
+  useEffect(() => { setLoaded(false); }, [theme.id, device]);
   const status = loaded
     ? `${theme.name} landing preview loaded.`
     : `Loading ${theme.name} landing preview…`;
+  const frameWidth = DEVICE_WIDTHS[device];
   return (
-    <div className="flex flex-col w-full h-full">
-      <div className="flex items-center justify-between gap-3 px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0">
+    <div className="flex flex-col w-full h-full max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 h-14 border-b border-border/50 bg-background/90 backdrop-blur shrink-0 max-w-full overflow-hidden">
         <div className="min-w-0">
           <DialogTitle
             id="theme-preview-title"
-            className="font-display text-base sm:text-lg font-semibold truncate"
+            className="font-display text-sm sm:text-lg font-semibold truncate"
           >
-            {theme.name} — full-screen landing page preview
+            {theme.name} preview
           </DialogTitle>
           <DialogDescription
             id="theme-preview-desc"
@@ -55,14 +67,31 @@ function FullScreenThemePreview({
             {theme.tradition}. Interactive demo of the landing page for this theme. Press Escape or use the Close button to return to the theme list.
           </DialogDescription>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Device switcher — visible on tablet and larger where there is room. */}
+          <div className="hidden lg:flex items-center rounded-full border border-border/60 p-0.5">
+            {(["phone", "tablet", "desktop"] as PreviewDevice[]).map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setDevice(d)}
+                aria-pressed={device === d}
+                className={`px-2.5 py-1 rounded-full text-xs font-body capitalize transition-colors ${
+                  device === d ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
           <Button
             variant="gold"
             size="sm"
             disabled={starting}
             onClick={() => onStart(theme)}
           >
-            <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
+            <Wand2 className="w-4 h-4 sm:mr-1" />
+            <span className="hidden sm:inline">{starting ? "Starting…" : "Start with template"}</span>
           </Button>
           <Button
             variant="ghost"
@@ -84,17 +113,21 @@ function FullScreenThemePreview({
       >
         {status}
       </div>
-      <iframe
-        key={theme.id}
-        src={`/site/demo-${theme.id}`}
-        title={`${theme.name} landing preview`}
-        onLoad={() => setLoaded(true)}
-        className="flex-1 w-full border-0 bg-background"
-        tabIndex={0}
-      />
+      <div className="flex-1 min-h-0 w-full max-w-full flex justify-center bg-muted/30 overflow-x-hidden overflow-y-auto">
+        <iframe
+          key={`${theme.id}-${device}`}
+          src={`/site/demo-${theme.id}`}
+          title={`${theme.name} landing preview`}
+          onLoad={() => setLoaded(true)}
+          className="h-full border-0 bg-background w-full"
+          style={frameWidth ? { maxWidth: frameWidth } : undefined}
+          tabIndex={0}
+        />
+      </div>
     </div>
   );
 }
+
 
 // Facet metadata for filtering by region, wedding type (ceremony style), and visual style.
 type Facet = { region: string; type: string; styles: string[] };
@@ -757,7 +790,7 @@ export default function Themes() {
 
       {/* Customize + preview modal */}
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-5xl p-0 overflow-hidden bg-background border-border">
+        <DialogContent className="w-[calc(100vw-1rem)] sm:w-auto max-w-5xl p-0 overflow-hidden bg-background border-border">
           {active && custom && previewTheme && (
             <div
               className="max-h-[92vh] overflow-y-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
@@ -765,39 +798,51 @@ export default function Themes() {
               role="region"
               aria-label={`${active.name} theme customizer`}
             >
-              <div className="sticky top-0 z-10 bg-background/90 backdrop-blur border-b border-border/50 px-5 py-3 flex items-center justify-between">
-                <div>
-                  <h2 className="font-display text-xl font-semibold">{active.name}</h2>
-                  <p className="text-xs text-muted-foreground">{active.tradition} · customize before you publish</p>
+              <div className="sticky top-0 z-10 bg-background/90 backdrop-blur border-b border-border/50 px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h2 className="font-display text-lg sm:text-xl font-semibold truncate">{active.name}</h2>
+                    <p className="text-xs text-muted-foreground truncate">{active.tradition} · customize before you publish</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActive(null)}
+                    aria-label="Close"
+                    className="sm:hidden shrink-0 p-2 rounded-md hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => setCustom(customFrom(active))}>
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                  <Button variant="ghost" size="sm" className="justify-center" onClick={() => setCustom(customFrom(active))}>
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     type="button"
+                    className="justify-center"
                     onClick={() => { if (active) persistPreviewedTheme(active); setPreviewTpl(active); }}
                   >
                     <Eye className="w-4 h-4 mr-1" /> Preview
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => startFromTemplate(active)} disabled={starting}>
-                    <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
+                  <Button variant="outline" size="sm" className="justify-center" onClick={() => startFromTemplate(active)} disabled={starting}>
+                    <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Use template"}
                   </Button>
-                  <Button variant="gold" size="sm" onClick={applyTheme} disabled={applying}>
-                    <Check className="w-4 h-4 mr-1" /> {applying ? "Applying…" : "Apply to my site"}
+                  <Button variant="gold" size="sm" className="justify-center" onClick={applyTheme} disabled={applying}>
+                    <Check className="w-4 h-4 mr-1" /> {applying ? "Applying…" : "Apply"}
                   </Button>
                   <button
                     type="button"
                     onClick={() => setActive(null)}
                     aria-label="Close"
-                    className="p-2 rounded-md hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="hidden sm:block p-2 rounded-md hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
+
 
               <div className="grid md:grid-cols-[280px_1fr] gap-0">
                 {/* Controls */}
