@@ -121,6 +121,39 @@ export default function GuestList() {
     })();
   }, [siteId, user, navigate, perms.loading]);
 
+  // ─── Fallback refresh ───────────────────────────────────────────────
+  // Live updates can drop on flaky mobile networks. Rather than showing an
+  // error, quietly re-read the responses on a timer and when the tab regains
+  // focus, so the guest list is always populated with saved data.
+  useEffect(() => {
+    if (!siteId) return;
+    let cancelled = false;
+
+    const refresh = async () => {
+      if (document.visibilityState !== "visible") return;
+      const { data, error } = await supabase
+        .from("rsvps")
+        .select("id, guest_name, guest_email, attending, guest_count, meal_preference, selected_events, message, created_at, plus_ones")
+        .eq("wedding_site_id", siteId)
+        .order("created_at", { ascending: false });
+      if (!cancelled && !error && data) {
+        setRows((prev) => (data.length || prev.length ? (data as any) : prev));
+        setLastSyncedAt(new Date());
+      }
+    };
+
+    const interval = window.setInterval(refresh, realtimeHealth === "live" ? 120000 : 25000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [siteId, realtimeHealth]);
+
+
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return rows.filter((r) => {
