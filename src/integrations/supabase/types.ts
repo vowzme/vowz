@@ -2355,6 +2355,60 @@ export type Database = {
           },
         ]
       }
+      wedding_report_leads: {
+        Row: {
+          answers: Json
+          budget: number | null
+          city: string | null
+          couple_name: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          guest_count: number | null
+          id: string
+          phone: string | null
+          report: Json
+          score: number | null
+          user_id: string | null
+          visitor_id: string | null
+          wedding_date: string | null
+        }
+        Insert: {
+          answers?: Json
+          budget?: number | null
+          city?: string | null
+          couple_name?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          guest_count?: number | null
+          id?: string
+          phone?: string | null
+          report?: Json
+          score?: number | null
+          user_id?: string | null
+          visitor_id?: string | null
+          wedding_date?: string | null
+        }
+        Update: {
+          answers?: Json
+          budget?: number | null
+          city?: string | null
+          couple_name?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          guest_count?: number | null
+          id?: string
+          phone?: string | null
+          report?: Json
+          score?: number | null
+          user_id?: string | null
+          visitor_id?: string | null
+          wedding_date?: string | null
+        }
+        Relationships: []
+      }
       wedding_site_passwords: {
         Row: {
           password: string
