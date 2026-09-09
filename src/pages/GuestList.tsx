@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeHealth } from "@/lib/realtime-health";
+
 import { useAuth } from "@/hooks/use-auth";
 import { useSitePermissions } from "@/hooks/use-site-permissions";
 import { toast } from "@/hooks/use-toast";
@@ -59,7 +61,10 @@ export default function GuestList() {
   const [loading, setLoading] = useState(true);
   const [site, setSite] = useState<Site | null>(null);
   const [rows, setRows] = useState<Rsvp[]>([]);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+  const realtimeHealth = useRealtimeHealth();
   const [inviteMeta, setInviteMeta] = useState<Record<string, InviteMeta>>({});
+
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "yes" | "no">("all");
   const [events, setEvents] = useState<WeddingEvent[]>([]);
