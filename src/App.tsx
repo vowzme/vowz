@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
 import { IosInstallPrompt } from "./components/IosInstallPrompt";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import WhatsAppSupport from "@/components/WhatsAppSupport";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import RealtimeRecovery from "@/components/RealtimeRecovery";
@@ -185,6 +186,7 @@ const App = () => (
                   <AppRoutes />
                 </Suspense>
               </ErrorBoundary>
+              <WhatsAppSupport />
               <MobileBottomNav />
               <IosInstallPrompt />
             </BrowserRouter>

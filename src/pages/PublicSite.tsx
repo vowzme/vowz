@@ -23,6 +23,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 import BackgroundMusicPlayer from "@/components/BackgroundMusicPlayer";
 import { DEFAULT_STORY } from "@/lib/default-story";
 import { demoWeddingSite } from "@/lib/demo-site";
+import RitualsSection from "@/components/RitualsSection";
 import { getThemeDemoSite } from "@/lib/theme-demo-sites";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
@@ -715,6 +716,7 @@ function PublicSection({
   if (type === "custom") return <StorySection data={td} accent={accent} />;
   if (type === "polls") return <PollsSection data={td} site={site} accent={accent} />;
   if (type === "ecotips") return <EcoTipsSection data={td} accent={accent} />;
+  if (type === "rituals") return <RitualsSection data={td} accent={accent} />;
   if (type === "video") return <VideoSection data={td} accent={accent} coupleNames={coupleNames} trackEvent={trackEvent} />;
   if (type === "livestream") return <LivestreamPublicSection data={td} accent={accent} />;
   if (type === "blessings") return <BlessingWall siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;

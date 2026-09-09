@@ -415,6 +415,12 @@ export const THEME_CATEGORIES: ThemeCategory[] = [
     themeIds: ["goa-beach", "boho-destination"],
   },
   {
+    id: "muslim-nikah",
+    label: "Muslim · Nikah & Walima",
+    description: "Emerald jaali arches, antique gold calligraphy and soft Walima rose.",
+    themeIds: ["nikah-emerald", "walima-rose"],
+  },
+  {
     id: "christian",
     label: "Christian & Chapel",
     description: "Cathedral hush, blush florals, and sage-toned receptions.",

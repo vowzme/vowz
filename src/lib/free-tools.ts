@@ -979,6 +979,115 @@ const finalWeekChecklist: FreeTool = {
   },
 };
 
+// ─────────────────────────────────────────────────────────────────────────
+// 8. Wedding Day Timeline Planner
+// ─────────────────────────────────────────────────────────────────────────
+const dayTimeline: FreeTool = {
+  slug: "wedding-day-timeline",
+  name: "Wedding Day Timeline Planner",
+  emoji: "⏱️",
+  tagline: "An hour-by-hour plan for the wedding day you can print and hand to every vendor.",
+  description:
+    "Give us your ceremony time and what happens around it. You get a realistic hour-by-hour running order with buffers built in, plus who needs to be told what.",
+  output: "Hour-by-hour running order",
+  minutes: 3,
+  seoTitle: "Free Wedding Day Timeline Planner (Hour by Hour) | Vowz",
+  seoDescription:
+    "Build a free hour-by-hour Indian wedding day timeline. Enter your muhurat or ceremony time and get a printable running order for the couple, family and vendors.",
+  keywords: ["wedding day timeline", "wedding running order", "muhurat timeline", "indian wedding schedule", "wedding day plan"],
+  fields: [
+    { id: "ceremony", label: "Ceremony / muhurat start time", type: "text", placeholder: "19:30", required: true, help: "24-hour time works best, e.g. 19:30." },
+    { id: "tradition", label: "Kind of ceremony", type: "select", options: ["Hindu", "Muslim · Nikah", "Sikh · Anand Karaj", "Christian", "Civil / registry"], required: true },
+    { id: "baraat", label: "Is there a baraat or procession?", type: "select", options: ["Yes", "No"] },
+    { id: "reception", label: "Reception on the same day?", type: "select", options: ["Yes", "No"] },
+    { id: "photos", label: "Couple portrait session", type: "select", options: ["Before the ceremony", "After the ceremony", "Skip it"] },
+    { id: "guests", label: "Guest count", type: "number", placeholder: "300" },
+  ],
+  compute: (a) => {
+    const parse = (s: string) => {
+      const m = String(s || "").match(/(\d{1,2})[:.\s]?(\d{2})?\s*(am|pm)?/i);
+      if (!m) return 19 * 60 + 30;
+      let h = Number(m[1]);
+      const mi = Number(m[2] || 0);
+      const ap = (m[3] || "").toLowerCase();
+      if (ap === "pm" && h < 12) h += 12;
+      if (ap === "am" && h === 12) h = 0;
+      return ((h * 60 + mi) % 1440 + 1440) % 1440;
+    };
+    const fmt = (mins: number) => {
+      const t = ((mins % 1440) + 1440) % 1440;
+      const h = Math.floor(t / 60);
+      const m = t % 60;
+      const ap = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 === 0 ? 12 : h % 12;
+      return `${h12}:${String(m).padStart(2, "0")} ${ap}`;
+    };
+
+    const c = parse(a.ceremony);
+    const guests = num(a.guests, 250);
+    const big = guests > 350;
+    const tradition = a.tradition || "Hindu";
+    const rows: string[] = [];
+    const at = (offset: number, what: string) => rows.push(`${fmt(c + offset)} — ${what}`);
+
+    at(-300, "Bride's and groom's makeup and hair begin (allow 3 hours for the couple, 1 hour per family member).");
+    at(-240, "Photographer and videographer arrive for getting-ready shots.");
+    at(-210, "Decorator finishes the mandap/stage. Walk it yourself and check the lighting.");
+    at(-180, "Caterer sets up. Confirm the final plate count in person, not on WhatsApp.");
+    if (a.photos === "Before the ceremony") at(-150, "Couple portrait session (45 minutes, protected — nobody interrupts).");
+    at(-120, "Guests start arriving. Welcome drinks and snacks open.");
+    if (a.baraat === "Yes") {
+      at(-90, "Baraat assembles at the gathering point. Band, horse or car ready.");
+      at(-60, `Baraat procession begins${big ? " — allow 45 minutes, it always runs long with a big crowd" : ""}.`);
+      at(-20, "Milni / welcome at the venue gate, garlands and family introductions.");
+    } else {
+      at(-45, "Family seated, ushers guide guests to the ceremony area.");
+    }
+    at(-10, "Couple in place. Sound check the mic one final time.");
+    at(0, `${tradition === "Muslim · Nikah" ? "Nikah begins" : tradition === "Sikh · Anand Karaj" ? "Anand Karaj begins" : tradition === "Christian" ? "Church ceremony begins" : tradition === "Civil / registry" ? "Registry ceremony begins" : "Ceremony begins at the muhurat"}.`);
+    const cerLen = tradition === "Muslim · Nikah" ? 45 : tradition === "Civil / registry" ? 30 : tradition === "Christian" ? 60 : 90;
+    at(cerLen, "Ceremony ends. Blessings and immediate family photos.");
+    if (a.photos === "After the ceremony") at(cerLen + 15, "Couple portrait session (45 minutes).");
+    at(cerLen + 30, `Group photos with extended family — ${big ? "expect 60 minutes at this size" : "allow 40 minutes"}. Have a named list ready.`);
+    at(cerLen + 60, "Dinner service opens. Couple eats first, quietly, before greeting tables.");
+    if (a.reception === "Yes") {
+      at(cerLen + 90, "Reception stage opens. Guest greetings and gifting line.");
+      at(cerLen + 150, "Speeches, cake or first dance if you are having one.");
+      at(cerLen + 210, "Music peaks — the last hour is when the dance floor actually fills.");
+    }
+    at(cerLen + (a.reception === "Yes" ? 260 : 150), "Vendors wind down. One family member stays back to settle payments and collect gifts.");
+    at(cerLen + (a.reception === "Yes" ? 300 : 180), "Vidaai / farewell, then the couple leaves.");
+
+    return {
+      headline: `Your wedding day running order — ceremony at ${fmt(c)}`,
+      summary: `Built backwards from your ceremony time for roughly ${guests} guests, with the buffers most timelines forget.`,
+      blocks: [
+        { heading: "Hour by hour", items: rows },
+        {
+          heading: "Give a copy to these people",
+          items: [
+            "Photographer and videographer — they plan their crew shifts around it.",
+            "Caterer — so dinner opens when guests are actually free, not mid-ceremony.",
+            "Decorator and sound/DJ team — setup deadlines are the ones that slip.",
+            "Two family coordinators, one on each side, who answer vendor calls instead of you.",
+            "Makeup artist — the earliest call time on the sheet is theirs.",
+          ],
+        },
+        {
+          heading: "Where days usually run late",
+          items: [
+            "Makeup runs over. Add 30 minutes to whatever the artist promises.",
+            "The baraat starts late almost every time. Announce it 30 minutes earlier than you need it.",
+            "Group photos have no natural end. A named shot list is the only fix.",
+            "Guests arrive in the last 20 minutes before the ceremony, all at once — plan parking for that spike.",
+          ],
+          note: "Print this and stick a copy at the makeup room, the entrance desk and the catering counter.",
+        },
+      ],
+    };
+  },
+};
+
 export const FREE_TOOLS: FreeTool[] = [
   menuBuilder,
   sangeetFinder,
@@ -987,6 +1096,7 @@ export const FREE_TOOLS: FreeTool[] = [
   hiddenCostCheck,
   guestMessageWriter,
   finalWeekChecklist,
+  dayTimeline,
 ];
 
 export function getFreeTool(slug: string): FreeTool | undefined {
