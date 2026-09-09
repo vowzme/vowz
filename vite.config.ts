@@ -125,4 +125,27 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Split the shared vendor code out of the single 1 MB entry chunk so the
+    // browser can download them in parallel and keep them cached between
+    // releases (app code changes far more often than React/Radix/Supabase).
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (!id.includes("node_modules")) return;
+          if (/[\\/]node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom)[\\/]/.test(id))
+            return "vendor-react";
+          if (id.includes("framer-motion") || id.includes("motion-dom") || id.includes("motion-utils"))
+            return "vendor-motion";
+          if (id.includes("@supabase")) return "vendor-supabase";
+          if (id.includes("@radix-ui")) return "vendor-radix";
+          if (id.includes("@tanstack")) return "vendor-query";
+          if (id.includes("lucide-react")) return "vendor-icons";
+          if (id.includes("date-fns")) return "vendor-date";
+          return "vendor";
+        },
+      },
+    },
+    chunkSizeWarningLimit: 700,
+  },
 }));

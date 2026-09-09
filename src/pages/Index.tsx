@@ -1,14 +1,19 @@
+import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
-import TemplatesSection from "@/components/TemplatesSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import PricingSection from "@/components/PricingSection";
-import FAQSection from "@/components/FAQSection";
-import CTASection from "@/components/CTASection";
 import SEOHead from "@/components/SEOHead";
 import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
+
+// Below-the-fold sections load after the hero so first paint stays fast.
+const TemplatesSection = lazy(() => import("@/components/TemplatesSection"));
+const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
+const PricingSection = lazy(() => import("@/components/PricingSection"));
+const FAQSection = lazy(() => import("@/components/FAQSection"));
+const CTASection = lazy(() => import("@/components/CTASection"));
+
+const SectionFallback = () => <div className="h-64" aria-hidden="true" />;
 
 const Index = () => {
   useCaptureAffiliate();
