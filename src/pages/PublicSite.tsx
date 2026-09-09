@@ -587,7 +587,9 @@ const PublicSite = () => {
         >
           <Mail className="w-5 h-5" style={{ color: light }} />
         </a>
+        </div>
       </motion.div>
+
 
       {/* Footer */}
       <footer className="py-8 text-center border-t border-border/30">
