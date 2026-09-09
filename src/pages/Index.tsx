@@ -93,11 +93,13 @@ const Index = () => {
       <main>
         <HeroSection />
         <FeaturesSection />
-        <TemplatesSection />
-        <TestimonialsSection />
-        <PricingSection />
-        <FAQSection />
-        <CTASection />
+        <Suspense fallback={<SectionFallback />}>
+          <TemplatesSection />
+          <TestimonialsSection />
+          <PricingSection />
+          <FAQSection />
+          <CTASection />
+        </Suspense>
       </main>
     </div>
   );
