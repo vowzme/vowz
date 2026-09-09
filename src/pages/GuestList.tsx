@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Search, Download, FileText, MessageCircle, Users, Check, X as XIcon, Loader2, Mail, Copy, Megaphone, Smartphone, FileSpreadsheet } from "lucide-react";
-import * as XLSX from "xlsx";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -210,7 +210,10 @@ export default function GuestList() {
     URL.revokeObjectURL(url);
   };
 
-  const exportXlsx = () => {
+  const exportXlsx = async () => {
+    // Loaded on demand — the spreadsheet library is ~300 kB and is only
+    // needed when someone actually clicks Export.
+    const XLSX = await import("xlsx");
     const roster = buildRoster();
     if (roster.length === 0) return;
     const summary = [
