@@ -1,4 +1,6 @@
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { setRealtimeHealth } from "@/lib/realtime-health";
+
 
 // Client-side logger for Realtime subscription lifecycle events. Emits a
 // structured record to the console and dispatches a `vowz:realtime-error`
@@ -92,6 +94,9 @@ export function subscribeWithLogging(
       const message =
         err instanceof Error ? err.message : err ? String(err) : undefined;
       emit(buildRecord(status as RealtimeSubscribeStatus, ctx, message));
+      if (status === "SUBSCRIBED") setRealtimeHealth("live");
+      else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT")
+        setRealtimeHealth("degraded");
     });
   } catch (err) {
     emit(
@@ -101,6 +106,7 @@ export function subscribeWithLogging(
         err instanceof Error ? err.message : String(err),
       ),
     );
+    setRealtimeHealth("degraded");
     // A synchronous subscribe failure can happen while a mobile browser is
     // resuming or replacing a stale socket. The Realtime client will recover
     // when connectivity returns; do not let this escape a React effect and
@@ -108,3 +114,4 @@ export function subscribeWithLogging(
     return channel;
   }
 }
+

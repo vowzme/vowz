@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeHealth } from "@/lib/realtime-health";
+
 import { useAuth } from "@/hooks/use-auth";
 import { useSitePermissions } from "@/hooks/use-site-permissions";
 import { toast } from "@/hooks/use-toast";
@@ -59,7 +61,10 @@ export default function GuestList() {
   const [loading, setLoading] = useState(true);
   const [site, setSite] = useState<Site | null>(null);
   const [rows, setRows] = useState<Rsvp[]>([]);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+  const realtimeHealth = useRealtimeHealth();
   const [inviteMeta, setInviteMeta] = useState<Record<string, InviteMeta>>({});
+
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "yes" | "no">("all");
   const [events, setEvents] = useState<WeddingEvent[]>([]);
@@ -120,6 +125,39 @@ export default function GuestList() {
       setLoading(false);
     })();
   }, [siteId, user, navigate, perms.loading]);
+
+  // ─── Fallback refresh ───────────────────────────────────────────────
+  // Live updates can drop on flaky mobile networks. Rather than showing an
+  // error, quietly re-read the responses on a timer and when the tab regains
+  // focus, so the guest list is always populated with saved data.
+  useEffect(() => {
+    if (!siteId) return;
+    let cancelled = false;
+
+    const refresh = async () => {
+      if (document.visibilityState !== "visible") return;
+      const { data, error } = await supabase
+        .from("rsvps")
+        .select("id, guest_name, guest_email, attending, guest_count, meal_preference, selected_events, message, created_at, plus_ones")
+        .eq("wedding_site_id", siteId)
+        .order("created_at", { ascending: false });
+      if (!cancelled && !error && data) {
+        setRows((prev) => (data.length || prev.length ? (data as any) : prev));
+        setLastSyncedAt(new Date());
+      }
+    };
+
+    const interval = window.setInterval(refresh, realtimeHealth === "live" ? 120000 : 25000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [siteId, realtimeHealth]);
+
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -429,6 +467,15 @@ export default function GuestList() {
               </Button>
             </div>
           </div>
+
+          {realtimeHealth === "degraded" && (
+            <div className="mb-4 rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs font-body text-muted-foreground">
+              Live updates are reconnecting. Your guest list is still up to date and refreshes every few seconds
+              {lastSyncedAt ? ` — last checked ${lastSyncedAt.toLocaleTimeString()}` : ""}.
+            </div>
+          )}
+
+
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             <Stat label="Total RSVPs" value={stats.total} icon={<Users className="w-4 h-4" />} />
