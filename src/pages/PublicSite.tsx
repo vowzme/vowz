@@ -1246,6 +1246,14 @@ function GuestbookSection({ data, site, accent, trackEvent }: { data: any; site:
 // ─── RSVP Form ────────────────────────────────────────────────────────
 function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; site: WeddingSite; bg: string; accent: string; trackEvent: (type: string, meta?: Record<string, any>) => void; t: TranslateFn }) {
   const [submitted, setSubmitted] = useState(false);
+  // Counts guests who actually reached the RSVP form (funnel step in Admin).
+  const rsvpViewTracked = useRef(false);
+  useEffect(() => {
+    if (rsvpViewTracked.current) return;
+    rsvpViewTracked.current = true;
+    trackEvent("rsvp_view");
+  }, [trackEvent]);
+
   const [submittedDietary, setSubmittedDietary] = useState<{ tags: string[]; notes: string }>({ tags: [], notes: "" });
   const [submittedPlusOnes, setSubmittedPlusOnes] = useState<PlusOne[]>([]);
   const [submitting, setSubmitting] = useState(false);
