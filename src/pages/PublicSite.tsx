@@ -502,13 +502,26 @@ const PublicSite = () => {
           />
         );
       })()}
-      {/* Floating share bar */}
+      {/* Floating share bar — collapsed behind one button on phones */}
       <motion.div
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 1.5, type: "spring", stiffness: 200 }}
-        className="fixed bottom-6 right-6 z-40 flex flex-col gap-2"
+        className="fixed right-3 sm:right-6 z-40 flex flex-col items-end gap-2"
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 4.5rem)" }}
       >
+        <button
+          type="button"
+          onClick={() => setShareOpen((v) => !v)}
+          aria-expanded={shareOpen}
+          aria-label={shareOpen ? "Hide sharing options" : "Show sharing options"}
+          className="sm:hidden w-12 h-12 rounded-full shadow-lg flex items-center justify-center"
+          style={{ backgroundColor: accent, color: light }}
+        >
+          {shareOpen ? <CloseIcon className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
+        </button>
+        <div className={`${shareOpen ? "flex" : "hidden"} sm:flex flex-col gap-2 items-end`}>
+
         <a
           href={whatsappUrl}
           target="_blank"
