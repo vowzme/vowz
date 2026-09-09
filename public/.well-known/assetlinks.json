@@ -1,8 +1,10 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "me.vowz.twa",
-        "sha256_cert_fingerprints": ["63:1D:D6:54:03:96:C2:49:49:1A:69:BC:0D:80:7F:B7:37:8C:54:DA:3A:FB:0B:3D:2B:AF:F5:AB:BD:60:C9:DD"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "me.vowz.twa",
+    "sha256_cert_fingerprints": [
+      "43:0F:7B:B3:A0:F6:1F:4F:4C:E2:77:A1:C8:DE:3C:05:01:16:5F:84:DE:1E:84:C1:65:BC:95:DA:79:6C:1E:F4"
+    ]
+  }
+}]
