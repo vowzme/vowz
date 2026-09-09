@@ -757,7 +757,7 @@ export default function Themes() {
 
       {/* Customize + preview modal */}
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-5xl p-0 overflow-hidden bg-background border-border">
+        <DialogContent className="w-[calc(100vw-1rem)] sm:w-auto max-w-5xl p-0 overflow-hidden bg-background border-border">
           {active && custom && previewTheme && (
             <div
               className="max-h-[92vh] overflow-y-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
@@ -765,39 +765,51 @@ export default function Themes() {
               role="region"
               aria-label={`${active.name} theme customizer`}
             >
-              <div className="sticky top-0 z-10 bg-background/90 backdrop-blur border-b border-border/50 px-5 py-3 flex items-center justify-between">
-                <div>
-                  <h2 className="font-display text-xl font-semibold">{active.name}</h2>
-                  <p className="text-xs text-muted-foreground">{active.tradition} · customize before you publish</p>
+              <div className="sticky top-0 z-10 bg-background/90 backdrop-blur border-b border-border/50 px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h2 className="font-display text-lg sm:text-xl font-semibold truncate">{active.name}</h2>
+                    <p className="text-xs text-muted-foreground truncate">{active.tradition} · customize before you publish</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActive(null)}
+                    aria-label="Close"
+                    className="sm:hidden shrink-0 p-2 rounded-md hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => setCustom(customFrom(active))}>
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                  <Button variant="ghost" size="sm" className="justify-center" onClick={() => setCustom(customFrom(active))}>
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     type="button"
+                    className="justify-center"
                     onClick={() => { if (active) persistPreviewedTheme(active); setPreviewTpl(active); }}
                   >
                     <Eye className="w-4 h-4 mr-1" /> Preview
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => startFromTemplate(active)} disabled={starting}>
-                    <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Start with template"}
+                  <Button variant="outline" size="sm" className="justify-center" onClick={() => startFromTemplate(active)} disabled={starting}>
+                    <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Use template"}
                   </Button>
-                  <Button variant="gold" size="sm" onClick={applyTheme} disabled={applying}>
-                    <Check className="w-4 h-4 mr-1" /> {applying ? "Applying…" : "Apply to my site"}
+                  <Button variant="gold" size="sm" className="justify-center" onClick={applyTheme} disabled={applying}>
+                    <Check className="w-4 h-4 mr-1" /> {applying ? "Applying…" : "Apply"}
                   </Button>
                   <button
                     type="button"
                     onClick={() => setActive(null)}
                     aria-label="Close"
-                    className="p-2 rounded-md hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="hidden sm:block p-2 rounded-md hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
+
 
               <div className="grid md:grid-cols-[280px_1fr] gap-0">
                 {/* Controls */}
