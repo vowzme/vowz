@@ -1,12 +1,17 @@
 import { Component, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { setRealtimeHealth } from "@/lib/realtime-health";
 
 interface Props { children: ReactNode }
 interface State { hasError: boolean; error?: Error; retryKey: number }
 
+const REALTIME_PATTERN =
+  /realtime|websocket|web socket|socket closed|channel_error|subscribe|live update/i;
+
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false, retryKey: 0 };
+  private autoRecoveries = 0;
 
   static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error, retryKey: 0 };
@@ -15,6 +20,14 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // eslint-disable-next-line no-console
     console.error("[ErrorBoundary]", error, info.componentStack);
+
+    // A dropped live-update stream is never fatal: mark it degraded so screens
+    // switch to polling, and quietly remount instead of showing an error page.
+    if (REALTIME_PATTERN.test(error?.message ?? "") && this.autoRecoveries < 3) {
+      this.autoRecoveries += 1;
+      setRealtimeHealth("degraded");
+      this.softRetry();
+    }
   }
 
   private softRetry = () => {
@@ -22,6 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
     // network failures without dropping the user's auth session.
     this.setState((s) => ({ hasError: false, error: undefined, retryKey: s.retryKey + 1 }));
   };
+
 
   render() {
     if (!this.state.hasError) {
