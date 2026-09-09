@@ -1291,6 +1291,51 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          meta: Json | null
+          path: string | null
+          referrer: string | null
+          session_id: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          meta?: Json | null
+          path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          meta?: Json | null
+          path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       poll_votes: {
         Row: {
           created_at: string
@@ -2662,6 +2707,20 @@ export type Database = {
           is_admin: boolean
           is_owner: boolean
           permissions: Json
+        }[]
+      }
+      get_platform_funnel: {
+        Args: { _days?: number }
+        Returns: {
+          auth_viewers: number
+          pricing_viewers: number
+          rsvp_form_views: number
+          rsvp_page_visitors: number
+          rsvp_submissions: number
+          signups: number
+          sites_created: number
+          sites_published: number
+          visitors: number
         }[]
       }
       get_template_popularity: {

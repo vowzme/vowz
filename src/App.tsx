@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { PricingRegionProvider } from "@/hooks/use-pricing-region";
 import Layout from "@/components/Layout";
 import ScrollToTop from "@/components/ScrollToTop";
+import PlatformAnalytics from "@/components/PlatformAnalytics";
 import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -54,6 +55,7 @@ const AdminReminderRuns = lazy(() => import("./pages/admin/AdminReminderRuns"));
 const AdminEmailBranding = lazy(() => import("./pages/admin/AdminEmailBranding"));
 const AdminGuestModeration = lazy(() => import("./pages/admin/AdminGuestModeration"));
 const AdminRsvps = lazy(() => import("./pages/admin/AdminRsvps"));
+const AdminVisitors = lazy(() => import("./pages/admin/AdminVisitors"));
 const InvitationCard = lazy(() => import("./pages/InvitationCard"));
 const CardGallery = lazy(() => import("./pages/CardGallery"));
 const CardTemplatesPreview = lazy(() => import("./pages/CardTemplatesPreview"));
@@ -152,6 +154,7 @@ const AppRoutes = () => (
     <Route path="/admin/email-branding" element={<AdminLayout><AdminEmailBranding /></AdminLayout>} />
     <Route path="/admin/guest-moderation" element={<AdminLayout><AdminGuestModeration /></AdminLayout>} />
     <Route path="/admin/rsvps" element={<AdminLayout><AdminRsvps /></AdminLayout>} />
+    <Route path="/admin/visitors" element={<AdminLayout><AdminVisitors /></AdminLayout>} />
     <Route path="/blog" element={<Layout><Blog /></Layout>} />
     <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
     <Route path="/delete-account" element={<Layout><DeleteAccount /></Layout>} />
@@ -170,6 +173,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
+              <PlatformAnalytics />
               <ErrorBoundary>
                 <Suspense fallback={<RouteFallback />}>
                   <AppRoutes />
