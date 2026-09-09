@@ -5,10 +5,9 @@
  * Never registers in Lovable preview, dev servers, iframes, or when the
  * URL carries `?sw=off` (kill switch). See docs/pwabuilder-android.md.
  *
- * When a new SW is installed and waiting, shows a sonner toast prompting
- * the user to reload so the fresh offline cache and app shell take effect.
+ * New versions install and activate silently, then the page refreshes
+ * once so users always run the latest build without any prompt.
  */
-import { toast } from "sonner";
 import { trackPwaEvent, wireConnectivityAnalytics } from "@/lib/pwa-analytics";
 
 const SW_PATH = "/sw.js";
