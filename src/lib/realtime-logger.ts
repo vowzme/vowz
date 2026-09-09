@@ -1,4 +1,6 @@
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { setRealtimeHealth } from "@/lib/realtime-health";
+
 
 // Client-side logger for Realtime subscription lifecycle events. Emits a
 // structured record to the console and dispatches a `vowz:realtime-error`
