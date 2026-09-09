@@ -103,6 +103,30 @@
 </head>
 
   <body>
+    <style>
+      #boot-splash{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        background:radial-gradient(120% 80% at 50% 42%, #ffffff 0%, #fcf9f2 55%, #f6f1e7 100%);
+        font-family:Georgia,'Times New Roman',serif;transition:opacity .45s ease;}
+      #boot-splash.is-hidden{opacity:0;pointer-events:none;}
+      #boot-splash .bs-frame{position:absolute;inset:5.5vmin;border:1px solid rgba(212,175,55,.55);}
+      #boot-splash .bs-logo{width:min(66vw,420px);opacity:0;transform:translateY(8px);animation:bsIn .7s ease .05s forwards;}
+      #boot-splash .bs-rule{display:flex;align-items:center;gap:12px;margin-top:5vmin;opacity:0;animation:bsIn .7s ease .25s forwards;}
+      #boot-splash .bs-rule i{display:block;width:min(16vw,90px);height:1px;background:rgba(212,175,55,.85);}
+      #boot-splash .bs-rule b{display:block;width:8px;height:8px;background:#D4AF37;transform:rotate(45deg);}
+      #boot-splash .bs-tag{margin-top:3.4vmin;color:#001F3F;letter-spacing:.16em;font-size:clamp(15px,4.6vw,26px);
+        opacity:0;animation:bsIn .7s ease .4s forwards;}
+      #boot-splash .bs-foot{position:absolute;bottom:11vmin;color:#96824f;letter-spacing:.3em;font-size:11px;
+        font-family:system-ui,-apple-system,sans-serif;opacity:0;animation:bsIn .7s ease .6s forwards;}
+      @keyframes bsIn{to{opacity:1;transform:none;}}
+      @media (prefers-reduced-motion: reduce){#boot-splash *{animation-duration:.01ms!important;opacity:1!important;transform:none!important;}}
+    </style>
+    <div id="boot-splash" role="status" aria-label="Vowz is loading">
+      <span class="bs-frame"></span>
+      <img class="bs-logo" src="/brand/vowz-logo.png" alt="Vowz" width="1000" height="151" />
+      <span class="bs-rule"><i></i><b></b><i></i></span>
+      <span class="bs-tag">Where Vows Come Alive</span>
+      <span class="bs-foot">VOWZ.ME</span>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
