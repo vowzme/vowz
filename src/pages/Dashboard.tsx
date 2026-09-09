@@ -41,6 +41,8 @@ import DashboardTour from "@/components/DashboardTour";
 import DashboardMusicCard from "@/components/DashboardMusicCard";
 import HelpTip from "@/components/HelpTip";
 import { subscribeWithLogging } from "@/lib/realtime-logger";
+import { useRealtimeHealth } from "@/lib/realtime-health";
+
 import { validateVideoUrl } from "@/lib/video-embed";
 import AutomatedRsvpReminders from "@/components/AutomatedRsvpReminders";
 
@@ -258,6 +260,8 @@ const Dashboard = () => {
   };
   const [loading, setLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
+  const realtimeHealth = useRealtimeHealth();
+
   const [profileData, setProfileData] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
