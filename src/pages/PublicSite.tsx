@@ -105,6 +105,10 @@ const PublicSite = () => {
   const { user } = useAuth();
   const { createSite } = useWeddingSite();
   const [cloning, setCloning] = useState(false);
+  // On phones the share buttons collapse into a single button so they never
+  // cover the invitation content.
+  const [shareOpen, setShareOpen] = useState(false);
+
   const themedDemoId = slug && slug.startsWith("demo-") && slug !== "demo" ? slug.slice("demo-".length) : null;
   const cloneThemeDemo = async () => {
     if (!themedDemoId) return;
