@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
+import { trackPlatformEvent } from "@/lib/platform-analytics";
 import { supabase } from "@/integrations/supabase/client";
 import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 import SEOHead from "@/components/SEOHead";
@@ -79,8 +80,10 @@ const Auth = () => {
           toast({ title: "Password must be at least 6 characters", variant: "destructive" });
           return;
         }
+        trackPlatformEvent("signup_started", { path: "/auth" });
         const { error, needsVerification } = await signUp(form.email, form.password, form.name);
         if (error) throw error;
+        trackPlatformEvent("signup_completed", { path: "/auth", meta: { needsVerification: !!needsVerification } });
         if (needsVerification) {
           setPendingVerificationEmail(form.email);
           toast({

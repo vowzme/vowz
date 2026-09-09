@@ -14,6 +14,7 @@ import {
   HardDrive,
   Palette,
   Heart,
+  TrendingUp,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -32,6 +33,7 @@ import {
 const items = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+  { title: "Visitors & Funnel", url: "/admin/visitors", icon: TrendingUp },
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Sites", url: "/admin/sites", icon: Globe },
   { title: "RSVPs", url: "/admin/rsvps", icon: Heart },
