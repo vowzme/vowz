@@ -79,9 +79,9 @@ function buildRecord(
 }
 
 /**
- * Instrument an already-created RealtimeChannel by re-subscribing with a
- * status callback. Safe to call after `.on(...)` has been chained — do NOT
- * call `.subscribe()` yourself when using this helper.
+ * Instrument an already-created RealtimeChannel by subscribing with a status
+ * callback. Realtime is an enhancement: an inability to start a WebSocket
+ * must never take down the page or discard the data already on screen.
  */
 export function subscribeWithLogging(
   channel: RealtimeChannel,
@@ -101,6 +101,10 @@ export function subscribeWithLogging(
         err instanceof Error ? err.message : String(err),
       ),
     );
-    throw err;
+    // A synchronous subscribe failure can happen while a mobile browser is
+    // resuming or replacing a stale socket. The Realtime client will recover
+    // when connectivity returns; do not let this escape a React effect and
+    // trip the application-level error boundary.
+    return channel;
   }
 }

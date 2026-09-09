@@ -16,6 +16,7 @@ import { IosInstallPrompt } from "./components/IosInstallPrompt";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import RealtimeRecovery from "@/components/RealtimeRecovery";
 
 const Auth = lazy(() => import("./pages/Auth"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -164,6 +165,7 @@ const App = () => (
       <TooltipProvider>
         <PricingRegionProvider>
           <AuthProvider>
+            <RealtimeRecovery />
             <Toaster />
             <Sonner />
             <BrowserRouter>

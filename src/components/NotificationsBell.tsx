@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatDistanceToNow } from "date-fns";
+import { subscribeWithLogging } from "@/lib/realtime-logger";
 
 interface Notification {
   id: string;
@@ -38,9 +39,10 @@ export default function NotificationsBell() {
       if (active) setItems((data as Notification[]) || []);
     })();
 
-    const channel = supabase
-      .channel(`notifications:${user.id}`)
-      .on(
+    const suffix = Math.random().toString(36).slice(2, 10);
+    const channelName = `notifications:${user.id}:${suffix}`;
+    const channel = subscribeWithLogging(
+      supabase.channel(channelName).on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
         (payload) => {
@@ -61,8 +63,9 @@ export default function NotificationsBell() {
         (payload) => {
           setItems((prev) => prev.filter((it) => it.id !== (payload.old as Notification).id));
         },
-      )
-      .subscribe();
+      ),
+      { channel: channelName, callback: "notifications:*", userId: user.id },
+    );
 
     return () => {
       active = false;
