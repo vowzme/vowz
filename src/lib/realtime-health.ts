@@ -34,7 +34,13 @@ export function subscribeRealtimeHealth(cb: (h: RealtimeHealth) => void) {
 
 export function useRealtimeHealth(): RealtimeHealth {
   const [value, setValue] = useState<RealtimeHealth>(getRealtimeHealth);
-  useEffect(() => subscribeRealtimeHealth(setValue), []);
+  useEffect(() => {
+    const unsubscribe = subscribeRealtimeHealth(setValue);
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return value;
 }
 
