@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Image,
@@ -25,7 +26,10 @@ import {
   Gift,
   Link2,
   Clock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const allFeatures = [
   { icon: Sparkles, title: "Easy Wedding Wizard", desc: "Answer a few simple questions and get a complete wedding site draft instantly" },
@@ -64,7 +68,12 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+const VISIBLE_COUNT = 6;
+
 const FeaturesSection = () => {
+  const [showAll, setShowAll] = useState(false);
+  const visibleFeatures = showAll ? allFeatures : allFeatures.slice(0, VISIBLE_COUNT);
+
   return (
     <section className="py-16 sm:py-24 px-4 bg-gradient-warm" id="features">
       <div className="max-w-6xl mx-auto">
@@ -93,21 +102,50 @@ const FeaturesSection = () => {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {allFeatures.map((f) => (
-            <motion.div
-              key={f.title}
-              variants={itemVariants}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-card rounded-xl p-5 sm:p-6 shadow-card hover:shadow-elegant transition-shadow duration-300 border border-border/50 group"
-            >
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(var(--gold-dark))] flex items-center justify-center mb-4 shadow-gold group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                <f.icon className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">{f.title}</h3>
-              <p className="text-muted-foreground font-body text-sm leading-relaxed">{f.desc}</p>
-            </motion.div>
-          ))}
+          <AnimatePresence mode="popLayout">
+            {visibleFeatures.map((f) => (
+              <motion.div
+                key={f.title}
+                layout
+                variants={itemVariants}
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.3 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="bg-card rounded-xl p-5 sm:p-6 shadow-card hover:shadow-elegant transition-shadow duration-300 border border-border/50 group"
+              >
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(var(--gold-dark))] flex items-center justify-center mb-4 shadow-gold group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                  <f.icon className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <h3 className="font-display text-xl font-semibold text-foreground mb-2">{f.title}</h3>
+                <p className="text-muted-foreground font-body text-sm leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </motion.div>
+
+        {allFeatures.length > VISIBLE_COUNT && (
+          <div className="flex justify-center mt-12">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setShowAll((s) => !s)}
+              className="rounded-full border-gold/40 hover:bg-gold/10 hover:border-gold/60 px-8 font-body"
+              aria-expanded={showAll}
+            >
+              {showAll ? (
+                <>
+                  Show less <ChevronUp className="ml-2 h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  View all features <ChevronDown className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
