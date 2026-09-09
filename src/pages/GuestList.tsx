@@ -468,6 +468,15 @@ export default function GuestList() {
             </div>
           </div>
 
+          {realtimeHealth === "degraded" && (
+            <div className="mb-4 rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs font-body text-muted-foreground">
+              Live updates are reconnecting. Your guest list is still up to date and refreshes every few seconds
+              {lastSyncedAt ? ` — last checked ${lastSyncedAt.toLocaleTimeString()}` : ""}.
+            </div>
+          )}
+
+
+
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             <Stat label="Total RSVPs" value={stats.total} icon={<Users className="w-4 h-4" />} />
             <Stat label="Attending" value={stats.yes} icon={<Check className="w-4 h-4 text-emerald-600" />} />

@@ -343,6 +343,22 @@ const Dashboard = () => {
     return () => { supabase.removeChannel(channel); };
   }, [site?.id]);
 
+  // Fallback polling: if the live stream drops, keep RSVPs fresh quietly.
+  useEffect(() => {
+    if (!site?.id) return;
+    const tick = () => {
+      if (document.visibilityState !== "visible") return;
+      loadRsvps(site.id);
+    };
+    const interval = window.setInterval(tick, realtimeHealth === "live" ? 180000 : 30000);
+    window.addEventListener("focus", tick);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", tick);
+    };
+  }, [site?.id, realtimeHealth]);
+
+
   const loadBlessings = async (siteId: string) => {
     setBlessingsLoading(true);
     const { data } = await supabase
