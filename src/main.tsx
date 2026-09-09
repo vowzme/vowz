@@ -12,6 +12,15 @@ import { registerPwa } from "./pwa/register";
 
 createRoot(document.getElementById("root")!).render(<App />);
 
+// Fade out the boot splash once the app has painted.
+const dismissBootSplash = () => {
+  const splash = document.getElementById("boot-splash");
+  if (!splash) return;
+  splash.classList.add("is-hidden");
+  window.setTimeout(() => splash.remove(), 600);
+};
+requestAnimationFrame(() => window.setTimeout(dismissBootSplash, 450));
+
 /**
  * Decorative/template fonts (used by wedding site themes and invitation
  * cards, never by the landing page) load after first paint so they don't
