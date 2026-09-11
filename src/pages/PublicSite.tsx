@@ -2032,17 +2032,13 @@ function PollsSection({ data, site, accent }: { data: any; site: WeddingSite; ac
         .eq("wedding_site_id", site.id);
       if (!dbPolls) return;
 
+      // Aggregated results only — individual voter names are never exposed publicly.
+      const { data: results } = await supabase.rpc("get_poll_results", { _site_id: site.id } as any);
       const voteMap: Record<string, Record<number, number>> = {};
-      for (const poll of dbPolls) {
-        const { data: pollVotes } = await supabase
-          .from("poll_votes")
-          .select("option_index")
-          .eq("poll_id", poll.id);
-        const counts: Record<number, number> = {};
-        (pollVotes || []).forEach((v: any) => {
-          counts[v.option_index] = (counts[v.option_index] || 0) + 1;
-        });
-        voteMap[poll.id] = counts;
+      for (const poll of dbPolls) voteMap[poll.id] = {};
+      for (const row of ((results as any[]) || [])) {
+        voteMap[row.poll_id] ||= {};
+        voteMap[row.poll_id][row.option_index] = Number(row.votes) || 0;
       }
       setVotes(voteMap);
     };
