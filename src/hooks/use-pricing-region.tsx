@@ -11,6 +11,8 @@ interface PricingConfig {
   label: string;
   storageAddonPrice: number;
   storageAddonLabel: string;
+  luxePrice: number;
+  luxeLabel: string;
 }
 
 interface PricingRegionContextType {
