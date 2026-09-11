@@ -7,6 +7,7 @@ export interface CardTemplateMeta {
   name: string;
   category: CardCategory;
   is_premium: boolean;
+  tier?: "standard" | "luxe";
   is_enabled?: boolean;
   description?: string;
   occasion?: Occasion;
@@ -596,6 +597,68 @@ NEW_PREMIUM_TEMPLATES.forEach((t) => {
     occasion: "wedding",
   });
 });
+
+// ─── LUXE tier ────────────────────────────────────────────────────
+// Top-of-range designs that open with a small act by the guest — pull a rope,
+// ring a bell, break a wax seal, part a curtain — before the card is revealed.
+// Sold as a separate one-time unlock (see BuyLuxeButton / user_luxe_unlocks).
+export type RevealType = "rope" | "bell" | "envelope" | "curtain";
+
+export const REVEAL_LABELS: Record<RevealType, string> = {
+  rope: "Pull the rope · light the courtyard",
+  bell: "Ring the temple bell",
+  envelope: "Break the wax seal",
+  curtain: "Part the velvet curtain",
+};
+
+export const REVEAL_HINTS: Record<RevealType, string> = {
+  rope: "Pull the rope to light the courtyard",
+  bell: "Tap the bell to announce the invitation",
+  envelope: "Tap the seal to open the envelope",
+  curtain: "Tap the curtain to draw it open",
+};
+
+interface LuxeTpl extends NewTpl { reveal: RevealType }
+
+export const LUXE_TEMPLATES: LuxeTpl[] = [
+  { slug: "luxe-courtyard-lamp", name: "Courtyard Lamps", category: "royal_traditional",
+    description: "Pull the rope, light the courtyard, then the invitation appears",
+    reveal: "rope",
+    theme: { bg: "#12100E", panel: "#1B1713", ink: "#F6E4BC", accent: "#E0B75B", muted: "#C0A472", ornament: "arch", display: "'Cinzel', serif", body: "'Cormorant Garamond', serif", photoShape: "arch", photoAspect: "3:4", headingScale: 1.08, headingLetterSpacing: 1 },
+    facets: { tags: ["luxe", "courtyard", "gold", "cinematic"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "luxe-temple-bell", name: "Temple Bell", category: "hindu_sikh",
+    description: "Ring the brass bell and the invitation unfolds in gold",
+    reveal: "bell",
+    theme: { bg: "#2B0B0F", panel: "#3A1015", ink: "#FFE9BE", accent: "#E5BB55", muted: "#CFA85C", ornament: "mandala", display: "'Cinzel', serif", body: "'Cormorant Garamond', serif", photoShape: "circle", photoAspect: "1:1", headingScale: 1.06 },
+    facets: { tags: ["luxe", "temple", "brass", "traditional"], orientation: "portrait", focus: "ornament-first" } },
+  { slug: "luxe-wax-seal", name: "Wax Seal Envelope", category: "modern_minimal",
+    description: "Break the gold wax seal and slide the card out of its envelope",
+    reveal: "envelope",
+    theme: { bg: "#F3EADB", panel: "#FFFBF2", ink: "#241C16", accent: "#9C1F2E", muted: "#8B7357", ornament: "editorial", display: "'Playfair Display', serif", body: "'Inter', sans-serif", photoShape: "rounded", photoAspect: "4:5", photoRadius: 8, headingLetterSpacing: 1.5 },
+    facets: { tags: ["luxe", "envelope", "editorial", "wax-seal"], orientation: "portrait", focus: "text-first" } },
+  { slug: "luxe-velvet-curtain", name: "Velvet Curtain", category: "royal_traditional",
+    description: "Part the velvet drapes to reveal the invitation on stage",
+    reveal: "curtain",
+    theme: { bg: "#2A0713", panel: "#3B0C1C", ink: "#FBE8C6", accent: "#D4AF37", muted: "#B8955A", ornament: "damask", display: "'DM Serif Display', serif", body: "'Cormorant Garamond', serif", photoShape: "oval", photoAspect: "4:5", headingScale: 1.05 },
+    facets: { tags: ["luxe", "velvet", "stage", "royal"], orientation: "portrait", focus: "photo-first" } },
+];
+
+export const LUXE_SLUGS = LUXE_TEMPLATES.map((t) => t.slug);
+export const isLuxeSlug = (slug?: string) =>
+  !!slug && LUXE_SLUGS.includes(baseSlugOf(slug));
+export const revealForSlug = (slug?: string): RevealType | undefined =>
+  LUXE_TEMPLATES.find((t) => t.slug === baseSlugOf(slug || ""))?.reveal;
+
+LUXE_TEMPLATES.forEach((t) => {
+  CARD_THEMES[t.slug] = t.theme;
+  TEMPLATE_FACETS[t.slug] = t.facets;
+  FALLBACK_TEMPLATES.push({
+    slug: t.slug, name: t.name, category: t.category,
+    is_premium: true, is_enabled: true, description: t.description,
+    occasion: "wedding", tier: "luxe",
+  });
+});
+
 ALL_TEMPLATE_TAGS = Array.from(
   new Set(Object.values(TEMPLATE_FACETS).flatMap((f) => f.tags))
 ).sort();
