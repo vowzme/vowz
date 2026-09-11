@@ -65,19 +65,24 @@ export default function GuestAlbum({ siteId, accent, heading, description, track
       setPosts(list);
       if (list.length === 0) return;
       const ids = list.map((x) => x.id);
+      // Reaction rows never expose who reacted; own reactions come from a scoped lookup.
       const { data: r } = await supabase
         .from("guest_album_reactions" as any)
-        .select("post_id, reaction, guest_identifier")
+        .select("post_id, reaction")
         .in("post_id", ids);
       const c: Record<string, Record<ReactionKey, number>> = {};
-      const m: Record<string, Set<ReactionKey>> = {};
       for (const row of (r as any[]) || []) {
         c[row.post_id] ||= { heart: 0, party: 0, love: 0, clap: 0, cheers: 0 };
         c[row.post_id][row.reaction as ReactionKey]++;
-        if (row.guest_identifier === guestId) {
-          m[row.post_id] ||= new Set();
-          m[row.post_id].add(row.reaction as ReactionKey);
-        }
+      }
+      const { data: own } = await supabase.rpc("my_album_reactions", {
+        _site_id: siteId,
+        _guest_identifier: guestId,
+      } as any);
+      const m: Record<string, Set<ReactionKey>> = {};
+      for (const row of ((own as any[]) || [])) {
+        m[row.post_id] ||= new Set();
+        m[row.post_id].add(row.reaction as ReactionKey);
       }
       setCounts(c);
       setMine(m);

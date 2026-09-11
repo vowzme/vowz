@@ -2,11 +2,18 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { buildCors } from '../_shared/cors.ts'
 import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts'
 
-// Public endpoint: emails one person the Wedding Intelligence Report they just
-// generated. It only ever sends the fixed 'wedding-report' template.
+// Emails one person the Wedding Intelligence Report they just generated.
+//
+// The caller passes only the id of the saved lead row. The recipient address and
+// every line of the report are read server-side from that row, so this endpoint
+// cannot be used to deliver arbitrary content to an arbitrary address.
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const strArr = (v: unknown, max = 8) =>
-  Array.isArray(v) ? v.filter((x) => typeof x === 'string').slice(0, max).map((s) => (s as string).slice(0, 300)) : undefined
+  Array.isArray(v)
+    ? v.filter((x) => typeof x === 'string').slice(0, max).map((s) => (s as string).slice(0, 300))
+    : undefined
 
 Deno.serve(async (req) => {
   const corsHeaders = buildCors(req)
@@ -17,31 +24,51 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}))
-    const recipientEmail = String(body.recipientEmail ?? '').trim().toLowerCase()
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
-      return json({ error: 'Valid recipientEmail is required' }, 400)
+    const leadId = String(body.leadId ?? '').trim()
+    if (!UUID_RE.test(leadId)) return json({ error: 'leadId is required' }, 400)
+
+    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+
+    const { data: lead, error: leadErr } = await admin
+      .from('wedding_report_leads')
+      .select('id, email, couple_name, score, guest_count, budget, report, created_at')
+      .eq('id', leadId)
+      .maybeSingle()
+
+    if (leadErr) {
+      console.error('lead lookup failed', leadErr.message)
+      return json({ error: 'Unexpected error' }, 500)
     }
-    const d = (body.templateData ?? {}) as Record<string, unknown>
+    if (!lead) return json({ error: 'Not found' }, 404)
+
+    // Single-use window: the report email is only sent right after the quiz is saved.
+    const ageMs = Date.now() - new Date(lead.created_at as string).getTime()
+    if (!(ageMs >= 0 && ageMs < 15 * 60 * 1000)) return json({ error: 'Not found' }, 404)
+
+    const recipientEmail = String(lead.email ?? '').trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
+      return json({ success: false, reason: 'no_recipient' })
+    }
+
+    const r = (lead.report ?? {}) as Record<string, unknown>
     const templateData = {
-      name: typeof d.name === 'string' ? d.name.slice(0, 120) : undefined,
-      score: typeof d.score === 'number' ? d.score : undefined,
-      daysLeft: typeof d.daysLeft === 'number' ? d.daysLeft : undefined,
-      guests: typeof d.guests === 'number' ? d.guests : undefined,
-      budget: typeof d.budget === 'number' ? d.budget : undefined,
-      splitLines: strArr(d.splitLines),
-      timelineLines: strArr(d.timelineLines),
-      gaps: strArr(d.gaps),
-      rituals: strArr(d.rituals),
+      name: typeof lead.couple_name === 'string' ? lead.couple_name.slice(0, 120) : undefined,
+      score: typeof lead.score === 'number' ? lead.score : undefined,
+      daysLeft: typeof r.daysLeft === 'number' ? r.daysLeft : undefined,
+      guests: typeof lead.guest_count === 'number' ? lead.guest_count : undefined,
+      budget: typeof lead.budget === 'number' ? Number(lead.budget) : undefined,
+      splitLines: strArr(r.splitLines),
+      timelineLines: strArr(r.timelineLines),
+      gaps: strArr(r.gaps),
+      rituals: strArr(r.rituals),
       reportUrl: 'https://vowz.me/wedding-report',
       weekly: false,
     }
 
-    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-
     try {
       const result = await sendTemplateEmail('wedding-report', recipientEmail, {
         templateData,
-        idempotencyKey: typeof body.idempotencyKey === 'string' ? body.idempotencyKey : undefined,
+        idempotencyKey: `wedding-report-${lead.id}`,
       })
       await admin.from('email_send_log').insert({
         message_id: crypto.randomUUID(),
@@ -59,9 +86,10 @@ Deno.serve(async (req) => {
         status: 'failed',
         error_message: message.slice(0, 500),
       })
-      return json({ error: message }, 502)
+      return json({ error: 'Failed to send report email' }, 502)
     }
   } catch (e) {
-    return json({ error: e instanceof Error ? e.message : 'unexpected error' }, 500)
+    console.error('send-wedding-report error', e instanceof Error ? e.message : String(e))
+    return json({ error: 'Unexpected error' }, 500)
   }
 })
