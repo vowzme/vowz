@@ -1520,32 +1520,13 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
       setIsEditing(false);
 
       // Fire-and-forget confirmation email — skip on edits.
-      if (!wasEditing) try {
-        const firstEvent = eventsSection?.data?.events?.[0];
-        const weddingDate = firstEvent?.date
-          ? new Date(firstEvent.date).toLocaleDateString(undefined, {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          : undefined;
+      // Only the RSVP handle is sent; the server builds the email from its own records.
+      if (!wasEditing && createdHandle) try {
         void supabase.functions.invoke("send-rsvp-confirmation", {
           body: {
-            recipientEmail: validated.guest_email,
-            idempotencyKey: `rsvp-${site.id}-${validated.guest_email.toLowerCase()}-${Date.now()}`,
-            templateData: {
-              guestName: validated.guest_name,
-              coupleNames: `${site.partner1} & ${site.partner2}`,
-              weddingDate,
-              venue: firstEvent?.venue || undefined,
-              attending: validated.attending,
-              guestCount: validated.guest_count,
-              siteUrl: `${window.location.origin}/site/${site.slug}`,
-              editUrl: createdHandle
-                ? `${window.location.origin}/site/${site.slug}?rsvp=${encodeURIComponent(createdHandle.id)}&t=${encodeURIComponent(createdHandle.token)}`
-                : undefined,
-            },
+            rsvpId: createdHandle.id,
+            editToken: createdHandle.token,
+            idempotencyKey: `rsvp-${createdHandle.id}`,
           },
         });
       } catch {
