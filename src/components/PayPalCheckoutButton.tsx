@@ -10,7 +10,7 @@ declare global {
 }
 
 interface Props {
-  productType: "premium" | "storage_addon";
+  productType: "premium" | "storage_addon" | "luxe_cards";
   currency: "USD" | "EUR" | "GBP";
   onSuccess?: () => void;
   disabled?: boolean;
