@@ -2828,6 +2828,14 @@ export type Database = {
           visitors: number
         }[]
       }
+      get_poll_results: {
+        Args: { _site_id: string }
+        Returns: {
+          option_index: number
+          poll_id: string
+          votes: number
+        }[]
+      }
       get_shared_card: {
         Args: { _token: string }
         Returns: {
@@ -2876,6 +2884,13 @@ export type Database = {
           is_active: boolean
           is_franchise: boolean
           referral_code: string
+        }[]
+      }
+      my_album_reactions: {
+        Args: { _guest_identifier: string; _site_id: string }
+        Returns: {
+          post_id: string
+          reaction: string
         }[]
       }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }
