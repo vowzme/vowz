@@ -7,6 +7,7 @@ export interface CardTemplateMeta {
   name: string;
   category: CardCategory;
   is_premium: boolean;
+  tier?: "standard" | "luxe";
   is_enabled?: boolean;
   description?: string;
   occasion?: Occasion;
