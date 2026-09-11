@@ -13,6 +13,8 @@ project_id = "qkjuywqrncsbxjzwtlzm"
     verify_jwt = false
   [functions.send-rsvp-confirmation]
     verify_jwt = false
+  [functions.send-wedding-report]
+    verify_jwt = false
   [functions.admin-resend-email]
     verify_jwt = true
 
