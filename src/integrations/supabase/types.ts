@@ -298,6 +298,7 @@ export type Database = {
           slug: string
           sort_order: number
           thumbnail_url: string | null
+          tier: string
           updated_at: string
         }
         Insert: {
@@ -311,6 +312,7 @@ export type Database = {
           slug: string
           sort_order?: number
           thumbnail_url?: string | null
+          tier?: string
           updated_at?: string
         }
         Update: {
@@ -324,6 +326,7 @@ export type Database = {
           slug?: string
           sort_order?: number
           thumbnail_url?: string | null
+          tier?: string
           updated_at?: string
         }
         Relationships: []
@@ -1153,6 +1156,9 @@ export type Database = {
           name: string
           pages: Json
           photo_url: string | null
+          reveal: string | null
+          share_enabled: boolean
+          share_token: string
           template_slug: string
           theme_overrides: Json
           updated_at: string
@@ -1166,6 +1172,9 @@ export type Database = {
           name?: string
           pages?: Json
           photo_url?: string | null
+          reveal?: string | null
+          share_enabled?: boolean
+          share_token?: string
           template_slug: string
           theme_overrides?: Json
           updated_at?: string
@@ -1179,6 +1188,9 @@ export type Database = {
           name?: string
           pages?: Json
           photo_url?: string | null
+          reveal?: string | null
+          share_enabled?: boolean
+          share_token?: string
           template_slug?: string
           theme_overrides?: Json
           updated_at?: string
@@ -1981,6 +1993,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_luxe_unlocks: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          currency: string
+          id: string
+          payment_id: string | null
+          payment_order_id: string | null
+          provider: string
+          purchased_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_id?: string | null
+          payment_order_id?: string | null
+          provider?: string
+          purchased_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_id?: string | null
+          payment_order_id?: string | null
+          provider?: string
+          purchased_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_storage_addons: {
         Row: {
           amount_paid: number
@@ -2777,6 +2828,19 @@ export type Database = {
           visitors: number
         }[]
       }
+      get_shared_card: {
+        Args: { _token: string }
+        Returns: {
+          data: Json
+          id: string
+          name: string
+          pages: Json
+          photo_url: string
+          reveal: string
+          template_slug: string
+          theme_overrides: Json
+        }[]
+      }
       get_template_popularity: {
         Args: never
         Returns: {
@@ -2843,6 +2907,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      user_has_luxe: { Args: { _user_id: string }; Returns: boolean }
       user_has_premium: { Args: { _user_id: string }; Returns: boolean }
       validate_coupon_for_redemption: {
         Args: {
