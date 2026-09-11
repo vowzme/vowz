@@ -33,6 +33,8 @@ const PRICING: Record<PricingRegion, PricingConfig> = {
     label: "India 🇮🇳",
     storageAddonPrice: 499,
     storageAddonLabel: "₹499",
+    luxePrice: 499,
+    luxeLabel: "₹499",
   },
   INTL: {
     symbol: "$",
@@ -42,6 +44,8 @@ const PRICING: Record<PricingRegion, PricingConfig> = {
     label: "International 🌍",
     storageAddonPrice: 5,
     storageAddonLabel: "$5",
+    luxePrice: 10,
+    luxeLabel: "$10",
   },
 };
 
