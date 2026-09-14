@@ -231,6 +231,66 @@ const T: Record<string, Base> = {
       { name: "Suryagarh Desert Camp", description: "Boho tent stay for the wedding party.", distance: "20 min drive" },
     ],
   },
+  "luxe-ivory-royale": {
+    howWeMet:
+      "Two families, three cities and one very long courtship of letters, late calls and stolen weekends. What began as a formal introduction over filter coffee became the most unhurried, most certain love of our lives.",
+    heroSubheading: "With the blessings of our families, we request the honour of your presence",
+    events: ["Invitation Tea", "Mehendi", "Sangeet Gala", "Haldi", "Wedding Ceremony", "Black-Tie Reception"],
+    storyHeading: "A Heritage Love",
+    rsvpHeading: "Kindly Respond",
+    rsvpBody: "Seats at every function are reserved by name. Please respond so we may set a place for you.",
+    guestbookHeading: "Blessings & Wishes",
+    guestbookDescription: "Leave a line for the couple — every note is printed into our wedding album.",
+    countdownLabel: "Until the ceremony",
+    travelDescription: "Chauffeured transfers, curated suites and a concierge desk for every guest arriving from out of town.",
+    eventVenues: ["The Drawing Room", "Ivory Courtyard", "Grand Ballroom", "Sunrise Terrace", "Colonnade Mandap", "The Gold Room"],
+    eventTimes: ["4:00 PM", "Late morning", "8:00 PM", "7:30 AM", "Auspicious hour", "8:00 PM"],
+    scheduleNote: "Three days of celebration. Ivory and gold for the day functions; black-tie for the reception.",
+    accommodations: [
+      { name: "The Leela Palace", description: "Suites held under the wedding name, with airport transfers.", distance: "On-site" },
+      { name: "Taj Heritage Wing", description: "Heritage rooms for family arriving early.", distance: "10 min drive" },
+    ],
+  },
+  "luxe-midnight-meenakari": {
+    howWeMet:
+      "A rooftop in Bombay, a monsoon that refused to stop, and a conversation that ran until the sky turned pale. We have been talking ever since — and now we would like the whole city to hear about it.",
+    heroSubheading: "We invite you to an evening of jewelled celebration",
+    events: ["Cocktail Soirée", "Mehendi", "Sangeet", "Haldi", "Pheras", "Midnight Reception"],
+    storyHeading: "Under a Jewelled Sky",
+    rsvpHeading: "Reply, Please",
+    rsvpBody: "Every guest is seated by name across our functions — kindly confirm so we can print your card.",
+    guestbookHeading: "Words for the Couple",
+    guestbookDescription: "A wish, a memory, or a line of poetry — we'll keep them all.",
+    countdownLabel: "Until the pheras",
+    travelDescription: "Valet transfers, sea-facing suites and a 24-hour concierge for every guest.",
+    eventVenues: ["Sapphire Lounge", "Enamel Courtyard", "Mirror Ballroom", "Garden Pavilion", "Midnight Mandap", "Sky Terrace"],
+    eventTimes: ["8:00 PM", "11:00 AM", "8:30 PM", "8:00 AM", "Auspicious hour", "10:00 PM"],
+    scheduleNote: "Jewel tones by night, ivory by day. Black-tie for the reception.",
+    accommodations: [
+      { name: "The Oberoi, Marine Drive", description: "Sea-facing suites reserved for the wedding party.", distance: "On-site" },
+      { name: "Trident Nariman Point", description: "Rooms held for guests flying in.", distance: "5 min drive" },
+    ],
+  },
+  "luxe-emerald-heirloom": {
+    howWeMet:
+      "Our grandmothers were friends long before we were. Two generations later, a borrowed emerald ring and one nervous afternoon later, the story came full circle — exactly as they always said it would.",
+    heroSubheading: "With love and with our elders' blessings, we invite you to",
+    events: ["Family Blessing", "Mehendi", "Sangeet", "Nikah / Ceremony", "Heirloom Dinner"],
+    storyHeading: "An Heirloom Promise",
+    rsvpHeading: "Please Reply",
+    rsvpBody: "A seat is held in your name. Kindly confirm so we can welcome you properly.",
+    guestbookHeading: "Duas & Blessings",
+    guestbookDescription: "Leave your blessing for the couple — it will be read aloud at the dinner.",
+    countdownLabel: "Until we are wed",
+    travelDescription: "Curated stays, car transfers and a family host assigned to every out-of-town guest.",
+    eventVenues: ["Emerald Salon", "Pearl Courtyard", "Velvet Hall", "Heirloom Pavilion", "Long Table, The Orangery"],
+    eventTimes: ["6:00 PM", "Late morning", "8:00 PM", "Auspicious hour", "8:30 PM"],
+    scheduleNote: "Emerald, pearl and antique gold. Heirloom jewellery warmly encouraged.",
+    accommodations: [
+      { name: "Rambagh Palace", description: "Heritage suites held for close family.", distance: "On-site" },
+      { name: "The Lodhi, Delhi", description: "Private-pool rooms for guests arriving early.", distance: "20 min drive" },
+    ],
+  },
 };
 
 export function buildThemeTemplate(theme: WeddingTheme): ThemeTemplate {
