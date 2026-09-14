@@ -22,4 +22,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'family-invite': familyInvite,
   'site-published': sitePublished,
   'trial-ending': trialEnding,
+  'wedding-report': weddingReport,
 }
