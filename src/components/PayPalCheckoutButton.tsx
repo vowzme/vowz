@@ -62,8 +62,11 @@ const PayPalCheckoutButton = ({ productType, currency, onSuccess, disabled }: Pr
               setProcessing(false);
               throw new Error(error?.message || data?.error || "Could not create order.");
             }
-            if (data.already_premium) {
-              toast({ title: "Premium already active", description: "Your account is already upgraded." });
+            if (data.already_premium || data.already_owned) {
+              toast({
+                title: productType === "luxe_cards" ? "LUXE already unlocked" : "Premium already active",
+                description: productType === "luxe_cards" ? "Your LUXE designs are ready." : "Your account is already upgraded.",
+              });
               onSuccess?.();
               setProcessing(false);
               throw new Error("already_premium");
@@ -82,6 +85,8 @@ const PayPalCheckoutButton = ({ productType, currency, onSuccess, disabled }: Pr
                 title: "Payment successful 🎉",
                 description: productType === "storage_addon"
                   ? "+2 GB storage add-on is active."
+                  : productType === "luxe_cards"
+                  ? "LUXE invitation cards are unlocked."
                   : "Premium activated.",
               });
               onSuccess?.();
@@ -117,8 +122,11 @@ const PayPalCheckoutButton = ({ productType, currency, onSuccess, disabled }: Pr
         const { data } = await supabase.functions.invoke("paypal-payment", {
           body: { action: "create_order", product_type: productType, currency },
         });
-        if (data?.already_premium) {
-          toast({ title: "Premium already active", description: "Your account is already upgraded." });
+        if (data?.already_premium || data?.already_owned) {
+          toast({
+            title: productType === "luxe_cards" ? "LUXE already unlocked" : "Premium already active",
+            description: productType === "luxe_cards" ? "Your LUXE designs are ready." : "Your account is already upgraded.",
+          });
           onSuccess?.();
           if (!cancelled) setLoading(false);
           return;
