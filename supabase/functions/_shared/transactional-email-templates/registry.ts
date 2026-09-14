@@ -4,6 +4,8 @@ import { template as paymentReceipt } from './payment-receipt.tsx'
 import { template as familyInvite } from './family-invite.tsx'
 import { template as sitePublished } from './site-published.tsx'
 import { template as trialEnding } from './trial-ending.tsx'
+import { template as weddingReport } from './wedding-report.tsx'
+
 
 export interface TemplateEntry {
   component: React.ComponentType<any>
