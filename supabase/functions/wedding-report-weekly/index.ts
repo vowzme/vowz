@@ -17,8 +17,9 @@ Deno.serve(async (req) => {
 
   const { data: leads, error } = await admin
     .from('wedding_report_leads')
-    .select('id, email, couple_name, wedding_date, guest_count, budget, score, report')
+    .select('id, email, couple_name, wedding_date, guest_count, budget, score, report, weekly_optin')
     .not('email', 'is', null)
+    .eq('weekly_optin', true)
     .order('created_at', { ascending: false })
     .limit(500)
   if (error) return json({ error: error.message }, 500)
@@ -32,6 +33,7 @@ Deno.serve(async (req) => {
     seen.add(email)
     return true
   })
+
 
   let sent = 0
   let skipped = 0
