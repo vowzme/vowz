@@ -291,8 +291,15 @@ Deno.serve(async (req) => {
       const expiresAt = plusMonthsISO(isAddonPayment ? storageMonths : premiumMonths);
 
       if (isLuxePayment) {
-        const { error: luxeError } = await adminClient.from("user_luxe_unlocks").upsert(
-          {
+        const { data: already } = await adminClient
+          .from("user_luxe_unlocks")
+          .select("id")
+          .eq("payment_order_id", orderId)
+          .limit(1)
+          .maybeSingle();
+
+        if (!already) {
+          const { error: luxeError } = await adminClient.from("user_luxe_unlocks").insert({
             user_id: user.id,
             provider: "razorpay",
             amount_paid: amountPaid,
@@ -301,10 +308,9 @@ Deno.serve(async (req) => {
             payment_order_id: orderId,
             purchased_at: nowISO,
             status: "active",
-          },
-          { onConflict: "payment_order_id" },
-        );
-        if (luxeError) throw luxeError;
+          });
+          if (luxeError) throw luxeError;
+        }
 
         return json({ success: true, product_type: "luxe_cards" });
       }
