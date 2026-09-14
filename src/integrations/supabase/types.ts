@@ -2423,6 +2423,7 @@ export type Database = {
           user_id: string | null
           visitor_id: string | null
           wedding_date: string | null
+          weekly_optin: boolean
         }
         Insert: {
           answers?: Json
@@ -2440,6 +2441,7 @@ export type Database = {
           user_id?: string | null
           visitor_id?: string | null
           wedding_date?: string | null
+          weekly_optin?: boolean
         }
         Update: {
           answers?: Json
@@ -2457,6 +2459,7 @@ export type Database = {
           user_id?: string | null
           visitor_id?: string | null
           wedding_date?: string | null
+          weekly_optin?: boolean
         }
         Relationships: []
       }
