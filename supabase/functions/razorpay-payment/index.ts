@@ -106,8 +106,20 @@ Deno.serve(async (req) => {
     const authBasic = `Basic ${btoa(`${keyId}:${keySecret}`)}`;
 
     if (action === "create_order") {
-      // For premium only (not addon): block if already active
-      if (!isAddon) {
+      // LUXE is a one-time lifetime unlock: block if already owned
+      if (isLuxe) {
+        const { data: existingLuxe } = await adminClient
+          .from("user_luxe_unlocks")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .limit(1)
+          .maybeSingle();
+        if (existingLuxe) return json({ success: true, already_owned: true });
+      }
+
+      // For premium only (not addon/luxe): block if already active
+      if (!isAddon && !isLuxe) {
         const { data: existingActive } = await adminClient
           .from("user_subscriptions")
           .select("status, expires_at")
