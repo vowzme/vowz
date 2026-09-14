@@ -53,6 +53,8 @@ const allFeatures = [
   { icon: Users, title: "Family Collaboration", desc: "Invite parents & siblings to help edit, or share a read-only preview link before you go live" },
   { icon: Radio, title: "Livestream Embed", desc: "Broadcast your ceremony live for guests who can't attend — YouTube, Zoom or custom stream" },
   { icon: FileDown, title: "Invitation Cards & PDF", desc: "Design digital invitation cards with 30+ templates and export high-res PDFs to share on WhatsApp" },
+  { icon: Crown, title: "LUXE Opening Reveal", desc: "Top-tier cards that open with a gesture — light the lamps, ring the bell, break the wax seal or part the curtain" },
+
   { icon: Gift, title: "Gift Registry", desc: "Share your wishlist, UPI ID or bank details so guests can send blessings your way" },
   { icon: Link2, title: "Custom URL Slug", desc: "Pick a memorable link like vowz.me/site/rahul-sona — old links auto-redirect if you change it" },
   { icon: Clock, title: "Timezone-Aware Events", desc: "Show event times in each guest's local timezone — no more confused overseas cousins" },
