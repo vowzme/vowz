@@ -231,7 +231,9 @@ Deno.serve(async (req) => {
         amount: order.amount,
         currency: order.currency,
         name: "Vowz",
-        description: isAddon
+        description: isLuxe
+          ? "LUXE Invitation Cards (one-time unlock)"
+          : isAddon
           ? `Storage Add-on (+2 GB / ${storageMonths} months)`
           : `Premium Plan (${premiumMonths} Months)`,
         prefill: {
