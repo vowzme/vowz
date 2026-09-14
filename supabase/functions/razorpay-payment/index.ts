@@ -83,9 +83,10 @@ Deno.serve(async (req) => {
     const storageMonths = terms.storage_months;
 
     const isAddon = productType === "storage_addon";
-    const pricingTable = isAddon ? STORAGE_ADDON_PRICING : PREMIUM_PRICING;
+    const isLuxe = productType === "luxe_cards";
+    const pricingTable = isLuxe ? LUXE_PRICING : isAddon ? STORAGE_ADDON_PRICING : PREMIUM_PRICING;
     const pricingTier = pricingTable[requestedCurrency] || pricingTable.INR;
-    const planCode = isAddon ? STORAGE_ADDON_PLAN : PREMIUM_PLAN;
+    const planCode = isLuxe ? LUXE_PLAN : isAddon ? STORAGE_ADDON_PLAN : PREMIUM_PLAN;
 
     const { data: providerConfig, error: providerError } = await adminClient
       .from("payment_config").select("is_enabled, config").eq("provider", "razorpay").maybeSingle();
