@@ -290,7 +290,11 @@ export default function InvitationCard() {
     });
   }, [templates, activeCategory, galleryQuery, galleryTags, galleryOrientation, galleryFocus, galleryShowPremium]);
   const siteUrl = site?.slug ? `${window.location.origin}/site/${site.slug}` : `${window.location.origin}/`;
-  const requiresUpgrade = selected?.is_premium && !isPremium;
+  const isLuxeCard = isLuxeSlug(selectedSlug);
+  const revealType = revealForSlug(selectedSlug);
+  const requiresLuxe = isLuxeCard && !hasLuxe;
+  const requiresUpgrade = requiresLuxe || (!isLuxeCard && !!selected?.is_premium && !isPremium);
+
   const currentPage = pages[activePageIdx] || pages[0];
 
   const updatePage = (patch: Partial<PageContent>) =>
