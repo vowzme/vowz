@@ -122,6 +122,9 @@ const PricingSection = () => {
             </ul>
           </motion.div>
         </div>
+
+        <LuxeAddOnCard />
+
       </div>
     </section>
   );
