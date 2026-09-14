@@ -22,6 +22,12 @@ const STORAGE_ADDON_PRICING: Record<string, { amount: number; currency: string; 
   USD: { amount: 500, currency: "USD", symbol: "$", displayAmount: 5 },
 };
 
+const LUXE_PRICING: Record<string, { amount: number; currency: string; symbol: string; displayAmount: number }> = {
+  INR: { amount: 49900, currency: "INR", symbol: "₹", displayAmount: 499 },
+  USD: { amount: 1000, currency: "USD", symbol: "$", displayAmount: 10 },
+};
+
+const LUXE_PLAN = "luxe_cards_lifetime";
 const PREMIUM_PLAN = "premium_6mo";
 const STORAGE_ADDON_PLAN = "storage_addon_2gb";
 const STORAGE_ADDON_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB
@@ -78,9 +84,10 @@ Deno.serve(async (req) => {
     const storageMonths = terms.storage_months;
 
     const isAddon = productType === "storage_addon";
-    const pricingTable = isAddon ? STORAGE_ADDON_PRICING : PREMIUM_PRICING;
+    const isLuxe = productType === "luxe_cards";
+    const pricingTable = isLuxe ? LUXE_PRICING : isAddon ? STORAGE_ADDON_PRICING : PREMIUM_PRICING;
     const pricingTier = pricingTable[requestedCurrency] || pricingTable.INR;
-    const planCode = isAddon ? STORAGE_ADDON_PLAN : PREMIUM_PLAN;
+    const planCode = isLuxe ? LUXE_PLAN : isAddon ? STORAGE_ADDON_PLAN : PREMIUM_PLAN;
 
     const { data: providerConfig, error: providerError } = await adminClient
       .from("payment_config").select("is_enabled, config").eq("provider", "razorpay").maybeSingle();
@@ -100,8 +107,20 @@ Deno.serve(async (req) => {
     const authBasic = `Basic ${btoa(`${keyId}:${keySecret}`)}`;
 
     if (action === "create_order") {
-      // For premium only (not addon): block if already active
-      if (!isAddon) {
+      // LUXE is a one-time lifetime unlock: block if already owned
+      if (isLuxe) {
+        const { data: existingLuxe } = await adminClient
+          .from("user_luxe_unlocks")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .limit(1)
+          .maybeSingle();
+        if (existingLuxe) return json({ success: true, already_owned: true });
+      }
+
+      // For premium only (not addon/luxe): block if already active
+      if (!isAddon && !isLuxe) {
         const { data: existingActive } = await adminClient
           .from("user_subscriptions")
           .select("status, expires_at")
@@ -118,7 +137,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      const receipt = `vowz_${isAddon ? "stor" : "prem"}_${user.id.slice(0, 8)}_${Date.now()}`;
+      const receipt = `vowz_${isLuxe ? "luxe" : isAddon ? "stor" : "prem"}_${user.id.slice(0, 8)}_${Date.now()}`;
       // Server-side coupon validation; never trust client-supplied amounts.
       let orderAmount = pricingTier.amount;
       let appliedCouponId: string | null = null;
@@ -186,8 +205,8 @@ Deno.serve(async (req) => {
 
       const order = await orderRes.json();
 
-      // Save pending row only for premium (addon row created on verify)
-      if (!isAddon) {
+      // Save pending row only for premium (addon/luxe rows created on verify)
+      if (!isAddon && !isLuxe) {
         const { error: saveOrderError } = await adminClient.from("user_subscriptions").upsert(
           {
             user_id: user.id,
@@ -213,7 +232,9 @@ Deno.serve(async (req) => {
         amount: order.amount,
         currency: order.currency,
         name: "Vowz",
-        description: isAddon
+        description: isLuxe
+          ? "LUXE Invitation Cards (one-time unlock)"
+          : isAddon
           ? `Storage Add-on (+2 GB / ${storageMonths} months)`
           : `Premium Plan (${premiumMonths} Months)`,
         prefill: {
@@ -267,7 +288,33 @@ Deno.serve(async (req) => {
       // Determine product type from notes (server-side authoritative)
       const notesType = (payment.notes?.product_type as string) || "premium";
       const isAddonPayment = notesType === "storage_addon";
+      const isLuxePayment = notesType === "luxe_cards";
       const expiresAt = plusMonthsISO(isAddonPayment ? storageMonths : premiumMonths);
+
+      if (isLuxePayment) {
+        const { data: already } = await adminClient
+          .from("user_luxe_unlocks")
+          .select("id")
+          .eq("payment_order_id", orderId)
+          .limit(1)
+          .maybeSingle();
+
+        if (!already) {
+          const { error: luxeError } = await adminClient.from("user_luxe_unlocks").insert({
+            user_id: user.id,
+            provider: "razorpay",
+            amount_paid: amountPaid,
+            currency: paymentCurrency,
+            payment_id: paymentId,
+            payment_order_id: orderId,
+            purchased_at: nowISO,
+            status: "active",
+          });
+          if (luxeError) throw luxeError;
+        }
+
+        return json({ success: true, product_type: "luxe_cards" });
+      }
 
       if (isAddonPayment) {
         // Insert a stackable storage addon
