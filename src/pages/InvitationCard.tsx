@@ -30,7 +30,12 @@ import {
   QR_STYLE_PRESETS, QrStyle,
   TEMPLATE_FACETS, ALL_TEMPLATE_TAGS, ORIENTATION_LABELS, FOCUS_LABELS,
   TemplateOrientation, TemplateFocus,
+  isLuxeSlug, revealForSlug, REVEAL_LABELS,
 } from "@/lib/card-templates";
+import CardReveal from "@/components/CardReveal";
+import BuyLuxeButton from "@/components/BuyLuxeButton";
+import { useLuxeAccess } from "@/hooks/use-luxe-access";
+
 
 const QR_POSITIONS: { value: QrPosition; label: string }[] = [
   { value: "bottom", label: "Bottom center" },
