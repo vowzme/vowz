@@ -975,41 +975,60 @@ export default function InvitationCard() {
                 {visibleTemplates.map((t) => {
                   const tTheme = CARD_THEMES[t.slug];
                   const isSel = t.slug === selectedSlug;
-                  const locked = t.is_premium && !isPremium;
+                  const luxe = isLuxeSlug(t.slug);
+                  const locked = luxe ? !hasLuxe : (t.is_premium && !isPremium);
                   return (
                     <button key={t.slug}
                       onClick={() => {
-                        if (locked) {
+                        if (locked && !luxe) {
                           toast({ title: "Premium template", description: "Upgrade your plan to use this international-standard design.", variant: "destructive" });
                           return;
                         }
                         setSelectedSlug(t.slug); setThemeOverrides({});
+                        if (luxe) { setRevealPreview(true); setRevealKey((k) => k + 1); }
                       }}
-                      aria-disabled={locked}
                       className={`relative rounded-lg border-2 overflow-hidden text-left transition-all ${isSel ? "border-gold shadow-md" : "border-border/50 hover:border-border"}`}>
                       <TemplateThumb slug={t.slug} />
                       <div className="px-2 py-1.5 bg-card border-t border-border/50 flex items-center justify-between">
                         <span className="text-xs font-body truncate">{t.name}</span>
-                        {t.is_premium && <Lock className={`w-3 h-3 ${locked ? "text-muted-foreground" : "text-gold"}`} />}
+                        {luxe
+                          ? <Crown className={`w-3 h-3 ${locked ? "text-muted-foreground" : "text-gold"}`} />
+                          : t.is_premium && <Lock className={`w-3 h-3 ${locked ? "text-muted-foreground" : "text-gold"}`} />}
                       </div>
                       {locked && (
                         <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2">
-                          <Badge className="bg-gold text-gold-foreground"><Lock className="w-3 h-3 mr-1" /> Premium</Badge>
-                          <Button size="sm" variant="gold" className="h-7 text-[11px]" onClick={(e) => { e.stopPropagation(); navigate("/pricing"); }}>
-                            Upgrade to unlock
-                          </Button>
+                          {luxe ? (
+                            <>
+                              <Badge className="bg-gold text-gold-foreground"><Crown className="w-3 h-3 mr-1" /> LUXE</Badge>
+                              <span className="text-[10px] text-muted-foreground px-2 text-center">Tap to try the opening free</span>
+                            </>
+                          ) : (
+                            <>
+                              <Badge className="bg-gold text-gold-foreground"><Lock className="w-3 h-3 mr-1" /> Premium</Badge>
+                              <Button size="sm" variant="gold" className="h-7 text-[11px]" onClick={(e) => { e.stopPropagation(); navigate("/pricing"); }}>
+                                Upgrade to unlock
+                              </Button>
+                            </>
+                          )}
                         </div>
                       )}
                     </button>
                   );
                 })}
               </div>
-              {requiresUpgrade && (
+              {requiresLuxe ? (
+                <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs space-y-2">
+                  <p className="flex items-center gap-1.5 font-medium"><Crown className="w-3.5 h-3.5 text-gold" /> LUXE design — try the opening free</p>
+                  <p className="text-muted-foreground">Play the reveal as often as you like. Unlock once to save, share and download this card.</p>
+                  <BuyLuxeButton className="w-full" size="sm" onPurchased={refreshLuxe} />
+                </div>
+              ) : requiresUpgrade && (
                 <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs">
                   Premium template — upgrade to unlock download.
                   <Button size="sm" variant="gold" className="w-full mt-2" onClick={() => navigate("/pricing")}>Upgrade</Button>
                 </div>
               )}
+
             </TabsContent>
 
             {/* Content (front-page fields + photo) */}
