@@ -22,6 +22,11 @@ const STORAGE_ADDON_PRICING: Record<string, { amount: number; currency: string; 
   USD: { amount: 500, currency: "USD", symbol: "$", displayAmount: 5 },
 };
 
+const LUXE_PRICING: Record<string, { amount: number; currency: string; symbol: string; displayAmount: number }> = {
+  INR: { amount: 49900, currency: "INR", symbol: "₹", displayAmount: 499 },
+  USD: { amount: 1000, currency: "USD", symbol: "$", displayAmount: 10 },
+};
+
 const PREMIUM_PLAN = "premium_6mo";
 const STORAGE_ADDON_PLAN = "storage_addon_2gb";
 const STORAGE_ADDON_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB
