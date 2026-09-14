@@ -7,6 +7,8 @@ import SEOHead from "@/components/SEOHead";
 import Navbar from "@/components/Navbar";
 import RegionSelector from "@/components/RegionSelector";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
+import LuxeAddOnCard from "@/components/LuxeAddOnCard";
+
 
 const allFeatures = [
   "Easy Wedding Wizard",
@@ -138,6 +140,9 @@ const Pricing = () => {
                 </ul>
               </motion.div>
             </div>
+
+            <LuxeAddOnCard />
+
 
             <motion.div
               className="text-center mt-12"

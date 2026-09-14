@@ -154,6 +154,8 @@ const WeddingReport = () => {
   const [coupleName, setCoupleName] = useState("");
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [weeklyOptin, setWeeklyOptin] = useState(false);
+
 
   const total = QUESTIONS.length;
   const q = QUESTIONS[step];
@@ -183,7 +185,7 @@ const WeddingReport = () => {
     setSaving(true);
     try {
       const { data: userData } = await supabase.auth.getUser();
-      const { error } = await supabase.from("wedding_report_leads").insert({
+      const { data: lead, error } = await supabase.from("wedding_report_leads").insert({
         user_id: userData?.user?.id ?? null,
         visitor_id: getPlatformVisitorId(),
         couple_name: coupleName || null,
@@ -196,10 +198,20 @@ const WeddingReport = () => {
         answers,
         report: report as any,
         score: report?.score ?? null,
-      });
+        weekly_optin: weeklyOptin,
+      }).select("id").single();
       if (error) throw error;
       setSaved(true);
-      toast.success("Saved. We'll email your report shortly.");
+
+      const { data: sendResult, error: sendError } = await supabase.functions.invoke("send-wedding-report", {
+        body: { leadId: lead.id },
+      });
+      if (sendError || (sendResult && sendResult.sent === false)) {
+        toast.success("Report ready below — we couldn't email it just now.");
+      } else {
+        toast.success(`Sent. Your report is on its way to ${email.trim()}.`);
+      }
+
     } catch {
       toast.error("Could not save right now — you can still print the report below.");
     } finally {
@@ -457,9 +469,19 @@ const WeddingReport = () => {
                         <Input className="mt-1" type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                       </div>
                     </div>
+                    <label className="mt-4 flex items-start gap-3 font-body text-sm text-muted-foreground cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 accent-[hsl(var(--gold))]"
+                        checked={weeklyOptin}
+                        onChange={(e) => setWeeklyOptin(e.target.checked)}
+                      />
+                      <span>Also send me a short weekly summary of what to do next, until the wedding. You can stop it any time from the link at the bottom of the email.</span>
+                    </label>
                     <Button className="mt-4 rounded-full" onClick={saveLead} disabled={saving}>
-                      {saving ? "Saving…" : "Email me my report"}
+                      {saving ? "Sending…" : "Email me my report"}
                     </Button>
+
                   </>
                 )}
               </section>

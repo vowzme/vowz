@@ -5,6 +5,8 @@ import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import { Link } from "react-router-dom";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 import RegionSelector from "@/components/RegionSelector";
+import LuxeAddOnCard from "@/components/LuxeAddOnCard";
+
 
 const allFeatures = [
   "Easy Wedding Wizard",
@@ -122,6 +124,9 @@ const PricingSection = () => {
             </ul>
           </motion.div>
         </div>
+
+        <LuxeAddOnCard />
+
       </div>
     </section>
   );

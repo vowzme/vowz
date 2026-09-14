@@ -40,9 +40,14 @@ const faqs = [
     a: "Yes! Free users get 100 MB of cloud storage; Premium users get 500 MB. Photos are auto-optimized to save space. Need more? Buy a +2 GB add-on for ₹499 (India) or $5 (international) — valid for 6 months and fully stackable.",
   },
   {
+    q: "What is LUXE and what is the opening reveal?",
+    a: "LUXE is our top range of invitation cards. Instead of simply appearing, the card opens with a small gesture from your guest — pulling a rope to light courtyard lamps, ringing a temple bell, breaking a wax seal, or parting a velvet curtain. It's a one-time unlock of ₹499 (India) or $10 (international), separate from Premium, with no renewal. You can play every opening free in the card editor before you decide to buy; the unlock only adds saving, sharing and downloads.",
+  },
+  {
     q: "What happens after my 6-month subscription expires?",
     a: "You'll get email reminders 14 days, 3 days, and 1 day before expiry. After expiry, your site is paused (not deleted) and you can renew anytime by paying ₹1,499 / $19 again for another 6 months. All your data, RSVPs, and photos are preserved.",
   },
+
   {
     q: "What happens to my site after the wedding?",
     a: "Your site stays live as a digital keepsake as long as your subscription is active. Renew every 6 months to keep it live. The guestbook messages, photos, and memories are yours to keep forever.",

@@ -15,6 +15,9 @@ project_id = "qkjuywqrncsbxjzwtlzm"
     verify_jwt = false
   [functions.send-wedding-report]
     verify_jwt = false
+  [functions.wedding-report-weekly]
+    verify_jwt = false
+
   [functions.admin-resend-email]
     verify_jwt = true
 

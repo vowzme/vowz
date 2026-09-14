@@ -6,8 +6,9 @@ import jsPDF from "jspdf";
 import {
   ArrowLeft, Download, Lock, FileImage, FileText, Sparkles, Upload, X as XIcon,
   Plus, Trash2, Save, Image as ImageIcon, Palette as PaletteIcon, Type as TypeIcon,
-  GripVertical, Printer, ArrowUp, ArrowDown, Eye,
+  GripVertical, Printer, ArrowUp, ArrowDown, Eye, Crown, RotateCcw,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +30,12 @@ import {
   QR_STYLE_PRESETS, QrStyle,
   TEMPLATE_FACETS, ALL_TEMPLATE_TAGS, ORIENTATION_LABELS, FOCUS_LABELS,
   TemplateOrientation, TemplateFocus,
+  isLuxeSlug, revealForSlug, REVEAL_LABELS,
 } from "@/lib/card-templates";
+import CardReveal from "@/components/CardReveal";
+import BuyLuxeButton from "@/components/BuyLuxeButton";
+import { useLuxeAccess } from "@/hooks/use-luxe-access";
+
 
 const QR_POSITIONS: { value: QrPosition; label: string }[] = [
   { value: "bottom", label: "Bottom center" },
@@ -101,6 +107,8 @@ export default function InvitationCard() {
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<CardTemplateMeta[]>(FALLBACK_TEMPLATES);
   const [isPremium, setIsPremium] = useState(false);
+  const { hasLuxe, refresh: refreshLuxe } = useLuxeAccess();
+
   const [activeCategory, setActiveCategory] = useState<CardCategory>("hindu_sikh");
   const [selectedSlug, setSelectedSlug] = useState<string>("hindu-ganesha-classic");
   // Gallery search & filters
@@ -108,7 +116,10 @@ export default function InvitationCard() {
   const [galleryTags, setGalleryTags] = useState<string[]>([]);
   const [galleryOrientation, setGalleryOrientation] = useState<TemplateOrientation | "all">("all");
   const [galleryFocus, setGalleryFocus] = useState<TemplateFocus | "all">("all");
-  const [galleryShowPremium, setGalleryShowPremium] = useState<"all" | "free" | "premium">("all");
+  const [galleryShowPremium, setGalleryShowPremium] = useState<"all" | "free" | "premium" | "luxe">("all");
+  const [revealPreview, setRevealPreview] = useState(true);
+  const [revealKey, setRevealKey] = useState(0);
+
   const [exporting, setExporting] = useState<null | "png" | "jpg" | "pdf" | "bundle">(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
@@ -265,8 +276,11 @@ export default function InvitationCard() {
     return templates.filter((t) => {
       if (t.category !== activeCategory) return false;
       const facets = TEMPLATE_FACETS[t.slug];
-      if (galleryShowPremium === "free" && t.is_premium) return false;
-      if (galleryShowPremium === "premium" && !t.is_premium) return false;
+      const luxe = isLuxeSlug(t.slug);
+      if (galleryShowPremium === "free" && (t.is_premium || luxe)) return false;
+      if (galleryShowPremium === "premium" && (!t.is_premium || luxe)) return false;
+      if (galleryShowPremium === "luxe" && !luxe) return false;
+
       if (galleryOrientation !== "all" && facets?.orientation !== galleryOrientation) return false;
       if (galleryFocus !== "all" && facets?.focus !== galleryFocus) return false;
       if (galleryTags.length && !galleryTags.every((tag) => facets?.tags.includes(tag))) return false;
@@ -278,7 +292,11 @@ export default function InvitationCard() {
     });
   }, [templates, activeCategory, galleryQuery, galleryTags, galleryOrientation, galleryFocus, galleryShowPremium]);
   const siteUrl = site?.slug ? `${window.location.origin}/site/${site.slug}` : `${window.location.origin}/`;
-  const requiresUpgrade = selected?.is_premium && !isPremium;
+  const isLuxeCard = isLuxeSlug(selectedSlug);
+  const revealType = revealForSlug(selectedSlug);
+  const requiresLuxe = isLuxeCard && !hasLuxe;
+  const requiresUpgrade = requiresLuxe || (!isLuxeCard && !!selected?.is_premium && !isPremium);
+
   const currentPage = pages[activePageIdx] || pages[0];
 
   const updatePage = (patch: Partial<PageContent>) =>
@@ -314,10 +332,15 @@ export default function InvitationCard() {
   // ─── Save / Load variants ────────────────────────────────────
   const saveVariant = async () => {
     if (!user || !siteId) return;
+    if (requiresLuxe) {
+      toast({ title: "LUXE unlock needed", description: "Unlock LUXE once to save and share cards with the opening reveal.", variant: "destructive" });
+      return;
+    }
     if (requiresUpgrade) {
       toast({ title: "Upgrade required", description: "This template is premium. Upgrade your plan to save and export.", variant: "destructive" });
       return;
     }
+
     const printSettings = { bleed, safeMargin, cropMarks, defaultPaper, pdfDpi };
     const payload = {
       wedding_site_id: siteId,
@@ -328,6 +351,8 @@ export default function InvitationCard() {
       theme_overrides: themeOverrides,
       pages,
       photo_url: form.photo ?? null,
+      reveal: revealType ?? null,
+
     };
     const q = variantId
       ? (supabase as any).from("invitation_card_variants").update(payload).eq("id", variantId).select().single()
@@ -578,10 +603,15 @@ export default function InvitationCard() {
   };
 
   const handleExport = async (type: "png" | "jpg" | "pdf" | "bundle") => {
+    if (requiresLuxe) {
+      toast({ title: "LUXE unlock needed", description: "Unlock LUXE once to download this design.", variant: "destructive" });
+      return;
+    }
     if (requiresUpgrade) {
       toast({ title: "Premium template", description: "Upgrade to download this design.", variant: "destructive" });
       return;
     }
+
     if (!exportContainerRef.current) return;
     try {
       setExporting(type);
@@ -771,7 +801,68 @@ export default function InvitationCard() {
             </div>
           )}
 
+          {isLuxeCard && revealType && (
+            <div className="w-full mb-4 rounded-xl border-2 border-gold/40 bg-gold/5 overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-gold/30">
+                <span className="text-xs font-medium flex items-center gap-1.5">
+                  <Crown className="w-3.5 h-3.5 text-gold" /> LUXE opening · {REVEAL_LABELS[revealType]}
+                </span>
+                <div className="flex items-center gap-1">
+                  <Button size="sm" variant="ghost" className="h-7 text-xs"
+                    onClick={() => { setRevealPreview(true); setRevealKey((k) => k + 1); }}>
+                    <RotateCcw className="w-3 h-3 mr-1" /> Play again
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-7 text-xs"
+                    onClick={() => setRevealPreview((v) => !v)} aria-pressed={revealPreview}>
+                    {revealPreview ? "Hide" : "Show"}
+                  </Button>
+                </div>
+              </div>
+              {revealPreview && (
+                <div className="flex flex-col items-center p-4">
+                  <CardReveal
+                    key={revealKey}
+                    reveal={revealType}
+                    bg={theme.bg}
+                    panel={theme.panel}
+                    ink={theme.ink}
+                    accent={theme.accent}
+                    coupleNames={`${form.partner1 || "Partner One"} & ${form.partner2 || "Partner Two"}`}
+                    className="rounded-lg w-full max-w-[340px]"
+                  >
+                    <InvitationCardArtwork
+                      data={{
+                        partner1: form.partner1 || "Partner One",
+                        partner2: form.partner2 || "Partner Two",
+                        date: form.date || "Date TBA",
+                        time: form.time,
+                        venue: form.venue || "Venue TBA",
+                        message: form.message,
+                        invitationLine: form.invitationLine,
+                        photo: form.photo || undefined,
+                      }}
+                      theme={theme}
+                      width={340}
+                      page={currentPage}
+                      qrPosition="hidden"
+                    />
+                  </CardReveal>
+                  <p className="text-[11px] text-muted-foreground mt-3 text-center max-w-sm">
+                    This is exactly what your guests see when they open the card — try it before you buy.
+                  </p>
+                  {requiresLuxe && (
+                    <div className="mt-3 flex flex-col items-center gap-2">
+                      <BuyLuxeButton size="sm" onPurchased={refreshLuxe} />
+                      <span className="text-[11px] text-muted-foreground">One-time unlock · saving &amp; downloads open up right away</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="rounded-lg p-4 sm:p-8 bg-muted/30 w-full flex flex-col items-center">
+
             <div ref={cardRef}>
               <InvitationCardArtwork
                 data={{
@@ -857,6 +948,8 @@ export default function InvitationCard() {
                       <SelectItem value="all">All tiers</SelectItem>
                       <SelectItem value="free">Free only</SelectItem>
                       <SelectItem value="premium">Premium only</SelectItem>
+                      <SelectItem value="luxe">LUXE (opening reveal)</SelectItem>
+
                     </SelectContent>
                   </Select>
                 </div>
@@ -894,41 +987,60 @@ export default function InvitationCard() {
                 {visibleTemplates.map((t) => {
                   const tTheme = CARD_THEMES[t.slug];
                   const isSel = t.slug === selectedSlug;
-                  const locked = t.is_premium && !isPremium;
+                  const luxe = isLuxeSlug(t.slug);
+                  const locked = luxe ? !hasLuxe : (t.is_premium && !isPremium);
                   return (
                     <button key={t.slug}
                       onClick={() => {
-                        if (locked) {
+                        if (locked && !luxe) {
                           toast({ title: "Premium template", description: "Upgrade your plan to use this international-standard design.", variant: "destructive" });
                           return;
                         }
                         setSelectedSlug(t.slug); setThemeOverrides({});
+                        if (luxe) { setRevealPreview(true); setRevealKey((k) => k + 1); }
                       }}
-                      aria-disabled={locked}
                       className={`relative rounded-lg border-2 overflow-hidden text-left transition-all ${isSel ? "border-gold shadow-md" : "border-border/50 hover:border-border"}`}>
                       <TemplateThumb slug={t.slug} />
                       <div className="px-2 py-1.5 bg-card border-t border-border/50 flex items-center justify-between">
                         <span className="text-xs font-body truncate">{t.name}</span>
-                        {t.is_premium && <Lock className={`w-3 h-3 ${locked ? "text-muted-foreground" : "text-gold"}`} />}
+                        {luxe
+                          ? <Crown className={`w-3 h-3 ${locked ? "text-muted-foreground" : "text-gold"}`} />
+                          : t.is_premium && <Lock className={`w-3 h-3 ${locked ? "text-muted-foreground" : "text-gold"}`} />}
                       </div>
                       {locked && (
                         <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2">
-                          <Badge className="bg-gold text-gold-foreground"><Lock className="w-3 h-3 mr-1" /> Premium</Badge>
-                          <Button size="sm" variant="gold" className="h-7 text-[11px]" onClick={(e) => { e.stopPropagation(); navigate("/pricing"); }}>
-                            Upgrade to unlock
-                          </Button>
+                          {luxe ? (
+                            <>
+                              <Badge className="bg-gold text-gold-foreground"><Crown className="w-3 h-3 mr-1" /> LUXE</Badge>
+                              <span className="text-[10px] text-muted-foreground px-2 text-center">Tap to try the opening free</span>
+                            </>
+                          ) : (
+                            <>
+                              <Badge className="bg-gold text-gold-foreground"><Lock className="w-3 h-3 mr-1" /> Premium</Badge>
+                              <Button size="sm" variant="gold" className="h-7 text-[11px]" onClick={(e) => { e.stopPropagation(); navigate("/pricing"); }}>
+                                Upgrade to unlock
+                              </Button>
+                            </>
+                          )}
                         </div>
                       )}
                     </button>
                   );
                 })}
               </div>
-              {requiresUpgrade && (
+              {requiresLuxe ? (
+                <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs space-y-2">
+                  <p className="flex items-center gap-1.5 font-medium"><Crown className="w-3.5 h-3.5 text-gold" /> LUXE design — try the opening free</p>
+                  <p className="text-muted-foreground">Play the reveal as often as you like. Unlock once to save, share and download this card.</p>
+                  <BuyLuxeButton className="w-full" size="sm" onPurchased={refreshLuxe} />
+                </div>
+              ) : requiresUpgrade && (
                 <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs">
                   Premium template — upgrade to unlock download.
                   <Button size="sm" variant="gold" className="w-full mt-2" onClick={() => navigate("/pricing")}>Upgrade</Button>
                 </div>
               )}
+
             </TabsContent>
 
             {/* Content (front-page fields + photo) */}

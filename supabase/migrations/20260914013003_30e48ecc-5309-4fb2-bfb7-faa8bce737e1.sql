@@ -1,0 +1,1 @@
+ALTER TABLE public.wedding_report_leads ADD COLUMN IF NOT EXISTS weekly_optin boolean NOT NULL DEFAULT false;
