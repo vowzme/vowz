@@ -351,7 +351,7 @@ export default function Themes() {
     motif !== "all";
   const filteredThemes = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return WEDDING_THEMES.filter((t) => {
+    return WEDDING_THEMES.filter((t) => t.tier !== "luxe").filter((t) => {
       const f = THEME_FACETS[t.id];
       if (region !== "all" && f?.region !== region) return false;
       if (wtype !== "all" && f?.type !== wtype) return false;
@@ -374,6 +374,10 @@ export default function Themes() {
     if (!active || !custom) return;
     if (!user) {
       navigate("/auth", { state: { returnTo: "/themes" } });
+      return;
+    }
+    if (active.tier === "luxe" && !hasLuxe) {
+      toast({ title: "LUXE design", description: "Unlock LUXE once to use this design on your wedding website.", variant: "destructive" });
       return;
     }
     setApplying(true);
@@ -405,6 +409,10 @@ export default function Themes() {
   const startFromTemplate = async (t: WeddingTheme) => {
     if (!user) {
       navigate("/auth", { state: { returnTo: "/themes" } });
+      return;
+    }
+    if (t.tier === "luxe" && !hasLuxe) {
+      toast({ title: "LUXE design", description: "Unlock LUXE once to build your website on this design.", variant: "destructive" });
       return;
     }
     const existing = await loadUserSite();
