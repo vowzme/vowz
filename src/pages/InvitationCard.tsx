@@ -274,8 +274,11 @@ export default function InvitationCard() {
     return templates.filter((t) => {
       if (t.category !== activeCategory) return false;
       const facets = TEMPLATE_FACETS[t.slug];
-      if (galleryShowPremium === "free" && t.is_premium) return false;
-      if (galleryShowPremium === "premium" && !t.is_premium) return false;
+      const luxe = isLuxeSlug(t.slug);
+      if (galleryShowPremium === "free" && (t.is_premium || luxe)) return false;
+      if (galleryShowPremium === "premium" && (!t.is_premium || luxe)) return false;
+      if (galleryShowPremium === "luxe" && !luxe) return false;
+
       if (galleryOrientation !== "all" && facets?.orientation !== galleryOrientation) return false;
       if (galleryFocus !== "all" && facets?.focus !== galleryFocus) return false;
       if (galleryTags.length && !galleryTags.every((tag) => facets?.tags.includes(tag))) return false;
