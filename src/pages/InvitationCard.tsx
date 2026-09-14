@@ -936,6 +936,8 @@ export default function InvitationCard() {
                       <SelectItem value="all">All tiers</SelectItem>
                       <SelectItem value="free">Free only</SelectItem>
                       <SelectItem value="premium">Premium only</SelectItem>
+                      <SelectItem value="luxe">LUXE (opening reveal)</SelectItem>
+
                     </SelectContent>
                   </Select>
                 </div>
