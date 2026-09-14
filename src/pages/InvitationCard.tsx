@@ -107,6 +107,8 @@ export default function InvitationCard() {
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<CardTemplateMeta[]>(FALLBACK_TEMPLATES);
   const [isPremium, setIsPremium] = useState(false);
+  const { hasLuxe, refresh: refreshLuxe } = useLuxeAccess();
+
   const [activeCategory, setActiveCategory] = useState<CardCategory>("hindu_sikh");
   const [selectedSlug, setSelectedSlug] = useState<string>("hindu-ganesha-classic");
   // Gallery search & filters
