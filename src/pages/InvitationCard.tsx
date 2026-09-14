@@ -332,10 +332,15 @@ export default function InvitationCard() {
   // ─── Save / Load variants ────────────────────────────────────
   const saveVariant = async () => {
     if (!user || !siteId) return;
+    if (requiresLuxe) {
+      toast({ title: "LUXE unlock needed", description: "Unlock LUXE once to save and share cards with the opening reveal.", variant: "destructive" });
+      return;
+    }
     if (requiresUpgrade) {
       toast({ title: "Upgrade required", description: "This template is premium. Upgrade your plan to save and export.", variant: "destructive" });
       return;
     }
+
     const printSettings = { bleed, safeMargin, cropMarks, defaultPaper, pdfDpi };
     const payload = {
       wedding_site_id: siteId,
