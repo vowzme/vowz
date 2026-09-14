@@ -26,6 +26,8 @@ import {
   Gift,
   Link2,
   Clock,
+  Crown,
+
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
