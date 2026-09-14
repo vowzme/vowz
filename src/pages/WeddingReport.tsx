@@ -469,9 +469,19 @@ const WeddingReport = () => {
                         <Input className="mt-1" type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                       </div>
                     </div>
+                    <label className="mt-4 flex items-start gap-3 font-body text-sm text-muted-foreground cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 accent-[hsl(var(--gold))]"
+                        checked={weeklyOptin}
+                        onChange={(e) => setWeeklyOptin(e.target.checked)}
+                      />
+                      <span>Also send me a short weekly summary of what to do next, until the wedding. You can stop it any time from the link at the bottom of the email.</span>
+                    </label>
                     <Button className="mt-4 rounded-full" onClick={saveLead} disabled={saving}>
-                      {saving ? "Saving…" : "Email me my report"}
+                      {saving ? "Sending…" : "Email me my report"}
                     </Button>
+
                   </>
                 )}
               </section>
