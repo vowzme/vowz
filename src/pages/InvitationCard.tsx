@@ -789,7 +789,68 @@ export default function InvitationCard() {
             </div>
           )}
 
+          {isLuxeCard && revealType && (
+            <div className="w-full mb-4 rounded-xl border-2 border-gold/40 bg-gold/5 overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-gold/30">
+                <span className="text-xs font-medium flex items-center gap-1.5">
+                  <Crown className="w-3.5 h-3.5 text-gold" /> LUXE opening · {REVEAL_LABELS[revealType]}
+                </span>
+                <div className="flex items-center gap-1">
+                  <Button size="sm" variant="ghost" className="h-7 text-xs"
+                    onClick={() => { setRevealPreview(true); setRevealKey((k) => k + 1); }}>
+                    <RotateCcw className="w-3 h-3 mr-1" /> Play again
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-7 text-xs"
+                    onClick={() => setRevealPreview((v) => !v)} aria-pressed={revealPreview}>
+                    {revealPreview ? "Hide" : "Show"}
+                  </Button>
+                </div>
+              </div>
+              {revealPreview && (
+                <div className="flex flex-col items-center p-4">
+                  <CardReveal
+                    key={revealKey}
+                    reveal={revealType}
+                    bg={theme.bg}
+                    panel={theme.panel}
+                    ink={theme.ink}
+                    accent={theme.accent}
+                    coupleNames={`${form.partner1 || "Partner One"} & ${form.partner2 || "Partner Two"}`}
+                    className="rounded-lg w-full max-w-[340px]"
+                  >
+                    <InvitationCardArtwork
+                      data={{
+                        partner1: form.partner1 || "Partner One",
+                        partner2: form.partner2 || "Partner Two",
+                        date: form.date || "Date TBA",
+                        time: form.time,
+                        venue: form.venue || "Venue TBA",
+                        message: form.message,
+                        invitationLine: form.invitationLine,
+                        photo: form.photo || undefined,
+                      }}
+                      theme={theme}
+                      width={340}
+                      page={currentPage}
+                      qrPosition="hidden"
+                    />
+                  </CardReveal>
+                  <p className="text-[11px] text-muted-foreground mt-3 text-center max-w-sm">
+                    This is exactly what your guests see when they open the card — try it before you buy.
+                  </p>
+                  {requiresLuxe && (
+                    <div className="mt-3 flex flex-col items-center gap-2">
+                      <BuyLuxeButton size="sm" onPurchased={refreshLuxe} />
+                      <span className="text-[11px] text-muted-foreground">One-time unlock · saving &amp; downloads open up right away</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="rounded-lg p-4 sm:p-8 bg-muted/30 w-full flex flex-col items-center">
+
             <div ref={cardRef}>
               <InvitationCardArtwork
                 data={{
