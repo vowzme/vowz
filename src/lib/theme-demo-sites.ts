@@ -129,6 +129,43 @@ export const PHOTO_SETS: Record<string, { hero: string; gallery: string[]; venue
     ],
     venue: "https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?w=1600&q=80",
   },
+  // ——— LUXE collection ———
+  "luxe-ivory-royale": {
+    hero: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80",
+      "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=1200&q=80",
+      "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=80",
+      "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=1200&q=80",
+      "https://images.unsplash.com/photo-1525258946800-98cfd641d0de?w=1200&q=80",
+      "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&q=80",
+    ],
+    venue: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1600&q=80",
+  },
+  "luxe-midnight-meenakari": {
+    hero: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1600091474842-6ec372d3d2c8?w=1200&q=80",
+      "https://images.unsplash.com/photo-1519657337289-077653f724ed?w=1200&q=80",
+      "https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=1200&q=80",
+      "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+      "https://images.unsplash.com/photo-1595407660626-db35dcd16609?w=1200&q=80",
+      "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=1200&q=80",
+    ],
+    venue: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1600&q=80",
+  },
+  "luxe-emerald-heirloom": {
+    hero: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1583939411023-14783179e581?w=1200&q=80",
+      "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=1200&q=80",
+      "https://images.unsplash.com/photo-1621184455862-c163dfb30e0f?w=1200&q=80",
+      "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+      "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80",
+      "https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?w=1200&q=80",
+    ],
+    venue: "https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?w=1600&q=80",
+  },
 };
 
 // Themed venue/city details for the events section.
