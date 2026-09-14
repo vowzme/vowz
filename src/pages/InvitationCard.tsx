@@ -6,8 +6,9 @@ import jsPDF from "jspdf";
 import {
   ArrowLeft, Download, Lock, FileImage, FileText, Sparkles, Upload, X as XIcon,
   Plus, Trash2, Save, Image as ImageIcon, Palette as PaletteIcon, Type as TypeIcon,
-  GripVertical, Printer, ArrowUp, ArrowDown, Eye,
+  GripVertical, Printer, ArrowUp, ArrowDown, Eye, Crown, RotateCcw,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
