@@ -204,8 +204,8 @@ Deno.serve(async (req) => {
 
       const order = await orderRes.json();
 
-      // Save pending row only for premium (addon row created on verify)
-      if (!isAddon) {
+      // Save pending row only for premium (addon/luxe rows created on verify)
+      if (!isAddon && !isLuxe) {
         const { error: saveOrderError } = await adminClient.from("user_subscriptions").upsert(
           {
             user_id: user.id,
