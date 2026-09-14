@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      const receipt = `vowz_${isAddon ? "stor" : "prem"}_${user.id.slice(0, 8)}_${Date.now()}`;
+      const receipt = `vowz_${isLuxe ? "luxe" : isAddon ? "stor" : "prem"}_${user.id.slice(0, 8)}_${Date.now()}`;
       // Server-side coupon validation; never trust client-supplied amounts.
       let orderAmount = pricingTier.amount;
       let appliedCouponId: string | null = null;
