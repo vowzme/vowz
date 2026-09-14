@@ -154,6 +154,8 @@ const WeddingReport = () => {
   const [coupleName, setCoupleName] = useState("");
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [weeklyOptin, setWeeklyOptin] = useState(false);
+
 
   const total = QUESTIONS.length;
   const q = QUESTIONS[step];
