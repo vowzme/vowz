@@ -27,6 +27,7 @@ const LUXE_PRICING: Record<string, { amount: number; currency: string; symbol: s
   USD: { amount: 1000, currency: "USD", symbol: "$", displayAmount: 10 },
 };
 
+const LUXE_PLAN = "luxe_cards_lifetime";
 const PREMIUM_PLAN = "premium_6mo";
 const STORAGE_ADDON_PLAN = "storage_addon_2gb";
 const STORAGE_ADDON_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB
