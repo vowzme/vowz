@@ -20,6 +20,8 @@ export type WeddingTheme = {
   heroGradient: string;
   sampleCouple: [string, string];
   sampleTagline: string;
+  /** "luxe" themes are only available to couples who unlocked LUXE. */
+  tier?: "standard" | "luxe";
 };
 
 export const WEDDING_THEMES: WeddingTheme[] = [
@@ -179,7 +181,55 @@ export const WEDDING_THEMES: WeddingTheme[] = [
     sampleCouple: ["Imran", "Fatima"],
     sampleTagline: "Two families, one dua",
   },
+  // ——— LUXE collection ———
+  // Reserved for couples who have unlocked LUXE. Same one-time unlock as the
+  // LUXE invitation cards: unlock once, use the cards and these websites.
+  {
+    id: "luxe-ivory-royale",
+    name: "Ivory Royale",
+    tradition: "LUXE · Heritage Ivory",
+    tagline: "Hand-gilded ivory, champagne & old gold",
+    description: "Museum-quality ivory with hand-gilded borders, champagne foil headings and generous editorial spacing — our most requested luxury look.",
+    colors: { bg: "#F7F1E6", accent: "#B08A3E", light: "#FFFDF8", surface: "#FFFFFF", ink: "#2B2418" },
+    fonts: { display: "Cormorant Garamond", body: "Lora" },
+    motif: "arch",
+    heroGradient: "linear-gradient(135deg,#FBF6EC 0%,#EFE3CC 55%,#E2D2B3 100%)",
+    sampleCouple: ["Aditya", "Meera"],
+    sampleTagline: "A heritage love, written in gold",
+    tier: "luxe",
+  },
+  {
+    id: "luxe-midnight-meenakari",
+    name: "Midnight Meenakari",
+    tradition: "LUXE · Jewelled Midnight",
+    tagline: "Midnight blue, enamel jewel tones & gold",
+    description: "Deep midnight blue with meenakari enamel jewels and fine gold filigree — a black-tie Indian wedding in website form.",
+    colors: { bg: "#111C3A", accent: "#E3B54A", light: "#F6F2E6", surface: "#FFFDF6", ink: "#080E1F" },
+    fonts: { display: "Cinzel", body: "Inter" },
+    motif: "mandala",
+    heroGradient: "linear-gradient(135deg,#111C3A 0%,#1D2F5C 55%,#070D1C 100%)",
+    sampleCouple: ["Vikram", "Anaya"],
+    sampleTagline: "Under a jewelled midnight sky",
+    tier: "luxe",
+  },
+  {
+    id: "luxe-emerald-heirloom",
+    name: "Emerald Heirloom",
+    tradition: "LUXE · Velvet Emerald",
+    tagline: "Velvet emerald, pearl & antique gold",
+    description: "Velvet emerald panels, pearl detailing and antique-gold rules — heirloom jewellery translated into a wedding website.",
+    colors: { bg: "#07382C", accent: "#CBA85C", light: "#F4F8F3", surface: "#FFFCF4", ink: "#041F18" },
+    fonts: { display: "Playfair Display", body: "Merriweather" },
+    motif: "haveli",
+    heroGradient: "linear-gradient(135deg,#07382C 0%,#0E5442 55%,#04231B 100%)",
+    sampleCouple: ["Rehan", "Saira"],
+    sampleTagline: "An heirloom promise, kept forever",
+    tier: "luxe",
+  },
 ];
+
+export const LUXE_THEME_IDS = WEDDING_THEMES.filter((t) => t.tier === "luxe").map((t) => t.id);
+export const isLuxeTheme = (id?: string | null) => !!id && LUXE_THEME_IDS.includes(id);
 
 export function getTheme(id: string): WeddingTheme | undefined {
   return WEDDING_THEMES.find((t) => t.id === id);
