@@ -351,6 +351,8 @@ export default function InvitationCard() {
       theme_overrides: themeOverrides,
       pages,
       photo_url: form.photo ?? null,
+      reveal: revealType ?? null,
+
     };
     const q = variantId
       ? (supabase as any).from("invitation_card_variants").update(payload).eq("id", variantId).select().single()
