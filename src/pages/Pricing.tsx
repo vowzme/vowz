@@ -141,6 +141,9 @@ const Pricing = () => {
               </motion.div>
             </div>
 
+            <LuxeAddOnCard />
+
+
             <motion.div
               className="text-center mt-12"
               initial={{ opacity: 0 }}
