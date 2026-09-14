@@ -287,7 +287,27 @@ Deno.serve(async (req) => {
       // Determine product type from notes (server-side authoritative)
       const notesType = (payment.notes?.product_type as string) || "premium";
       const isAddonPayment = notesType === "storage_addon";
+      const isLuxePayment = notesType === "luxe_cards";
       const expiresAt = plusMonthsISO(isAddonPayment ? storageMonths : premiumMonths);
+
+      if (isLuxePayment) {
+        const { error: luxeError } = await adminClient.from("user_luxe_unlocks").upsert(
+          {
+            user_id: user.id,
+            provider: "razorpay",
+            amount_paid: amountPaid,
+            currency: paymentCurrency,
+            payment_id: paymentId,
+            payment_order_id: orderId,
+            purchased_at: nowISO,
+            status: "active",
+          },
+          { onConflict: "payment_order_id" },
+        );
+        if (luxeError) throw luxeError;
+
+        return json({ success: true, product_type: "luxe_cards" });
+      }
 
       if (isAddonPayment) {
         // Insert a stackable storage addon
