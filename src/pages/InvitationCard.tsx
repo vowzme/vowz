@@ -601,10 +601,15 @@ export default function InvitationCard() {
   };
 
   const handleExport = async (type: "png" | "jpg" | "pdf" | "bundle") => {
+    if (requiresLuxe) {
+      toast({ title: "LUXE unlock needed", description: "Unlock LUXE once to download this design.", variant: "destructive" });
+      return;
+    }
     if (requiresUpgrade) {
       toast({ title: "Premium template", description: "Upgrade to download this design.", variant: "destructive" });
       return;
     }
+
     if (!exportContainerRef.current) return;
     try {
       setExporting(type);
