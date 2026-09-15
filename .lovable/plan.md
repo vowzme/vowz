@@ -1,53 +1,42 @@
-# Dashboard Guide + Music Access + Features Refresh
+# LUXE: finish the tier end to end
 
-## 1. Audit existing wedding sites
-Only 3 sites exist (1 published: `rahul-sona-mr9clre9`, 2 drafts). Actions:
-- Load `/site/rahul-sona-mr9clre9` via headless browser, capture screenshot, check console for errors, verify RSVP/blessings/music sections render.
-- Run automated smoke test against each site's public route (200 OK, no JS errors, all sections present).
-- Report findings; only fix if real bugs are found (no speculative rewrites).
+## What I checked first (gaps found)
 
-## 2. Verify background music is exposed in the customer dashboard
-Currently `BackgroundMusicPlayer` and `src/lib/music-library.ts` exist and the Editor uses them, but Dashboard has no direct music toggle.
-- Add a compact "Background Music" card in Dashboard's Site Settings tab showing: current selection, enable/disable switch, "Change music" button linking to Editor's music section (`/editor/:id#music`).
-- In the Editor, ensure the music section has `id="music"` so deep links scroll to it.
-- No new tables or backend needed — reuse existing `wedding_sites.background_music` field.
+- The app currently builds fine. The `use-mobile.tsx` error message you keep seeing is a stale cached artifact, not a real problem.
+- Themes page: LUXE designs are hidden from the normal grid and locked for non-payers, but the dedicated LUXE showcase section was never added — so right now the three LUXE designs are invisible to everyone.
+- Card sharing: the database already stores a share link and a switch for each card, but there is no page that opens a shared card, and nothing in the editor turns sharing on or copies the link. So the guest link does not work yet.
+- No LUXE area for couples, and no LUXE screen in the admin panel.
+- Home page has no LUXE section.
+- LUXE unlock payment (₹499 / $10) already works through both India and international checkout, and access is already enforced in the database.
 
-## 3. Interactive spotlight tour + collapsible in-panel tips (hybrid)
-- Install `driver.js` (small, ~10 KB, no deps).
-- New component `src/components/DashboardTour.tsx`:
-  - Steps highlight: Welcome banner → Site card → RSVP tab → Guest Blessings → Budget → Music card → Publish toggle → QR/Share → Premium.
-  - Trigger: auto-open on first visit (stored in `localStorage.vowz_tour_seen`), plus a persistent "Take a tour" button in the header.
-- New reusable `src/components/HelpTip.tsx`: small `?` icon that expands an inline `<Collapsible>` with 2–3 sentences of contextual help.
-- Attach `<HelpTip>` next to key section headings in Dashboard (RSVPs, Blessings, Budget, Music, Publish, Custom Slug, Storage).
-- Content lives in one file `src/lib/dashboard-help.ts` so copy is easy to edit.
+## What I will build
 
-## 4. Refresh Features section on landing page
-Audit `src/components/FeaturesSection.tsx` against actual capabilities. Confirmed features to surface:
-- Background music library (new)
-- Custom URL slug
-- Custom domain
-- Family collaboration (view / edit access links)
-- Guest blessings wall
-- RSVP with meal preference & multi-event
-- Budget & expense tracker
-- Wedding checklist & reminders
-- Livestream embed
-- Photo/video gallery on R2
-- Multi-language + timezone + currency
-- Invitation card templates + PDF export
-- QR code, analytics
-- Blog/story sections
-Update icons/copy; keep design tokens (Deep Navy / Soft Gold / Ivory, Playfair + Inter). No layout rewrite — content refresh only.
+### 1. Themes page — LUXE showcase
+A separate gold-badged "LUXE Collection" band above the normal categories, with live previews of all three LUXE designs. Preview is open to everyone; "Use this design" only works after unlocking, otherwise it offers the unlock.
+
+### 2. Home page — LUXE section
+Placed directly under the website themes section: six LUXE cards (three websites + three reveal cards), the add-on price shown clearly as "on top of your plan", and a "View all LUXE templates" button to the themes page.
+
+### 3. Shareable guest card link
+- New public page at `/card/:token` that loads the card by its share link and plays the opening reveal for guests, then shows the invitation and an RSVP button.
+- In the card editor: a Share panel to switch sharing on/off, copy the link, and send it on WhatsApp.
+
+### 4. LUXE couple area (`/dashboard/luxe`)
+One place showing unlock status and purchase date, the LUXE website designs with "apply to my site", the LUXE reveal cards, and every shared guest link with copy/WhatsApp/disable controls. Non-payers see a locked version with the unlock button.
+
+### 5. Admin LUXE screen (`/admin/luxe`)
+List of every LUXE couple: email, amount paid, payment method, date, status, their LUXE sites and cards. I can grant LUXE manually (comped access), revoke it, and see total LUXE revenue. Added to the admin sidebar.
+
+### 6. Real unlock walkthrough
+I will grant your own account LUXE (as you asked, instead of a real payment), then walk it through: apply a LUXE theme, open a LUXE card, play the reveal, turn on sharing and open the guest link in a browser — and report what I see at each step.
 
 ## Technical notes
-- All changes stay in frontend/presentation code.
-- No schema changes, no new edge functions.
-- `driver.js` is added via `bun add driver.js`; tour styles imported once in `main.tsx`.
-- Playwright audit script lives in `/tmp/browser/` (not committed).
 
-## Order of execution
-1. Site audit (Playwright) — read-only, informs any fixes.
-2. Music card in Dashboard + Editor anchor.
-3. `HelpTip` + `DashboardTour` (hybrid guide).
-4. FeaturesSection refresh.
-5. Report back with screenshots + summary.
+- New: `src/pages/SharedCard.tsx`, `src/pages/LuxeDashboard.tsx`, `src/pages/admin/AdminLuxe.tsx`, `src/components/LuxeCollectionSection.tsx`; routes in `src/App.tsx`.
+- Shared card reads through the existing `get_shared_card(token)` function — no new public table access.
+- Admin grant/revoke needs a small migration: admin-only insert/update policies on `user_luxe_unlocks` (currently no write policy exists), with `provider = 'admin_grant'`.
+- Reuses `useLuxeAccess`, `CardReveal`, `BuyLuxeButton`, and the existing theme demo previews.
+
+## Not included
+
+- Charging a separate subscription for LUXE websites — LUXE stays one one-time unlock covering both the reveal cards and the LUXE website designs, as agreed earlier. Say the word if you want it split into its own recurring charge instead.
