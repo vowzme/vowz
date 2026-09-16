@@ -60,6 +60,7 @@ const AdminEmailBranding = lazy(() => import("./pages/admin/AdminEmailBranding")
 const AdminGuestModeration = lazy(() => import("./pages/admin/AdminGuestModeration"));
 const AdminRsvps = lazy(() => import("./pages/admin/AdminRsvps"));
 const AdminVisitors = lazy(() => import("./pages/admin/AdminVisitors"));
+const AdminLuxe = lazy(() => import("./pages/admin/AdminLuxe"));
 const InvitationCard = lazy(() => import("./pages/InvitationCard"));
 const CardGallery = lazy(() => import("./pages/CardGallery"));
 const CardTemplatesPreview = lazy(() => import("./pages/CardTemplatesPreview"));
@@ -79,6 +80,7 @@ const GuestList = lazy(() => import("./pages/GuestList"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ReminderSettings = lazy(() => import("./pages/ReminderSettings"));
 const Payments = lazy(() => import("./pages/Payments"));
+const LuxeDashboard = lazy(() => import("./pages/LuxeDashboard"));
 const OnlineWeddingCardMaker = lazy(() => import("./pages/OnlineWeddingCardMaker"));
 
 const RouteFallback = () => (
@@ -115,6 +117,7 @@ const AppRoutes = () => (
     <Route path="/dashboard/album/:siteId" element={<ProtectedRoute><AlbumModeration /></ProtectedRoute>} />
     <Route path="/dashboard/reminders" element={<ProtectedRoute><ReminderSettings /></ProtectedRoute>} />
     <Route path="/dashboard/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+    <Route path="/dashboard/luxe" element={<ProtectedRoute><LuxeDashboard /></ProtectedRoute>} />
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
@@ -149,6 +152,7 @@ const AppRoutes = () => (
       <Route path="/admin/analytics" element={<AdminLayout><AdminAnalytics /></AdminLayout>} />
     <Route path="/admin/sites" element={<AdminLayout><AdminSites /></AdminLayout>} />
     <Route path="/admin/payments" element={<AdminLayout><AdminPayments /></AdminLayout>} />
+    <Route path="/admin/luxe" element={<AdminLayout><AdminLuxe /></AdminLayout>} />
     <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
       <Route path="/admin/coupons" element={<AdminLayout><AdminCoupons /></AdminLayout>} />
       <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>} />

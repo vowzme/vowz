@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import AdminLayout from "@/components/admin/AdminLayout";
 
 interface Row {
   id: string;
@@ -99,7 +98,7 @@ export default function AdminLuxe() {
   const revenueUsd = active.filter((r) => r.currency !== "INR").reduce((s, r) => s + Number(r.amount_paid || 0), 0);
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Crown className="w-6 h-6 text-gold" />
@@ -184,6 +183,6 @@ export default function AdminLuxe() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }
