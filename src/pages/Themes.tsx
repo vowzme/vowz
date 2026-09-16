@@ -307,6 +307,8 @@ export default function Themes() {
   const [style, setStyle] = useState("all");
   const [tradition, setTradition] = useState("all");
   const [motif, setMotif] = useState("all");
+  const [category, setCategory] = useState("all");
+  const [visibleCount, setVisibleCount] = useState(18);
   const { user } = useAuth();
   const { hasLuxe, refresh: refreshLuxe } = useLuxeAccess();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
@@ -352,11 +354,16 @@ export default function Themes() {
     wtype !== "all" ||
     style !== "all" ||
     tradition !== "all" ||
-    motif !== "all";
+    motif !== "all" ||
+    category !== "all";
   const filteredThemes = useMemo(() => {
     const q = query.trim().toLowerCase();
     return WEDDING_THEMES.filter((t) => t.tier !== "luxe").filter((t) => {
-      const f = THEME_FACETS[t.id];
+      const f = THEME_FACETS[t.family ?? t.id];
+      if (category !== "all") {
+        const selected = THEME_CATEGORIES.find((item) => item.id === category);
+        if (!selected?.themeIds.includes(t.id)) return false;
+      }
       if (region !== "all" && f?.region !== region) return false;
       if (wtype !== "all" && f?.type !== wtype) return false;
       if (style !== "all" && !f?.styles.includes(style)) return false;
@@ -367,11 +374,16 @@ export default function Themes() {
         .join(" ").toLowerCase();
       return hay.includes(q);
     });
-  }, [query, region, wtype, style, tradition, motif]);
+  }, [query, region, wtype, style, tradition, motif, category]);
+
+  useEffect(() => { setVisibleCount(18); }, [query, region, wtype, style, tradition, motif, category]);
+
+  const visibleThemes = filteredThemes.slice(0, visibleCount);
+  const visibleThemeIds = useMemo(() => new Set(visibleThemes.map((theme) => theme.id)), [visibleThemes]);
 
   const resetFilters = () => {
     setQuery(""); setRegion("all"); setWtype("all"); setStyle("all");
-    setTradition("all"); setMotif("all");
+    setTradition("all"); setMotif("all"); setCategory("all");
   };
 
   const applyTheme = async () => {
@@ -569,6 +581,18 @@ export default function Themes() {
 
           {/* Filter + search bar */}
           <div className="mb-6 rounded-2xl border border-border/60 bg-muted/20 p-4 sm:p-5">
+            <div className="mb-3 sm:hidden">
+              <label htmlFor="mobile-theme-category" className="mb-1.5 block text-xs font-body text-muted-foreground">Browse a category</label>
+              <select
+                id="mobile-theme-category"
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+                className="min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-body"
+              >
+                <option value="all">All standard designs</option>
+                {THEME_CATEGORIES.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+              </select>
+            </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -676,7 +700,7 @@ export default function Themes() {
             ) : (
               <section className="mb-14">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredThemes.map((t, i) => (
+                  {visibleThemes.map((t, i) => (
                     <motion.div
                       key={t.id}
                       initial={{ opacity: 0, y: 12 }}
@@ -746,13 +770,20 @@ export default function Themes() {
                     </motion.div>
                   ))}
                 </div>
+                {visibleCount < filteredThemes.length && (
+                  <div className="mt-8 flex justify-center">
+                    <Button variant="outline" size="lg" onClick={() => setVisibleCount((count) => Math.min(count + 18, filteredThemes.length))}>
+                      Load more designs ({filteredThemes.length - visibleCount} remaining)
+                    </Button>
+                  </div>
+                )}
               </section>
             )
           ) : (
           THEME_CATEGORIES.map((cat) => {
             const items = cat.themeIds
               .map((id) => WEDDING_THEMES.find((t) => t.id === id))
-              .filter(Boolean) as WeddingTheme[];
+              .filter((theme): theme is WeddingTheme => Boolean(theme) && visibleThemeIds.has(theme.id));
             if (items.length === 0) return null;
             return (
               <section key={cat.id} id={cat.id} className="mb-14 scroll-mt-24">
@@ -761,7 +792,7 @@ export default function Themes() {
                     <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">{cat.label}</h2>
                     <p className="text-sm text-muted-foreground font-body mt-1 max-w-xl">{cat.description}</p>
                   </div>
-                  <span className="text-xs text-muted-foreground font-body">{items.length} theme{items.length > 1 ? "s" : ""}</span>
+                   <span className="text-xs text-muted-foreground font-body">{cat.themeIds.length} designs</span>
                 </header>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {items.map((t, i) => (
@@ -837,6 +868,13 @@ export default function Themes() {
               </section>
             );
           }))}
+          {!filtersActive && visibleCount < filteredThemes.length && (
+            <div className="flex justify-center -mt-4 mb-14">
+              <Button variant="outline" size="lg" onClick={() => setVisibleCount((count) => Math.min(count + 18, filteredThemes.length))}>
+                Load more designs ({filteredThemes.length - visibleCount} remaining)
+              </Button>
+            </div>
+          )}
 
           <div className="text-center mt-16">
             <p className="text-sm text-muted-foreground font-body mb-4">Not sure which one? Start with our onboarding wizard.</p>

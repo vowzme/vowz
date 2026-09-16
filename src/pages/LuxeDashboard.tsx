@@ -67,7 +67,11 @@ export default function LuxeDashboard() {
         navigate("/wizard");
         return;
       }
-      const t = LUXE_THEMES.find((x) => x.id === themeId)!;
+      const t = LUXE_THEMES.find((x) => x.id === themeId);
+      if (!t) {
+        toast({ title: "Design unavailable", variant: "destructive" });
+        return;
+      }
       const ok = await updateSite((site as any).id, {
         theme: t.id,
         suggested_colors: [t.colors.bg, t.colors.accent, t.colors.surface],
@@ -120,7 +124,7 @@ export default function LuxeDashboard() {
             <Crown className="w-8 h-8 text-gold mx-auto mb-3" />
             <h2 className="font-display text-xl font-bold mb-2">LUXE isn’t unlocked yet</h2>
             <p className="font-body text-sm text-muted-foreground max-w-md mx-auto mb-5">
-              One payment, yours for life — three exclusive website designs and four invitation cards
+               One payment, yours for life — {LUXE_THEMES.length} exclusive website designs and four invitation cards
               that open with a rope pull, a bell, a wax seal or a velvet curtain.
             </p>
             <div className="flex justify-center">
@@ -149,8 +153,8 @@ export default function LuxeDashboard() {
             </div>
 
             <h2 className="font-display text-xl font-bold mb-4">LUXE website designs</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {LUXE_THEMES.map((t) => (
+             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+               {LUXE_THEMES.slice(0, 12).map((t) => (
                 <div key={t.id} className="rounded-2xl">
                   <LazyOnVisible
                     minHeight={200}
@@ -171,6 +175,11 @@ export default function LuxeDashboard() {
                     Apply to my site
                   </Button>
                 </div>
+             {LUXE_THEMES.length > 12 && (
+               <div className="-mt-8 mb-12 text-center">
+                 <Button variant="outline" asChild><Link to="/themes#luxe">Browse all {LUXE_THEMES.length} LUXE designs</Link></Button>
+               </div>
+             )}
               ))}
             </div>
 

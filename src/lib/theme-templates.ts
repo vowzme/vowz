@@ -294,7 +294,7 @@ const T: Record<string, Base> = {
 };
 
 export function buildThemeTemplate(theme: WeddingTheme): ThemeTemplate {
-  const base = T[theme.id] ?? T["modern-minimal"];
+  const base = T[theme.id] ?? T[theme.family ?? ""] ?? T["modern-minimal"];
   return {
     themeId: theme.id,
     partner1: theme.sampleCouple[0],
@@ -308,7 +308,7 @@ export function buildThemeTemplate(theme: WeddingTheme): ThemeTemplate {
 // Build the full sections array for a wedding_sites row from a theme template.
 export function buildThemeSections(theme: WeddingTheme) {
   const tpl = buildThemeTemplate(theme);
-  const photos = PHOTO_SETS[theme.id] ?? PHOTO_SETS["modern-minimal"];
+  const photos = PHOTO_SETS[theme.id] ?? PHOTO_SETS[theme.family ?? ""] ?? PHOTO_SETS["modern-minimal"];
   const heroImage = photos?.hero || "";
   const sampleGallery = (photos?.gallery || []).slice(0, 3);
   return [
