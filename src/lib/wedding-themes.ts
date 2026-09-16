@@ -22,7 +22,11 @@ export type WeddingTheme = {
   sampleTagline: string;
   /** "luxe" themes are only available to couples who unlocked LUXE. */
   tier?: "standard" | "luxe";
+  /** Curated theme id this design inherits starter copy + demo photos from. */
+  family?: string;
 };
+
+import { GENERATED_STANDARD_THEMES, GENERATED_LUXE_THEMES } from "@/lib/theme-library";
 
 export const WEDDING_THEMES: WeddingTheme[] = [
   {
