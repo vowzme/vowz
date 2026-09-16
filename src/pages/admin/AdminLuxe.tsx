@@ -122,11 +122,11 @@ export default function AdminLuxe() {
 
         <div className="rounded-xl border border-border/60 p-4 flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[220px]">
-            <label className="text-xs font-body text-muted-foreground">Grant LUXE to an account</label>
+            <label className="text-xs font-body text-muted-foreground">Approve a couple for LUXE</label>
             <Input value={grantEmail} onChange={(e) => setGrantEmail(e.target.value)} placeholder="couple@email.com" />
           </div>
           <Button onClick={grant} disabled={granting}>
-            {granting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Grant
+            {granting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Approve
           </Button>
         </div>
 

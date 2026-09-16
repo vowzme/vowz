@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Crown, Eye, Lock, Wand2 } from "lucide-react";
 import { WEDDING_THEMES, type WeddingTheme } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
@@ -19,7 +20,10 @@ interface Props {
  * Previewing is open to everyone; applying a design needs the one-time unlock.
  */
 export default function LuxeCollectionSection({ hasLuxe, onPreview, onUse, onUnlocked, busy }: Props) {
+  const [visibleCount, setVisibleCount] = useState(12);
   if (LUXE_THEMES.length === 0) return null;
+
+  const visibleThemes = LUXE_THEMES.slice(0, visibleCount);
 
   return (
     <section id="luxe" className="mb-14 scroll-mt-20">
@@ -34,7 +38,7 @@ export default function LuxeCollectionSection({ hasLuxe, onPreview, onUse, onUnl
             </h2>
             <p className="font-body text-sm text-muted-foreground mt-1 max-w-xl">
               Deeper palettes, hand-detailed motifs and richer layouts — plus the opening-reveal
-              invitation cards. Preview any of them free; one lifetime unlock opens them all.
+               invitation cards. Preview all {LUXE_THEMES.length} free; one lifetime unlock opens them all.
             </p>
           </div>
           {!hasLuxe && <BuyLuxeButton label="Unlock LUXE" onPurchased={onUnlocked} />}
@@ -46,7 +50,7 @@ export default function LuxeCollectionSection({ hasLuxe, onPreview, onUse, onUnl
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {LUXE_THEMES.map((t) => (
+          {visibleThemes.map((t) => (
             <div key={t.id} className="group text-left rounded-2xl">
               <button
                 type="button"
@@ -97,6 +101,17 @@ export default function LuxeCollectionSection({ hasLuxe, onPreview, onUse, onUnl
             </div>
           ))}
         </div>
+        {visibleCount < LUXE_THEMES.length && (
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((count) => Math.min(count + 12, LUXE_THEMES.length))}
+              className="min-h-11 rounded-md border border-gold/50 bg-gold/10 px-5 py-2 text-sm font-body text-gold hover:bg-gold/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            >
+              Load more LUXE designs ({LUXE_THEMES.length - visibleCount} remaining)
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

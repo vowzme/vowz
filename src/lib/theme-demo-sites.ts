@@ -301,9 +301,10 @@ export function getThemeDemoSite(themeId: string) {
   const theme = getTheme(themeId);
   if (!theme) return null;
   const tpl = buildThemeTemplate(theme);
-  const photos = PHOTO_SETS[themeId] ?? PHOTO_SETS["modern-minimal"];
-  const venueList = VENUES[themeId] ?? VENUES["modern-minimal"];
-  const hotels = HOTELS[themeId] ?? HOTELS["modern-minimal"];
+  const familyId = theme.family ?? themeId;
+  const photos = PHOTO_SETS[themeId] ?? PHOTO_SETS[familyId] ?? PHOTO_SETS["modern-minimal"];
+  const venueList = VENUES[themeId] ?? VENUES[familyId] ?? VENUES["modern-minimal"];
+  const hotels = HOTELS[themeId] ?? HOTELS[familyId] ?? HOTELS["modern-minimal"];
   const firstDate = venueList[venueList.length - 1]?.date ?? "August 20, 2026";
 
   return {
@@ -390,7 +391,7 @@ export function getThemeDemoSite(themeId: string) {
             name: `${tpl.partner1} & ${tpl.partner2}`,
             note: "Wedding Shagun 💛",
           },
-          items: defaultRegistry(themeId),
+          items: defaultRegistry(familyId),
         },
       },
       {
@@ -470,6 +471,16 @@ export const THEME_CATEGORIES: ThemeCategory[] = [
     themeIds: ["modern-minimal"],
   },
 ];
+
+// Generated themes inherit a curated family. Include every generated standard
+// design in that family's category so the complete 100-theme catalogue is
+// browsable without duplicating category metadata.
+for (const category of THEME_CATEGORIES) {
+  const familyIds = new Set(category.themeIds);
+  category.themeIds = WEDDING_THEMES
+    .filter((theme) => theme.tier !== "luxe" && familyIds.has(theme.family ?? theme.id))
+    .map((theme) => theme.id);
+}
 
 // Convenience for other modules (e.g. sitemap).
 export const ALL_THEME_IDS = WEDDING_THEMES.map((t) => t.id);
