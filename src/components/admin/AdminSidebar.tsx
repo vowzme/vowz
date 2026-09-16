@@ -15,6 +15,7 @@ import {
   Palette,
   Heart,
   TrendingUp,
+  Crown,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -43,6 +44,7 @@ const items = [
   { title: "Partners", url: "/admin/partners", icon: Network },
   { title: "Card Templates", url: "/admin/card-templates", icon: Mail },
   { title: "Card Analytics", url: "/admin/card-analytics", icon: BarChart3 },
+  { title: "LUXE Couples", url: "/admin/luxe", icon: Crown },
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Storage Cleanup", url: "/admin/storage-cleanup", icon: HardDrive },
   { title: "Emails", url: "/admin/emails", icon: Mail },

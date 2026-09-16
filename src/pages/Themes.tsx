@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2, Eye, Search, Crown, Lock } from "lucide-react";
 import BuyLuxeButton from "@/components/BuyLuxeButton";
+import LuxeCollectionSection from "@/components/LuxeCollectionSection";
 import { useLuxeAccess } from "@/hooks/use-luxe-access";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -307,6 +308,7 @@ export default function Themes() {
   const [tradition, setTradition] = useState("all");
   const [motif, setMotif] = useState("all");
   const { user } = useAuth();
+  const { hasLuxe, refresh: refreshLuxe } = useLuxeAccess();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
 
@@ -635,6 +637,17 @@ export default function Themes() {
               </div>
             )}
           </div>
+
+          {/* Exclusive LUXE designs (hidden when filtering) */}
+          {!filtersActive && (
+            <LuxeCollectionSection
+              hasLuxe={hasLuxe}
+              busy={starting || applying}
+              onPreview={openTheme}
+              onUse={startFromTemplate}
+              onUnlocked={refreshLuxe}
+            />
+          )}
 
           {/* Category quick-jump (hidden when filtering) */}
           {!filtersActive && (
