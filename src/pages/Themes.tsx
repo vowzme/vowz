@@ -307,6 +307,7 @@ export default function Themes() {
   const [tradition, setTradition] = useState("all");
   const [motif, setMotif] = useState("all");
   const { user } = useAuth();
+  const { hasLuxe, refresh: refreshLuxe } = useLuxeAccess();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
 
