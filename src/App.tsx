@@ -70,6 +70,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Showcase = lazy(() => import("./pages/Showcase"));
 const SharePreview = lazy(() => import("./pages/SharePreview"));
 const Share = lazy(() => import("./pages/Share"));
+const SharedCard = lazy(() => import("./pages/SharedCard"));
 const IconsDebug = lazy(() => import("./pages/IconsDebug"));
 const PwaDiagnostics = lazy(() => import("./pages/PwaDiagnostics"));
 const TwaVerify = lazy(() => import("./pages/TwaVerify"));
@@ -119,6 +120,7 @@ const AppRoutes = () => (
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/invitation-card/:siteId" element={<ProtectedRoute><InvitationCard /></ProtectedRoute>} />
     <Route path="/site/:slug" element={<PublicSite />} />
+    <Route path="/card/:token" element={<SharedCard />} />
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
     <Route path="/themes" element={<Layout><Themes /></Layout>} />
