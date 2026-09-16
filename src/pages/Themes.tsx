@@ -637,6 +637,17 @@ export default function Themes() {
             )}
           </div>
 
+          {/* Exclusive LUXE designs (hidden when filtering) */}
+          {!filtersActive && (
+            <LuxeCollectionSection
+              hasLuxe={hasLuxe}
+              busy={starting || applying}
+              onPreview={openTheme}
+              onUse={startFromTemplate}
+              onUnlocked={refreshLuxe}
+            />
+          )}
+
           {/* Category quick-jump (hidden when filtering) */}
           {!filtersActive && (
           <nav className="flex flex-wrap gap-2 justify-center mb-10">
