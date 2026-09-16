@@ -22,7 +22,11 @@ export type WeddingTheme = {
   sampleTagline: string;
   /** "luxe" themes are only available to couples who unlocked LUXE. */
   tier?: "standard" | "luxe";
+  /** Curated theme id this design inherits starter copy + demo photos from. */
+  family?: string;
 };
+
+import { GENERATED_STANDARD_THEMES, GENERATED_LUXE_THEMES } from "@/lib/theme-library";
 
 export const WEDDING_THEMES: WeddingTheme[] = [
   {
@@ -227,6 +231,9 @@ export const WEDDING_THEMES: WeddingTheme[] = [
     tier: "luxe",
   },
 ];
+
+// Expand the curated families into the full catalogue (100 standard + 100 LUXE).
+WEDDING_THEMES.push(...GENERATED_STANDARD_THEMES, ...GENERATED_LUXE_THEMES);
 
 export const LUXE_THEME_IDS = WEDDING_THEMES.filter((t) => t.tier === "luxe").map((t) => t.id);
 export const isLuxeTheme = (id?: string | null) => !!id && LUXE_THEME_IDS.includes(id);
