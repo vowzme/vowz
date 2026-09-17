@@ -47,7 +47,7 @@ export default function LuxeHomeSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {LUXE_THEMES.map((t) => (
-            <Link key={t.id} to="/themes#luxe" className="group rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-gold">
+            <Link key={t.id} to={`/themes?use=${t.id}#luxe`} className="group rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-gold">
               <div className="relative transition-transform group-hover:-translate-y-1">
                 <span className="absolute z-10 top-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-body uppercase tracking-widest text-gold">
                   <Crown className="w-3 h-3" /> Website
