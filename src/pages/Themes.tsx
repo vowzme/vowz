@@ -462,6 +462,23 @@ export default function Themes() {
     }
   };
 
+  // Deep link: /themes?use=<theme-id> (used by the home-page LUXE cards) starts
+  // building that exact design as soon as the page is ready.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const useParam = searchParams.get("use");
+  useEffect(() => {
+    if (!useParam || luxeLoading || starting) return;
+    const theme = WEDDING_THEMES.find((t) => t.id === useParam);
+    const next = new URLSearchParams(searchParams);
+    next.delete("use");
+    setSearchParams(next, { replace: true });
+    if (!theme) return;
+    openTheme(theme);
+    startFromTemplate(theme);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useParam, luxeLoading]);
+
+
   // Apply a template to an existing site — either fully replacing sections or
   // merging on top so custom story/events/RSVP text is preserved.
   const applyTemplateToExisting = async (t: WeddingTheme, existingId: string, mode: "replace" | "merge") => {
