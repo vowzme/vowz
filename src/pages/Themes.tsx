@@ -310,7 +310,7 @@ export default function Themes() {
   const [category, setCategory] = useState("all");
   const [visibleCount, setVisibleCount] = useState(18);
   const { user } = useAuth();
-  const { hasLuxe, refresh: refreshLuxe } = useLuxeAccess();
+  const { hasLuxe, loading: luxeLoading, refresh: refreshLuxe } = useLuxeAccess();
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
 
