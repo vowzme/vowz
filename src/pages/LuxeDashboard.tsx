@@ -175,13 +175,16 @@ export default function LuxeDashboard() {
                     Apply to my site
                   </Button>
                 </div>
-             {LUXE_THEMES.length > 12 && (
-               <div className="-mt-8 mb-12 text-center">
-                 <Button variant="outline" asChild><Link to="/themes#luxe">Browse all {LUXE_THEMES.length} LUXE designs</Link></Button>
-               </div>
-             )}
               ))}
             </div>
+
+            {LUXE_THEMES.length > 12 && (
+              <div className="-mt-6 mb-12 text-center">
+                <Button variant="outline" asChild>
+                  <Link to="/themes#luxe">Browse all {LUXE_THEMES.length} LUXE designs</Link>
+                </Button>
+              </div>
+            )}
 
             <h2 className="font-display text-xl font-bold mb-4">Opening-reveal invitation cards</h2>
             <div className="grid sm:grid-cols-2 gap-3 mb-12">

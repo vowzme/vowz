@@ -74,7 +74,10 @@ function build(fam: Family, pal: Palette, luxe: boolean): WeddingTheme {
     name: `${fam.short} · ${pal.name}`,
     tradition: luxe ? `LUXE · ${fam.tradition}` : fam.tradition,
     tagline: pal.tagline,
-    description: `${luxe ? "A LUXE edition of " : ""}${fam.note}, styled in ${pal.name.toLowerCase()}. Mobile-first layout with fast-loading sections for story, schedule, travel, gallery and RSVP.`,
+    description: (() => {
+      const base = `${luxe ? "A LUXE edition of " : ""}${fam.note}, styled in ${pal.name.toLowerCase()}. Mobile-first layout with fast-loading sections for story, schedule, travel, gallery and RSVP.`;
+      return base.charAt(0).toUpperCase() + base.slice(1);
+    })(),
     colors: pal.colors,
     fonts: pal.fonts,
     motif: fam.motif,
