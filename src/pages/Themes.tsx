@@ -3,9 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2, Eye, Search, Crown, Lock } from "lucide-react";
-import BuyLuxeButton from "@/components/BuyLuxeButton";
-import LuxeCollectionSection from "@/components/LuxeCollectionSection";
-import { useLuxeAccess } from "@/hooks/use-luxe-access";
+import { Button } from "@/components/ui/button";
+
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
