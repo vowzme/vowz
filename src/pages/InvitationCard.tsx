@@ -392,6 +392,35 @@ export default function InvitationCard() {
     if (variantId === id) { setVariantId(null); setVariantName("My card"); }
   };
 
+  // ─── Guest share link ────────────────────────────────────────
+  const currentVariant = variants.find((v) => v.id === variantId) || null;
+  const shareUrl = currentVariant?.share_token && currentVariant?.share_enabled
+    ? `${window.location.origin}/card/${currentVariant.share_token}`
+    : null;
+
+  const updateShare = async (enabled: boolean) => {
+    if (!variantId || !currentVariant) {
+      toast({ title: "Save the card first", description: "Save your design, then share it with guests.", variant: "destructive" });
+      return;
+    }
+    const token = currentVariant.share_token ?? (crypto.randomUUID?.() ?? null);
+    const { data, error } = await (supabase as any)
+      .from("invitation_card_variants")
+      .update({ share_enabled: enabled, share_token: token })
+      .eq("id", variantId).select().single();
+    if (error) {
+      toast({ title: "Could not update sharing", description: error.message, variant: "destructive" });
+      return;
+    }
+    setVariants((v) => v.map((x) => (x.id === data.id ? data : x)));
+    toast({ title: enabled ? "Guest link is live" : "Guest link turned off" });
+  };
+
+  const copyShareLink = async () => {
+    if (!shareUrl) return;
+    try { await navigator.clipboard.writeText(shareUrl); toast({ title: "Link copied" }); } catch {}
+  };
+
   // ─── Variant thumbnail ───────────────────────────────────────
   const VariantThumb = ({ v }: { v: any }) => {
     const tTheme = CARD_THEMES[v.template_slug] ?? CARD_THEMES["hindu-ganesha-classic"];
