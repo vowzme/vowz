@@ -2848,6 +2848,7 @@ export type Database = {
           pages: Json
           photo_url: string
           reveal: string
+          site_slug: string
           template_slug: string
           theme_overrides: Json
         }[]

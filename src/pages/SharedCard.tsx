@@ -22,9 +22,10 @@ interface SharedCard {
   pages: any;
   photo_url: string | null;
   reveal: RevealType | null;
+  site_slug: string | null;
 }
 
-/** Public guest view of a shared invitation card, opening with the LUXE reveal. */
+/** Public guest view of a shared invitation card, opening with its reveal. */
 export default function SharedCardPage() {
   const { token } = useParams<{ token: string }>();
   const [card, setCard] = useState<SharedCard | null>(null);
@@ -78,7 +79,7 @@ export default function SharedCardPage() {
   };
   const reveal = (card.reveal as RevealType | null) || revealForSlug(card.template_slug);
   const names = `${cardData.partner1} & ${cardData.partner2}`;
-  const rsvpSlug = d.siteSlug || d.slug;
+  const rsvpSlug = card.site_slug || d.siteSlug || d.slug;
 
   const artwork = (
     <InvitationCardArtwork data={cardData} theme={theme} width={340} qrPosition="hidden" />
@@ -113,9 +114,19 @@ export default function SharedCardPage() {
       )}
 
       {rsvpSlug && (
-        <Button variant="gold" size="lg" className="mt-8" asChild>
-          <a href={`/site/${rsvpSlug}#rsvp`}>RSVP now</a>
-        </Button>
+        <div className="mt-8 flex w-full max-w-[360px] flex-col gap-2 sm:flex-row sm:justify-center">
+          <Button variant="gold" size="lg" className="w-full sm:w-auto" asChild>
+            <a href={`/site/${rsvpSlug}?rsvp=yes#rsvp`}>Yes, I'll be there</a>
+          </Button>
+          <Button variant="outline" size="lg" className="w-full bg-transparent sm:w-auto" style={{ color: theme.ink, borderColor: theme.accent }} asChild>
+            <a href={`/site/${rsvpSlug}?rsvp=no#rsvp`}>Can't make it</a>
+          </Button>
+        </div>
+      )}
+      {rsvpSlug && (
+        <a href={`/site/${rsvpSlug}`} className="mt-4 font-body text-sm underline opacity-80 hover:opacity-100" style={{ color: theme.ink }}>
+          View the full wedding site
+        </a>
       )}
 
       <a
