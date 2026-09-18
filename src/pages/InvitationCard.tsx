@@ -802,7 +802,7 @@ export default function InvitationCard() {
             <div className="w-full mb-4 rounded-xl border-2 border-gold/40 bg-gold/5 overflow-hidden">
               <div className="flex items-center justify-between px-3 py-2 border-b border-gold/30">
                 <span className="text-xs font-medium flex items-center gap-1.5">
-                  <Crown className="w-3.5 h-3.5 text-gold" /> LUXE opening · {REVEAL_LABELS[revealType]}
+                  <Crown className="w-3.5 h-3.5 text-gold" /> Opening reveal · {REVEAL_LABELS[revealType]}
                 </span>
                 <div className="flex items-center gap-1">
                   <Button size="sm" variant="ghost" className="h-7 text-xs"

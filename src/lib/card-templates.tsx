@@ -601,7 +601,7 @@ NEW_PREMIUM_TEMPLATES.forEach((t) => {
 // ─── LUXE tier ────────────────────────────────────────────────────
 // Top-of-range designs that open with a small act by the guest — pull a rope,
 // ring a bell, break a wax seal, part a curtain — before the card is revealed.
-// Sold as a separate one-time unlock (see BuyLuxeButton / user_luxe_unlocks).
+// Included with the premium plan; they open with an animated reveal.
 export type RevealType = "rope" | "bell" | "envelope" | "curtain";
 
 export const REVEAL_LABELS: Record<RevealType, string> = {
