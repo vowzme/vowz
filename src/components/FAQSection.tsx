@@ -40,8 +40,8 @@ const faqs = [
     a: "Yes! Free users get 100 MB of cloud storage; Premium users get 500 MB. Photos are auto-optimized to save space. Need more? Buy a +2 GB add-on for ₹499 (India) or $5 (international) — valid for 6 months and fully stackable.",
   },
   {
-    q: "What is LUXE and what is the opening reveal?",
-    a: "LUXE is our top range of invitation cards. Instead of simply appearing, the card opens with a small gesture from your guest — pulling a rope to light courtyard lamps, ringing a temple bell, breaking a wax seal, or parting a velvet curtain. It's a one-time unlock of ₹499 (India) or $10 (international), separate from Premium, with no renewal. You can play every opening free in the card editor before you decide to buy; the unlock only adds saving, sharing and downloads.",
+    q: "What is the opening reveal on invitation cards?",
+    a: "Some of our invitation cards open with a small gesture from your guest — pulling a rope to light courtyard lamps, ringing a temple bell, breaking a wax seal, or parting a velvet curtain. These designs are included with Premium. You can play every opening free in the card editor before you decide; Premium adds saving, sharing and downloads.",
   },
   {
     q: "What happens after my 6-month subscription expires?",
