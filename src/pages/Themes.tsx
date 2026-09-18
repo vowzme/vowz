@@ -390,10 +390,8 @@ export default function Themes() {
       navigate("/auth", { state: { returnTo: "/themes" } });
       return;
     }
-    if (active.tier === "luxe" && !hasLuxe) {
-      toast({ title: "LUXE design", description: "Unlock LUXE once to use this design on your wedding website.", variant: "destructive" });
-      return;
-    }
+    setApplying(true);
+
     setApplying(true);
     try {
       const site = await loadUserSite();
