@@ -3,10 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Check, Sparkles, ArrowRight, X, RotateCcw, Wand2, Eye, Search, Crown, Lock } from "lucide-react";
-import BuyLuxeButton from "@/components/BuyLuxeButton";
-import LuxeCollectionSection from "@/components/LuxeCollectionSection";
-import { useLuxeAccess } from "@/hooks/use-luxe-access";
 import { Button } from "@/components/ui/button";
+
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { WEDDING_THEMES, type WeddingTheme } from "@/lib/wedding-themes";
@@ -18,6 +16,11 @@ import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
 import { supabase } from "@/integrations/supabase/client";
 import { mergeSections } from "@/lib/theme-merge";
+
+/** How many designs each category shows before "Load more". */
+const CATEGORY_PAGE_SIZE = 9;
+
+
 
 /**
  * Full-screen theme preview body. Owns iframe load state so we can surface
@@ -309,8 +312,9 @@ export default function Themes() {
   const [motif, setMotif] = useState("all");
   const [category, setCategory] = useState("all");
   const [visibleCount, setVisibleCount] = useState(18);
+  const [catCounts, setCatCounts] = useState<Record<string, number>>({});
   const { user } = useAuth();
-  const { hasLuxe, loading: luxeLoading, refresh: refreshLuxe } = useLuxeAccess();
+
   const { loadUserSite, updateSite, createSite } = useWeddingSite();
   const navigate = useNavigate();
 
@@ -358,7 +362,7 @@ export default function Themes() {
     category !== "all";
   const filteredThemes = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return WEDDING_THEMES.filter((t) => t.tier !== "luxe").filter((t) => {
+    return WEDDING_THEMES.filter((t) => {
       const f = THEME_FACETS[t.family ?? t.id];
       if (category !== "all") {
         const selected = THEME_CATEGORIES.find((item) => item.id === category);
@@ -379,7 +383,7 @@ export default function Themes() {
   useEffect(() => { setVisibleCount(18); }, [query, region, wtype, style, tradition, motif, category]);
 
   const visibleThemes = filteredThemes.slice(0, visibleCount);
-  const visibleThemeIds = useMemo(() => new Set(visibleThemes.map((theme) => theme.id)), [visibleThemes]);
+
 
   const resetFilters = () => {
     setQuery(""); setRegion("all"); setWtype("all"); setStyle("all");
@@ -392,11 +396,8 @@ export default function Themes() {
       navigate("/auth", { state: { returnTo: "/themes" } });
       return;
     }
-    if (active.tier === "luxe" && !hasLuxe) {
-      toast({ title: "LUXE design", description: "Unlock LUXE once to use this design on your wedding website.", variant: "destructive" });
-      return;
-    }
     setApplying(true);
+
     try {
       const site = await loadUserSite();
       if (!site) {
@@ -427,11 +428,8 @@ export default function Themes() {
       navigate("/auth", { state: { returnTo: "/themes" } });
       return;
     }
-    if (t.tier === "luxe" && !hasLuxe) {
-      toast({ title: "LUXE design", description: "Unlock LUXE once to build your website on this design.", variant: "destructive" });
-      return;
-    }
     const existing = await loadUserSite();
+
     if (existing) {
       setApplyChoice({ theme: t, existingId: (existing as any).id });
       return;
@@ -881,6 +879,7 @@ export default function Themes() {
                     <Button
                       variant="outline"
                       size="lg"
+                      className="max-w-full whitespace-normal px-6 text-center"
                       onClick={() =>
                         setCatCounts((prev) => ({
                           ...prev,
@@ -888,7 +887,7 @@ export default function Themes() {
                         }))
                       }
                     >
-                      Load more {cat.label} designs ({all.length - shown} remaining)
+                      Load more designs ({all.length - shown} more)
                     </Button>
                   </div>
                 )}

@@ -64,8 +64,8 @@ const PayPalCheckoutButton = ({ productType, currency, onSuccess, disabled }: Pr
             }
             if (data.already_premium || data.already_owned) {
               toast({
-                title: productType === "luxe_cards" ? "LUXE already unlocked" : "Premium already active",
-                description: productType === "luxe_cards" ? "Your LUXE designs are ready." : "Your account is already upgraded.",
+                title: "Premium already active",
+                description: "Your account is already upgraded.",
               });
               onSuccess?.();
               setProcessing(false);
@@ -124,8 +124,8 @@ const PayPalCheckoutButton = ({ productType, currency, onSuccess, disabled }: Pr
         });
         if (data?.already_premium || data?.already_owned) {
           toast({
-            title: productType === "luxe_cards" ? "LUXE already unlocked" : "Premium already active",
-            description: productType === "luxe_cards" ? "Your LUXE designs are ready." : "Your account is already upgraded.",
+            title: "Premium already active",
+            description: "Your account is already upgraded.",
           });
           onSuccess?.();
           if (!cancelled) setLoading(false);

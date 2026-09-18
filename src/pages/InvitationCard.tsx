@@ -33,8 +33,6 @@ import {
   isLuxeSlug, revealForSlug, REVEAL_LABELS,
 } from "@/lib/card-templates";
 import CardReveal from "@/components/CardReveal";
-import BuyLuxeButton from "@/components/BuyLuxeButton";
-import { useLuxeAccess } from "@/hooks/use-luxe-access";
 
 
 const QR_POSITIONS: { value: QrPosition; label: string }[] = [
@@ -107,7 +105,6 @@ export default function InvitationCard() {
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<CardTemplateMeta[]>(FALLBACK_TEMPLATES);
   const [isPremium, setIsPremium] = useState(false);
-  const { hasLuxe, refresh: refreshLuxe } = useLuxeAccess();
 
   const [activeCategory, setActiveCategory] = useState<CardCategory>("hindu_sikh");
   const [selectedSlug, setSelectedSlug] = useState<string>("hindu-ganesha-classic");
@@ -294,7 +291,7 @@ export default function InvitationCard() {
   const siteUrl = site?.slug ? `${window.location.origin}/site/${site.slug}` : `${window.location.origin}/`;
   const isLuxeCard = isLuxeSlug(selectedSlug);
   const revealType = revealForSlug(selectedSlug);
-  const requiresLuxe = isLuxeCard && !hasLuxe;
+  const requiresLuxe = isLuxeCard && !isPremium;
   const requiresUpgrade = requiresLuxe || (!isLuxeCard && !!selected?.is_premium && !isPremium);
 
   const currentPage = pages[activePageIdx] || pages[0];
@@ -333,7 +330,7 @@ export default function InvitationCard() {
   const saveVariant = async () => {
     if (!user || !siteId) return;
     if (requiresLuxe) {
-      toast({ title: "LUXE unlock needed", description: "Unlock LUXE once to save and share cards with the opening reveal.", variant: "destructive" });
+      toast({ title: "Upgrade required", description: "Upgrade your plan to save and share cards with the opening reveal.", variant: "destructive" });
       return;
     }
     if (requiresUpgrade) {
@@ -604,7 +601,7 @@ export default function InvitationCard() {
 
   const handleExport = async (type: "png" | "jpg" | "pdf" | "bundle") => {
     if (requiresLuxe) {
-      toast({ title: "LUXE unlock needed", description: "Unlock LUXE once to download this design.", variant: "destructive" });
+      toast({ title: "Premium template", description: "Upgrade to download this design.", variant: "destructive" });
       return;
     }
     if (requiresUpgrade) {
@@ -805,7 +802,7 @@ export default function InvitationCard() {
             <div className="w-full mb-4 rounded-xl border-2 border-gold/40 bg-gold/5 overflow-hidden">
               <div className="flex items-center justify-between px-3 py-2 border-b border-gold/30">
                 <span className="text-xs font-medium flex items-center gap-1.5">
-                  <Crown className="w-3.5 h-3.5 text-gold" /> LUXE opening · {REVEAL_LABELS[revealType]}
+                  <Crown className="w-3.5 h-3.5 text-gold" /> Opening reveal · {REVEAL_LABELS[revealType]}
                 </span>
                 <div className="flex items-center gap-1">
                   <Button size="sm" variant="ghost" className="h-7 text-xs"
@@ -852,8 +849,8 @@ export default function InvitationCard() {
                   </p>
                   {requiresLuxe && (
                     <div className="mt-3 flex flex-col items-center gap-2">
-                      <BuyLuxeButton size="sm" onPurchased={refreshLuxe} />
-                      <span className="text-[11px] text-muted-foreground">One-time unlock · saving &amp; downloads open up right away</span>
+                      <Button size="sm" variant="gold" onClick={() => navigate("/pricing")}>Upgrade to save this card</Button>
+                      <span className="text-[11px] text-muted-foreground">Premium plan · saving &amp; downloads open up right away</span>
                     </div>
                   )}
                 </div>
@@ -948,7 +945,7 @@ export default function InvitationCard() {
                       <SelectItem value="all">All tiers</SelectItem>
                       <SelectItem value="free">Free only</SelectItem>
                       <SelectItem value="premium">Premium only</SelectItem>
-                      <SelectItem value="luxe">LUXE (opening reveal)</SelectItem>
+                      <SelectItem value="luxe">With opening reveal</SelectItem>
 
                     </SelectContent>
                   </Select>
@@ -988,7 +985,7 @@ export default function InvitationCard() {
                   const tTheme = CARD_THEMES[t.slug];
                   const isSel = t.slug === selectedSlug;
                   const luxe = isLuxeSlug(t.slug);
-                  const locked = luxe ? !hasLuxe : (t.is_premium && !isPremium);
+                  const locked = luxe ? !isPremium : (t.is_premium && !isPremium);
                   return (
                     <button key={t.slug}
                       onClick={() => {
@@ -1011,7 +1008,7 @@ export default function InvitationCard() {
                         <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2">
                           {luxe ? (
                             <>
-                              <Badge className="bg-gold text-gold-foreground"><Crown className="w-3 h-3 mr-1" /> LUXE</Badge>
+                              <Badge className="bg-gold text-gold-foreground"><Crown className="w-3 h-3 mr-1" /> Reveal</Badge>
                               <span className="text-[10px] text-muted-foreground px-2 text-center">Tap to try the opening free</span>
                             </>
                           ) : (
@@ -1030,9 +1027,9 @@ export default function InvitationCard() {
               </div>
               {requiresLuxe ? (
                 <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs space-y-2">
-                  <p className="flex items-center gap-1.5 font-medium"><Crown className="w-3.5 h-3.5 text-gold" /> LUXE design — try the opening free</p>
-                  <p className="text-muted-foreground">Play the reveal as often as you like. Unlock once to save, share and download this card.</p>
-                  <BuyLuxeButton className="w-full" size="sm" onPurchased={refreshLuxe} />
+                  <p className="flex items-center gap-1.5 font-medium"><Crown className="w-3.5 h-3.5 text-gold" /> Opening reveal design — try it free</p>
+                  <p className="text-muted-foreground">Play the reveal as often as you like. Upgrade to save, share and download this card.</p>
+                  <Button size="sm" variant="gold" className="w-full" onClick={() => navigate("/pricing")}>Upgrade</Button>
                 </div>
               ) : requiresUpgrade && (
                 <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs">

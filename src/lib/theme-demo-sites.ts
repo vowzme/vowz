@@ -478,7 +478,7 @@ export const THEME_CATEGORIES: ThemeCategory[] = [
 for (const category of THEME_CATEGORIES) {
   const familyIds = new Set(category.themeIds);
   category.themeIds = WEDDING_THEMES
-    .filter((theme) => theme.tier !== "luxe" && familyIds.has(theme.family ?? theme.id))
+    .filter((theme) => familyIds.has(theme.family ?? theme.id))
     .map((theme) => theme.id);
 }
 

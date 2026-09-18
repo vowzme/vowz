@@ -72,10 +72,10 @@ function build(fam: Family, pal: Palette, luxe: boolean): WeddingTheme {
   return {
     id,
     name: `${fam.short} · ${pal.name}`,
-    tradition: luxe ? `LUXE · ${fam.tradition}` : fam.tradition,
+    tradition: fam.tradition,
     tagline: pal.tagline,
     description: (() => {
-      const base = `${luxe ? "A LUXE edition of " : ""}${fam.note}, styled in ${pal.name.toLowerCase()}. Mobile-first layout with fast-loading sections for story, schedule, travel, gallery and RSVP.`;
+      const base = `${luxe ? "A signature edition of " : ""}${fam.note}, styled in ${pal.name.toLowerCase()}. Mobile-first layout with fast-loading sections for story, schedule, travel, gallery and RSVP.`;
       return base.charAt(0).toUpperCase() + base.slice(1);
     })(),
     colors: pal.colors,
@@ -84,7 +84,7 @@ function build(fam: Family, pal: Palette, luxe: boolean): WeddingTheme {
     heroGradient: `linear-gradient(135deg,${pal.grad[0]} 0%,${pal.grad[1]} 55%,${pal.grad[2]} 100%)`,
     sampleCouple: fam.couple,
     sampleTagline: luxe ? "An heirloom celebration, beautifully told" : "Two families, one joyful beginning",
-    tier: luxe ? "luxe" : "standard",
+    tier: "standard",
     family: fam.id,
   };
 }

@@ -67,9 +67,12 @@ function applyUpdate(worker: ServiceWorker) {
 }
 
 function watchForUpdate(reg: ServiceWorkerRegistration) {
-  // Reload exactly once when a new worker takes control of this page.
+  // On a first, uncontrolled visit the worker claims the page immediately.
+  // Reloading then would wipe anything the visitor has typed, so only reload
+  // when this page was already controlled by an older worker.
+  const wasControlled = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (reloading) return;
+    if (!wasControlled || reloading) return;
     reloading = true;
     window.location.reload();
   });
