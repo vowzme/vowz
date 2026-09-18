@@ -885,13 +885,6 @@ export default function Themes() {
               </section>
             );
           }))}
-          {!filtersActive && visibleCount < filteredThemes.length && (
-            <div className="flex justify-center -mt-4 mb-14">
-              <Button variant="outline" size="lg" onClick={() => setVisibleCount((count) => Math.min(count + 18, filteredThemes.length))}>
-                Load more designs ({filteredThemes.length - visibleCount} remaining)
-              </Button>
-            </div>
-          )}
 
           <div className="text-center mt-16">
             <p className="text-sm text-muted-foreground font-body mb-4">Not sure which one? Start with our onboarding wizard.</p>
