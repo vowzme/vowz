@@ -1301,6 +1301,17 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
     plus_ones: [] as PlusOne[],
   });
 
+  // Preselect attendance when the guest arrived from an invitation card (?rsvp=yes|no)
+  useEffect(() => {
+    try {
+      const answer = new URLSearchParams(window.location.search).get("rsvp");
+      if (answer === "yes" || answer === "no") {
+        setForm((f) => ({ ...f, attending: answer === "yes" }));
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+
   // Hydrate from personal invite link ?g=<token>
   useEffect(() => {
     try {
