@@ -22,6 +22,13 @@
       "when": 1789693153604,
       "tag": "0002_shared_card_site_slug",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789693389120,
+      "tag": "0003_grant_rsvps_data_api",
+      "breakpoints": true
     }
   ]
 }
