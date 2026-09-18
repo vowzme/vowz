@@ -148,7 +148,7 @@ const AppRoutes = () => (
     <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
       <Route path="/admin/analytics" element={<AdminLayout><AdminAnalytics /></AdminLayout>} />
     <Route path="/admin/sites" element={<AdminLayout><AdminSites /></AdminLayout>} />
-    <Route path="/admin/payments" element={<AdminLayout><AdminPayments /></AdminLayout>} /></AdminLayout>} />
+    <Route path="/admin/payments" element={<AdminLayout><AdminPayments /></AdminLayout>} />
     <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
       <Route path="/admin/coupons" element={<AdminLayout><AdminCoupons /></AdminLayout>} />
       <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>} />
