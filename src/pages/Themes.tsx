@@ -17,6 +17,11 @@ import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
 import { supabase } from "@/integrations/supabase/client";
 import { mergeSections } from "@/lib/theme-merge";
 
+/** How many designs each category shows before "Load more". */
+const CATEGORY_PAGE_SIZE = 9;
+
+
+
 /**
  * Full-screen theme preview body. Owns iframe load state so we can surface
  * a polite aria-live announcement to screen readers while the demo site
