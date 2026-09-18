@@ -392,7 +392,6 @@ export default function Themes() {
     }
     setApplying(true);
 
-    setApplying(true);
     try {
       const site = await loadUserSite();
       if (!site) {
