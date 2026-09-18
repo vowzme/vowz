@@ -377,7 +377,7 @@ export default function Themes() {
   useEffect(() => { setVisibleCount(18); }, [query, region, wtype, style, tradition, motif, category]);
 
   const visibleThemes = filteredThemes.slice(0, visibleCount);
-  const visibleThemeIds = useMemo(() => new Set(visibleThemes.map((theme) => theme.id)), [visibleThemes]);
+
 
   const resetFilters = () => {
     setQuery(""); setRegion("all"); setWtype("all"); setStyle("all");
