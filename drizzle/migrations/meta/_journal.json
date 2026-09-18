@@ -15,6 +15,13 @@
       "when": 1789692564208,
       "tag": "0001_drop_luxe_theme_enforcement",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789693153604,
+      "tag": "0002_shared_card_site_slug",
+      "breakpoints": true
     }
   ]
 }
