@@ -425,11 +425,8 @@ export default function Themes() {
       navigate("/auth", { state: { returnTo: "/themes" } });
       return;
     }
-    if (t.tier === "luxe" && !hasLuxe) {
-      toast({ title: "LUXE design", description: "Unlock LUXE once to build your website on this design.", variant: "destructive" });
-      return;
-    }
     const existing = await loadUserSite();
+
     if (existing) {
       setApplyChoice({ theme: t, existingId: (existing as any).id });
       return;
