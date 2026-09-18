@@ -356,7 +356,7 @@ export default function Themes() {
     category !== "all";
   const filteredThemes = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return WEDDING_THEMES.filter((t) => t.tier !== "luxe").filter((t) => {
+    return WEDDING_THEMES.filter((t) => {
       const f = THEME_FACETS[t.family ?? t.id];
       if (category !== "all") {
         const selected = THEME_CATEGORIES.find((item) => item.id === category);
