@@ -1391,6 +1391,36 @@ export default function InvitationCard() {
                   <Plus className="w-3 h-3 mr-1" /> New design
                 </Button>
               )}
+
+              {/* Guest link */}
+              <div className="rounded-lg border border-border/50 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-medium">Guest link</p>
+                    <p className="text-[11px] text-muted-foreground">A page where guests open your card and RSVP.</p>
+                  </div>
+                  {shareUrl ? (
+                    <Button size="sm" variant="outline" onClick={() => updateShare(false)}>Turn off</Button>
+                  ) : (
+                    <Button size="sm" variant="gold" onClick={() => updateShare(true)} disabled={!variantId}>Create link</Button>
+                  )}
+                </div>
+                {shareUrl && (
+                  <div className="space-y-2">
+                    <Input readOnly value={shareUrl} onFocus={(e) => e.currentTarget.select()} className="text-xs" />
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" onClick={copyShareLink}>Copy link</Button>
+                      <Button size="sm" variant="outline" asChild>
+                        <a href={`https://wa.me/?text=${encodeURIComponent(`You're invited! ${shareUrl}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
+                      </Button>
+                      <Button size="sm" variant="ghost" asChild>
+                        <a href={shareUrl} target="_blank" rel="noreferrer">Preview</a>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {!variantId && <p className="text-[11px] text-muted-foreground">Save your design first to create a guest link.</p>}
+              </div>
               <div className="space-y-2">
                 {variants.length === 0 && <p className="text-xs text-muted-foreground">No saved designs yet. Customize and click Save.</p>}
                 {variants.map((v) => (
