@@ -798,10 +798,12 @@ export default function Themes() {
             )
           ) : (
           THEME_CATEGORIES.map((cat) => {
-            const items = cat.themeIds
+            const all = cat.themeIds
               .map((id) => WEDDING_THEMES.find((t) => t.id === id))
-              .filter((theme): theme is WeddingTheme => Boolean(theme) && visibleThemeIds.has(theme.id));
-            if (items.length === 0) return null;
+              .filter((theme): theme is WeddingTheme => Boolean(theme));
+            if (all.length === 0) return null;
+            const shown = catCounts[cat.id] ?? CATEGORY_PAGE_SIZE;
+            const items = all.slice(0, shown);
             return (
               <section key={cat.id} id={cat.id} className="mb-14 scroll-mt-24">
                 <header className="mb-5 flex items-end justify-between gap-4 flex-wrap">
@@ -809,9 +811,10 @@ export default function Themes() {
                     <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">{cat.label}</h2>
                     <p className="text-sm text-muted-foreground font-body mt-1 max-w-xl">{cat.description}</p>
                   </div>
-                   <span className="text-xs text-muted-foreground font-body">{cat.themeIds.length} designs</span>
+                   <span className="text-xs text-muted-foreground font-body">{all.length} designs</span>
                 </header>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
                   {items.map((t, i) => (
                     <motion.div
                       key={t.id}
