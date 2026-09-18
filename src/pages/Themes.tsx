@@ -885,7 +885,24 @@ export default function Themes() {
                     </motion.div>
                   ))}
                 </div>
+                {shown < all.length && (
+                  <div className="mt-8 flex justify-center">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() =>
+                        setCatCounts((prev) => ({
+                          ...prev,
+                          [cat.id]: Math.min((prev[cat.id] ?? CATEGORY_PAGE_SIZE) + CATEGORY_PAGE_SIZE, all.length),
+                        }))
+                      }
+                    >
+                      Load more {cat.label} designs ({all.length - shown} remaining)
+                    </Button>
+                  </div>
+                )}
               </section>
+
             );
           }))}
 
