@@ -879,6 +879,7 @@ export default function Themes() {
                     <Button
                       variant="outline"
                       size="lg"
+                      className="max-w-full whitespace-normal px-6 text-center"
                       onClick={() =>
                         setCatCounts((prev) => ({
                           ...prev,
@@ -886,7 +887,7 @@ export default function Themes() {
                         }))
                       }
                     >
-                      Load more {cat.label} designs ({all.length - shown} remaining)
+                      Load more designs ({all.length - shown} more)
                     </Button>
                   </div>
                 )}
