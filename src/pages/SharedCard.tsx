@@ -79,7 +79,7 @@ export default function SharedCardPage() {
   };
   const reveal = (card.reveal as RevealType | null) || revealForSlug(card.template_slug);
   const names = `${cardData.partner1} & ${cardData.partner2}`;
-  const rsvpSlug = d.siteSlug || d.slug;
+  const rsvpSlug = card.site_slug || d.siteSlug || d.slug;
 
   const artwork = (
     <InvitationCardArtwork data={cardData} theme={theme} width={340} qrPosition="hidden" />
