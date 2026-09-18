@@ -22,9 +22,10 @@ interface SharedCard {
   pages: any;
   photo_url: string | null;
   reveal: RevealType | null;
+  site_slug: string | null;
 }
 
-/** Public guest view of a shared invitation card, opening with the LUXE reveal. */
+/** Public guest view of a shared invitation card, opening with its reveal. */
 export default function SharedCardPage() {
   const { token } = useParams<{ token: string }>();
   const [card, setCard] = useState<SharedCard | null>(null);
