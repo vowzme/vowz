@@ -462,12 +462,12 @@ export default function Themes() {
     }
   };
 
-  // Deep link: /themes?use=<theme-id> (used by the home-page LUXE cards) starts
-  // building that exact design as soon as the page is ready.
+  // Deep link: /themes?use=<theme-id> starts building that exact design as
+  // soon as the page is ready.
   const [searchParams, setSearchParams] = useSearchParams();
   const useParam = searchParams.get("use");
   useEffect(() => {
-    if (!useParam || luxeLoading || starting) return;
+    if (!useParam || starting) return;
     const theme = WEDDING_THEMES.find((t) => t.id === useParam);
     const next = new URLSearchParams(searchParams);
     next.delete("use");
@@ -476,7 +476,8 @@ export default function Themes() {
     openTheme(theme);
     startFromTemplate(theme);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useParam, luxeLoading]);
+  }, [useParam]);
+
 
 
   // Apply a template to an existing site — either fully replacing sections or
@@ -679,16 +680,6 @@ export default function Themes() {
             )}
           </div>
 
-          {/* Exclusive LUXE designs (hidden when filtering) */}
-          {!filtersActive && (
-            <LuxeCollectionSection
-              hasLuxe={hasLuxe}
-              busy={starting || applying}
-              onPreview={openTheme}
-              onUse={startFromTemplate}
-              onUnlocked={refreshLuxe}
-            />
-          )}
 
           {/* Category quick-jump (hidden when filtering) */}
           {!filtersActive && (
@@ -798,10 +789,12 @@ export default function Themes() {
             )
           ) : (
           THEME_CATEGORIES.map((cat) => {
-            const items = cat.themeIds
+            const all = cat.themeIds
               .map((id) => WEDDING_THEMES.find((t) => t.id === id))
-              .filter((theme): theme is WeddingTheme => Boolean(theme) && visibleThemeIds.has(theme.id));
-            if (items.length === 0) return null;
+              .filter((theme): theme is WeddingTheme => Boolean(theme));
+            if (all.length === 0) return null;
+            const shown = catCounts[cat.id] ?? CATEGORY_PAGE_SIZE;
+            const items = all.slice(0, shown);
             return (
               <section key={cat.id} id={cat.id} className="mb-14 scroll-mt-24">
                 <header className="mb-5 flex items-end justify-between gap-4 flex-wrap">
@@ -809,9 +802,10 @@ export default function Themes() {
                     <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">{cat.label}</h2>
                     <p className="text-sm text-muted-foreground font-body mt-1 max-w-xl">{cat.description}</p>
                   </div>
-                   <span className="text-xs text-muted-foreground font-body">{cat.themeIds.length} designs</span>
+                   <span className="text-xs text-muted-foreground font-body">{all.length} designs</span>
                 </header>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
                   {items.map((t, i) => (
                     <motion.div
                       key={t.id}
@@ -882,16 +876,26 @@ export default function Themes() {
                     </motion.div>
                   ))}
                 </div>
+                {shown < all.length && (
+                  <div className="mt-8 flex justify-center">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() =>
+                        setCatCounts((prev) => ({
+                          ...prev,
+                          [cat.id]: Math.min((prev[cat.id] ?? CATEGORY_PAGE_SIZE) + CATEGORY_PAGE_SIZE, all.length),
+                        }))
+                      }
+                    >
+                      Load more {cat.label} designs ({all.length - shown} remaining)
+                    </Button>
+                  </div>
+                )}
               </section>
+
             );
           }))}
-          {!filtersActive && visibleCount < filteredThemes.length && (
-            <div className="flex justify-center -mt-4 mb-14">
-              <Button variant="outline" size="lg" onClick={() => setVisibleCount((count) => Math.min(count + 18, filteredThemes.length))}>
-                Load more designs ({filteredThemes.length - visibleCount} remaining)
-              </Button>
-            </div>
-          )}
 
           <div className="text-center mt-16">
             <p className="text-sm text-muted-foreground font-body mb-4">Not sure which one? Start with our onboarding wizard.</p>
