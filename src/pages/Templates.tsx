@@ -226,6 +226,17 @@ const Templates = () => {
         </div>
       </section>
 
+      <AnimatePresence>
+        {selectedTemplate && (
+          <TemplatePreviewModal
+            template={selectedTemplate}
+            onClose={() => setSelectedTemplate(null)}
+            onUseTemplate={(t) => { setSelectedTemplate(null); handleUseTemplate(t); }}
+          />
+        )}
+      </AnimatePresence>
+      
+
       
     </div>
   );
