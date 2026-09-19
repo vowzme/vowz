@@ -256,10 +256,17 @@ export default function CardGallery() {
             </p>
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3">
               Invitation <span className="text-gradient-gold italic">Card Gallery</span>
+              <span className="align-middle ml-3 inline-block px-3 py-1 text-sm sm:text-base rounded-full bg-accent text-accent-foreground font-body font-semibold -rotate-2 shadow-sm">
+                Free
+              </span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto font-body text-sm sm:text-base">
               Fully editable, print-ready wedding invitation cards. Pick a design and customize every detail from your dashboard.
+              <span className="block mt-2 text-foreground font-medium">
+                PDF and image downloads are free — premium removes the small Vowz.me credit.
+              </span>
             </p>
+
           </div>
 
           <div className="flex flex-col md:flex-row gap-2 sm:gap-3 items-stretch md:items-center justify-center mb-4 sm:mb-6 max-w-4xl mx-auto">
