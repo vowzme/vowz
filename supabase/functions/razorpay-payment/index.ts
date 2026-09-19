@@ -270,6 +270,13 @@ Deno.serve(async (req) => {
       if (!["authorized", "captured"].includes(payment.status)) {
         return json({ error: "Payment is not completed." }, 400);
       }
+      // The order must have been created for this signed-in user (notes are set
+      // server-side at order creation and returned by Razorpay, not the client).
+      const orderUserId = (payment.notes?.user_id as string) || "";
+      if (!orderUserId || orderUserId !== user.id) {
+        console.error("razorpay-payment: order/user mismatch", { orderId });
+        return json({ error: "Payment does not belong to this account." }, 403);
+      }
 
       // Verify the captured amount matches the server-computed expected amount
       const expectedAmountStr = payment.notes?.expected_amount as string | undefined;

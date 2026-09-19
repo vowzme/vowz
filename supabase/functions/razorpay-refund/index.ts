@@ -42,12 +42,28 @@ Deno.serve(async (req) => {
     const speed = (body?.speed || "normal").toString();
     const reason = (body?.reason || "").toString().slice(0, 500);
     if (!paymentId) return json({ error: "payment_id is required" }, 400);
+    if (!/^pay_[A-Za-z0-9]{6,}$/.test(paymentId)) {
+      return json({ error: "payment_id is not a valid Razorpay payment reference" }, 400);
+    }
 
     const { data: sub } = await adminClient
       .from("user_subscriptions")
       .select("id, user_id, payment_order_id, currency, amount_paid, status")
       .eq("payment_id", paymentId)
       .maybeSingle();
+
+    // Only payments this app actually recorded can be refunded — this prevents
+    // money being moved for arbitrary payment IDs belonging to other merchants.
+    if (!sub) {
+      const { data: addon } = await adminClient
+        .from("user_storage_addons")
+        .select("id")
+        .eq("payment_id", paymentId)
+        .maybeSingle();
+      if (!addon) {
+        return json({ error: "No payment found for this account in this application." }, 404);
+      }
+    }
 
     // Idempotency: block if a non-failed refund already exists for this payment.
     const { data: existingRefunds, error: existingErr } = await adminClient

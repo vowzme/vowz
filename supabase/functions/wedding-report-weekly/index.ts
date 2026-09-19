@@ -11,7 +11,16 @@ Deno.serve(async (req) => {
     new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
-  const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+  // Scheduler-only: this job reads private lead data and sends bulk email, so it
+  // requires the service-role key or the configured CRON_SECRET.
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const cronSecret = Deno.env.get('CRON_SECRET') || ''
+  const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '').trim()
+  const allowed = new Set<string>([serviceKey])
+  if (cronSecret) allowed.add(cronSecret)
+  if (!token || !allowed.has(token)) return json({ error: 'Unauthorized' }, 401)
+
+  const admin = createClient(Deno.env.get('SUPABASE_URL')!, serviceKey)
   const today = new Date().toISOString().slice(0, 10)
   const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString()
 

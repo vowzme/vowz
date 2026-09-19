@@ -40,6 +40,17 @@ Deno.serve(async (req) => {
     }
 
     const admin = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+
+    // This action only retries mail the app already tried to send. The recipient
+    // must already appear in the send log, so it cannot be used to mail strangers.
+    const { count: knownRecipient } = await admin
+      .from('email_send_log')
+      .select('id', { count: 'exact', head: true })
+      .eq('recipient_email', recipientEmail)
+    if (!knownRecipient) {
+      return json({ error: 'This address has no previous email from this app, so it cannot be resent.' }, 403)
+    }
+
     const messageId = crypto.randomUUID()
 
     try {

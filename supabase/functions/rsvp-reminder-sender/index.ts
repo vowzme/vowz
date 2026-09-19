@@ -11,6 +11,7 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
+const CRON_SECRET = Deno.env.get('CRON_SECRET') || ''
 const TRACK_BASE = `${SUPABASE_URL}/functions/v1/email-track`
 
 function escape(s: string): string {
@@ -260,10 +261,15 @@ Deno.serve(async (req) => {
         })
       }
 
-      // test_send — send a real email to the requested address (defaults to owner's).
-      const to = testEmail || u.user.email || ''
+      // test_send — always goes to the signed-in owner's own account address, so
+      // the app can never be used to mail arbitrary recipients.
+      const ownerEmail = (u.user.email || '').trim().toLowerCase()
+      if (testEmail && testEmail.toLowerCase() !== ownerEmail) {
+        return new Response(JSON.stringify({ error: 'Test emails can only be sent to your own account address.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+      const to = ownerEmail
       if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
-        return new Response(JSON.stringify({ error: 'Invalid test email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+        return new Response(JSON.stringify({ error: 'Your account has no valid email address.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
       }
       const testSubject = `[TEST] ${subject}`
       let testError: string | null = null
@@ -306,7 +312,21 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true, result }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 
-  // Cron mode — process every enabled schedule that matches today's offsets.
+  // Cron mode — bulk sending across every wedding. Only the scheduler may run it:
+  // require the service-role key or the configured CRON_SECRET.
+  {
+    const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '').trim()
+    const allowed = new Set<string>([SERVICE_KEY])
+    if (CRON_SECRET) allowed.add(CRON_SECRET)
+    if (!token || !allowed.has(token)) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+  }
+
+  // Process every enabled schedule that matches today's offsets.
   const { data: schedules, error } = await admin
     .from('rsvp_reminder_schedules')
     .select('*')

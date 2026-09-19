@@ -200,6 +200,15 @@ Deno.serve(async (req) => {
       let custom: any = {};
       try { custom = JSON.parse(pu?.payments?.captures?.[0]?.custom_id || pu?.custom_id || "{}"); } catch { /* ignore */ }
 
+      // The PayPal order must have been created for this signed-in user. custom_id
+      // and reference_id are written server-side at order creation and returned by
+      // PayPal, so they bind fulfillment to a provider-confirmed order.
+      const orderUserId = (custom?.user_id as string) || String(pu?.reference_id || "").split(":")[0];
+      if (!orderUserId || orderUserId !== user.id) {
+        console.error("paypal-payment: order/user mismatch", { orderId });
+        return json({ error: "Payment does not belong to this account." }, 403);
+      }
+
       const resolvedProduct = custom.product_type || productType;
       const resolvedIsAddon = resolvedProduct === "storage_addon";
       const resolvedIsLuxe = resolvedProduct === "luxe_cards";

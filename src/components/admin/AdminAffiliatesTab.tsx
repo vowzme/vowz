@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { downloadCsv } from "@/lib/csv";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,7 +71,7 @@ export default function AdminAffiliatesTab() {
   const pendingPayouts = referrals.filter(r => r.payout_status === "pending" && r.status === "converted").length;
 
   const exportCSV = () => {
-    const rows = [["Name", "Email", "Code", "Active", "Total Referrals", "Successful", "Total Earnings", "Pending", "Paid", "UPI", "PayPal", "Franchise", "Joined"]];
+    const rows: unknown[][] = [["Name", "Email", "Code", "Active", "Total Referrals", "Successful", "Total Earnings", "Pending", "Paid", "UPI", "PayPal", "Franchise", "Joined"]];
     affiliates.forEach(a => {
       rows.push([
         a.full_name, a.email, a.referral_code, a.is_active ? "Yes" : "No",
@@ -79,13 +80,7 @@ export default function AdminAffiliatesTab() {
         new Date(a.created_at).toLocaleDateString()
       ]);
     });
-    const csv = rows.map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "affiliates_export.csv";
-    link.click();
+    downloadCsv("affiliates_export.csv", rows);
   };
 
   return (

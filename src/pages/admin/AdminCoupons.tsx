@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import { downloadCsv } from "@/lib/csv";
 import {
   Plus, Search, Ticket, TrendingUp, Download, RefreshCw, Copy,
   Pencil, Trash2, Pause, Play, Archive, History,
@@ -232,10 +233,7 @@ export default function AdminCoupons() {
       c.status, c.times_used, c.max_uses ?? "∞",
       c.expires_at ? new Date(c.expires_at).toLocaleDateString() : "Never",
     ]);
-    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "coupons.csv"; a.click();
+    downloadCsv("coupons.csv", [headers, ...rows]);
   };
 
   const exportRedemptionsCSV = () => {
@@ -244,10 +242,7 @@ export default function AdminCoupons() {
       new Date(r.created_at).toLocaleString(), r.coupon_code, r.user_email,
       r.original_amount, r.discount_applied, r.final_amount, r.currency,
     ]);
-    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "coupon-redemptions.csv"; a.click();
+    downloadCsv("coupon-redemptions.csv", [headers, ...rows]);
   };
 
   const toggleSelect = (id: string) => {

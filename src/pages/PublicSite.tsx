@@ -187,36 +187,37 @@ const PublicSite = () => {
       }
     }
     const fetchSite = async () => {
-      // Try finding site by slug (published or paused)
-      const { data, error } = await supabase
-        .from("wedding_sites")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (data && !error) {
-        // Handle paused sites
-        if ((data as any).status === "paused") {
-          setSite(null);
-          setLoading(false);
-          setPausedSite(true);
-          return;
-        }
-        // Handle unpublished (draft) sites
-        if (!data.is_published) {
-          setNotFound(true);
-          setLoading(false);
-          return;
-        }
-        setSite(data as any);
+      // Content of a password-protected site is never sent until the password
+      // is verified on the server, so ask for the open version first.
+      const { data: openRows } = await supabase.rpc("get_public_site", { _slug: slug, _password: null });
+      const openSite = Array.isArray(openRows) ? openRows[0] : null;
+      if (openSite) {
+        setSite(openSite as any);
+        setHasPassword(false);
         setLoading(false);
-        // Check if site is password-protected (server-side, value never leaves DB)
-        try {
-          const { data: hp } = await supabase.rpc("site_has_password", { _site_id: (data as any).id });
-          setHasPassword(!!hp);
-        } catch { /* ignore */ }
         return;
       }
+
+      // Nothing returned — find out why (paused, private, or missing).
+      const { data: gateRows } = await supabase.rpc("public_site_gate", { _slug: slug });
+      const gate = Array.isArray(gateRows) ? gateRows[0] : null;
+      if (gate?.found) {
+        if (gate.paused) {
+          setSite(null);
+          setPausedSite(true);
+          setLoading(false);
+          return;
+        }
+        if (gate.requires_password) {
+          setHasPassword(true);
+          setLoading(false);
+          return;
+        }
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+
 
       // Not found — check slug_redirects for old slug
       const { data: redirect } = await supabase
@@ -340,6 +341,58 @@ const PublicSite = () => {
     );
   }
 
+  // Password gate — the site's content is only fetched once the server
+  // confirms the password, so nothing private is loaded before then.
+  if (hasPassword && !passwordUnlocked && !site) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-sm w-full">
+          <Heart className="w-10 h-10 mx-auto mb-4 text-[hsl(var(--gold))]" fill="currentColor" />
+          <h1 className="font-display text-2xl font-bold text-foreground mb-2">This site is private</h1>
+          <p className="text-muted-foreground font-body text-sm mb-6">Enter the password to view this wedding site.</p>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            if (verifyingPw) return;
+            setVerifyingPw(true);
+            try {
+              const { data: rows, error } = await supabase.rpc("get_public_site", {
+                _slug: slug as string,
+                _password: pwInput,
+              });
+              const unlocked = Array.isArray(rows) ? rows[0] : null;
+              if (!error && unlocked) {
+                setSite(unlocked as any);
+                setPasswordUnlocked(true);
+                setPwError(false);
+              } else {
+                setPwError(true);
+              }
+            } catch {
+              setPwError(true);
+            } finally {
+              setVerifyingPw(false);
+            }
+          }} className="space-y-3">
+            <input
+              type="password"
+              value={pwInput}
+              onChange={(e) => { setPwInput(e.target.value); setPwError(false); }}
+              placeholder="Enter password"
+              className="w-full rounded-lg border border-border bg-card px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-gold/50"
+            />
+            {pwError && <p className="text-sm text-destructive font-body">Incorrect password. Try again.</p>}
+            <Button type="submit" disabled={verifyingPw} className="w-full font-body" variant="gold">
+              {verifyingPw ? "Checking…" : "Enter"}
+            </Button>
+          </form>
+          <p className="text-xs text-muted-foreground font-body mt-6">
+            Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Vowz
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
   if (notFound || !site) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -380,54 +433,6 @@ const PublicSite = () => {
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
 
-  // Password gate (server-side verification)
-  if (hasPassword && !passwordUnlocked) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-sm w-full">
-          <Heart className="w-10 h-10 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
-          <h1 className="font-display text-2xl font-bold text-foreground mb-2">This site is private</h1>
-          <p className="text-muted-foreground font-body text-sm mb-6">Enter the password to view this wedding site.</p>
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            if (verifyingPw) return;
-            setVerifyingPw(true);
-            try {
-              const { data: ok, error } = await supabase.rpc("verify_site_password", {
-                _site_id: site.id,
-                _password: pwInput,
-              });
-              if (!error && ok === true) {
-                setPasswordUnlocked(true);
-                setPwError(false);
-              } else {
-                setPwError(true);
-              }
-            } catch {
-              setPwError(true);
-            } finally {
-              setVerifyingPw(false);
-            }
-          }} className="space-y-3">
-            <input
-              type="password"
-              value={pwInput}
-              onChange={(e) => { setPwInput(e.target.value); setPwError(false); }}
-              placeholder="Enter password"
-              className="w-full rounded-lg border border-border bg-card px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-gold/50"
-            />
-            {pwError && <p className="text-sm text-destructive font-body">Incorrect password. Try again.</p>}
-            <Button type="submit" disabled={verifyingPw} className="w-full font-body" style={{ backgroundColor: accent, color: light }}>
-              {verifyingPw ? "Checking…" : "Enter"}
-            </Button>
-          </form>
-          <p className="text-xs text-muted-foreground font-body mt-6">
-            Made with <Heart className="w-3 h-3 inline text-gold" fill="currentColor" /> on Vowz
-          </p>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background relative pb-24 sm:pb-0">
