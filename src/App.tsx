@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { HelmetProvider } from "react-helmet-async";
 import { PricingRegionProvider } from "@/hooks/use-pricing-region";
 import Layout from "@/components/Layout";
+import PageShell from "@/components/PageShell";
 import ScrollToTop from "@/components/ScrollToTop";
 import PlatformAnalytics from "@/components/PlatformAnalytics";
 import { lazy, Suspense } from "react";
@@ -123,22 +124,22 @@ const AppRoutes = () => (
     <Route path="/card/:token" element={<SharedCard />} />
     <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
     <Route path="/templates" element={<Layout><Templates /></Layout>} />
-    <Route path="/themes" element={<Layout><Themes /></Layout>} />
+    <Route path="/themes" element={<PageShell><Themes /></PageShell>} />
     <Route path="/tools" element={<ToolsHub />} />
     <Route path="/tools/:slug" element={<FreeToolPage />} />
     <Route path="/wedding-report" element={<WeddingReport />} />
-    <Route path="/online-wedding-card-maker" element={<Layout><OnlineWeddingCardMaker /></Layout>} />
-    <Route path="/showcase" element={<Showcase />} />
-    <Route path="/share-preview" element={<Layout><SharePreview /></Layout>} />
-    <Route path="/share" element={<Share />} />
+    <Route path="/online-wedding-card-maker" element={<PageShell><OnlineWeddingCardMaker /></PageShell>} />
+    <Route path="/showcase" element={<PageShell><Showcase /></PageShell>} />
+    <Route path="/share-preview" element={<PageShell><SharePreview /></PageShell>} />
+    <Route path="/share" element={<PageShell><Share /></PageShell>} />
     <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
     <Route path="/debug/pwa" element={<AdminOnlyRoute><PwaDiagnostics /></AdminOnlyRoute>} />
     <Route path="/debug/twa" element={<AdminOnlyRoute><TwaVerify /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
-    <Route path="/card-templates-preview" element={<CardTemplatesPreview />} />
-    <Route path="/affiliate" element={<Layout><Affiliate /></Layout>} />
-    <Route path="/franchise" element={<Layout><FranchiseLanding /></Layout>} />
-    <Route path="/franchise/dashboard" element={<FranchiseDashboard />} />
+    <Route path="/card-templates-preview" element={<PageShell><CardTemplatesPreview /></PageShell>} />
+    <Route path="/affiliate" element={<PageShell><Affiliate /></PageShell>} />
+    <Route path="/franchise" element={<PageShell><FranchiseLanding /></PageShell>} />
+    <Route path="/franchise/dashboard" element={<PageShell><FranchiseDashboard /></PageShell>} />
     <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
     <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
     <Route path="/contact" element={<Layout><Contact /></Layout>} />
@@ -164,9 +165,9 @@ const AppRoutes = () => (
     <Route path="/admin/guest-moderation" element={<AdminLayout><AdminGuestModeration /></AdminLayout>} />
     <Route path="/admin/rsvps" element={<AdminLayout><AdminRsvps /></AdminLayout>} />
     <Route path="/admin/visitors" element={<AdminLayout><AdminVisitors /></AdminLayout>} />
-    <Route path="/blog" element={<Layout><Blog /></Layout>} />
-    <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
-    <Route path="/delete-account" element={<Layout><DeleteAccount /></Layout>} />
+    <Route path="/blog" element={<PageShell><Blog /></PageShell>} />
+    <Route path="/blog/:slug" element={<PageShell><BlogPost /></PageShell>} />
+    <Route path="/delete-account" element={<PageShell><DeleteAccount /></PageShell>} />
     <Route path="*" element={<Layout><NotFound /></Layout>} />
   </Routes>
 );
