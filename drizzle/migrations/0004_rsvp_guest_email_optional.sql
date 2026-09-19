@@ -1,0 +1,1 @@
+ALTER TABLE public.rsvps ALTER COLUMN guest_email DROP NOT NULL;
