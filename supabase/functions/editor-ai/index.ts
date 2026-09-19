@@ -85,7 +85,14 @@ serve(async (req) => {
       });
     }
 
-    const { messages, siteContext } = await req.json();
+    const { messages: rawMessages, siteContext } = await req.json();
+    const messages = sanitizeChatMessages(rawMessages);
+    if (messages.length === 0) {
+      return new Response(JSON.stringify({ error: "No valid messages provided" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
