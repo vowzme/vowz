@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 
-import { templates, TemplateData } from "@/components/TemplatesSection";
+import { templates, TemplateData, TemplatePreviewModal } from "@/components/TemplatesSection";
 
 // Lazy-import the preview modal via dynamic rendering
 // We'll inline a simpler version or re-use the component structure
