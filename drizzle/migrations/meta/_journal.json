@@ -43,6 +43,13 @@
       "when": 1789834215109,
       "tag": "0005_tighten_permissive_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789835206508,
+      "tag": "0006_public_site_password_gate",
+      "breakpoints": true
     }
   ]
 }

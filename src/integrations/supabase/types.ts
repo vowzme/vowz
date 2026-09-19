@@ -2839,6 +2839,37 @@ export type Database = {
           votes: number
         }[]
       }
+      get_public_site: {
+        Args: { _password?: string; _slug: string }
+        Returns: {
+          body_font: string | null
+          created_at: string
+          cultural_background: string
+          display_font: string | null
+          how_we_met: string
+          id: string
+          is_published: boolean
+          logo_url: string | null
+          partner1: string
+          partner2: string
+          sections: Json
+          site_language: string | null
+          slug: string | null
+          status: string
+          suggested_colors: Json
+          tagline: string
+          theme: string
+          translations: Json | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "wedding_sites"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_shared_card: {
         Args: { _token: string }
         Returns: {
@@ -2895,6 +2926,14 @@ export type Database = {
         Returns: {
           post_id: string
           reaction: string
+        }[]
+      }
+      public_site_gate: {
+        Args: { _slug: string }
+        Returns: {
+          found: boolean
+          paused: boolean
+          requires_password: boolean
         }[]
       }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }
