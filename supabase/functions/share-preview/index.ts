@@ -87,21 +87,45 @@ Deno.serve(async (req) => {
     } catch {
       return json({ error: "Invalid URL" }, 400);
     }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return json({ error: "Only http(s) URLs are supported" }, 400);
+    if (parsed.protocol !== "https:") {
+      return json({ error: "Only https URLs are supported" }, 400);
+    }
+    if (!isAllowedHost(parsed.hostname)) {
+      return json({ error: "Only Vowz wedding pages can be previewed here." }, 400);
     }
 
-    // Fetch as a social crawler so servers may return crawler-specific HTML.
-    const res = await fetch(parsed.toString(), {
-      redirect: "follow",
-      headers: {
-        "User-Agent":
-          "facebookexternalhit/1.1 (+https://www.facebook.com/externalhit_uatext.php) Vowz-SharePreview/1.0",
-        Accept: "text/html,application/xhtml+xml",
-      },
-    });
+    // Follow redirects manually so every hop stays on an allowed Vowz host —
+    // this endpoint can never be used to probe other servers or internal hosts.
+    let current = parsed;
+    let res: Response | null = null;
+    for (let hop = 0; hop < 4; hop++) {
+      res = await fetch(current.toString(), {
+        redirect: "manual",
+        headers: {
+          "User-Agent":
+            "facebookexternalhit/1.1 (+https://www.facebook.com/externalhit_uatext.php) Vowz-SharePreview/1.0",
+          Accept: "text/html,application/xhtml+xml",
+        },
+      });
+      const location = res.headers.get("location");
+      if (res.status >= 300 && res.status < 400 && location) {
+        let next: URL;
+        try {
+          next = new URL(location, current);
+        } catch {
+          return json({ error: "Upstream sent an invalid redirect" }, 400);
+        }
+        if (next.protocol !== "https:" || !isAllowedHost(next.hostname)) {
+          return json({ error: "Redirect left the allowed Vowz pages" }, 400);
+        }
+        current = next;
+        continue;
+      }
+      break;
+    }
+    if (!res) return json({ error: "Could not load that page" }, 400);
 
-    const finalUrl = res.url;
+    const finalUrl = current.toString();
     const status = res.status;
     const contentType = res.headers.get("content-type") ?? "";
 
@@ -112,7 +136,7 @@ Deno.serve(async (req) => {
       }, 200);
     }
 
-    const html = await res.text();
+    const html = (await res.text()).slice(0, 500_000);
     const allKeys = [...OG_KEYS, ...TW_KEYS, ...BASIC_KEYS];
     const meta = extractMeta(html, allKeys);
     const og: Record<string, string> = {};
