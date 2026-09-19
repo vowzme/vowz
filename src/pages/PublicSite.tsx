@@ -187,36 +187,37 @@ const PublicSite = () => {
       }
     }
     const fetchSite = async () => {
-      // Try finding site by slug (published or paused)
-      const { data, error } = await supabase
-        .from("wedding_sites")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (data && !error) {
-        // Handle paused sites
-        if ((data as any).status === "paused") {
-          setSite(null);
-          setLoading(false);
-          setPausedSite(true);
-          return;
-        }
-        // Handle unpublished (draft) sites
-        if (!data.is_published) {
-          setNotFound(true);
-          setLoading(false);
-          return;
-        }
-        setSite(data as any);
+      // Content of a password-protected site is never sent until the password
+      // is verified on the server, so ask for the open version first.
+      const { data: openRows } = await supabase.rpc("get_public_site", { _slug: slug, _password: null });
+      const openSite = Array.isArray(openRows) ? openRows[0] : null;
+      if (openSite) {
+        setSite(openSite as any);
+        setHasPassword(false);
         setLoading(false);
-        // Check if site is password-protected (server-side, value never leaves DB)
-        try {
-          const { data: hp } = await supabase.rpc("site_has_password", { _site_id: (data as any).id });
-          setHasPassword(!!hp);
-        } catch { /* ignore */ }
         return;
       }
+
+      // Nothing returned — find out why (paused, private, or missing).
+      const { data: gateRows } = await supabase.rpc("public_site_gate", { _slug: slug });
+      const gate = Array.isArray(gateRows) ? gateRows[0] : null;
+      if (gate?.found) {
+        if (gate.paused) {
+          setSite(null);
+          setPausedSite(true);
+          setLoading(false);
+          return;
+        }
+        if (gate.requires_password) {
+          setHasPassword(true);
+          setLoading(false);
+          return;
+        }
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+
 
       // Not found — check slug_redirects for old slug
       const { data: redirect } = await supabase
