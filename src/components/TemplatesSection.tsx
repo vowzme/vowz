@@ -1391,7 +1391,7 @@ function MasonryGallery({ photos, accent }: { photos: { label: string; url: stri
 }
 
 // ─── Template Preview Modal ──────────────────────────────────────────
-function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { template: TemplateData; onClose: () => void; onUseTemplate: (t: TemplateData) => void }) {
+export function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { template: TemplateData; onClose: () => void; onUseTemplate: (t: TemplateData) => void }) {
   const [bg, accent, text] = t.colors;
   const countdown = getCountdownFromDate(t.weddingDate);
   const scrollRef = useRef<HTMLDivElement>(null);

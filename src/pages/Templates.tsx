@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 
-import { templates, TemplateData } from "@/components/TemplatesSection";
+import { templates, TemplateData, TemplatePreviewModal } from "@/components/TemplatesSection";
 
 // Lazy-import the preview modal via dynamic rendering
 // We'll inline a simpler version or re-use the component structure
@@ -26,6 +26,7 @@ const Templates = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(null);
 
   const filteredTemplates = templates.filter((t) => {
     const matchesSearch = !searchQuery || 
@@ -142,14 +143,14 @@ const Templates = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(i * 0.05, 0.5) }}
                 className="group cursor-pointer"
-                onClick={() => handleUseTemplate(t)}
+                onClick={() => setSelectedTemplate(t)}
                 role="button"
                 tabIndex={0}
-                aria-label={`Use the ${t.name} wedding template — ${t.style} style`}
+                aria-label={`Preview the ${t.name} wedding template — ${t.style} style`}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    handleUseTemplate(t);
+                    setSelectedTemplate(t);
                   }
                 }}
               >
@@ -176,19 +177,40 @@ const Templates = () => {
 
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                       <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 text-white bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-full font-body text-sm font-medium flex items-center gap-2 border border-white/30">
-                        <Eye className="w-4 h-4" /> Use Template
+                        <Eye className="w-4 h-4" /> Preview Template
                       </span>
                     </div>
                   </div>
-                  <div className="p-4 bg-card flex items-center justify-between">
-                    <div>
-                      <h3 className="font-display text-lg font-semibold text-foreground">{t.name}</h3>
-                      <p className="text-xs text-muted-foreground font-body">{t.style} • {t.events.length} events</p>
+                  <div className="p-4 bg-card space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-display text-lg font-semibold text-foreground">{t.name}</h3>
+                        <p className="text-xs text-muted-foreground font-body">{t.style} • {t.events.length} events</p>
+                      </div>
+                      <div className="flex gap-1.5">
+                        {t.colors.map((c, j) => (
+                          <div key={j} className="w-5 h-5 rounded-full border border-border/50 shadow-sm" style={{ backgroundColor: c }} />
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex gap-1.5">
-                      {t.colors.map((c, j) => (
-                        <div key={j} className="w-5 h-5 rounded-full border border-border/50 shadow-sm" style={{ backgroundColor: c }} />
-                      ))}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 font-body"
+                        onClick={(e) => { e.stopPropagation(); setSelectedTemplate(t); }}
+                        aria-label={`Preview the ${t.name} template with demo content`}
+                      >
+                        <Eye className="w-4 h-4 mr-1.5" /> Preview
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1 font-body"
+                        onClick={(e) => { e.stopPropagation(); handleUseTemplate(t); }}
+                        aria-label={`Use the ${t.name} template`}
+                      >
+                        Use Template
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -203,6 +225,17 @@ const Templates = () => {
           )}
         </div>
       </section>
+
+      <AnimatePresence>
+        {selectedTemplate && (
+          <TemplatePreviewModal
+            template={selectedTemplate}
+            onClose={() => setSelectedTemplate(null)}
+            onUseTemplate={(t) => { setSelectedTemplate(null); handleUseTemplate(t); }}
+          />
+        )}
+      </AnimatePresence>
+      
 
       
     </div>
