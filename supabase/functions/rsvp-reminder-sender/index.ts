@@ -312,7 +312,21 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true, result }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 
-  // Cron mode — process every enabled schedule that matches today's offsets.
+  // Cron mode — bulk sending across every wedding. Only the scheduler may run it:
+  // require the service-role key or the configured CRON_SECRET.
+  {
+    const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '').trim()
+    const allowed = new Set<string>([SERVICE_KEY])
+    if (CRON_SECRET) allowed.add(CRON_SECRET)
+    if (!token || !allowed.has(token)) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+  }
+
+  // Process every enabled schedule that matches today's offsets.
   const { data: schedules, error } = await admin
     .from('rsvp_reminder_schedules')
     .select('*')
