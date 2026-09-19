@@ -629,14 +629,10 @@ export default function InvitationCard() {
   };
 
   const handleExport = async (type: "png" | "jpg" | "pdf" | "bundle") => {
-    if (requiresLuxe) {
-      toast({ title: "Premium template", description: "Upgrade to download this design.", variant: "destructive" });
-      return;
-    }
-    if (requiresUpgrade) {
-      toast({ title: "Premium template", description: "Upgrade to download this design.", variant: "destructive" });
-      return;
-    }
+    // Downloading cards is free for everyone. Free downloads carry the Vowz
+    // branding strip (added in the export container); premium exports do not.
+
+
 
     if (!exportContainerRef.current) return;
     try {
