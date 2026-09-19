@@ -143,14 +143,14 @@ const Templates = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(i * 0.05, 0.5) }}
                 className="group cursor-pointer"
-                onClick={() => handleUseTemplate(t)}
+                onClick={() => setSelectedTemplate(t)}
                 role="button"
                 tabIndex={0}
-                aria-label={`Use the ${t.name} wedding template — ${t.style} style`}
+                aria-label={`Preview the ${t.name} wedding template — ${t.style} style`}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    handleUseTemplate(t);
+                    setSelectedTemplate(t);
                   }
                 }}
               >
