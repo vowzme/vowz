@@ -148,6 +148,7 @@ Deno.serve(async (req) => {
       }
       case "payment.failed": {
         const payment = event?.payload?.payment?.entity;
+        // Personal details (email, phone, provider notes) are deliberately not logged.
         console.log("[rzp-webhook] payment.failed payload", {
           eventId,
           razorpay_payment_id: payment?.id,
@@ -160,9 +161,6 @@ Deno.serve(async (req) => {
           error_source: payment?.error_source,
           error_step: payment?.error_step,
           error_reason: payment?.error_reason,
-          email: payment?.email,
-          contact: payment?.contact,
-          notes: payment?.notes,
         });
         if (payment?.order_id) {
           const { data, error } = await supabase
