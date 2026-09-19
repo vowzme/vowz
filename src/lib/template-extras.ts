@@ -280,4 +280,5 @@ function build(seed: Seed, index: number): ExtraTemplate {
   };
 }
 
-export const EXTRA_TEMPLATES: ExtraTemplate[] = SEEDS.map(build);
+// 65 extras -> 100 templates in total with the 35 hand-written designs.
+export const EXTRA_TEMPLATES: ExtraTemplate[] = SEEDS.slice(0, 65).map(build);
