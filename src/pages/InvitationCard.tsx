@@ -629,14 +629,10 @@ export default function InvitationCard() {
   };
 
   const handleExport = async (type: "png" | "jpg" | "pdf" | "bundle") => {
-    if (requiresLuxe) {
-      toast({ title: "Premium template", description: "Upgrade to download this design.", variant: "destructive" });
-      return;
-    }
-    if (requiresUpgrade) {
-      toast({ title: "Premium template", description: "Upgrade to download this design.", variant: "destructive" });
-      return;
-    }
+    // Downloading cards is free for everyone. Free downloads carry the Vowz
+    // branding strip (added in the export container); premium exports do not.
+
+
 
     if (!exportContainerRef.current) return;
     try {
@@ -704,18 +700,19 @@ export default function InvitationCard() {
         <Button variant="outline" size="sm" onClick={saveVariant}>
           <Save className="w-4 h-4 mr-1" /> Save
         </Button>
-        <Button variant="outline" size="sm" onClick={() => handleExport("png")} disabled={!!exporting || requiresUpgrade}>
+        <Button variant="outline" size="sm" onClick={() => handleExport("png")} disabled={!!exporting}>
           <FileImage className="w-4 h-4 mr-1" /> PNG
         </Button>
-        <Button variant="outline" size="sm" onClick={() => handleExport("jpg")} disabled={!!exporting || requiresUpgrade}>
+        <Button variant="outline" size="sm" onClick={() => handleExport("jpg")} disabled={!!exporting}>
           <FileImage className="w-4 h-4 mr-1" /> JPG
         </Button>
-        <Button variant="gold" size="sm" onClick={() => handleExport("pdf")} disabled={!!exporting || requiresUpgrade}>
+        <Button variant="gold" size="sm" onClick={() => handleExport("pdf")} disabled={!!exporting}>
           <FileText className="w-4 h-4 mr-1" /> PDF
         </Button>
-        <Button variant="gold" size="sm" onClick={() => handleExport("bundle")} disabled={!!exporting || requiresUpgrade} title="Download PDF + high-res PNG + JPG">
+        <Button variant="gold" size="sm" onClick={() => handleExport("bundle")} disabled={!!exporting} title="Download PDF + high-res PNG + JPG">
           <Download className="w-4 h-4 mr-1" /> Print bundle
         </Button>
+
       </header>
 
       <div className="grid lg:grid-cols-[1fr_480px] gap-6 p-4 sm:p-6 max-w-7xl mx-auto">
@@ -1054,18 +1051,17 @@ export default function InvitationCard() {
                   );
                 })}
               </div>
-              {requiresLuxe ? (
+              {!isPremium && (
                 <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs space-y-2">
-                  <p className="flex items-center gap-1.5 font-medium"><Crown className="w-3.5 h-3.5 text-gold" /> Opening reveal design — try it free</p>
-                  <p className="text-muted-foreground">Play the reveal as often as you like. Upgrade to save, share and download this card.</p>
-                  <Button size="sm" variant="gold" className="w-full" onClick={() => navigate("/pricing")}>Upgrade</Button>
-                </div>
-              ) : requiresUpgrade && (
-                <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs">
-                  Premium template — upgrade to unlock download.
-                  <Button size="sm" variant="gold" className="w-full mt-2" onClick={() => navigate("/pricing")}>Upgrade</Button>
+                  <p className="flex items-center gap-1.5 font-medium"><Crown className="w-3.5 h-3.5 text-gold" /> Downloads are free</p>
+                  <p className="text-muted-foreground">
+                    Your PDF and image downloads include a small “Made with Vowz · www.vowz.me” line at the bottom.
+                    Upgrade to remove it and save cards to your site.
+                  </p>
+                  <Button size="sm" variant="gold" className="w-full" onClick={() => navigate("/pricing")}>Remove branding</Button>
                 </div>
               )}
+
 
             </TabsContent>
 
@@ -1570,7 +1566,34 @@ export default function InvitationCard() {
         style={{ position: "fixed", left: -99999, top: 0, pointerEvents: "none", opacity: 0 }}
         aria-hidden
       >
-        {pages.map((p) => <div key={p.id}>{renderPageNode(p)}</div>)}
+        {pages.map((p) => (
+          <div key={p.id} style={{ position: "relative", display: "inline-block" }}>
+            {renderPageNode(p)}
+            {!isPremium && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  padding: "6px 10px",
+                  background: "rgba(255,255,255,0.92)",
+                  borderTop: "1px solid rgba(0,31,63,0.12)",
+                }}
+              >
+                <img src="/brand/vowz-logo.png" alt="" crossOrigin="anonymous" style={{ height: 16, width: "auto" }} />
+                <span style={{ fontSize: 11, letterSpacing: "0.04em", color: "#001F3F", fontFamily: "Inter, sans-serif" }}>
+                  Made with Vowz · www.vowz.me
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+
       </div>
     </div>
   );
