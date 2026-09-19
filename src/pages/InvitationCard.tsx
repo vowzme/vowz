@@ -700,18 +700,19 @@ export default function InvitationCard() {
         <Button variant="outline" size="sm" onClick={saveVariant}>
           <Save className="w-4 h-4 mr-1" /> Save
         </Button>
-        <Button variant="outline" size="sm" onClick={() => handleExport("png")} disabled={!!exporting || requiresUpgrade}>
+        <Button variant="outline" size="sm" onClick={() => handleExport("png")} disabled={!!exporting}>
           <FileImage className="w-4 h-4 mr-1" /> PNG
         </Button>
-        <Button variant="outline" size="sm" onClick={() => handleExport("jpg")} disabled={!!exporting || requiresUpgrade}>
+        <Button variant="outline" size="sm" onClick={() => handleExport("jpg")} disabled={!!exporting}>
           <FileImage className="w-4 h-4 mr-1" /> JPG
         </Button>
-        <Button variant="gold" size="sm" onClick={() => handleExport("pdf")} disabled={!!exporting || requiresUpgrade}>
+        <Button variant="gold" size="sm" onClick={() => handleExport("pdf")} disabled={!!exporting}>
           <FileText className="w-4 h-4 mr-1" /> PDF
         </Button>
-        <Button variant="gold" size="sm" onClick={() => handleExport("bundle")} disabled={!!exporting || requiresUpgrade} title="Download PDF + high-res PNG + JPG">
+        <Button variant="gold" size="sm" onClick={() => handleExport("bundle")} disabled={!!exporting} title="Download PDF + high-res PNG + JPG">
           <Download className="w-4 h-4 mr-1" /> Print bundle
         </Button>
+
       </header>
 
       <div className="grid lg:grid-cols-[1fr_480px] gap-6 p-4 sm:p-6 max-w-7xl mx-auto">
