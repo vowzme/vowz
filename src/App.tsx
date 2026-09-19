@@ -129,7 +129,7 @@ const AppRoutes = () => (
     <Route path="/tools/:slug" element={<FreeToolPage />} />
     <Route path="/wedding-report" element={<WeddingReport />} />
     <Route path="/online-wedding-card-maker" element={<PageShell><OnlineWeddingCardMaker /></PageShell>} />
-    <Route path="/showcase" element={<Showcase />} />
+    <Route path="/showcase" element={<PageShell><Showcase /></PageShell>} />
     <Route path="/share-preview" element={<PageShell><SharePreview /></PageShell>} />
     <Route path="/share" element={<PageShell><Share /></PageShell>} />
     <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
