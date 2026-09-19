@@ -1807,7 +1807,7 @@ export type Database = {
           created_at: string
           edit_token: string | null
           guest_count: number
-          guest_email: string
+          guest_email: string | null
           guest_name: string
           id: string
           meal_preference: string | null
@@ -1821,7 +1821,7 @@ export type Database = {
           created_at?: string
           edit_token?: string | null
           guest_count?: number
-          guest_email: string
+          guest_email?: string | null
           guest_name: string
           id?: string
           meal_preference?: string | null
@@ -1835,7 +1835,7 @@ export type Database = {
           created_at?: string
           edit_token?: string | null
           guest_count?: number
-          guest_email?: string
+          guest_email?: string | null
           guest_name?: string
           id?: string
           meal_preference?: string | null

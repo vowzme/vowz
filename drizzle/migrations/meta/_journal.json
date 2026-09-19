@@ -29,6 +29,13 @@
       "when": 1789693389120,
       "tag": "0003_grant_rsvps_data_api",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789830817080,
+      "tag": "0004_rsvp_guest_email_optional",
+      "breakpoints": true
     }
   ]
 }

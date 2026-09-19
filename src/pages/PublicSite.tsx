@@ -1493,9 +1493,12 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
         if (!ok) throw new Error("This RSVP can no longer be edited from this device.");
       } else {
         const newToken = (globalThis.crypto as any)?.randomUUID?.() as string | undefined;
-        const { data: inserted, error } = await supabase
+        const newId = (globalThis.crypto as any)?.randomUUID?.() as string | undefined;
+        // No `.select()` here: guests are anonymous and cannot read back rows.
+        const { error } = await supabase
           .from("rsvps")
           .insert({
+            ...(newId ? { id: newId } : {}),
             wedding_site_id: site.id,
             guest_name: validated.guest_name,
             guest_email: validated.guest_email,
@@ -1506,16 +1509,15 @@ function RsvpSection({ data, site, bg, accent, trackEvent, t }: { data: any; sit
             message: validated.message,
             edit_token: newToken,
             plus_ones: cleanPlusOnes as any,
-          } as any)
-          .select("id")
-          .single();
+          } as any);
         if (error) throw error;
-        if (inserted?.id && newToken) {
-          const handle = { id: inserted.id as string, token: newToken };
+        if (newId && newToken) {
+          const handle = { id: newId, token: newToken };
           createdHandle = handle;
           setEditHandle(handle);
           try { localStorage.setItem(editStorageKey, JSON.stringify(handle)); } catch {}
         }
+
       }
       setSubmitted(true);
       setSubmittedDietary({
