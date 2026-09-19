@@ -26,6 +26,7 @@ const Templates = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(null);
 
   const filteredTemplates = templates.filter((t) => {
     const matchesSearch = !searchQuery || 
