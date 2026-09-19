@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import { downloadCsv } from "@/lib/csv";
 import {
   Plus, Search, Ticket, TrendingUp, Download, RefreshCw, Copy,
   Pencil, Trash2, Pause, Play, Archive, History,
