@@ -39,26 +39,30 @@ Deno.serve(async (req) => {
     const rawBody = await req.text();
     const webhookId = Deno.env.get("PAYPAL_WEBHOOK_ID");
 
-    // Verify signature with PayPal if webhook id is configured
-    if (webhookId) {
-      const token = await getAccessToken();
-      const verifyRes = await fetch(`${PAYPAL_BASE}/v1/notifications/verify-webhook-signature`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          auth_algo: req.headers.get("paypal-auth-algo"),
-          cert_url: req.headers.get("paypal-cert-url"),
-          transmission_id: req.headers.get("paypal-transmission-id"),
-          transmission_sig: req.headers.get("paypal-transmission-sig"),
-          transmission_time: req.headers.get("paypal-transmission-time"),
-          webhook_id: webhookId,
-          webhook_event: JSON.parse(rawBody),
-        }),
-      });
-      const verify = await verifyRes.json();
-      if (verify?.verification_status !== "SUCCESS") {
-        return new Response("Signature verification failed", { status: 401 });
-      }
+    // Signature verification is mandatory — without a configured webhook id we
+    // cannot prove the event came from PayPal, so nothing is fulfilled.
+    if (!webhookId) {
+      console.error("paypal-webhook: PAYPAL_WEBHOOK_ID is not configured; rejecting event");
+      return new Response("Webhook verification is not configured", { status: 503 });
+    }
+
+    const token = await getAccessToken();
+    const verifyRes = await fetch(`${PAYPAL_BASE}/v1/notifications/verify-webhook-signature`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        auth_algo: req.headers.get("paypal-auth-algo"),
+        cert_url: req.headers.get("paypal-cert-url"),
+        transmission_id: req.headers.get("paypal-transmission-id"),
+        transmission_sig: req.headers.get("paypal-transmission-sig"),
+        transmission_time: req.headers.get("paypal-transmission-time"),
+        webhook_id: webhookId,
+        webhook_event: JSON.parse(rawBody),
+      }),
+    });
+    const verify = await verifyRes.json().catch(() => ({}));
+    if (verify?.verification_status !== "SUCCESS") {
+      return new Response("Signature verification failed", { status: 401 });
     }
 
     const event = JSON.parse(rawBody);
