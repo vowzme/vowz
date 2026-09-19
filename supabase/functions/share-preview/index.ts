@@ -63,6 +63,13 @@ const TW_KEYS = [
 ];
 const BASIC_KEYS = ["description", "keywords", "robots", "author", "viewport"];
 
+// Only the platform's own public pages may be fetched by this preview tool.
+const ALLOWED_HOSTS = new Set(["vowz.me", "www.vowz.me"]);
+function isAllowedHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return ALLOWED_HOSTS.has(h) || h.endsWith(".lovable.app") || h.endsWith(".vowz.me");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
