@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, ChevronDown, FileText, ImageIcon, Share2 } from "lucide-react";
+import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, ChevronDown, FileText, ImageIcon, Share2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Lightbox from "@/components/Lightbox";
 import { CARD_THEMES, FALLBACK_TEMPLATES, InvitationCardArtwork, OCCASIONS, OCCASION_LABELS } from "@/lib/card-templates";
