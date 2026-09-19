@@ -1051,18 +1051,17 @@ export default function InvitationCard() {
                   );
                 })}
               </div>
-              {requiresLuxe ? (
+              {!isPremium && (
                 <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs space-y-2">
-                  <p className="flex items-center gap-1.5 font-medium"><Crown className="w-3.5 h-3.5 text-gold" /> Opening reveal design — try it free</p>
-                  <p className="text-muted-foreground">Play the reveal as often as you like. Upgrade to save, share and download this card.</p>
-                  <Button size="sm" variant="gold" className="w-full" onClick={() => navigate("/pricing")}>Upgrade</Button>
-                </div>
-              ) : requiresUpgrade && (
-                <div className="p-3 rounded-lg border border-gold/40 bg-gold/5 text-xs">
-                  Premium template — upgrade to unlock download.
-                  <Button size="sm" variant="gold" className="w-full mt-2" onClick={() => navigate("/pricing")}>Upgrade</Button>
+                  <p className="flex items-center gap-1.5 font-medium"><Crown className="w-3.5 h-3.5 text-gold" /> Downloads are free</p>
+                  <p className="text-muted-foreground">
+                    Your PDF and image downloads include a small “Made with Vowz · www.vowz.me” line at the bottom.
+                    Upgrade to remove it and save cards to your site.
+                  </p>
+                  <Button size="sm" variant="gold" className="w-full" onClick={() => navigate("/pricing")}>Remove branding</Button>
                 </div>
               )}
+
 
             </TabsContent>
 
