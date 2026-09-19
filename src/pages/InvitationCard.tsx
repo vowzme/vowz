@@ -1570,7 +1570,34 @@ export default function InvitationCard() {
         style={{ position: "fixed", left: -99999, top: 0, pointerEvents: "none", opacity: 0 }}
         aria-hidden
       >
-        {pages.map((p) => <div key={p.id}>{renderPageNode(p)}</div>)}
+        {pages.map((p) => (
+          <div key={p.id} style={{ position: "relative", display: "inline-block" }}>
+            {renderPageNode(p)}
+            {!isPremium && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  padding: "6px 10px",
+                  background: "rgba(255,255,255,0.92)",
+                  borderTop: "1px solid rgba(0,31,63,0.12)",
+                }}
+              >
+                <img src="/brand/vowz-logo.png" alt="" crossOrigin="anonymous" style={{ height: 16, width: "auto" }} />
+                <span style={{ fontSize: 11, letterSpacing: "0.04em", color: "#001F3F", fontFamily: "Inter, sans-serif" }}>
+                  Made with Vowz · www.vowz.me
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+
       </div>
     </div>
   );
