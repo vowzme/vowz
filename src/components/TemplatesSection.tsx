@@ -1901,15 +1901,27 @@ const TemplatesSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <span className="inline-block px-4 py-1.5 mb-4 text-xs tracking-[0.2em] uppercase bg-primary/10 text-primary rounded-full font-body">
-              Offline & WhatsApp-Ready
-            </span>
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+              <span className="inline-block px-4 py-1.5 text-xs tracking-[0.2em] uppercase bg-primary/10 text-primary rounded-full font-body">
+                Offline & WhatsApp-Ready
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs tracking-[0.15em] uppercase bg-accent text-accent-foreground rounded-full font-body font-semibold shadow-sm">
+                <Sparkles className="w-3.5 h-3.5" /> Free to download
+              </span>
+            </div>
             <h2 className="text-3xl sm:text-5xl font-heading mb-3">
               Invitation Cards as PDF or Image
+              <span className="align-middle ml-3 inline-block px-3 py-1 text-sm sm:text-base rounded-full bg-accent text-accent-foreground font-body font-semibold -rotate-2 shadow-sm">
+                Free
+              </span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto font-body">
               Download premium invitation cards as PDF or PNG and share instantly on WhatsApp — no internet required for guests to view.
+              <span className="block mt-2 text-foreground font-medium">
+                Free for everyone — downloads include a small Vowz.me credit. Upgrade to premium to remove it.
+              </span>
             </p>
+
           </motion.div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
