@@ -5,6 +5,7 @@ import { Heart, Calendar, MapPin, Clock, X, MessageSquare, Plane, Hotel, Users, 
 import { Button } from "@/components/ui/button";
 import Lightbox from "@/components/Lightbox";
 import { CARD_THEMES, FALLBACK_TEMPLATES, InvitationCardArtwork, OCCASIONS, OCCASION_LABELS } from "@/lib/card-templates";
+import { EXTRA_TEMPLATES } from "@/lib/template-extras";
 
 export interface TemplateData {
   name: string;
@@ -26,7 +27,7 @@ export interface TemplateData {
   galleryPhotos: { label: string; url: string }[];
 }
 
-export const templates: TemplateData[] = [
+const BASE_TEMPLATES: TemplateData[] = [
   {
     name: "Royal Maroon",
     colors: ["#6B1D2A", "#D4A853", "#FFF5E6"],
@@ -1321,6 +1322,8 @@ export const templates: TemplateData[] = [
     ],
   },
 ];
+
+export const templates: TemplateData[] = [...BASE_TEMPLATES, ...EXTRA_TEMPLATES];
 
 // ─── Countdown helper ────────────────────────────────────────────────
 function getCountdownFromDate(dateStr: string) {
