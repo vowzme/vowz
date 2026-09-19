@@ -261,10 +261,15 @@ Deno.serve(async (req) => {
         })
       }
 
-      // test_send — send a real email to the requested address (defaults to owner's).
-      const to = testEmail || u.user.email || ''
+      // test_send — always goes to the signed-in owner's own account address, so
+      // the app can never be used to mail arbitrary recipients.
+      const ownerEmail = (u.user.email || '').trim().toLowerCase()
+      if (testEmail && testEmail.toLowerCase() !== ownerEmail) {
+        return new Response(JSON.stringify({ error: 'Test emails can only be sent to your own account address.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+      const to = ownerEmail
       if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
-        return new Response(JSON.stringify({ error: 'Invalid test email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+        return new Response(JSON.stringify({ error: 'Your account has no valid email address.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
       }
       const testSubject = `[TEST] ${subject}`
       let testError: string | null = null
