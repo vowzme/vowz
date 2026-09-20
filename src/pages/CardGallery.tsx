@@ -240,7 +240,7 @@ export default function CardGallery() {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Premium Wedding Invitation Card Templates – Vowz"
-        description="Browse 30+ premium, fully editable wedding invitation card templates — Hindu, Sikh, Christian, Muslim, modern minimal and royal traditional designs."
+        description={`Browse ${FALLBACK_TEMPLATES.length}+ editable invitation card designs for weddings, engagements, receptions, Nikah, Sangeet and more. Download as PDF or image.`}
         canonical="https://vowz.me/card-gallery"
         robots="index, follow"
       />
@@ -252,7 +252,7 @@ export default function CardGallery() {
           </Button>
           <div className="text-center mb-6 sm:mb-10">
             <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-3">
-              {FALLBACK_TEMPLATES.length} Premium Card Designs
+              {FALLBACK_TEMPLATES.filter((template) => template.is_premium).length} Premium Card Designs
             </p>
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3">
               Invitation <span className="text-gradient-gold italic">Card Gallery</span>

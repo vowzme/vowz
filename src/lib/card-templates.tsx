@@ -664,8 +664,9 @@ ALL_TEMPLATE_TAGS = Array.from(
 ).sort();
 
 // ─── Occasion templates ───────────────────────────────────────────
-// For every occasion, derive ≥10 templates by combining a curated set of
-// base themes (across religion categories) with occasion-tuned copy.
+// For every occasion, derive category-specific templates by combining
+// premium base themes with occasion-tuned copy. The supplementation pass
+// below guarantees at least 25 premium cards for every category × occasion.
 // Slugs use the pattern `${occasion}__${baseSlug}` so existing CARD_THEMES
 // can be aliased and rendered without duplicating theme objects.
 const OCCASION_BASE_THEMES: Record<Occasion, string[]> = {
@@ -746,6 +747,10 @@ const OCCASION_BASE_THEMES: Record<Occasion, string[]> = {
   ],
 };
 
+const PREMIUM_BASE_TEMPLATES = FALLBACK_TEMPLATES.filter(
+  (template) => template.is_premium && !template.occasion,
+);
+
 function _titleCase(slug: string): string {
   return slug.split("-").map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
 }
@@ -763,9 +768,7 @@ export function occasionOf(slug: string): Occasion | undefined {
   return OCCASIONS.includes(candidate) ? candidate : undefined;
 }
 
-(Object.keys(OCCASION_BASE_THEMES) as Occasion[]).forEach((occ) => {
-  const baseSlugs = OCCASION_BASE_THEMES[occ];
-  baseSlugs.forEach((baseSlug) => {
+function addOccasionTemplate(occ: Occasion, baseSlug: string) {
     const baseMeta = FALLBACK_TEMPLATES.find((t) => t.slug === baseSlug);
     const baseTheme = CARD_THEMES[baseSlug];
     if (!baseMeta || !baseTheme) return;
@@ -789,6 +792,36 @@ export function occasionOf(slug: string): Occasion | undefined {
       description: `${OCCASION_LABELS[occ]} card — ${baseMeta.description ?? ""}`.trim(),
       occasion: occ,
     });
+}
+
+(Object.keys(OCCASION_BASE_THEMES) as Occasion[]).forEach((occ) => {
+  OCCASION_BASE_THEMES[occ].forEach((baseSlug) => {
+    addOccasionTemplate(occ, baseSlug);
+  });
+});
+
+// Fill every category-and-occasion intersection to 25 premium designs.
+// These aliases retain the base artwork's visual identity while receiving
+// occasion-specific wording, labels, search tags, and stable URLs.
+const MIN_PREMIUM_PER_CATEGORY_OCCASION = 25;
+const CARD_CATEGORIES = Object.keys(CATEGORY_LABELS) as CardCategory[];
+
+OCCASIONS.forEach((occasion) => {
+  CARD_CATEGORIES.forEach((category) => {
+    const currentCount = () => FALLBACK_TEMPLATES.filter(
+      (template) => template.is_premium
+        && template.category === category
+        && (template.occasion ?? "wedding") === occasion,
+    ).length;
+
+    const candidates = PREMIUM_BASE_TEMPLATES.filter(
+      (template) => template.category === category,
+    );
+
+    for (const candidate of candidates) {
+      if (currentCount() >= MIN_PREMIUM_PER_CATEGORY_OCCASION) break;
+      addOccasionTemplate(occasion, candidate.slug);
+    }
   });
 });
 
