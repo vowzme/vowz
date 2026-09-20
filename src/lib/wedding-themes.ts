@@ -255,6 +255,28 @@ export const WEDDING_THEMES: WeddingTheme[] = [
 // Expand the curated families into the full catalogue (200 designs).
 WEDDING_THEMES.push(...GENERATED_STANDARD_THEMES, ...GENERATED_LUXE_THEMES);
 
+const CURATED_ARCHETYPES: Record<string, ThemeArchetype> = {
+  "royal-rajput": "monogram",
+  "south-indian-temple": "arcade",
+  "modern-minimal": "editorial",
+  "bengali-alpona": "framed",
+  "goa-beach": "poster",
+  "kerala-backwaters": "column",
+  "punjabi-anand-karaj": "poster",
+  "marwari-haveli": "arcade",
+  "christian-chapel": "column",
+  "boho-destination": "ticket",
+  "nikah-emerald": "arcade",
+  "walima-rose": "framed",
+  "luxe-ivory-royale": "editorial",
+  "luxe-midnight-meenakari": "monogram",
+  "luxe-emerald-heirloom": "framed",
+};
+
+for (const t of WEDDING_THEMES) {
+  if (!t.archetype) t.archetype = CURATED_ARCHETYPES[t.id] ?? "classic";
+}
+
 
 export function getTheme(id: string): WeddingTheme | undefined {
   return WEDDING_THEMES.find((t) => t.id === id);
