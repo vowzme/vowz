@@ -533,6 +533,16 @@ export default function CardGallery() {
                   <Button onClick={() => handleUse(detailTpl)} className="w-full">
                     Use this template
                   </Button>
+                  <Button
+                    variant="gold"
+                    className="w-full"
+                    onClick={() => {
+                      trackTemplateEvent(detailTpl.slug, "use");
+                      navigate(`/wizard?card=${encodeURIComponent(detailTpl.slug)}`);
+                    }}
+                  >
+                    Build a wedding site with this style
+                  </Button>
                   <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
                     <span className="shrink-0">Paper:</span>
                     <select
