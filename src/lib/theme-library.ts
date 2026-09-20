@@ -6,7 +6,18 @@
 // starter copy (theme-templates) and demo photography (theme-demo-sites) are
 // inherited automatically — which keeps demo previews realistic.
 
-import type { WeddingTheme } from "@/lib/wedding-themes";
+import type { ThemeArchetype, WeddingTheme } from "@/lib/wedding-themes";
+
+const ARCHETYPE_CYCLE: ThemeArchetype[] = [
+  "classic",
+  "editorial",
+  "poster",
+  "framed",
+  "monogram",
+  "column",
+  "arcade",
+  "ticket",
+];
 
 type Family = {
   id: string; // must match a curated theme id (for copy + photo inheritance)
