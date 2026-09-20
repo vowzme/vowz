@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 
 import { templates, TemplateData, TemplatePreviewModal } from "@/components/TemplatesSection";
+import { TemplateTileArt, TEMPLATE_LAYOUT_LABELS, getTemplateLayout } from "@/lib/template-layouts";
 
 // Lazy-import the preview modal via dynamic rendering
 // We'll inline a simpler version or re-use the component structure
