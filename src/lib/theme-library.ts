@@ -17,6 +17,14 @@ const ARCHETYPE_CYCLE: ThemeArchetype[] = [
   "column",
   "arcade",
   "ticket",
+  "marquee",
+  "collage",
+  "stamp",
+  "timeline",
+  "halo",
+  "panel",
+  "scroll",
+  "grid",
 ];
 
 type Family = {
@@ -109,7 +117,7 @@ function generate(luxe: boolean, count: number): WeddingTheme[] {
   palettes.forEach((pal, pi) => {
     FAMILIES.forEach((fam, fi) => {
       if (out.length >= count) return;
-      out.push(build(fam, pal, luxe, pi + fi + (luxe ? 3 : 0)));
+      out.push(build(fam, pal, luxe, pi * 5 + fi * 3 + (luxe ? 7 : 0)));
     });
   });
   return out;
