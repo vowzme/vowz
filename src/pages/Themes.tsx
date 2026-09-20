@@ -1051,7 +1051,7 @@ export default function Themes() {
                     <select
                       value={custom.displayFont}
                       onChange={(e) => setCustom({ ...custom, displayFont: e.target.value })}
-                      className="w-full mb-3 rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      className="w-full min-h-11 mb-3 rounded-md border border-border bg-background px-3 py-2 text-base sm:text-sm"
                       style={{ fontFamily: `'${custom.displayFont}', serif` }}
                     >
                       {FONT_POOL.map((f) => (
