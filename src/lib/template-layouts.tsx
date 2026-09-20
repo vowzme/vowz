@@ -54,12 +54,12 @@ export type TemplateRecipe = {
 };
 
 /** 10 compositions × 10 art directions = 100 unique, stable recipes. */
-export const TEMPLATE_RECIPES: TemplateRecipe[] = TEMPLATE_LAYOUTS.flatMap((layout, layoutIndex) =>
-  RECIPE_EDITIONS.map((edition, editionIndex) => ({
+export const TEMPLATE_RECIPES: TemplateRecipe[] = RECIPE_EDITIONS.flatMap((edition, editionIndex) =>
+  TEMPLATE_LAYOUTS.map((layout, layoutIndex) => ({
     id: `${layout.id}-${editionIndex + 1}`,
     label: `${layout.label} · ${edition}`,
     layout: layout.id,
-    edition: (editionIndex + layoutIndex) % RECIPE_EDITIONS.length,
+    edition: editionIndex,
   })),
 );
 

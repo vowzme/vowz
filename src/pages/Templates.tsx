@@ -54,16 +54,16 @@ const Templates = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Wedding Invitation Templates – Vowz | 25+ Beautiful Designs"
-        description="Browse 25+ stunning wedding invitation templates and themes. Traditional, modern, regional, and fusion styles — all mobile-responsive and free to start."
-        ogTitle="Wedding Invitation Templates – Vowz | 25+ Beautiful Designs"
+        title={`${templates.length} Wedding Website Templates – Vowz`}
+        description={`Browse ${templates.length} premium wedding website templates with unique mobile-friendly layouts, realistic demo content, and editable styles.`}
+        ogTitle={`${templates.length} Wedding Website Templates – Vowz`}
         ogDescription="Browse our collection of stunning wedding invitation templates. Traditional Indian, modern fusion, regional styles — all beautifully designed."
         ogImage="https://vowz.me/og-templates.jpg"
         ogUrl="https://vowz.me/templates"
         ogType="website"
         twitterCard="summary_large_image"
-        twitterTitle="Wedding Invitation Templates – 25+ Beautiful Designs"
-        twitterDescription="Browse 25+ stunning wedding invitation templates. Traditional to modern, free to start."
+        twitterTitle={`${templates.length} Premium Wedding Website Templates`}
+        twitterDescription={`Browse ${templates.length} unique, mobile-friendly wedding website templates. Traditional to modern, free to start.`}
         twitterImage="https://vowz.me/og-templates.jpg"
         canonical="https://vowz.me/templates"
         robots="index, follow"
