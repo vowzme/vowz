@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { AnimatePresence as LightboxAnimatePresence } from "framer-motion";
 import Lightbox from "@/components/Lightbox";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -29,7 +29,7 @@ import MediaManagerPanel from "@/components/MediaManagerPanel";
 import { getVideoEmbedUrl, parseVideoUrl, SUPPORTED_VIDEO_PROVIDERS, validateVideoUrl } from "@/lib/video-embed";
 import { MUSIC_CATEGORIES } from "@/lib/music-library";
 import { useR2Upload } from "@/hooks/use-r2-upload";
-import { WEDDING_THEMES } from "@/lib/wedding-themes";
+import { WEDDING_THEMES, ARCHETYPE_LABELS, THEME_ARCHETYPES, getTheme, type ThemeArchetype } from "@/lib/wedding-themes";
 import { parseThemeStyle } from "@/lib/theme-schema";
 import CollaboratorPermissions from "@/components/CollaboratorPermissions";
 import { RITUALS, FAITH_LABELS, DEFAULT_RITUAL_SETS, ritualsByFaith, type RitualFaith } from "@/lib/rituals";
@@ -1922,11 +1922,28 @@ function SettingsPanel({
   siteData,
   onUpdate,
   onRestoreLastSavedStyle,
+  heroLayout = "classic",
+  onHeroLayoutChange,
 }: {
   siteData: WeddingSiteData;
   onUpdate: (data: WeddingSiteData) => void;
   onRestoreLastSavedStyle?: () => void;
+  heroLayout?: ThemeArchetype;
+  onHeroLayoutChange?: (layout: ThemeArchetype) => void;
 }) {
+  const [themeQuery, setThemeQuery] = useState("");
+  const visibleThemes = useMemo(() => {
+    const q = themeQuery.trim().toLowerCase();
+    const list = q
+      ? WEDDING_THEMES.filter((t) =>
+          [t.name, t.tradition, t.tagline, ARCHETYPE_LABELS[t.archetype ?? "classic"]]
+            .join(" ")
+            .toLowerCase()
+            .includes(q),
+        )
+      : WEDDING_THEMES;
+    return list.slice(0, 60);
+  }, [themeQuery]);
   // Apply a theme/style change with a toast-level Undo. Snapshots only the
   // style fields — content (names, story, events, gallery) is never touched.
   const applyThemeWithUndo = (
@@ -2016,6 +2033,31 @@ function SettingsPanel({
               </ul>
             </div>
           </div>
+          {onHeroLayoutChange && (
+            <div className="mb-3">
+              <label className="font-body text-sm font-medium text-foreground mb-1 block">Layout style</label>
+              <p className="font-body text-xs text-muted-foreground mb-2">
+                Change the page composition — hero, alignment and type scale. Your content stays put.
+              </p>
+              <select
+                value={heroLayout}
+                onChange={(e) => onHeroLayoutChange(e.target.value as ThemeArchetype)}
+                className="w-full rounded-md border border-border bg-background px-2 py-2 text-sm font-body"
+                aria-label="Layout style"
+              >
+                {THEME_ARCHETYPES.map((a) => (
+                  <option key={a} value={a}>{ARCHETYPE_LABELS[a]}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <Input
+            value={themeQuery}
+            onChange={(e) => setThemeQuery(e.target.value)}
+            placeholder="Search designs by name, tradition or style…"
+            className="font-body mb-2"
+            aria-label="Search designs"
+          />
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             <button
               type="button"
@@ -2030,13 +2072,15 @@ function SettingsPanel({
               <p className="font-body text-xs font-semibold text-foreground">No theme</p>
               <p className="font-body text-[10px] text-muted-foreground">Use my own styling</p>
             </button>
-            {WEDDING_THEMES.map((t) => {
+            {visibleThemes.map((t) => {
               const active = siteData.theme === t.id;
               return (
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() => applyThemeWithUndo(
+                  onClick={() => {
+                    if (t.archetype) onHeroLayoutChange?.(t.archetype);
+                    applyThemeWithUndo(
                     {
                       theme: t.id,
                       suggestedColors: [t.colors.bg, t.colors.accent, t.colors.light],
@@ -2044,7 +2088,8 @@ function SettingsPanel({
                       bodyFont: t.fonts.body,
                     } as any,
                     t.name,
-                  )}
+                  );
+                  }}
                   className={`rounded-lg border-2 px-3 py-2 text-left transition-all ${
                     active ? "border-gold bg-gold/10" : "border-border hover:border-gold/40"
                   }`}

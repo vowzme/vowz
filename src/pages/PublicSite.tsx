@@ -25,6 +25,7 @@ import { DEFAULT_STORY } from "@/lib/default-story";
 import { demoWeddingSite } from "@/lib/demo-site";
 import RitualsSection from "@/components/RitualsSection";
 import { getThemeDemoSite } from "@/lib/theme-demo-sites";
+import { getTheme, type ThemeArchetype } from "@/lib/wedding-themes";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { useAuth } from "@/hooks/use-auth";
@@ -710,7 +711,17 @@ function PublicSection({
   if (type === "hero" && td.tagline) td.tagline = t("tagline", td.tagline);
   if (type === "hero" && td.subheading) td.subheading = t("hero_subheading", td.subheading);
 
-  if (type === "hero") return <HeroSection data={td} bg={bg} accent={accent} light={light} coupleNames={coupleNames} />;
+  if (type === "hero")
+    return (
+      <HeroSection
+        data={td}
+        bg={bg}
+        accent={accent}
+        light={light}
+        coupleNames={coupleNames}
+        layout={(td.layout as ThemeArchetype) || getTheme(site.theme)?.archetype || "classic"}
+      />
+    );
   if (type === "countdown") return <CountdownSection data={td} accent={accent} bg={bg} />;
   if (type === "story") return <StorySection data={td} accent={accent} />;
   if (type === "events") return <EventsSection data={td} accent={accent} />;
@@ -733,7 +744,53 @@ function PublicSection({
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────
-function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: string; accent: string; light: string; coupleNames: string }) {
+// Layout recipes — each archetype gives the hero a genuinely different
+// composition (alignment, framing, type scale, ornament), not just new colors.
+const HERO_LAYOUTS: Record<string, {
+  align: "left" | "center";
+  frame?: "border" | "dashed" | "rule" | "panel";
+  monogram?: boolean;
+  uppercase?: boolean;
+  heart?: boolean;
+  size: "sm" | "md" | "lg";
+  pad: string;
+}> = {
+  classic: { align: "center", heart: true, size: "md", pad: "py-28 md:py-40" },
+  editorial: { align: "left", size: "lg", pad: "py-24 md:py-36" },
+  poster: { align: "left", uppercase: true, size: "lg", pad: "py-24 md:py-36" },
+  framed: { align: "center", frame: "border", size: "md", pad: "py-20 md:py-28" },
+  monogram: { align: "center", monogram: true, uppercase: true, size: "sm", pad: "py-24 md:py-32" },
+  column: { align: "left", frame: "panel", size: "md", pad: "py-24 md:py-32" },
+  arcade: { align: "center", frame: "border", heart: true, size: "md", pad: "py-20 md:py-28" },
+  ticket: { align: "left", frame: "dashed", size: "md", pad: "py-20 md:py-28" },
+  marquee: { align: "center", uppercase: true, size: "lg", pad: "py-20 md:py-28" },
+  collage: { align: "center", size: "md", pad: "py-20 md:py-28" },
+  stamp: { align: "center", frame: "dashed", size: "sm", pad: "py-20 md:py-28" },
+  timeline: { align: "left", frame: "rule", size: "md", pad: "py-24 md:py-32" },
+  halo: { align: "center", monogram: true, size: "md", pad: "py-24 md:py-32" },
+  panel: { align: "left", frame: "panel", size: "md", pad: "py-24 md:py-32" },
+  scroll: { align: "center", frame: "rule", size: "lg", pad: "py-28 md:py-40" },
+  grid: { align: "center", frame: "border", uppercase: true, size: "sm", pad: "py-20 md:py-28" },
+};
+
+function HeroSection({ data, bg, accent, light, coupleNames, layout = "classic" }: { data: any; bg: string; accent: string; light: string; coupleNames: string; layout?: ThemeArchetype }) {
+  const L = HERO_LAYOUTS[layout] || HERO_LAYOUTS.classic;
+  const centered = L.align === "center";
+  const initials = coupleNames
+    .split("&")
+    .map((n) => n.trim()[0] || "")
+    .join("")
+    .toUpperCase();
+  const headingSize =
+    L.size === "lg" ? "text-5xl md:text-8xl" : L.size === "sm" ? "text-4xl md:text-5xl" : "text-5xl md:text-7xl";
+  const frameClass =
+    L.frame === "border"
+      ? "border-2 px-6 py-10 md:px-10 md:py-14"
+      : L.frame === "dashed"
+        ? "border-2 border-dashed px-6 py-10 md:px-10 md:py-14"
+        : L.frame === "panel"
+          ? "border-l-4 pl-6 md:pl-10"
+          : "";
   const heroStyle: React.CSSProperties = data.heroImageUrl
     ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${data.heroImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
     : { background: `linear-gradient(135deg, ${bg}, ${bg}dd)` };
@@ -741,7 +798,7 @@ function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: 
   return (
     <section
       aria-label={`${coupleNames} wedding hero`}
-      className="relative py-28 md:py-40 px-6 text-center overflow-hidden"
+      className={`relative ${L.pad} px-6 overflow-hidden ${centered ? "text-center" : "text-left"}`}
       style={heroStyle}
     >
       {!data.heroImageUrl && (
@@ -753,7 +810,22 @@ function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: 
           </svg>
         </div>
       )}
-      <div className="relative z-10 max-w-3xl mx-auto">
+      <div
+        className={`relative z-10 max-w-3xl ${centered ? "mx-auto" : "mr-auto"} ${frameClass}`}
+        style={frameClass ? { borderColor: `${accent}99` } : undefined}
+      >
+        {L.frame === "rule" && (
+          <div className={`h-px w-24 mb-6 ${centered ? "mx-auto" : ""}`} style={{ background: accent }} aria-hidden="true" />
+        )}
+        {L.monogram && (
+          <div
+            className={`mb-6 grid h-20 w-20 place-items-center rounded-full border-2 font-display text-2xl ${centered ? "mx-auto" : ""}`}
+            style={{ borderColor: accent, color: accent }}
+            aria-hidden="true"
+          >
+            {initials}
+          </div>
+        )}
         {data.logoUrl && (
           <motion.img
             src={data.logoUrl}
@@ -761,12 +833,14 @@ function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="w-24 h-24 md:w-28 md:h-28 mx-auto mb-5 object-contain rounded-xl"
+            className={`w-24 h-24 md:w-28 md:h-28 mb-5 object-contain rounded-xl ${centered ? "mx-auto" : ""}`}
           />
         )}
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }} aria-hidden="true">
-          <Heart className="w-10 h-10 mx-auto mb-5" style={{ color: accent }} fill="currentColor" />
-        </motion.div>
+        {L.heart && (
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }} aria-hidden="true">
+            <Heart className={`w-10 h-10 mb-5 ${centered ? "mx-auto" : ""}`} style={{ color: accent }} fill="currentColor" />
+          </motion.div>
+        )}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -780,7 +854,7 @@ function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="font-display text-5xl md:text-7xl font-bold mb-4"
+          className={`font-display ${headingSize} font-bold mb-4 ${L.uppercase ? "uppercase tracking-tight" : ""}`}
           style={{ color: light }}
         >
           {data.heading}
@@ -801,7 +875,7 @@ function HeroSection({ data, bg, accent, light, coupleNames }: { data: any; bg: 
           className="mt-8"
           aria-hidden="true"
         >
-          <ChevronDown className="w-6 h-6 mx-auto animate-bounce" style={{ color: `${light}60` }} />
+          <ChevronDown className={`w-6 h-6 animate-bounce ${centered ? "mx-auto" : ""}`} style={{ color: `${light}60` }} />
         </motion.div>
       </div>
     </section>

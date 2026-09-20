@@ -11,6 +11,14 @@ export const THEME_ARCHETYPES = [
   "column",
   "arcade",
   "ticket",
+  "marquee",
+  "collage",
+  "stamp",
+  "timeline",
+  "halo",
+  "panel",
+  "scroll",
+  "grid",
 ] as const;
 
 export type ThemeArchetype = (typeof THEME_ARCHETYPES)[number];
@@ -24,7 +32,16 @@ export const ARCHETYPE_LABELS: Record<ThemeArchetype, string> = {
   column: "Narrow column",
   arcade: "Arched window",
   ticket: "Ticket stub",
+  marquee: "Marquee banner",
+  collage: "Photo collage",
+  stamp: "Postage stamp",
+  timeline: "Timeline ribbon",
+  halo: "Halo portrait",
+  panel: "Side panel",
+  scroll: "Script scroll",
+  grid: "Modular grid",
 };
+
 
 export type WeddingTheme = {
   id: string;
@@ -260,17 +277,17 @@ const CURATED_ARCHETYPES: Record<string, ThemeArchetype> = {
   "south-indian-temple": "arcade",
   "modern-minimal": "editorial",
   "bengali-alpona": "framed",
-  "goa-beach": "poster",
+  "goa-beach": "collage",
   "kerala-backwaters": "column",
-  "punjabi-anand-karaj": "poster",
-  "marwari-haveli": "arcade",
-  "christian-chapel": "column",
+  "punjabi-anand-karaj": "marquee",
+  "marwari-haveli": "panel",
+  "christian-chapel": "halo",
   "boho-destination": "ticket",
   "nikah-emerald": "arcade",
-  "walima-rose": "framed",
-  "luxe-ivory-royale": "editorial",
+  "walima-rose": "scroll",
+  "luxe-ivory-royale": "grid",
   "luxe-midnight-meenakari": "monogram",
-  "luxe-emerald-heirloom": "framed",
+  "luxe-emerald-heirloom": "stamp",
 };
 
 for (const t of WEDDING_THEMES) {
