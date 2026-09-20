@@ -46,6 +46,7 @@ export function getTemplateLayout(name: string): TemplateLayoutId {
 }
 
 type Art = {
+  name?: string;
   couple: string;
   partner1: string;
   partner2: string;
