@@ -78,8 +78,9 @@ const LUXE_PALETTES: Palette[] = [
   { slug: "copper-dusk", name: "Copper Dusk", tagline: "Dusk copper over smoked charcoal", colors: { bg: "#2A211C", accent: "#D79A62", light: "#FAF1E8", surface: "#FFFAF4", ink: "#150F0C" }, grad: ["#2A211C", "#453730", "#150F0C"], fonts: { display: "Fraunces", body: "Poppins" } },
 ];
 
-function build(fam: Family, pal: Palette, luxe: boolean): WeddingTheme {
+function build(fam: Family, pal: Palette, luxe: boolean, seed: number): WeddingTheme {
   const id = `${luxe ? "luxe" : "wt"}-${fam.id}-${pal.slug}`;
+  const archetype = ARCHETYPE_CYCLE[seed % ARCHETYPE_CYCLE.length];
   return {
     id,
     name: `${fam.short} · ${pal.name}`,
