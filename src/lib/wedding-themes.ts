@@ -2,6 +2,30 @@
 // preset: colors, font pair, hero motif, background pattern, and short copy.
 // Used by /themes gallery for live preview + one-click apply to a user's site.
 
+export const THEME_ARCHETYPES = [
+  "classic",
+  "editorial",
+  "poster",
+  "framed",
+  "monogram",
+  "column",
+  "arcade",
+  "ticket",
+] as const;
+
+export type ThemeArchetype = (typeof THEME_ARCHETYPES)[number];
+
+export const ARCHETYPE_LABELS: Record<ThemeArchetype, string> = {
+  classic: "Classic centred",
+  editorial: "Editorial split",
+  poster: "Bold poster",
+  framed: "Framed invitation",
+  monogram: "Monogram crest",
+  column: "Narrow column",
+  arcade: "Arched window",
+  ticket: "Ticket stub",
+};
+
 export type WeddingTheme = {
   id: string;
   name: string;
@@ -17,6 +41,8 @@ export type WeddingTheme = {
   };
   fonts: { display: string; body: string };
   motif: "mandala" | "arch" | "waves" | "palm" | "alpona" | "haveli" | "cross" | "boho" | "temple" | "khanda";
+  /** Layout archetype — drives a genuinely different page structure, not just colour. */
+  archetype?: ThemeArchetype;
   heroGradient: string;
   sampleCouple: [string, string];
   sampleTagline: string;
