@@ -994,15 +994,15 @@ export default function Themes() {
               </div>
 
 
-              <div className="grid md:grid-cols-[280px_1fr] gap-0">
+              <div className="flex flex-col md:grid md:grid-cols-[300px_1fr] gap-0">
                 {/* Controls */}
-                <aside className="border-b md:border-b-0 md:border-r border-border/50 p-5 space-y-6 bg-muted/20">
+                <aside className="order-2 md:order-1 border-t md:border-t-0 md:border-r border-border/50 p-4 sm:p-5 space-y-6 bg-muted/20">
                   <section>
                     <h3 className="font-display text-sm font-semibold mb-2">Layout style</h3>
                     <select
                       value={custom.archetype}
                       onChange={(e) => setCustom({ ...custom, archetype: e.target.value as ThemeArchetype })}
-                      className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      className="w-full min-h-11 rounded-md border border-border bg-background px-3 py-2 text-base sm:text-sm"
                       aria-label="Layout style"
                     >
                       {THEME_ARCHETYPES.map((a) => (
