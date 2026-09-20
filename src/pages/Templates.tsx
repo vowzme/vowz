@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 
 import { templates, TemplateData, TemplatePreviewModal } from "@/components/TemplatesSection";
+import { TemplateTileArt, TEMPLATE_LAYOUT_LABELS, getTemplateLayout } from "@/lib/template-layouts";
 
 // Lazy-import the preview modal via dynamic rendering
 // We'll inline a simpler version or re-use the component structure
@@ -155,25 +156,12 @@ const Templates = () => {
                 }}
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
-                  <div className="h-60 relative">
-                    <img src={t.heroPhoto} alt={`${t.style} wedding invitation template — ${t.name}, featured in ${t.location}`} className="w-full h-full object-cover" loading="lazy" />
-                    <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${t.colors[0]}88 0%, ${t.colors[0]}cc 50%, ${t.colors[0]}ee 100%)` }} />
-                    
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 mb-3 shadow-lg" style={{ borderColor: t.colors[1] }}>
-                        <img src={t.couplePhoto} alt={`Portrait of ${t.couple}, sample couple for the ${t.name} template`} className="w-full h-full object-cover" loading="lazy" />
-                      </div>
-                      <Heart className="w-3.5 h-3.5 mb-1.5" style={{ color: t.colors[1] }} fill="currentColor" />
-                      <p className="font-display text-2xl font-bold drop-shadow-md" style={{ color: t.colors[2] }}>
-                        {t.couple}
-                      </p>
-                      <p className="font-body text-xs mt-1 drop-shadow-sm" style={{ color: t.colors[2] + "cc" }}>
-                        {t.weddingDate}
-                      </p>
-                      <p className="font-body text-[10px] mt-0.5 flex items-center gap-1 drop-shadow-sm" style={{ color: t.colors[2] + "99" }}>
-                        <MapPin className="w-3 h-3" /> {t.location}
-                      </p>
-                    </div>
+                  <div className="h-56 sm:h-60 relative">
+                    <TemplateTileArt t={t} />
+
+                    <span className="absolute top-2 left-2 z-10 rounded-full bg-black/40 backdrop-blur-sm px-2.5 py-1 text-[10px] font-body tracking-wide text-white border border-white/20">
+                      {TEMPLATE_LAYOUT_LABELS[getTemplateLayout(t.name)]}
+                    </span>
 
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                       <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 text-white bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-full font-body text-sm font-medium flex items-center gap-2 border border-white/30">
@@ -185,7 +173,7 @@ const Templates = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-display text-lg font-semibold text-foreground">{t.name}</h3>
-                        <p className="text-xs text-muted-foreground font-body">{t.style} • {t.events.length} events</p>
+                        <p className="text-xs text-muted-foreground font-body">{t.style} • {TEMPLATE_LAYOUT_LABELS[getTemplateLayout(t.name)]}</p>
                       </div>
                       <div className="flex gap-1.5">
                         {t.colors.map((c, j) => (
