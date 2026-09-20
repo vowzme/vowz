@@ -86,6 +86,20 @@ const OnboardingWizard = () => {
   const [showResumeSummary, setShowResumeSummary] = useState<boolean>(false);
   const [existingSiteId, setExistingSiteId] = useState<string | null>(null);
 
+  // Arriving from the invitation-card gallery with ?card=<slug>: preselect
+  // that card design, jump to the design step, and drop the param.
+  useEffect(() => {
+    const slug = searchParams.get("card");
+    if (!slug) return;
+    updateField("cardTemplate", slug);
+    setStep("theme");
+    const next = new URLSearchParams(searchParams);
+    next.delete("card");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+
   useEffect(() => {
     if (!wantsResume) return;
     let cancelled = false;
