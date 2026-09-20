@@ -101,6 +101,8 @@ export interface WeddingData {
     directions: string;
   };
   welcomeMessage?: string;
+  /** Optional invitation-card design slug chosen while building the site. */
+  cardTemplate?: string;
 }
 
 export type WizardStep = "names" | "story" | "theme" | "events" | "preview";

@@ -107,6 +107,11 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
     }).then((site) => {
       if (site) setSiteId(site.id);
     });
+
+    // Carry the card design chosen in the wizard through to the card studio.
+    if (data.cardTemplate) {
+      try { sessionStorage.setItem("pendingCardTemplate", data.cardTemplate); } catch { /* ignore */ }
+    }
   }, []);
   const [bg, accent, light] = data.suggestedColors.length >= 3
     ? data.suggestedColors
@@ -130,11 +135,20 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
               </p>
             </div>
           </div>
-           <Button variant="gold" size="sm" asChild>
-            <Link to={siteId ? `/editor/${siteId}` : "/editor"} state={{ wizardData: data }}>
-              Customize in Editor <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            {data.cardTemplate && siteId && (
+              <Button variant="outline" size="sm" asChild>
+                <Link to={`/invitation-card/${siteId}?template=${encodeURIComponent(data.cardTemplate)}`}>
+                  Design your card
+                </Link>
+              </Button>
+            )}
+            <Button variant="gold" size="sm" asChild>
+              <Link to={siteId ? `/editor/${siteId}` : "/editor"} state={{ wizardData: data }}>
+                Customize in Editor <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 

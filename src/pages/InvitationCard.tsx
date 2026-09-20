@@ -691,28 +691,39 @@ export default function InvitationCard() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead title="Invitation Card – Vowz" description="Design and download your wedding invitation card with QR code." robots="noindex, nofollow" />
-      <header className="h-14 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center px-3 sm:px-4 gap-2 sticky top-0 z-20">
-        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="font-display text-lg font-semibold">Invitation Card</h1>
-        <div className="flex-1" />
-        <Button variant="outline" size="sm" onClick={saveVariant}>
-          <Save className="w-4 h-4 mr-1" /> Save
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => handleExport("png")} disabled={!!exporting}>
-          <FileImage className="w-4 h-4 mr-1" /> PNG
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => handleExport("jpg")} disabled={!!exporting}>
-          <FileImage className="w-4 h-4 mr-1" /> JPG
-        </Button>
-        <Button variant="gold" size="sm" onClick={() => handleExport("pdf")} disabled={!!exporting}>
-          <FileText className="w-4 h-4 mr-1" /> PDF
-        </Button>
-        <Button variant="gold" size="sm" onClick={() => handleExport("bundle")} disabled={!!exporting} title="Download PDF + high-res PNG + JPG">
-          <Download className="w-4 h-4 mr-1" /> Print bundle
-        </Button>
-
+      <header className="border-b border-border/50 bg-card/90 backdrop-blur-sm sticky top-0 z-20">
+        <div className="h-14 flex items-center px-3 sm:px-4 gap-2">
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Go back"
+            className="h-10 w-10 -ml-2 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="font-display text-base sm:text-lg font-semibold truncate">Invitation Card</h1>
+          <div className="flex-1" />
+          <Button variant="gold" size="sm" className="h-10 sm:h-9 hidden sm:inline-flex" onClick={() => handleExport("bundle")} disabled={!!exporting} title="Download PDF + high-res PNG + JPG">
+            <Download className="w-4 h-4 mr-1" /> Print bundle
+          </Button>
+        </div>
+        {/* Action bar — scrolls horizontally on phones with finger-sized targets. */}
+        <div className="flex items-center gap-2 px-3 sm:px-4 pb-2 overflow-x-auto">
+          <Button variant="outline" size="sm" className="h-10 sm:h-9 shrink-0" onClick={saveVariant}>
+            <Save className="w-4 h-4 mr-1" /> Save
+          </Button>
+          <Button variant="outline" size="sm" className="h-10 sm:h-9 shrink-0" onClick={() => handleExport("png")} disabled={!!exporting}>
+            <FileImage className="w-4 h-4 mr-1" /> PNG
+          </Button>
+          <Button variant="outline" size="sm" className="h-10 sm:h-9 shrink-0" onClick={() => handleExport("jpg")} disabled={!!exporting}>
+            <FileImage className="w-4 h-4 mr-1" /> JPG
+          </Button>
+          <Button variant="gold" size="sm" className="h-10 sm:h-9 shrink-0" onClick={() => handleExport("pdf")} disabled={!!exporting}>
+            <FileText className="w-4 h-4 mr-1" /> PDF
+          </Button>
+          <Button variant="gold" size="sm" className="h-10 shrink-0 sm:hidden" onClick={() => handleExport("bundle")} disabled={!!exporting}>
+            <Download className="w-4 h-4 mr-1" /> Print bundle
+          </Button>
+        </div>
       </header>
 
       <div className="grid lg:grid-cols-[1fr_480px] gap-6 p-4 sm:p-6 max-w-7xl mx-auto">

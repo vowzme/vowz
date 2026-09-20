@@ -14,6 +14,7 @@ import { useWeddingWizard, CULTURAL_PRESETS } from "@/hooks/use-wedding-wizard";
 import { WEDDING_THEMES } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
 import WizardPreview from "@/components/WizardPreview";
+import CardStylePicker from "@/components/CardStylePicker";
 import { useAIContentGen } from "@/hooks/use-ai-content-gen";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,6 +85,20 @@ const OnboardingWizard = () => {
   const [resumeLoading, setResumeLoading] = useState<boolean>(wantsResume);
   const [showResumeSummary, setShowResumeSummary] = useState<boolean>(false);
   const [existingSiteId, setExistingSiteId] = useState<string | null>(null);
+
+  // Arriving from the invitation-card gallery with ?card=<slug>: preselect
+  // that card design, jump to the design step, and drop the param.
+  useEffect(() => {
+    const slug = searchParams.get("card");
+    if (!slug) return;
+    updateField("cardTemplate", slug);
+    setStep("theme");
+    const next = new URLSearchParams(searchParams);
+    next.delete("card");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
 
   useEffect(() => {
     if (!wantsResume) return;
@@ -750,6 +765,11 @@ const OnboardingWizard = () => {
                       </div>
                     );
                   })()}
+
+                  <CardStylePicker
+                    value={wizardData.cardTemplate}
+                    onChange={(slug) => updateField("cardTemplate", slug)}
+                  />
                 </div>
               )}
 
