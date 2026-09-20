@@ -964,22 +964,22 @@ export default function Themes() {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
-                  <Button variant="ghost" size="sm" className="justify-center" onClick={() => setCustom(customFrom(active))}>
+                  <Button variant="ghost" size="sm" className="justify-center h-11 sm:h-9" onClick={() => setCustom(customFrom(active))}>
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     type="button"
-                    className="justify-center"
+                    className="justify-center h-11 sm:h-9"
                     onClick={() => { if (active) persistPreviewedTheme(active); setPreviewTpl(active); }}
                   >
                     <Eye className="w-4 h-4 mr-1" /> Preview
                   </Button>
-                  <Button variant="outline" size="sm" className="justify-center" onClick={() => startFromTemplate(active)} disabled={starting}>
+                  <Button variant="outline" size="sm" className="justify-center h-11 sm:h-9" onClick={() => startFromTemplate(active)} disabled={starting}>
                     <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Use template"}
                   </Button>
-                  <Button variant="gold" size="sm" className="justify-center" onClick={applyTheme} disabled={applying}>
+                  <Button variant="gold" size="sm" className="justify-center h-11 sm:h-9" onClick={applyTheme} disabled={applying}>
                     <Check className="w-4 h-4 mr-1" /> {applying ? "Applying…" : "Apply"}
                   </Button>
                   <button
@@ -994,15 +994,15 @@ export default function Themes() {
               </div>
 
 
-              <div className="grid md:grid-cols-[280px_1fr] gap-0">
+              <div className="flex flex-col md:grid md:grid-cols-[300px_1fr] gap-0">
                 {/* Controls */}
-                <aside className="border-b md:border-b-0 md:border-r border-border/50 p-5 space-y-6 bg-muted/20">
+                <aside className="order-2 md:order-1 border-t md:border-t-0 md:border-r border-border/50 p-4 sm:p-5 space-y-6 bg-muted/20">
                   <section>
                     <h3 className="font-display text-sm font-semibold mb-2">Layout style</h3>
                     <select
                       value={custom.archetype}
                       onChange={(e) => setCustom({ ...custom, archetype: e.target.value as ThemeArchetype })}
-                      className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      className="w-full min-h-11 rounded-md border border-border bg-background px-3 py-2 text-base sm:text-sm"
                       aria-label="Layout style"
                     >
                       {THEME_ARCHETYPES.map((a) => (
@@ -1022,7 +1022,7 @@ export default function Themes() {
                           key={pp.name}
                           type="button"
                           onClick={() => setCustom({ ...custom, bg: pp.bg, accent: pp.accent, surface: pp.surface, ink: pp.ink })}
-                          className="rounded-md border border-border/70 bg-background px-2 py-1.5 text-left hover:border-gold/60"
+                          className="min-h-11 rounded-md border border-border/70 bg-background px-2.5 py-2 text-left hover:border-gold/60"
                         >
                           <span className="flex gap-1 mb-1">
                             {[pp.bg, pp.accent, pp.surface].map((c) => (
@@ -1051,7 +1051,7 @@ export default function Themes() {
                     <select
                       value={custom.displayFont}
                       onChange={(e) => setCustom({ ...custom, displayFont: e.target.value })}
-                      className="w-full mb-3 rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      className="w-full min-h-11 mb-3 rounded-md border border-border bg-background px-3 py-2 text-base sm:text-sm"
                       style={{ fontFamily: `'${custom.displayFont}', serif` }}
                     >
                       {FONT_POOL.map((f) => (
@@ -1062,7 +1062,7 @@ export default function Themes() {
                     <select
                       value={custom.bodyFont}
                       onChange={(e) => setCustom({ ...custom, bodyFont: e.target.value })}
-                      className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      className="w-full min-h-11 rounded-md border border-border bg-background px-3 py-2 text-base sm:text-sm"
                       style={{ fontFamily: `'${custom.bodyFont}', sans-serif` }}
                     >
                       {FONT_POOL.map((f) => (
@@ -1082,7 +1082,7 @@ export default function Themes() {
                       max={100}
                       value={Math.round(custom.motifIntensity * 100)}
                       onChange={(e) => setCustom({ ...custom, motifIntensity: Number(e.target.value) / 100 })}
-                      className="w-full accent-gold"
+                      className="w-full h-11 accent-gold"
                       aria-label="Motif intensity"
                     />
                     <p className="text-[11px] text-muted-foreground font-body mt-1">Controls the strength of the decorative pattern behind your hero.</p>
@@ -1090,7 +1090,7 @@ export default function Themes() {
                 </aside>
 
                 {/* Live preview */}
-                <div className="p-5 bg-background">
+                <div className="order-1 md:order-2 p-4 sm:p-5 bg-background">
                   <ThemeDemo theme={previewTheme} motifIntensity={custom.motifIntensity} />
                   <p className="text-sm text-muted-foreground font-body mt-5 leading-relaxed">{active.description}</p>
                 </div>
