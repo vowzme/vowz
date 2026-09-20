@@ -1082,7 +1082,7 @@ export default function Themes() {
                       max={100}
                       value={Math.round(custom.motifIntensity * 100)}
                       onChange={(e) => setCustom({ ...custom, motifIntensity: Number(e.target.value) / 100 })}
-                      className="w-full accent-gold"
+                      className="w-full h-11 accent-gold"
                       aria-label="Motif intensity"
                     />
                     <p className="text-[11px] text-muted-foreground font-body mt-1">Controls the strength of the decorative pattern behind your hero.</p>
@@ -1090,7 +1090,7 @@ export default function Themes() {
                 </aside>
 
                 {/* Live preview */}
-                <div className="p-5 bg-background">
+                <div className="order-1 md:order-2 p-4 sm:p-5 bg-background">
                   <ThemeDemo theme={previewTheme} motifIntensity={custom.motifIntensity} />
                   <p className="text-sm text-muted-foreground font-body mt-5 leading-relaxed">{active.description}</p>
                 </div>
