@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 
 import { templates, TemplateData, TemplatePreviewModal } from "@/components/TemplatesSection";
-import { TemplateTileArt, TEMPLATE_LAYOUT_LABELS, getTemplateLayout } from "@/lib/template-layouts";
+import { TemplateTileArt, getTemplateRecipeLabel } from "@/lib/template-layouts";
 
 // Lazy-import the preview modal via dynamic rendering
 // We'll inline a simpler version or re-use the component structure
@@ -54,16 +54,16 @@ const Templates = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Wedding Invitation Templates – Vowz | 25+ Beautiful Designs"
-        description="Browse 25+ stunning wedding invitation templates and themes. Traditional, modern, regional, and fusion styles — all mobile-responsive and free to start."
-        ogTitle="Wedding Invitation Templates – Vowz | 25+ Beautiful Designs"
+        title={`${templates.length} Wedding Website Templates – Vowz`}
+        description={`Browse ${templates.length} premium wedding website templates with unique mobile-friendly layouts, realistic demo content, and editable styles.`}
+        ogTitle={`${templates.length} Wedding Website Templates – Vowz`}
         ogDescription="Browse our collection of stunning wedding invitation templates. Traditional Indian, modern fusion, regional styles — all beautifully designed."
         ogImage="https://vowz.me/og-templates.jpg"
         ogUrl="https://vowz.me/templates"
         ogType="website"
         twitterCard="summary_large_image"
-        twitterTitle="Wedding Invitation Templates – 25+ Beautiful Designs"
-        twitterDescription="Browse 25+ stunning wedding invitation templates. Traditional to modern, free to start."
+        twitterTitle={`${templates.length} Premium Wedding Website Templates`}
+        twitterDescription={`Browse ${templates.length} unique, mobile-friendly wedding website templates. Traditional to modern, free to start.`}
         twitterImage="https://vowz.me/og-templates.jpg"
         canonical="https://vowz.me/templates"
         robots="index, follow"
@@ -137,7 +137,10 @@ const Templates = () => {
 
           {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredTemplates.map((t, i) => (
+            {filteredTemplates.map((t, i) => {
+              const designIndex = templates.indexOf(t);
+              const recipeLabel = getTemplateRecipeLabel(t.name, designIndex);
+              return (
               <motion.div
                 key={t.name}
                 initial={{ opacity: 0, y: 20 }}
@@ -157,10 +160,10 @@ const Templates = () => {
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
                   <div className="h-56 sm:h-60 relative">
-                    <TemplateTileArt t={t} />
+                    <TemplateTileArt t={t} designIndex={designIndex} />
 
                     <span className="absolute top-2 left-2 z-10 rounded-full bg-black/40 backdrop-blur-sm px-2.5 py-1 text-[10px] font-body tracking-wide text-white border border-white/20">
-                      {TEMPLATE_LAYOUT_LABELS[getTemplateLayout(t.name)]}
+                      {recipeLabel}
                     </span>
 
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
@@ -173,7 +176,7 @@ const Templates = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-display text-lg font-semibold text-foreground">{t.name}</h3>
-                        <p className="text-xs text-muted-foreground font-body">{t.style} • {TEMPLATE_LAYOUT_LABELS[getTemplateLayout(t.name)]}</p>
+                        <p className="text-xs text-muted-foreground font-body">{t.style} • {recipeLabel}</p>
                       </div>
                       <div className="flex gap-1.5">
                         {t.colors.map((c, j) => (
@@ -203,7 +206,8 @@ const Templates = () => {
                   </div>
                 </div>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
 
           {filteredTemplates.length === 0 && (

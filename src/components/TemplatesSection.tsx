@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Lightbox from "@/components/Lightbox";
 import { CARD_THEMES, FALLBACK_TEMPLATES, InvitationCardArtwork, OCCASIONS, OCCASION_LABELS } from "@/lib/card-templates";
 import { EXTRA_TEMPLATES } from "@/lib/template-extras";
-import { TemplateTileArt, TemplateHeroArt, TEMPLATE_LAYOUT_LABELS, getTemplateLayout } from "@/lib/template-layouts";
+import { TemplateTileArt, TemplateHeroArt, getTemplateRecipeLabel } from "@/lib/template-layouts";
 
 export interface TemplateData {
   name: string;
@@ -1440,7 +1440,7 @@ export function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { 
         </button>
 
         {/* ── Hero (layout style varies per template) ── */}
-        <TemplateHeroArt t={t} parallaxY={parallaxY} />
+        <TemplateHeroArt t={t} designIndex={templates.indexOf(t)} parallaxY={parallaxY} />
 
         {/* ── Countdown Section ── */}
         <motion.div
@@ -1750,9 +1750,9 @@ const TemplatesSection = () => {
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
                   <div className="h-52 sm:h-60 relative">
-                    <TemplateTileArt t={t} />
+                    <TemplateTileArt t={t} designIndex={i} />
                     <span className="absolute top-2 left-2 z-10 rounded-full bg-black/40 backdrop-blur-sm px-2.5 py-1 text-[10px] font-body tracking-wide text-white border border-white/20">
-                      {TEMPLATE_LAYOUT_LABELS[getTemplateLayout(t.name)]}
+                      {getTemplateRecipeLabel(t.name, i)}
                     </span>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                       <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 text-white bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-full font-body text-sm font-medium flex items-center gap-2 border border-white/30">
