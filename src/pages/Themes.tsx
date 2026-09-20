@@ -1022,7 +1022,7 @@ export default function Themes() {
                           key={pp.name}
                           type="button"
                           onClick={() => setCustom({ ...custom, bg: pp.bg, accent: pp.accent, surface: pp.surface, ink: pp.ink })}
-                          className="rounded-md border border-border/70 bg-background px-2 py-1.5 text-left hover:border-gold/60"
+                          className="min-h-11 rounded-md border border-border/70 bg-background px-2.5 py-2 text-left hover:border-gold/60"
                         >
                           <span className="flex gap-1 mb-1">
                             {[pp.bg, pp.accent, pp.surface].map((c) => (
