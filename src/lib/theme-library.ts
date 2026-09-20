@@ -93,6 +93,7 @@ function build(fam: Family, pal: Palette, luxe: boolean, seed: number): WeddingT
     colors: pal.colors,
     fonts: pal.fonts,
     motif: fam.motif,
+    archetype,
     heroGradient: `linear-gradient(135deg,${pal.grad[0]} 0%,${pal.grad[1]} 55%,${pal.grad[2]} 100%)`,
     sampleCouple: fam.couple,
     sampleTagline: luxe ? "An heirloom celebration, beautifully told" : "Two families, one joyful beginning",
