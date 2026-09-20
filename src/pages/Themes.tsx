@@ -374,7 +374,7 @@ export default function Themes() {
       if (tradition !== "all" && t.tradition !== tradition) return false;
       if (motif !== "all" && t.motif !== motif) return false;
       if (!q) return true;
-      const hay = [t.name, t.tradition, t.description, t.tagline, t.motif, ...(f?.styles ?? [])]
+      const hay = [t.name, t.tradition, t.description, t.tagline, t.motif, ARCHETYPE_LABELS[t.archetype ?? "classic"], ...(f?.styles ?? [])]
         .join(" ").toLowerCase();
       return hay.includes(q);
     });
