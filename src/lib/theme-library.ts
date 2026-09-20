@@ -6,7 +6,18 @@
 // starter copy (theme-templates) and demo photography (theme-demo-sites) are
 // inherited automatically — which keeps demo previews realistic.
 
-import type { WeddingTheme } from "@/lib/wedding-themes";
+import type { ThemeArchetype, WeddingTheme } from "@/lib/wedding-themes";
+
+const ARCHETYPE_CYCLE: ThemeArchetype[] = [
+  "classic",
+  "editorial",
+  "poster",
+  "framed",
+  "monogram",
+  "column",
+  "arcade",
+  "ticket",
+];
 
 type Family = {
   id: string; // must match a curated theme id (for copy + photo inheritance)
@@ -67,8 +78,9 @@ const LUXE_PALETTES: Palette[] = [
   { slug: "copper-dusk", name: "Copper Dusk", tagline: "Dusk copper over smoked charcoal", colors: { bg: "#2A211C", accent: "#D79A62", light: "#FAF1E8", surface: "#FFFAF4", ink: "#150F0C" }, grad: ["#2A211C", "#453730", "#150F0C"], fonts: { display: "Fraunces", body: "Poppins" } },
 ];
 
-function build(fam: Family, pal: Palette, luxe: boolean): WeddingTheme {
+function build(fam: Family, pal: Palette, luxe: boolean, seed: number): WeddingTheme {
   const id = `${luxe ? "luxe" : "wt"}-${fam.id}-${pal.slug}`;
+  const archetype = ARCHETYPE_CYCLE[seed % ARCHETYPE_CYCLE.length];
   return {
     id,
     name: `${fam.short} · ${pal.name}`,
@@ -81,6 +93,7 @@ function build(fam: Family, pal: Palette, luxe: boolean): WeddingTheme {
     colors: pal.colors,
     fonts: pal.fonts,
     motif: fam.motif,
+    archetype,
     heroGradient: `linear-gradient(135deg,${pal.grad[0]} 0%,${pal.grad[1]} 55%,${pal.grad[2]} 100%)`,
     sampleCouple: fam.couple,
     sampleTagline: luxe ? "An heirloom celebration, beautifully told" : "Two families, one joyful beginning",
@@ -93,12 +106,12 @@ function build(fam: Family, pal: Palette, luxe: boolean): WeddingTheme {
 function generate(luxe: boolean, count: number): WeddingTheme[] {
   const palettes = luxe ? LUXE_PALETTES : STANDARD_PALETTES;
   const out: WeddingTheme[] = [];
-  for (const pal of palettes) {
-    for (const fam of FAMILIES) {
-      out.push(build(fam, pal, luxe));
-      if (out.length >= count) return out;
-    }
-  }
+  palettes.forEach((pal, pi) => {
+    FAMILIES.forEach((fam, fi) => {
+      if (out.length >= count) return;
+      out.push(build(fam, pal, luxe, pi + fi + (luxe ? 3 : 0)));
+    });
+  });
   return out;
 }
 

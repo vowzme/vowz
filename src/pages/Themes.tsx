@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { WEDDING_THEMES, type WeddingTheme } from "@/lib/wedding-themes";
+import { WEDDING_THEMES, ARCHETYPE_LABELS, type WeddingTheme } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
 import { LazyOnVisible } from "@/components/LazyOnVisible";
 import { useAuth } from "@/hooks/use-auth";
@@ -374,7 +374,7 @@ export default function Themes() {
       if (tradition !== "all" && t.tradition !== tradition) return false;
       if (motif !== "all" && t.motif !== motif) return false;
       if (!q) return true;
-      const hay = [t.name, t.tradition, t.description, t.tagline, t.motif, ...(f?.styles ?? [])]
+      const hay = [t.name, t.tradition, t.description, t.tagline, t.motif, ARCHETYPE_LABELS[t.archetype ?? "classic"], ...(f?.styles ?? [])]
         .join(" ").toLowerCase();
       return hay.includes(q);
     });

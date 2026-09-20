@@ -2,6 +2,30 @@
 // preset: colors, font pair, hero motif, background pattern, and short copy.
 // Used by /themes gallery for live preview + one-click apply to a user's site.
 
+export const THEME_ARCHETYPES = [
+  "classic",
+  "editorial",
+  "poster",
+  "framed",
+  "monogram",
+  "column",
+  "arcade",
+  "ticket",
+] as const;
+
+export type ThemeArchetype = (typeof THEME_ARCHETYPES)[number];
+
+export const ARCHETYPE_LABELS: Record<ThemeArchetype, string> = {
+  classic: "Classic centred",
+  editorial: "Editorial split",
+  poster: "Bold poster",
+  framed: "Framed invitation",
+  monogram: "Monogram crest",
+  column: "Narrow column",
+  arcade: "Arched window",
+  ticket: "Ticket stub",
+};
+
 export type WeddingTheme = {
   id: string;
   name: string;
@@ -17,6 +41,8 @@ export type WeddingTheme = {
   };
   fonts: { display: string; body: string };
   motif: "mandala" | "arch" | "waves" | "palm" | "alpona" | "haveli" | "cross" | "boho" | "temple" | "khanda";
+  /** Layout archetype — drives a genuinely different page structure, not just colour. */
+  archetype?: ThemeArchetype;
   heroGradient: string;
   sampleCouple: [string, string];
   sampleTagline: string;
@@ -228,6 +254,28 @@ export const WEDDING_THEMES: WeddingTheme[] = [
 
 // Expand the curated families into the full catalogue (200 designs).
 WEDDING_THEMES.push(...GENERATED_STANDARD_THEMES, ...GENERATED_LUXE_THEMES);
+
+const CURATED_ARCHETYPES: Record<string, ThemeArchetype> = {
+  "royal-rajput": "monogram",
+  "south-indian-temple": "arcade",
+  "modern-minimal": "editorial",
+  "bengali-alpona": "framed",
+  "goa-beach": "poster",
+  "kerala-backwaters": "column",
+  "punjabi-anand-karaj": "poster",
+  "marwari-haveli": "arcade",
+  "christian-chapel": "column",
+  "boho-destination": "ticket",
+  "nikah-emerald": "arcade",
+  "walima-rose": "framed",
+  "luxe-ivory-royale": "editorial",
+  "luxe-midnight-meenakari": "monogram",
+  "luxe-emerald-heirloom": "framed",
+};
+
+for (const t of WEDDING_THEMES) {
+  if (!t.archetype) t.archetype = CURATED_ARCHETYPES[t.id] ?? "classic";
+}
 
 
 export function getTheme(id: string): WeddingTheme | undefined {
