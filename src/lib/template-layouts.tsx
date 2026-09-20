@@ -59,6 +59,21 @@ type Art = {
   colors: [string, string, string];
 };
 
+
+/** Relative luminance of a hex colour. */
+function lum(hex: string) {
+  const h = hex.replace("#", "");
+  const v = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(v.slice(i, i + 2), 16) / 255);
+  const f = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+/** Keeps headline text readable on pale palettes. */
+function readable(text: string, bg: string) {
+  return Math.abs(lum(text) - lum(bg)) < 0.3 ? (lum(bg) > 0.5 ? "#1F1A16" : "#FFFFFF") : text;
+}
+
 const initials = (t: Art) => `${t.partner1.charAt(0)}${t.partner2.charAt(0)}`.toUpperCase();
 
 /**
@@ -67,7 +82,8 @@ const initials = (t: Art) => `${t.partner1.charAt(0)}${t.partner2.charAt(0)}`.to
  */
 export function TemplateTileArt({ t, layout }: { t: Art; layout?: TemplateLayoutId }) {
   const l = layout ?? getTemplateLayout(t.name ?? t.couple);
-  const [bg, accent, text] = t.colors;
+  const [bg, accent, rawText] = t.colors;
+  const text = readable(rawText, bg);
 
   const Photo = ({ className = "" }: { className?: string }) => (
     <img src={t.heroPhoto} alt={`${t.couple} wedding template preview`} className={`w-full h-full object-cover ${className}`} loading="lazy" />
@@ -255,7 +271,8 @@ export function TemplateTileArt({ t, layout }: { t: Art; layout?: TemplateLayout
  */
 export function TemplateHeroArt({ t, layout, parallaxY = 0 }: { t: Art; layout?: TemplateLayoutId; parallaxY?: number }) {
   const l = layout ?? getTemplateLayout(t.name ?? t.couple);
-  const [bg, accent, text] = t.colors;
+  const [bg, accent, rawText] = t.colors;
+  const text = readable(rawText, bg);
 
   const Bg = ({ opacity = 1 }: { opacity?: number }) => (
     <div className="absolute inset-0 overflow-hidden">
