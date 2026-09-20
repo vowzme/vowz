@@ -964,22 +964,22 @@ export default function Themes() {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
-                  <Button variant="ghost" size="sm" className="justify-center" onClick={() => setCustom(customFrom(active))}>
+                  <Button variant="ghost" size="sm" className="justify-center h-11 sm:h-9" onClick={() => setCustom(customFrom(active))}>
                     <RotateCcw className="w-4 h-4 mr-1" /> Reset
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     type="button"
-                    className="justify-center"
+                    className="justify-center h-11 sm:h-9"
                     onClick={() => { if (active) persistPreviewedTheme(active); setPreviewTpl(active); }}
                   >
                     <Eye className="w-4 h-4 mr-1" /> Preview
                   </Button>
-                  <Button variant="outline" size="sm" className="justify-center" onClick={() => startFromTemplate(active)} disabled={starting}>
+                  <Button variant="outline" size="sm" className="justify-center h-11 sm:h-9" onClick={() => startFromTemplate(active)} disabled={starting}>
                     <Wand2 className="w-4 h-4 mr-1" /> {starting ? "Starting…" : "Use template"}
                   </Button>
-                  <Button variant="gold" size="sm" className="justify-center" onClick={applyTheme} disabled={applying}>
+                  <Button variant="gold" size="sm" className="justify-center h-11 sm:h-9" onClick={applyTheme} disabled={applying}>
                     <Check className="w-4 h-4 mr-1" /> {applying ? "Applying…" : "Apply"}
                   </Button>
                   <button
