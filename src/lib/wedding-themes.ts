@@ -11,6 +11,14 @@ export const THEME_ARCHETYPES = [
   "column",
   "arcade",
   "ticket",
+  "marquee",
+  "collage",
+  "stamp",
+  "timeline",
+  "halo",
+  "panel",
+  "scroll",
+  "grid",
 ] as const;
 
 export type ThemeArchetype = (typeof THEME_ARCHETYPES)[number];
@@ -24,7 +32,16 @@ export const ARCHETYPE_LABELS: Record<ThemeArchetype, string> = {
   column: "Narrow column",
   arcade: "Arched window",
   ticket: "Ticket stub",
+  marquee: "Marquee banner",
+  collage: "Photo collage",
+  stamp: "Postage stamp",
+  timeline: "Timeline ribbon",
+  halo: "Halo portrait",
+  panel: "Side panel",
+  scroll: "Script scroll",
+  grid: "Modular grid",
 };
+
 
 export type WeddingTheme = {
   id: string;
