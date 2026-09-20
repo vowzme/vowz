@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { WEDDING_THEMES, ARCHETYPE_LABELS, type WeddingTheme } from "@/lib/wedding-themes";
+import { WEDDING_THEMES, ARCHETYPE_LABELS, THEME_ARCHETYPES, type ThemeArchetype, type WeddingTheme } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
 import { LazyOnVisible } from "@/components/LazyOnVisible";
 import { useAuth } from "@/hooks/use-auth";
@@ -243,7 +243,30 @@ function GoogleFontsLoader() {
   );
 }
 
+// Ready-made palettes for the design studio — one tap restyles any design.
+const PALETTE_PRESETS: { name: string; bg: string; accent: string; surface: string; ink: string }[] = [
+  { name: "Royal maroon", bg: "#5B0A17", accent: "#E7B24B", surface: "#FFF8EC", ink: "#2A0810" },
+  { name: "Emerald silk", bg: "#0F4034", accent: "#D8B570", surface: "#FBFDF9", ink: "#08201A" },
+  { name: "Midnight gold", bg: "#111C33", accent: "#D9B45B", surface: "#FAFBFF", ink: "#080E1C" },
+  { name: "Ivory champagne", bg: "#F7F2E9", accent: "#C4A164", surface: "#FFFFFF", ink: "#20201C" },
+  { name: "Blush rose", bg: "#8C3A52", accent: "#E7B7A0", surface: "#FFF8F4", ink: "#2B0F18" },
+  { name: "Peacock teal", bg: "#0D4650", accent: "#E09A5A", surface: "#F8FDFD", ink: "#05262C" },
+  { name: "Terracotta sun", bg: "#A8452C", accent: "#F0DCC0", surface: "#FFF8F1", ink: "#2F0F06" },
+  { name: "Sage garden", bg: "#3C4F3D", accent: "#D9C08A", surface: "#FBFDF8", ink: "#1A241A" },
+  { name: "Plum velvet", bg: "#4A1D46", accent: "#E2C07E", surface: "#FFF9FD", ink: "#220A20" },
+  { name: "Saffron bloom", bg: "#B5541B", accent: "#F4C95D", surface: "#FFF9EE", ink: "#341403" },
+];
+
+/** Set the hero layout style on a site's sections (used when a design is applied). */
+function withHeroLayout(sections: any[], layout: ThemeArchetype) {
+  if (!Array.isArray(sections)) return sections;
+  return sections.map((s) =>
+    s?.type === "hero" ? { ...s, data: { ...(s.data || {}), layout } } : s,
+  );
+}
+
 type Custom = {
+  archetype: ThemeArchetype;
   bg: string;
   accent: string;
   surface: string;
@@ -255,6 +278,7 @@ type Custom = {
 
 function customFrom(t: WeddingTheme): Custom {
   return {
+    archetype: t.archetype ?? "classic",
     bg: t.colors.bg,
     accent: t.colors.accent,
     surface: t.colors.surface,
@@ -269,6 +293,7 @@ function customFrom(t: WeddingTheme): Custom {
 function themeWithCustom(t: WeddingTheme, c: Custom): WeddingTheme {
   return {
     ...t,
+    archetype: c.archetype,
     colors: { ...t.colors, bg: c.bg, accent: c.accent, surface: c.surface, ink: c.ink },
     fonts: { display: c.displayFont, body: c.bodyFont },
     heroGradient: `linear-gradient(135deg, ${c.bg} 0%, ${c.accent} 100%)`,
@@ -405,12 +430,19 @@ export default function Themes() {
         navigate("/wizard");
         return;
       }
+      const { data: row } = await supabase
+        .from("wedding_sites")
+        .select("sections")
+        .eq("id", (site as any).id)
+        .maybeSingle();
+      const existingSections = Array.isArray((row as any)?.sections) ? (row as any).sections : null;
       const ok = await updateSite(site.id, {
         theme: active.id,
         suggested_colors: [custom.bg, custom.accent, custom.surface],
         display_font: custom.displayFont,
         body_font: custom.bodyFont,
-      });
+        ...(existingSections ? { sections: withHeroLayout(existingSections, custom.archetype) } : {}),
+      } as any);
       if (ok) {
         toast({ title: "Theme applied", description: `${active.name} is now your site's theme.` });
         navigate(`/editor/${site.id}`);
@@ -438,7 +470,7 @@ export default function Themes() {
     try {
       const c = custom && active?.id === t.id ? custom : customFrom(t);
       const tpl = buildThemeTemplate(t);
-      const sections = buildThemeSections(t);
+      const sections = withHeroLayout(buildThemeSections(t), c.archetype);
       const site = await createSite({
         partner1: tpl.partner1,
         partner2: tpl.partner2,
@@ -495,6 +527,7 @@ export default function Themes() {
         const userSections = Array.isArray((row as any)?.sections) ? (row as any).sections : [];
         sections = mergeSections(userSections, tplSections);
       }
+      sections = withHeroLayout(sections, c.archetype);
       const ok = await updateSite(existingId, {
         theme: t.id,
         suggested_colors: [c.bg, c.accent, c.surface],
@@ -964,6 +997,44 @@ export default function Themes() {
               <div className="grid md:grid-cols-[280px_1fr] gap-0">
                 {/* Controls */}
                 <aside className="border-b md:border-b-0 md:border-r border-border/50 p-5 space-y-6 bg-muted/20">
+                  <section>
+                    <h3 className="font-display text-sm font-semibold mb-2">Layout style</h3>
+                    <select
+                      value={custom.archetype}
+                      onChange={(e) => setCustom({ ...custom, archetype: e.target.value as ThemeArchetype })}
+                      className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      aria-label="Layout style"
+                    >
+                      {THEME_ARCHETYPES.map((a) => (
+                        <option key={a} value={a}>{ARCHETYPE_LABELS[a]}</option>
+                      ))}
+                    </select>
+                    <p className="text-[11px] text-muted-foreground font-body mt-1">
+                      Changes the whole page composition — hero, alignment and section order.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="font-display text-sm font-semibold mb-2">Palette presets</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {PALETTE_PRESETS.map((pp) => (
+                        <button
+                          key={pp.name}
+                          type="button"
+                          onClick={() => setCustom({ ...custom, bg: pp.bg, accent: pp.accent, surface: pp.surface, ink: pp.ink })}
+                          className="rounded-md border border-border/70 bg-background px-2 py-1.5 text-left hover:border-gold/60"
+                        >
+                          <span className="flex gap-1 mb-1">
+                            {[pp.bg, pp.accent, pp.surface].map((c) => (
+                              <span key={c} className="h-3 w-3 rounded-full border border-black/10" style={{ background: c }} />
+                            ))}
+                          </span>
+                          <span className="block text-[10px] font-body text-muted-foreground truncate">{pp.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+
                   <section>
                     <h3 className="font-display text-sm font-semibold mb-3">Colors</h3>
                     <div className="grid grid-cols-2 gap-3">
