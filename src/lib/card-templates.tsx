@@ -768,13 +768,19 @@ export function occasionOf(slug: string): Occasion | undefined {
   return OCCASIONS.includes(candidate) ? candidate : undefined;
 }
 
-function addOccasionTemplate(occ: Occasion, baseSlug: string) {
+function addOccasionTemplate(occ: Occasion, baseSlug: string, edition = 1) {
     const baseMeta = FALLBACK_TEMPLATES.find((t) => t.slug === baseSlug);
     const baseTheme = CARD_THEMES[baseSlug];
     if (!baseMeta || !baseTheme) return;
-    const slug = `${occ}__${baseSlug}`;
+    const editionSuffix = edition > 1 ? `--signature-${edition}` : "";
+    const slug = `${occ}__${baseSlug}${editionSuffix}`;
     if (CARD_THEMES[slug]) return; // already added
-    CARD_THEMES[slug] = baseTheme;
+    CARD_THEMES[slug] = edition === 1 ? baseTheme : {
+      ...baseTheme,
+      headingScale: (baseTheme.headingScale ?? 1) * (edition % 2 === 0 ? 0.94 : 1.06),
+      headingLetterSpacing: (baseTheme.headingLetterSpacing ?? 0.5) + edition * 0.35,
+      qrStyle: (["classic", "framed", "rounded", "ticket", "ribbon", "minimal"] as QrStyle[])[edition % 6],
+    };
     if (TEMPLATE_FACETS[baseSlug]) {
       TEMPLATE_FACETS[slug] = {
         ...TEMPLATE_FACETS[baseSlug],
@@ -783,13 +789,13 @@ function addOccasionTemplate(occ: Occasion, baseSlug: string) {
     }
     FALLBACK_TEMPLATES.push({
       slug,
-      name: `${OCCASION_COPY[occ].headline} · ${baseMeta.name}`,
+      name: `${OCCASION_COPY[occ].headline} · ${baseMeta.name}${edition > 1 ? ` · Signature ${edition}` : ""}`,
       category: baseMeta.category,
       // All occasion variants are premium-standard so every (occasion)
       // filter surfaces ≥20 premium templates.
       is_premium: true,
       is_enabled: true,
-      description: `${OCCASION_LABELS[occ]} card — ${baseMeta.description ?? ""}`.trim(),
+      description: `${OCCASION_LABELS[occ]} card${edition > 1 ? `, signature edition ${edition}` : ""} — ${baseMeta.description ?? ""}`.trim(),
       occasion: occ,
     });
 }
@@ -818,9 +824,12 @@ OCCASIONS.forEach((occasion) => {
       (template) => template.category === category,
     );
 
-    for (const candidate of candidates) {
-      if (currentCount() >= MIN_PREMIUM_PER_CATEGORY_OCCASION) break;
-      addOccasionTemplate(occasion, candidate.slug);
+    let candidateIndex = 0;
+    while (currentCount() < MIN_PREMIUM_PER_CATEGORY_OCCASION && candidates.length > 0) {
+      const candidate = candidates[candidateIndex % candidates.length];
+      const edition = Math.floor(candidateIndex / candidates.length) + 1;
+      addOccasionTemplate(occasion, candidate.slug, edition);
+      candidateIndex += 1;
     }
   });
 });
