@@ -175,7 +175,178 @@ export function ThemeDemo({
       );
       break;
 
+    case "marquee":
+      hero = (
+        <div className={`${heroBase} py-8 text-center`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10">
+            <div className="mb-3 inline-block px-3 py-1 text-[9px] uppercase tracking-[0.35em]" style={{ background: colors.accent, color: colors.bg }}>
+              Save the date
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-bold uppercase leading-[0.95] tracking-[0.04em]" style={{ fontFamily: display }}>
+              {p1} &amp; {p2}
+            </h1>
+            <div className="mt-3 flex items-center justify-center gap-2">
+              {["12", "12", "26"].map((n, i) => (
+                <span key={i} className="min-w-9 rounded-sm px-2 py-1 text-sm" style={{ background: `${colors.accent}26`, color: colors.accent, fontFamily: display }}>
+                  {n}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+      break;
+
+    case "collage":
+      hero = (
+        <div className={`${heroBase} py-6`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10 grid grid-cols-3 gap-1.5">
+            <div className="col-span-2 row-span-2 aspect-[4/3] rounded-sm" style={{ background: `${colors.accent}2E`, border: `1px solid ${colors.accent}66` }} />
+            <div className="aspect-square rounded-sm" style={{ background: `${colors.accent}1A`, border: `1px solid ${colors.accent}44` }} />
+            <div className="aspect-square rounded-sm" style={{ background: `${colors.accent}3D`, border: `1px solid ${colors.accent}44` }} />
+          </div>
+          <div className="relative z-10 mt-3 text-center">
+            <h1 className="text-xl sm:text-2xl" style={{ fontFamily: display }}>
+              {p1} &amp; {p2}
+            </h1>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.28em] opacity-80">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "stamp":
+      hero = (
+        <div className={`${heroBase} py-7 text-center`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div
+            className="relative z-10 mx-auto max-w-[15rem] px-4 py-6"
+            style={{
+              background: `${colors.accent}12`,
+              border: `2px dashed ${colors.accent}AA`,
+              borderRadius: 6,
+            }}
+          >
+            <p className="text-[8px] uppercase tracking-[0.4em] opacity-70">Postmarked with love</p>
+            <h1 className="mt-2 text-xl sm:text-2xl leading-tight" style={{ fontFamily: display }}>
+              {p1} &amp; {p2}
+            </h1>
+            <div className="mx-auto mt-2 h-px w-10" style={{ background: colors.accent }} />
+            <p className="mt-2 text-[10px] opacity-80">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "timeline":
+      hero = (
+        <div className={`${heroBase} py-8`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full" style={{ background: colors.accent }} />
+              <span className="h-px flex-1" style={{ background: `${colors.accent}80` }} />
+              <span className="text-[9px] uppercase tracking-[0.3em] opacity-80">Dec 2026</span>
+            </div>
+            <h1 className="mt-3 text-2xl sm:text-4xl leading-tight" style={{ fontFamily: display }}>
+              {p1} <span style={{ color: colors.accent }}>&amp;</span> {p2}
+            </h1>
+            <p className="mt-2 text-[11px] opacity-80">{sampleTagline}</p>
+            <div className="mt-4 flex gap-1.5">
+              {[0, 1, 2, 3].map((i) => (
+                <span key={i} className="h-1 flex-1 rounded-full" style={{ background: i === 0 ? colors.accent : `${colors.accent}33` }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+      break;
+
+    case "halo":
+      hero = (
+        <div className={`${heroBase} py-9 text-center`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10">
+            <div className="mx-auto mb-3 h-20 w-20 rounded-full" style={{ background: `${colors.accent}2E`, boxShadow: `0 0 0 1px ${colors.accent}, 0 0 0 8px ${colors.accent}1F` }} />
+            <h1 className="text-xl sm:text-3xl leading-tight" style={{ fontFamily: display }}>
+              {p1} &amp; {p2}
+            </h1>
+            <p className="mt-2 text-[10px] uppercase tracking-[0.3em] opacity-80">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "panel":
+      hero = (
+        <div className={`${heroBase} flex gap-0 p-0`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10 w-1/3 self-stretch" style={{ background: `${colors.accent}2E`, borderRight: `1px solid ${colors.accent}80` }}>
+            <div className="flex h-full items-center justify-center py-10">
+              <span className="text-[10px] uppercase tracking-[0.4em] opacity-85" style={{ writingMode: "vertical-rl" }}>
+                The Wedding
+              </span>
+            </div>
+          </div>
+          <div className="relative z-10 flex-1 px-4 py-8">
+            <h1 className="text-2xl sm:text-3xl leading-tight" style={{ fontFamily: display }}>
+              {p1}
+              <br />
+              <span style={{ color: colors.accent }}>{p2}</span>
+            </h1>
+            <p className="mt-3 text-[11px] opacity-80">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "scroll":
+      hero = (
+        <div className={`${heroBase} py-10 text-center`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10 mx-auto max-w-[17rem]">
+            <div className="mx-auto mb-3 h-px w-24" style={{ background: colors.accent }} />
+            <h1 className="text-3xl sm:text-4xl italic leading-[1.15]" style={{ fontFamily: display }}>
+              {p1}
+              <span className="mx-1 not-italic" style={{ color: colors.accent }}>
+                ~
+              </span>
+              {p2}
+            </h1>
+            <div className="mx-auto mt-3 h-px w-24" style={{ background: colors.accent }} />
+            <p className="mt-3 text-[10px] tracking-[0.25em] uppercase opacity-75">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "grid":
+      hero = (
+        <div className={`${heroBase} py-7`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10 grid grid-cols-2 gap-px" style={{ background: `${colors.accent}55` }}>
+            <div className="px-3 py-5" style={{ background: colors.bg }}>
+              <p className="text-[8px] uppercase tracking-[0.3em] opacity-70">Bride</p>
+              <p className="mt-1 text-lg" style={{ fontFamily: display }}>{p2}</p>
+            </div>
+            <div className="px-3 py-5" style={{ background: colors.bg }}>
+              <p className="text-[8px] uppercase tracking-[0.3em] opacity-70">Groom</p>
+              <p className="mt-1 text-lg" style={{ fontFamily: display }}>{p1}</p>
+            </div>
+            <div className="col-span-2 px-3 py-4 text-center" style={{ background: colors.bg }}>
+              <p className="text-[10px] tracking-[0.3em] uppercase" style={{ color: colors.accent }}>
+                {sampleTagline}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+      break;
+
     default:
+
       hero = (
         <div className={`${heroBase} text-center`} style={{ background: heroGradient, color: colors.light }}>
           {Motif}
