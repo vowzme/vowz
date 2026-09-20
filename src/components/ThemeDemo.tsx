@@ -364,8 +364,10 @@ export function ThemeDemo({
       );
   }
 
-  const storyAlign = archetype === "editorial" || archetype === "poster" || archetype === "column" || archetype === "ticket" ? "text-left" : "text-center";
-  const eventsAsList = archetype === "editorial" || archetype === "column" || archetype === "ticket";
+  const LEFT_ALIGNED: ThemeArchetype[] = ["editorial", "poster", "column", "ticket", "timeline", "panel", "grid"];
+  const LIST_EVENTS: ThemeArchetype[] = ["editorial", "column", "ticket", "timeline", "panel", "stamp"];
+  const storyAlign = LEFT_ALIGNED.includes(archetype) ? "text-left" : "text-center";
+  const eventsAsList = LIST_EVENTS.includes(archetype);
 
   const story = (
     <div className={`px-5 py-6 ${storyAlign}`}>
@@ -424,7 +426,7 @@ export function ThemeDemo({
   );
 
   // Some archetypes lead with the schedule rather than the story.
-  const eventsFirst = archetype === "poster" || archetype === "ticket";
+  const eventsFirst = ["poster", "ticket", "marquee", "timeline", "grid"].includes(archetype);
 
   return (
     <div
