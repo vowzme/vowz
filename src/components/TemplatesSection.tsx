@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Lightbox from "@/components/Lightbox";
 import { CARD_THEMES, FALLBACK_TEMPLATES, InvitationCardArtwork, OCCASIONS, OCCASION_LABELS } from "@/lib/card-templates";
 import { EXTRA_TEMPLATES } from "@/lib/template-extras";
+import { TemplateTileArt, TemplateHeroArt, TEMPLATE_LAYOUT_LABELS, getTemplateLayout } from "@/lib/template-layouts";
 
 export interface TemplateData {
   name: string;
@@ -1438,75 +1439,8 @@ export function TemplatePreviewModal({ template: t, onClose, onUseTemplate }: { 
           <X className="w-5 h-5" />
         </button>
 
-        {/* ── Hero Section with Parallax ── */}
-        <div className="relative overflow-hidden" style={{ minHeight: "min(480px, 85vh)" }}>
-          {/* Parallax hero background */}
-          <div
-            className="absolute inset-0 will-change-transform"
-            style={{ transform: `translateY(${parallaxY}px) scale(1.15)`, top: "-15%" , bottom: "-15%" }}
-          >
-            <img src={t.heroPhoto} alt={`${t.couple} wedding venue at ${t.venue}`} className="w-full h-full object-cover" />
-            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bg}bb 0%, ${bg}88 40%, ${bg}dd 100%)` }} />
-          </div>
-
-          <div className="relative z-10 pt-16 pb-8 px-6 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              <Heart className="w-8 h-8 mx-auto mb-4" style={{ color: accent }} fill="currentColor" />
-              <p className="font-body text-sm tracking-[0.25em] uppercase mb-3" style={{ color: `${text}90` }}>
-                You're Invited to the Wedding of
-              </p>
-            </motion.div>
-            <motion.h2
-              className="font-display text-4xl sm:text-5xl md:text-7xl font-bold mb-3 drop-shadow-lg"
-              style={{ color: text }}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.6 }}
-            >
-              {t.partner1} <span className="font-normal italic text-2xl sm:text-3xl md:text-4xl mx-1 sm:mx-2" style={{ color: accent }}>&</span> {t.partner2}
-            </motion.h2>
-            <motion.p
-              className="font-display text-xl italic mb-6"
-              style={{ color: accent }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              {t.tagline}
-            </motion.p>
-
-            {/* Couple photo circle */}
-            <motion.div
-              className="mx-auto mb-4 sm:mb-6 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 shadow-xl"
-              style={{ borderColor: accent }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.5, type: "spring", stiffness: 200 }}
-            >
-              <img src={t.couplePhoto} alt={`Portrait of ${t.couple}`} className="w-full h-full object-cover" />
-            </motion.div>
-
-            <motion.div
-              className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm"
-              style={{ color: `${text}cc` }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-            >
-              <span className="flex items-center gap-1.5 font-body">
-                <Calendar className="w-4 h-4" /> {t.weddingDate}
-              </span>
-              <span className="w-1 h-1 rounded-full hidden sm:block" style={{ backgroundColor: accent }} />
-              <span className="flex items-center gap-1.5 font-body">
-                <MapPin className="w-4 h-4" /> {t.location}
-              </span>
-            </motion.div>
-          </div>
-        </div>
+        {/* ── Hero (layout style varies per template) ── */}
+        <TemplateHeroArt t={t} parallaxY={parallaxY} />
 
         {/* ── Countdown Section ── */}
         <motion.div
@@ -1815,33 +1749,14 @@ const TemplatesSection = () => {
                 onClick={() => setSelectedTemplate(t)}
               >
                 <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
-                  {/* Template preview with hero photo */}
                   <div className="h-52 sm:h-60 relative">
-                    <img src={t.heroPhoto} alt={`${t.name} wedding template preview – ${t.style} theme`} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${t.colors[0]}88 0%, ${t.colors[0]}cc 50%, ${t.colors[0]}ee 100%)` }} />
-                    
-                    {/* Content overlay */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                      {/* Couple photo circle */}
-                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 mb-3 shadow-lg" style={{ borderColor: t.colors[1] }}>
-                        <img src={t.couplePhoto} alt={`${t.couple} portrait`} className="w-full h-full object-cover" />
-                      </div>
-                      <Heart className="w-3.5 h-3.5 mb-1.5" style={{ color: t.colors[1] }} fill="currentColor" />
-                      <p className="font-display text-2xl font-bold drop-shadow-md" style={{ color: t.colors[2] }}>
-                        {t.couple}
-                      </p>
-                      <p className="font-body text-xs mt-1 drop-shadow-sm" style={{ color: t.colors[2] + "cc" }}>
-                        {t.weddingDate}
-                      </p>
-                      <p className="font-body text-[10px] mt-0.5 flex items-center gap-1 drop-shadow-sm" style={{ color: t.colors[2] + "99" }}>
-                        <MapPin className="w-3 h-3" /> {t.location}
-                      </p>
-                    </div>
-
-                    {/* Hover overlay */}
+                    <TemplateTileArt t={t} />
+                    <span className="absolute top-2 left-2 z-10 rounded-full bg-black/40 backdrop-blur-sm px-2.5 py-1 text-[10px] font-body tracking-wide text-white border border-white/20">
+                      {TEMPLATE_LAYOUT_LABELS[getTemplateLayout(t.name)]}
+                    </span>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                       <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 text-white bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-full font-body text-sm font-medium flex items-center gap-2 border border-white/30">
-                        <Eye className="w-4 h-4" /> Preview Template
+                        Preview Template
                       </span>
                     </div>
                   </div>
