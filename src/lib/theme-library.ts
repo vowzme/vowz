@@ -106,12 +106,12 @@ function build(fam: Family, pal: Palette, luxe: boolean, seed: number): WeddingT
 function generate(luxe: boolean, count: number): WeddingTheme[] {
   const palettes = luxe ? LUXE_PALETTES : STANDARD_PALETTES;
   const out: WeddingTheme[] = [];
-  for (const pal of palettes) {
-    for (const fam of FAMILIES) {
-      out.push(build(fam, pal, luxe));
-      if (out.length >= count) return out;
-    }
-  }
+  palettes.forEach((pal, pi) => {
+    FAMILIES.forEach((fam, fi) => {
+      if (out.length >= count) return;
+      out.push(build(fam, pal, luxe, pi + fi + (luxe ? 3 : 0)));
+    });
+  });
   return out;
 }
 
