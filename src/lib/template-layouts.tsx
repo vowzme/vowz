@@ -1,6 +1,5 @@
-// Ten distinct premium layout styles for the wedding website templates.
-// Each template is deterministically assigned one style, so the /templates
-// gallery shows genuinely different compositions instead of one recoloured tile.
+// One hundred premium design recipes for the wedding website templates.
+// Every recipe combines a structural layout with its own framing treatment.
 
 import { Heart, MapPin, Calendar } from "lucide-react";
 
@@ -34,6 +33,36 @@ export const TEMPLATE_LAYOUT_LABELS: Record<TemplateLayoutId, string> = TEMPLATE
   {} as Record<TemplateLayoutId, string>,
 );
 
+const RECIPE_EDITIONS = [
+  "Gilded edge",
+  "Botanical corners",
+  "Pearl frame",
+  "Temple lines",
+  "Festive confetti",
+  "Silk ribbon",
+  "Heritage seal",
+  "Moonlit border",
+  "Modern rails",
+  "Fine art mat",
+] as const;
+
+export type TemplateRecipe = {
+  id: string;
+  label: string;
+  layout: TemplateLayoutId;
+  edition: number;
+};
+
+/** 10 compositions × 10 art directions = 100 unique, stable recipes. */
+export const TEMPLATE_RECIPES: TemplateRecipe[] = TEMPLATE_LAYOUTS.flatMap((layout, layoutIndex) =>
+  RECIPE_EDITIONS.map((edition, editionIndex) => ({
+    id: `${layout.id}-${editionIndex + 1}`,
+    label: `${layout.label} · ${edition}`,
+    layout: layout.id,
+    edition: (editionIndex + layoutIndex) % RECIPE_EDITIONS.length,
+  })),
+);
+
 /** Stable hash so a template always keeps the same layout across renders. */
 function hash(name: string) {
   let h = 0;
@@ -41,8 +70,17 @@ function hash(name: string) {
   return h;
 }
 
-export function getTemplateLayout(name: string): TemplateLayoutId {
-  return TEMPLATE_LAYOUTS[hash(name) % TEMPLATE_LAYOUTS.length].id;
+export function getTemplateRecipe(name: string, designIndex?: number): TemplateRecipe {
+  const index = typeof designIndex === "number" ? designIndex : hash(name);
+  return TEMPLATE_RECIPES[((index % TEMPLATE_RECIPES.length) + TEMPLATE_RECIPES.length) % TEMPLATE_RECIPES.length];
+}
+
+export function getTemplateLayout(name: string, designIndex?: number): TemplateLayoutId {
+  return getTemplateRecipe(name, designIndex).layout;
+}
+
+export function getTemplateRecipeLabel(name: string, designIndex?: number): string {
+  return getTemplateRecipe(name, designIndex).label;
 }
 
 type Art = {
@@ -80,8 +118,8 @@ const initials = (t: Art) => `${t.partner1.charAt(0)}${t.partner2.charAt(0)}`.to
  * The tile artwork shown in the template grid. Fills its parent box.
  * Mobile-first: no fixed pixel widths, type scales with the breakpoint.
  */
-export function TemplateTileArt({ t, layout }: { t: Art; layout?: TemplateLayoutId }) {
-  const l = layout ?? getTemplateLayout(t.name ?? t.couple);
+function TemplateTileComposition({ t, layout }: { t: Art; layout: TemplateLayoutId }) {
+  const l = layout;
   const [bg, accent, rawText] = t.colors;
   const text = readable(rawText, bg);
 
@@ -269,8 +307,8 @@ export function TemplateTileArt({ t, layout }: { t: Art; layout?: TemplateLayout
  * The full-width hero used at the top of the template preview — one composition
  * per layout style so the preview matches the tile.
  */
-export function TemplateHeroArt({ t, layout, parallaxY = 0 }: { t: Art; layout?: TemplateLayoutId; parallaxY?: number }) {
-  const l = layout ?? getTemplateLayout(t.name ?? t.couple);
+function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout: TemplateLayoutId; parallaxY?: number }) {
+  const l = layout;
   const [bg, accent, rawText] = t.colors;
   const text = readable(rawText, bg);
 
@@ -478,4 +516,53 @@ export function TemplateHeroArt({ t, layout, parallaxY = 0 }: { t: Art; layout?:
         </div>
       );
   }
+}
+
+function RecipeOrnament({ edition, accent }: { edition: number; accent: string }) {
+  const common = "pointer-events-none absolute z-20";
+  switch (edition) {
+    case 0:
+      return <div className={`${common} inset-2 border`} style={{ borderColor: `${accent}99` }} />;
+    case 1:
+      return <><span className={`${common} left-3 top-3 h-8 w-8 rounded-tl-3xl border-l-2 border-t-2`} style={{ borderColor: accent }} /><span className={`${common} bottom-3 right-3 h-8 w-8 rounded-br-3xl border-b-2 border-r-2`} style={{ borderColor: accent }} /></>;
+    case 2:
+      return <div className={`${common} inset-2 rounded-[1.5rem] border-2`} style={{ borderColor: `${accent}88` }} />;
+    case 3:
+      return <><span className={`${common} left-4 top-0 h-full w-px`} style={{ backgroundColor: `${accent}77` }} /><span className={`${common} right-4 top-0 h-full w-px`} style={{ backgroundColor: `${accent}77` }} /></>;
+    case 4:
+      return <div className={`${common} left-3 right-3 top-3 flex justify-between`} style={{ color: accent }}><span>✦</span><span>•</span><span>✦</span><span>•</span><span>✦</span></div>;
+    case 5:
+      return <div className={`${common} -right-8 top-6 w-28 rotate-45 border-y py-1 text-center text-[8px] font-semibold uppercase tracking-widest`} style={{ color: accent, borderColor: accent }}>Together</div>;
+    case 6:
+      return <div className={`${common} bottom-3 left-1/2 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border text-[10px] font-bold`} style={{ color: accent, borderColor: accent }}>V</div>;
+    case 7:
+      return <><span className={`${common} left-3 top-1/2 h-12 w-px -translate-y-1/2`} style={{ backgroundColor: accent }} /><span className={`${common} right-3 top-1/2 h-12 w-px -translate-y-1/2`} style={{ backgroundColor: accent }} /></>;
+    case 8:
+      return <div className={`${common} inset-x-0 bottom-0 h-1`} style={{ backgroundColor: accent }} />;
+    case 9:
+    default:
+      return <div className={`${common} inset-3 border-4`} style={{ borderColor: `${accent}55` }} />;
+  }
+}
+
+export function TemplateTileArt({ t, layout, designIndex }: { t: Art; layout?: TemplateLayoutId; designIndex?: number }) {
+  const recipe = getTemplateRecipe(t.name ?? t.couple, designIndex);
+  const resolvedLayout = layout ?? recipe.layout;
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <TemplateTileComposition t={t} layout={resolvedLayout} />
+      <RecipeOrnament edition={recipe.edition} accent={t.colors[1]} />
+    </div>
+  );
+}
+
+export function TemplateHeroArt({ t, layout, designIndex, parallaxY = 0 }: { t: Art; layout?: TemplateLayoutId; designIndex?: number; parallaxY?: number }) {
+  const recipe = getTemplateRecipe(t.name ?? t.couple, designIndex);
+  const resolvedLayout = layout ?? recipe.layout;
+  return (
+    <div className="relative overflow-hidden">
+      <TemplateHeroComposition t={t} layout={resolvedLayout} parallaxY={parallaxY} />
+      <RecipeOrnament edition={recipe.edition} accent={t.colors[1]} />
+    </div>
+  );
 }
