@@ -136,9 +136,9 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {data.cardTemplate && (
+            {data.cardTemplate && siteId && (
               <Button variant="outline" size="sm" asChild>
-                <Link to={`/invitation-card?template=${encodeURIComponent(data.cardTemplate)}`}>
+                <Link to={`/invitation-card/${siteId}?template=${encodeURIComponent(data.cardTemplate)}`}>
                   Design your card
                 </Link>
               </Button>
