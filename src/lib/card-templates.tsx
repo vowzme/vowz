@@ -747,8 +747,8 @@ const OCCASION_BASE_THEMES: Record<Occasion, string[]> = {
   ],
 };
 
-const PREMIUM_BASE_TEMPLATES = FALLBACK_TEMPLATES.filter(
-  (template) => template.is_premium && !template.occasion,
+const CATEGORY_BASE_TEMPLATES = FALLBACK_TEMPLATES.filter(
+  (template) => !template.slug.includes("__"),
 );
 
 function _titleCase(slug: string): string {
@@ -814,7 +814,7 @@ OCCASIONS.forEach((occasion) => {
         && (template.occasion ?? "wedding") === occasion,
     ).length;
 
-    const candidates = PREMIUM_BASE_TEMPLATES.filter(
+    const candidates = CATEGORY_BASE_TEMPLATES.filter(
       (template) => template.category === category,
     );
 
