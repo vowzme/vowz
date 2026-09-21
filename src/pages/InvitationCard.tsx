@@ -20,6 +20,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useMediaUpload } from "@/hooks/use-media-upload";
+import { useIsMobile } from "@/hooks/use-mobile";
 import SEOHead from "@/components/SEOHead";
 import {
   CARD_THEMES, CATEGORY_LABELS, CardCategory, CardTemplateMeta, FALLBACK_TEMPLATES,
@@ -98,6 +99,7 @@ export default function InvitationCard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { upload } = useMediaUpload();
+  const isMobile = useIsMobile();
   const cardRef = useRef<HTMLDivElement>(null);
   const exportContainerRef = useRef<HTMLDivElement>(null);
 
@@ -726,7 +728,7 @@ export default function InvitationCard() {
         </div>
       </header>
 
-      <div className="grid lg:grid-cols-[1fr_480px] gap-6 p-4 sm:p-6 max-w-7xl mx-auto">
+      <div className="grid lg:grid-cols-[1fr_480px] gap-6 p-3 sm:p-6 max-w-7xl mx-auto">
         {/* Preview area */}
         <div className="flex flex-col items-center">
           {/* Page picker */}
@@ -897,7 +899,7 @@ export default function InvitationCard() {
 
           <div className="rounded-lg p-4 sm:p-8 bg-muted/30 w-full flex flex-col items-center">
 
-            <div ref={cardRef}>
+            <div ref={cardRef} className="max-w-full overflow-hidden rounded-sm shadow-elegant">
               <InvitationCardArtwork
                 data={{
                   partner1: form.partner1 || "Partner One",
@@ -910,7 +912,7 @@ export default function InvitationCard() {
                   photo: form.photo || undefined,
                 }}
                 theme={theme}
-                width={460}
+                width={isMobile ? 300 : 460}
                 page={currentPage}
                 qrPosition={currentPage.showQr ? currentPage.qrPosition : "hidden"}
                 qrSlot={
@@ -928,23 +930,25 @@ export default function InvitationCard() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-5">
+        <div className="space-y-5 [&_[role=combobox]]:min-h-11 sm:[&_[role=combobox]]:min-h-9 [&_input]:min-h-11 sm:[&_input]:min-h-9">
           <Tabs defaultValue="template">
-            <TabsList className="grid grid-cols-6 w-full">
-              <TabsTrigger value="template" className="text-xs">Template</TabsTrigger>
-              <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
-              <TabsTrigger value="page" className="text-xs">Page</TabsTrigger>
-              <TabsTrigger value="style" className="text-xs"><PaletteIcon className="w-3 h-3" /></TabsTrigger>
-              <TabsTrigger value="print" className="text-xs"><Printer className="w-3 h-3" /></TabsTrigger>
-              <TabsTrigger value="saved" className="text-xs">Saved</TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto pb-1">
+              <TabsList className="grid grid-cols-6 min-w-[500px] w-full h-12 sm:h-10">
+                <TabsTrigger value="template" className="text-xs h-10">Templates</TabsTrigger>
+                <TabsTrigger value="content" className="text-xs h-10">Details</TabsTrigger>
+                <TabsTrigger value="page" className="text-xs h-10">Pages</TabsTrigger>
+                <TabsTrigger value="style" className="text-xs h-10 gap-1"><PaletteIcon className="w-3.5 h-3.5" /> Style</TabsTrigger>
+                <TabsTrigger value="print" className="text-xs h-10 gap-1"><Printer className="w-3.5 h-3.5" /> Print</TabsTrigger>
+                <TabsTrigger value="saved" className="text-xs h-10">Saved</TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Template picker */}
             <TabsContent value="template" className="mt-3 space-y-3">
               <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as CardCategory)}>
-                <TabsList className="grid grid-cols-2 gap-1 h-auto">
+                <TabsList className="grid grid-cols-2 gap-1 h-auto p-1">
                   {(Object.keys(CATEGORY_LABELS) as CardCategory[]).map((c) => (
-                    <TabsTrigger key={c} value={c} className="text-xs">{CATEGORY_LABELS[c]}</TabsTrigger>
+                    <TabsTrigger key={c} value={c} className="text-xs min-h-11 sm:min-h-9 whitespace-normal leading-tight py-2">{CATEGORY_LABELS[c]}</TabsTrigger>
                   ))}
                 </TabsList>
               </Tabs>
@@ -955,11 +959,11 @@ export default function InvitationCard() {
                   value={galleryQuery}
                   onChange={(e) => setGalleryQuery(e.target.value)}
                   placeholder="Search templates by name, tag, or style…"
-                  className="h-8 text-xs"
+                  className="h-11 sm:h-9 text-xs"
                 />
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <Select value={galleryOrientation} onValueChange={(v) => setGalleryOrientation(v as any)}>
-                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Orientation" /></SelectTrigger>
+                    <SelectTrigger className="h-11 sm:h-9 text-xs"><SelectValue placeholder="Orientation" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Any orientation</SelectItem>
                       {(Object.keys(ORIENTATION_LABELS) as TemplateOrientation[]).map((o) => (
@@ -968,7 +972,7 @@ export default function InvitationCard() {
                     </SelectContent>
                   </Select>
                   <Select value={galleryFocus} onValueChange={(v) => setGalleryFocus(v as any)}>
-                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Layout" /></SelectTrigger>
+                    <SelectTrigger className="h-11 sm:h-9 text-xs"><SelectValue placeholder="Layout" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Any layout</SelectItem>
                       {(Object.keys(FOCUS_LABELS) as TemplateFocus[]).map((f) => (
@@ -977,7 +981,7 @@ export default function InvitationCard() {
                     </SelectContent>
                   </Select>
                   <Select value={galleryShowPremium} onValueChange={(v) => setGalleryShowPremium(v as any)}>
-                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Tier" /></SelectTrigger>
+                    <SelectTrigger className="h-11 sm:h-9 text-xs"><SelectValue placeholder="Tier" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All tiers</SelectItem>
                       <SelectItem value="free">Free only</SelectItem>
