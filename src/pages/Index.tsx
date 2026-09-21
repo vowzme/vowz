@@ -73,16 +73,16 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Vowz — Create Beautiful Wedding Websites & Invites"
-        description="Create stunning, personalized wedding websites in minutes. RSVP management, photo gallery, event schedules — celebrate every moment beautifully."
-        ogTitle="Vowz – Digital Wedding Invitations & Websites"
+        title="Wedding Planning, Websites & Invitation Cards | Vowz"
+        description="Plan your wedding with Vowz: build a mobile-friendly wedding website, manage RSVPs, create invitation cards, track guests, budgets and checklists."
+        ogTitle="Vowz — Wedding Planning, Websites & Invitation Cards"
         ogDescription={`Create stunning wedding websites in minutes. Free 7-day trial, Premium from ${formatPrice(pricing, "premium")}/year. WhatsApp sharing, RSVP, and more.`}
         ogImage="https://vowz.me/og-home.jpg"
         ogUrl="https://vowz.me"
         ogType="website"
         twitterCard="summary_large_image"
-        twitterTitle="Vowz – Wedding Invitations & Websites"
-        twitterDescription="Free digital wedding cards & websites. RSVP, photo gallery, multilingual & more."
+        twitterTitle="Vowz — Wedding Planning, Websites & Invitation Cards"
+        twitterDescription="Create wedding websites and invitation cards, manage RSVPs, guests, budgets and planning checklists in one place."
         twitterImage="https://vowz.me/og-home.jpg"
         canonical="https://vowz.me"
         robots="index, follow"

@@ -239,8 +239,8 @@ export default function CardGallery() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Premium Wedding Invitation Card Templates – Vowz"
-        description={`Browse ${FALLBACK_TEMPLATES.length}+ editable invitation card designs for weddings, engagements, receptions, Nikah, Sangeet and more. Download as PDF or image.`}
+        title={`${FALLBACK_TEMPLATES.length}+ Wedding Invitation Card Templates | Vowz`}
+        description={`Create a wedding invitation card from ${FALLBACK_TEMPLATES.length}+ editable designs for weddings, engagements, receptions, Nikah and Sangeet. Download free PDF, PNG or JPG files.`}
         canonical="https://vowz.me/card-gallery"
         robots="index, follow"
       />
