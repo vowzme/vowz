@@ -181,10 +181,10 @@ function TemplateTileComposition({ t, layout }: { t: Art; layout: TemplateLayout
   const text = readable(rawText, bg);
 
   const Photo = ({ className = "" }: { className?: string }) => (
-    <img src={t.heroPhoto} alt={`${t.couple} wedding template preview`} className={`w-full h-full object-cover ${className}`} loading="lazy" />
+    <img src={t.heroPhoto} alt={`${t.couple} wedding template preview`} className={`w-full h-full object-cover ${className}`} loading="lazy" decoding="async" />
   );
   const Portrait = ({ className = "" }: { className?: string }) => (
-    <img src={t.couplePhoto} alt={`Portrait of ${t.couple}`} className={`w-full h-full object-cover ${className}`} loading="lazy" />
+    <img src={t.couplePhoto} alt={`Portrait of ${t.couple}`} className={`w-full h-full object-cover ${className}`} loading="lazy" decoding="async" />
   );
 
   switch (l) {
@@ -372,7 +372,7 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
   const Bg = ({ opacity = 1 }: { opacity?: number }) => (
     <div className="absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 will-change-transform" style={{ transform: `translateY(${parallaxY}px) scale(1.15)` }}>
-        <img src={t.heroPhoto} alt={`${t.couple} wedding venue at ${t.venue}`} className="w-full h-full object-cover" style={{ opacity }} />
+        <img src={t.heroPhoto} alt={`${t.couple} wedding venue at ${t.venue}`} className="w-full h-full object-cover" style={{ opacity }} loading="lazy" decoding="async" />
       </div>
       <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bg}bb 0%, ${bg}88 40%, ${bg}dd 100%)` }} />
     </div>
@@ -393,7 +393,7 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
       return (
         <div className="relative grid grid-cols-1 md:grid-cols-2" style={{ backgroundColor: bg, minHeight: "min(480px, 85vh)" }}>
           <div className="relative min-h-[220px] md:min-h-full">
-            <img src={t.heroPhoto} alt={t.couple} className="absolute inset-0 w-full h-full object-cover" />
+            <img src={t.heroPhoto} alt={t.couple} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
           </div>
           <div className="flex flex-col justify-center px-6 sm:px-10 py-10 text-left">
             <p className="font-body text-xs tracking-[0.35em] uppercase mb-4" style={{ color: `${text}99` }}>The Wedding of</p>
@@ -432,7 +432,7 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
           <Bg opacity={0.4} />
           <div className="relative z-10 flex flex-col items-center px-6 pt-14 pb-10 text-center">
             <div className="h-56 w-40 sm:h-72 sm:w-56 overflow-hidden rounded-t-full border-4 shadow-2xl" style={{ borderColor: accent }}>
-              <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+              <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" loading="lazy" decoding="async" />
             </div>
             <h2 className="font-display text-4xl sm:text-5xl font-bold mt-6" style={{ color: text }}>
               {t.partner1} <span className="italic font-normal" style={{ color: accent }}>&amp;</span> {t.partner2}
@@ -467,7 +467,7 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
             <div className="mx-auto max-w-xl border-2 border-dashed p-5 sm:p-8" style={{ borderColor: `${accent}aa` }}>
               <div className="flex flex-col sm:flex-row items-center gap-5">
                 <div className="h-32 w-28 flex-shrink-0 overflow-hidden border-4" style={{ borderColor: accent }}>
-                  <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+                  <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
                 <div className="text-center sm:text-left">
                   <p className="font-body text-[11px] tracking-[0.3em] uppercase" style={{ color: accent }}>Save the date</p>
@@ -502,8 +502,8 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
       return (
         <div className={wrap} style={{ minHeight: "min(480px, 85vh)", backgroundColor: bg }}>
           <div className="grid grid-cols-2 gap-1 p-1">
-            <div className="aspect-[4/5] overflow-hidden"><img src={t.heroPhoto} alt={t.couple} className="w-full h-full object-cover" /></div>
-            <div className="aspect-[4/5] overflow-hidden"><img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" /></div>
+            <div className="aspect-[4/5] overflow-hidden"><img src={t.heroPhoto} alt={t.couple} className="w-full h-full object-cover" loading="lazy" decoding="async" /></div>
+            <div className="aspect-[4/5] overflow-hidden"><img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" loading="lazy" decoding="async" /></div>
           </div>
           <div className="px-6 py-8 text-center">
             <h2 className="font-display text-3xl sm:text-5xl font-bold" style={{ color: text }}>
@@ -539,7 +539,7 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
             <div className="relative mb-6">
               <div className="absolute -inset-3 rounded-full" style={{ border: `1px solid ${accent}66` }} />
               <div className="h-36 w-36 sm:h-48 sm:w-48 rounded-full overflow-hidden border-4 shadow-2xl" style={{ borderColor: accent }}>
-                <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" />
+                <img src={t.couplePhoto} alt={t.couple} className="w-full h-full object-cover" loading="lazy" decoding="async" />
               </div>
             </div>
             <h2 className="font-display text-4xl sm:text-6xl font-bold" style={{ color: text }}>{t.couple}</h2>
@@ -565,7 +565,7 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
               </h2>
               <p className="font-display text-xl italic mb-6" style={{ color: accent }}>{t.tagline}</p>
               <div className="mx-auto mb-6 w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 shadow-xl" style={{ borderColor: accent }}>
-                <img src={t.couplePhoto} alt={`Portrait of ${t.couple}`} className="w-full h-full object-cover" />
+                <img src={t.couplePhoto} alt={`Portrait of ${t.couple}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
               </div>
               <Meta />
             </div>
@@ -606,8 +606,9 @@ export function TemplateTileArt({ t, layout, designIndex }: { t: Art; layout?: T
   const recipe = getTemplateRecipe(t.name ?? t.couple, designIndex);
   const resolvedLayout = layout ?? recipe.layout;
   return (
-    <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "240px" } as React.CSSProperties}>
       <TemplateTileComposition t={t} layout={resolvedLayout} />
+      <LuxeSurface edition={recipe.edition} accent={t.colors[1]} bg={t.colors[0]} />
       <RecipeOrnament edition={recipe.edition} accent={t.colors[1]} />
     </div>
   );
@@ -619,6 +620,7 @@ export function TemplateHeroArt({ t, layout, designIndex, parallaxY = 0 }: { t: 
   return (
     <div className="relative overflow-hidden">
       <TemplateHeroComposition t={t} layout={resolvedLayout} parallaxY={parallaxY} />
+      <LuxeSurface edition={recipe.edition} accent={t.colors[1]} bg={t.colors[0]} />
       <RecipeOrnament edition={recipe.edition} accent={t.colors[1]} />
     </div>
   );
