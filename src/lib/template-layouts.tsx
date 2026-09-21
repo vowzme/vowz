@@ -606,7 +606,7 @@ export function TemplateTileArt({ t, layout, designIndex }: { t: Art; layout?: T
   const recipe = getTemplateRecipe(t.name ?? t.couple, designIndex);
   const resolvedLayout = layout ?? recipe.layout;
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "240px" } as React.CSSProperties}>
+    <div className="absolute inset-0 overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "240px" }}>
       <TemplateTileComposition t={t} layout={resolvedLayout} />
       <LuxeSurface edition={recipe.edition} accent={t.colors[1]} bg={t.colors[0]} />
       <RecipeOrnament edition={recipe.edition} accent={t.colors[1]} />

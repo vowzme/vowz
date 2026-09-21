@@ -145,7 +145,7 @@ const Templates = () => {
                 key={t.name}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(i * 0.05, 0.5) }}
+                transition={{ delay: Math.min(i * 0.03, 0.3) }}
                 className="group cursor-pointer"
                 onClick={() => setSelectedTemplate(t)}
                 role="button"
@@ -158,8 +158,8 @@ const Templates = () => {
                   }
                 }}
               >
-                <div className="relative rounded-xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-border/50 hover:-translate-y-1">
-                  <div className="h-56 sm:h-60 relative">
+                <div className="relative rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-300 border border-gold/20 hover:border-gold/60 hover:-translate-y-1 bg-card">
+                  <div className="h-64 sm:h-60 relative">
                     <TemplateTileArt t={t} designIndex={designIndex} />
 
                     <span className="absolute top-2 left-2 z-10 rounded-full bg-black/40 backdrop-blur-sm px-2.5 py-1 text-[10px] font-body tracking-wide text-white border border-white/20">
@@ -188,7 +188,7 @@ const Templates = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 font-body"
+                        className="flex-1 font-body h-11 sm:h-9"
                         onClick={(e) => { e.stopPropagation(); setSelectedTemplate(t); }}
                         aria-label={`Preview the ${t.name} template with demo content`}
                       >
@@ -196,7 +196,7 @@ const Templates = () => {
                       </Button>
                       <Button
                         size="sm"
-                        className="flex-1 font-body"
+                        className="flex-1 font-body h-11 sm:h-9"
                         onClick={(e) => { e.stopPropagation(); handleUseTemplate(t); }}
                         aria-label={`Use the ${t.name} template`}
                       >
