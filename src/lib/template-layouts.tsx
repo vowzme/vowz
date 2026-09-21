@@ -115,6 +115,63 @@ function readable(text: string, bg: string) {
 const initials = (t: Art) => `${t.partner1.charAt(0)}${t.partner2.charAt(0)}`.toUpperCase();
 
 /**
+ * Per-edition decorative surface: pure CSS gradients, so it costs no extra
+ * network requests and stays crisp on every screen density.
+ */
+function luxeTexture(edition: number, accent: string, bg: string): string {
+  const a = (o: string) => `${accent}${o}`;
+  switch (edition % 10) {
+    case 0: // Gilded edge — soft foil glow from the corners
+      return `radial-gradient(120% 80% at 0% 0%, ${a("22")} 0%, transparent 55%), radial-gradient(120% 80% at 100% 100%, ${a("22")} 0%, transparent 55%)`;
+    case 1: // Botanical corners — leafy arcs
+      return `radial-gradient(60% 40% at 0% 100%, ${a("26")} 0%, transparent 60%), radial-gradient(50% 35% at 100% 0%, ${a("1f")} 0%, transparent 60%)`;
+    case 2: // Pearl frame — pearly sheen
+      return `linear-gradient(135deg, ${a("1a")} 0%, transparent 35%, ${a("14")} 65%, transparent 100%)`;
+    case 3: // Temple lines — fine vertical rhythm
+      return `repeating-linear-gradient(90deg, ${a("18")} 0px, ${a("18")} 1px, transparent 1px, transparent 14px)`;
+    case 4: // Festive confetti — dotted scatter
+      return `radial-gradient(${a("2e")} 1.2px, transparent 1.4px), radial-gradient(${a("1c")} 1px, transparent 1.2px)`;
+    case 5: // Silk ribbon — diagonal silk weave
+      return `repeating-linear-gradient(45deg, ${a("14")} 0px, ${a("14")} 2px, transparent 2px, transparent 12px)`;
+    case 6: // Heritage seal — aged medallion wash
+      return `radial-gradient(70% 70% at 50% 50%, ${a("1f")} 0%, transparent 70%)`;
+    case 7: // Moonlit border — top-lit halo
+      return `radial-gradient(90% 55% at 50% 0%, ${a("2a")} 0%, transparent 65%)`;
+    case 8: // Modern rails — horizontal rails
+      return `repeating-linear-gradient(0deg, ${a("14")} 0px, ${a("14")} 1px, transparent 1px, transparent 18px)`;
+    case 9:
+    default: // Fine art mat — museum mat wash
+      return `linear-gradient(180deg, ${bg}00 0%, ${a("16")} 100%)`;
+  }
+}
+
+function LuxeSurface({ edition, accent, bg, rounded }: { edition: number; accent: string; bg: string; rounded?: boolean }) {
+  const dotted = edition % 10 === 4;
+  return (
+    <div className={`pointer-events-none absolute inset-0 z-10 ${rounded ? "rounded-xl" : ""}`} aria-hidden="true">
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: luxeTexture(edition, accent, bg),
+          backgroundSize: dotted ? "22px 22px, 34px 34px" : undefined,
+          backgroundPosition: dotted ? "0 0, 11px 17px" : undefined,
+        }}
+      />
+      {/* foil sheen */}
+      <div
+        className="absolute inset-0 mix-blend-soft-light"
+        style={{ background: `linear-gradient(115deg, #ffffff00 20%, #ffffff55 42%, #ffffff00 60%)` }}
+      />
+      {/* vignette for depth */}
+      <div
+        className="absolute inset-0"
+        style={{ boxShadow: `inset 0 0 60px ${bg}80, inset 0 -40px 60px -40px #00000055` }}
+      />
+    </div>
+  );
+}
+
+/**
  * The tile artwork shown in the template grid. Fills its parent box.
  * Mobile-first: no fixed pixel widths, type scales with the breakpoint.
  */
