@@ -957,12 +957,14 @@ export type Database = {
         Row: {
           created_at: string
           guest_email: string | null
+          guest_group: string | null
           guest_name: string
           guest_phone: string | null
           id: string
           notes: string | null
           plus_ones_allowed: number
           rsvp_id: string | null
+          tags: string[]
           token: string
           updated_at: string
           wedding_site_id: string
@@ -970,12 +972,14 @@ export type Database = {
         Insert: {
           created_at?: string
           guest_email?: string | null
+          guest_group?: string | null
           guest_name: string
           guest_phone?: string | null
           id?: string
           notes?: string | null
           plus_ones_allowed?: number
           rsvp_id?: string | null
+          tags?: string[]
           token?: string
           updated_at?: string
           wedding_site_id: string
@@ -983,12 +987,14 @@ export type Database = {
         Update: {
           created_at?: string
           guest_email?: string | null
+          guest_group?: string | null
           guest_name?: string
           guest_phone?: string | null
           id?: string
           notes?: string | null
           plus_ones_allowed?: number
           rsvp_id?: string | null
+          tags?: string[]
           token?: string
           updated_at?: string
           wedding_site_id?: string
@@ -1854,6 +1860,41 @@ export type Database = {
           },
         ]
       }
+      seating_charts: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          is_public: boolean
+          updated_at: string
+          wedding_site_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          is_public?: boolean
+          updated_at?: string
+          wedding_site_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          is_public?: boolean
+          updated_at?: string
+          wedding_site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seating_charts_wedding_site_id_fkey"
+            columns: ["wedding_site_id"]
+            isOneToOne: true
+            referencedRelation: "wedding_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_analytics: {
         Row: {
           created_at: string
@@ -2128,6 +2169,184 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      vendor_enquiries: {
+        Row: {
+          created_at: string
+          email: string | null
+          event_date: string | null
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          event_date?: string | null
+          id?: string
+          message?: string
+          name: string
+          phone?: string | null
+          status?: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          event_date?: string | null
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_enquiries_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          rating: number
+          user_id: string
+          vendor_id: string
+        }
+        Insert: {
+          comment?: string
+          created_at?: string
+          id?: string
+          rating: number
+          user_id: string
+          vendor_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_reviews_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendors: {
+        Row: {
+          about: string
+          business_name: string
+          category: string
+          city: string
+          country: string
+          cover_url: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          gallery: Json
+          hours: string
+          id: string
+          instagram: string | null
+          is_featured: boolean
+          logo_url: string | null
+          phone: string | null
+          price_from: number | null
+          rating: number
+          review_count: number
+          service_areas: string[]
+          services: Json
+          slug: string
+          state: string
+          status: string
+          tagline: string
+          theme: Json
+          updated_at: string
+          user_id: string
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          about?: string
+          business_name: string
+          category: string
+          city?: string
+          country?: string
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          gallery?: Json
+          hours?: string
+          id?: string
+          instagram?: string | null
+          is_featured?: boolean
+          logo_url?: string | null
+          phone?: string | null
+          price_from?: number | null
+          rating?: number
+          review_count?: number
+          service_areas?: string[]
+          services?: Json
+          slug: string
+          state?: string
+          status?: string
+          tagline?: string
+          theme?: Json
+          updated_at?: string
+          user_id: string
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          about?: string
+          business_name?: string
+          category?: string
+          city?: string
+          country?: string
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          gallery?: Json
+          hours?: string
+          id?: string
+          instagram?: string | null
+          is_featured?: boolean
+          logo_url?: string | null
+          phone?: string | null
+          price_from?: number | null
+          rating?: number
+          review_count?: number
+          service_areas?: string[]
+          services?: Json
+          slug?: string
+          state?: string
+          status?: string
+          tagline?: string
+          theme?: Json
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+          whatsapp?: string | null
         }
         Relationships: []
       }

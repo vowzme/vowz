@@ -50,6 +50,13 @@
       "when": 1789835206508,
       "tag": "0006_public_site_password_gate",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789954285613,
+      "tag": "0007_guest_groups_seating_vendors",
+      "breakpoints": true
     }
   ]
 }
