@@ -76,6 +76,13 @@ const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ReminderSettings = lazy(() => import("./pages/ReminderSettings"));
 const Payments = lazy(() => import("./pages/Payments"));
 const OnlineWeddingCardMaker = lazy(() => import("./pages/OnlineWeddingCardMaker"));
+const SeatingChart = lazy(() => import("./pages/SeatingChart"));
+const PhotoWall = lazy(() => import("./pages/PhotoWall"));
+const Vendors = lazy(() => import("./pages/Vendors"));
+const VendorProfile = lazy(() => import("./pages/VendorProfile"));
+const VendorSignup = lazy(() => import("./pages/VendorSignup"));
+const VendorDashboard = lazy(() => import("./pages/VendorDashboard"));
+const AdminVendors = lazy(() => import("./pages/admin/AdminVendors"));
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
