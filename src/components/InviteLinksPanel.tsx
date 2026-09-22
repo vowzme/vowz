@@ -253,9 +253,28 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvi
     return `mailto:${encodeURIComponent(inv.guest_email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
-  const responded = items.filter((i) => i.rsvp_id).length;
-  const emailPending = items.filter((i) => i.guest_email && !i.rsvp_id).length;
-  const waPending = items.filter((i) => !i.rsvp_id).length;
+  const allGroups = useMemo(
+    () => Array.from(new Set(items.map((i) => i.guest_group).filter(Boolean) as string[])).sort(),
+    [items],
+  );
+  const allTags = useMemo(
+    () => Array.from(new Set(items.flatMap((i) => i.tags ?? []))).sort(),
+    [items],
+  );
+  const visible = useMemo(
+    () =>
+      items.filter((i) => {
+        if (groupFilter !== "all" && (i.guest_group || "") !== groupFilter) return false;
+        if (tagFilter !== "all" && !(i.tags ?? []).includes(tagFilter)) return false;
+        return true;
+      }),
+    [items, groupFilter, tagFilter],
+  );
+
+  const responded = visible.filter((i) => i.rsvp_id).length;
+  const emailPending = visible.filter((i) => i.guest_email && !i.rsvp_id).length;
+  const waPending = visible.filter((i) => !i.rsvp_id).length;
+
 
   return (
     <div className="bg-card border border-border/50 rounded-2xl p-5 mb-6">
