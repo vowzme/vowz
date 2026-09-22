@@ -18,7 +18,16 @@ type Invite = {
   token: string;
   rsvp_id: string | null;
   created_at: string;
+  guest_group: string | null;
+  tags: string[] | null;
 };
+
+export const GROUP_SUGGESTIONS = ["Bride's side", "Groom's side", "Family", "Friends", "Colleagues"];
+export const TAG_SUGGESTIONS = ["Sangeet only", "Out-of-town", "Kids", "VIP", "Reception only"];
+
+const parseTags = (raw: string) =>
+  Array.from(new Set(raw.split(",").map((t) => t.trim()).filter(Boolean).map((t) => t.slice(0, 40)))).slice(0, 12);
+
 
 type SendStat = {
   email_sent: number;
