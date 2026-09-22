@@ -3155,6 +3155,7 @@ export type Database = {
           requires_password: boolean
         }[]
       }
+      site_accepts_rsvp: { Args: { _site_id: string }; Returns: boolean }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }
       submit_rsvp_by_invite: {
         Args: {
