@@ -42,17 +42,22 @@ interface Props {
   siteId: string;
   siteSlug: string | null;
   coupleNames: string;
+  /** Lets the parent page reuse groups/tags for list filters and broadcasts. */
+  onInvitesChange?: (items: Array<{ guest_name: string; guest_email: string | null; guest_group: string | null; tags: string[] }>) => void;
 }
 
-export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Props) {
+export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvitesChange }: Props) {
   const [items, setItems] = useState<Invite[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ guest_name: "", guest_email: "", guest_phone: "", plus_ones_allowed: 0 });
+  const [form, setForm] = useState({ guest_name: "", guest_email: "", guest_phone: "", plus_ones_allowed: 0, guest_group: "", tags: "" });
   const [copied, setCopied] = useState<string | null>(null);
   const [stats, setStats] = useState<Record<string, SendStat>>({});
   const [bulkEmailBusy, setBulkEmailBusy] = useState(false);
   const [waStep, setWaStep] = useState<{ open: boolean; queue: Invite[]; index: number }>({ open: false, queue: [], index: 0 });
+  const [groupFilter, setGroupFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("all");
+  const [editing, setEditing] = useState<{ id: string; guest_group: string; tags: string } | null>(null);
 
   const base = useMemo(() => (siteSlug ? `${window.location.origin}/site/${siteSlug}` : ""), [siteSlug]);
   const linkFor = (token: string) => (base ? `${base}?g=${encodeURIComponent(token)}` : "");
@@ -61,11 +66,18 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
     setLoading(true);
     const { data, error } = await supabase
       .from("guest_invites" as any)
-      .select("id, guest_name, guest_email, guest_phone, plus_ones_allowed, token, rsvp_id, created_at")
+      .select("id, guest_name, guest_email, guest_phone, plus_ones_allowed, token, rsvp_id, created_at, guest_group, tags")
       .eq("wedding_site_id", siteId)
       .order("created_at", { ascending: false });
     if (error) toast({ title: "Couldn't load invites", description: error.message, variant: "destructive" });
-    else setItems((data as any) || []);
+    else {
+      const list = ((data as any) || []) as Invite[];
+      setItems(list);
+      onInvitesChange?.(
+        list.map((i) => ({ guest_name: i.guest_name, guest_email: i.guest_email, guest_group: i.guest_group ?? null, tags: i.tags ?? [] })),
+      );
+    }
+
     setLoading(false);
     void loadStats();
   };
