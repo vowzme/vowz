@@ -4,17 +4,23 @@ import { Link } from "react-router-dom";
 import { Heart, Calendar, MapPin, Sparkles, ArrowRight, Check, Clock, Plane, Hotel, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
+import { useAuth } from "@/hooks/use-auth";
 import type { WeddingData } from "@/hooks/use-wedding-wizard";
 
 const WizardPreview = ({ data }: { data: WeddingData }) => {
   const { createSite } = useWeddingSite();
+  const { user } = useAuth();
   const savedRef = useRef(false);
   const [siteId, setSiteId] = useState<string | null>(null);
 
-  // Auto-save the site to the database on first render
+  // Auto-save the site to the database once the session is available. The auth
+  // session hydrates asynchronously, so saving on first render alone would drop
+  // the site silently when the user object hasn't landed yet.
   useEffect(() => {
     if (savedRef.current) return;
+    if (!user) return;
     savedRef.current = true;
+
 
     const sections = [
       {
@@ -106,13 +112,16 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
       bodyFont: data.bodyFont,
     }).then((site) => {
       if (site) setSiteId(site.id);
+      else savedRef.current = false; // allow a retry if the save failed
     });
 
     // Carry the card design chosen in the wizard through to the card studio.
     if (data.cardTemplate) {
       try { sessionStorage.setItem("pendingCardTemplate", data.cardTemplate); } catch { /* ignore */ }
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const [bg, accent, light] = data.suggestedColors.length >= 3
     ? data.suggestedColors
     : ["#6B1D2A", "#D4A853", "#FFF5E6"];
