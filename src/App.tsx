@@ -71,7 +71,6 @@ const Showcase = lazy(() => import("./pages/Showcase"));
 const SharePreview = lazy(() => import("./pages/SharePreview"));
 const Share = lazy(() => import("./pages/Share"));
 const SharedCard = lazy(() => import("./pages/SharedCard"));
-const IconsDebug = lazy(() => import("./pages/IconsDebug"));
 const GuestList = lazy(() => import("./pages/GuestList"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ReminderSettings = lazy(() => import("./pages/ReminderSettings"));
@@ -127,7 +126,6 @@ const AppRoutes = () => (
     <Route path="/showcase" element={<PageShell><Showcase /></PageShell>} />
     <Route path="/share-preview" element={<PageShell><SharePreview /></PageShell>} />
     <Route path="/share" element={<PageShell><Share /></PageShell>} />
-    <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<PageShell><CardTemplatesPreview /></PageShell>} />
     <Route path="/affiliate" element={<PageShell><Affiliate /></PageShell>} />
