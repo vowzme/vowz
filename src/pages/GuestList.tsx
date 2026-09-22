@@ -229,14 +229,10 @@ export default function GuestList() {
 
   // Canonical roster shape shared across CSV + Excel exports.
   const buildRoster = () => {
-    const lookupMeta = (r: Rsvp): InviteMeta => {
-      const byEmail = r.guest_email ? inviteMeta[`e:${r.guest_email.trim().toLowerCase()}`] : undefined;
-      const byName = !byEmail && r.guest_name ? inviteMeta[`n:${r.guest_name.trim().toLowerCase()}`] : undefined;
-      return byEmail || byName || { guest_phone: null, plus_ones_allowed: null };
-    };
     return filtered.map((r) => {
       const { tags, notes, rest } = parseDietary(r.message);
-      const meta = lookupMeta(r);
+      const meta = metaFor(r);
+
       const companions = (r.plus_ones ?? []).map((p) => ({
         name: p.name,
         meal: p.meal_preference || "",
