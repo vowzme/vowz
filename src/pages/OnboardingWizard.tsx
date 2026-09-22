@@ -190,6 +190,49 @@ const OnboardingWizard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Check for a pending undo-reset backup on mount. If it exists and hasn't
+  // expired, expose it via the banner. Otherwise sweep it.
+  // NOTE: must stay above the early returns below — React requires a stable
+  // hook order on every render.
+  useEffect(() => {
+    const BACKUP_KEY = "vowz_wizard_draft_backup";
+    let raw: string | null = null;
+    try { raw = localStorage.getItem(BACKUP_KEY); } catch { return; }
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as { draft: string; expiresAt: number };
+      if (!parsed?.draft || typeof parsed.expiresAt !== "number") {
+        localStorage.removeItem(BACKUP_KEY);
+        return;
+      }
+      if (Date.now() > parsed.expiresAt) {
+        localStorage.removeItem(BACKUP_KEY);
+        return;
+      }
+      setUndoBackup(parsed);
+      setUndoSecondsLeft(Math.max(1, Math.ceil((parsed.expiresAt - Date.now()) / 1000)));
+    } catch {
+      try { localStorage.removeItem(BACKUP_KEY); } catch {}
+    }
+  }, []);
+
+  // Countdown + auto-sweep for the undo banner.
+  useEffect(() => {
+    if (!undoBackup) return;
+    const tick = () => {
+      const left = Math.ceil((undoBackup.expiresAt - Date.now()) / 1000);
+      if (left <= 0) {
+        try { localStorage.removeItem("vowz_wizard_draft_backup"); } catch {}
+        setUndoBackup(null);
+        setUndoSecondsLeft(0);
+      } else {
+        setUndoSecondsLeft(left);
+      }
+    };
+    const id = window.setInterval(tick, 500);
+    return () => window.clearInterval(id);
+  }, [undoBackup]);
+
 
   if (isComplete) {
     return <WizardPreview data={wizardData} />;
