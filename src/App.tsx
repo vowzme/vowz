@@ -14,7 +14,6 @@ import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
-import { IosInstallPrompt } from "./components/IosInstallPrompt";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import WhatsAppSupport from "@/components/WhatsAppSupport";
 import { useAdmin } from "@/hooks/use-admin";
@@ -73,9 +72,6 @@ const SharePreview = lazy(() => import("./pages/SharePreview"));
 const Share = lazy(() => import("./pages/Share"));
 const SharedCard = lazy(() => import("./pages/SharedCard"));
 const IconsDebug = lazy(() => import("./pages/IconsDebug"));
-const PwaDiagnostics = lazy(() => import("./pages/PwaDiagnostics"));
-const TwaVerify = lazy(() => import("./pages/TwaVerify"));
-const WidgetSettings = lazy(() => import("./pages/WidgetSettings"));
 const GuestList = lazy(() => import("./pages/GuestList"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ReminderSettings = lazy(() => import("./pages/ReminderSettings"));
@@ -111,7 +107,6 @@ const AppRoutes = () => (
     <Route path="/forgot-password" element={<Layout><ForgotPassword /></Layout>} />
     <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-    <Route path="/dashboard/widgets" element={<ProtectedRoute><WidgetSettings /></ProtectedRoute>} />
     <Route path="/dashboard/guests/:siteId" element={<ProtectedRoute><GuestList /></ProtectedRoute>} />
     <Route path="/dashboard/album/:siteId" element={<ProtectedRoute><AlbumModeration /></ProtectedRoute>} />
     <Route path="/dashboard/reminders" element={<ProtectedRoute><ReminderSettings /></ProtectedRoute>} />
@@ -133,8 +128,6 @@ const AppRoutes = () => (
     <Route path="/share-preview" element={<PageShell><SharePreview /></PageShell>} />
     <Route path="/share" element={<PageShell><Share /></PageShell>} />
     <Route path="/debug/icons" element={<AdminOnlyRoute><IconsDebug /></AdminOnlyRoute>} />
-    <Route path="/debug/pwa" element={<AdminOnlyRoute><PwaDiagnostics /></AdminOnlyRoute>} />
-    <Route path="/debug/twa" element={<AdminOnlyRoute><TwaVerify /></AdminOnlyRoute>} />
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<PageShell><CardTemplatesPreview /></PageShell>} />
     <Route path="/affiliate" element={<PageShell><Affiliate /></PageShell>} />
@@ -191,7 +184,6 @@ const App = () => (
               </ErrorBoundary>
               <WhatsAppSupport />
               <MobileBottomNav />
-              <IosInstallPrompt />
             </BrowserRouter>
           </AuthProvider>
         </PricingRegionProvider>
