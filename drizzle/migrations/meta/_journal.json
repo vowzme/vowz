@@ -85,6 +85,13 @@
       "when": 1790082123911,
       "tag": "0011_auto_tag_invites_on_link",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790082441580,
+      "tag": "0012_tighten_storage_public_read_policies",
+      "breakpoints": true
     }
   ]
 }
