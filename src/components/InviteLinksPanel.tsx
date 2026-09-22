@@ -168,7 +168,7 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvi
   };
 
   const bulkSendEmails = async () => {
-    const targets = items.filter((i) => !!i.guest_email && !i.rsvp_id);
+    const targets = visible.filter((i) => !!i.guest_email && !i.rsvp_id);
     if (targets.length === 0) {
       toast({ title: "No pending email invites", description: "All email guests have already responded, or none have an email on file." });
       return;
