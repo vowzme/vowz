@@ -107,10 +107,10 @@ export default function GuestList() {
       } else {
         setRows((r ?? []) as any);
       }
-      // Best-effort enrichment with per-guest phone + plus-ones-allowed from invites.
+      // Best-effort enrichment with per-guest phone, plus-ones, group and tags from invites.
       const { data: invites } = await supabase
         .from("guest_invites")
-        .select("guest_name, guest_email, guest_phone, plus_ones_allowed")
+        .select("guest_name, guest_email, guest_phone, plus_ones_allowed, guest_group, tags")
         .eq("wedding_site_id", siteId);
       if (invites && invites.length) {
         const map: Record<string, InviteMeta> = {};
@@ -120,11 +120,17 @@ export default function GuestList() {
             inv.guest_name ? `n:${String(inv.guest_name).trim().toLowerCase()}` : "",
           ].filter(Boolean);
           for (const k of keys) {
-            map[k] = { guest_phone: inv.guest_phone ?? null, plus_ones_allowed: inv.plus_ones_allowed ?? null };
+            map[k] = {
+              guest_phone: inv.guest_phone ?? null,
+              plus_ones_allowed: inv.plus_ones_allowed ?? null,
+              guest_group: inv.guest_group ?? null,
+              tags: (inv.tags ?? []) as string[],
+            };
           }
         }
         setInviteMeta(map);
       }
+
       setLoading(false);
     })();
   }, [siteId, user, navigate, perms.loading]);
