@@ -7,3 +7,7 @@
 - [x] Connect invitation-card styles to wedding-site creation and gallery selection.
 - [x] Polish the invitation-card studio for phone and tablet editing.
 - [x] Strengthen wedding-planning and invitation-card search titles, descriptions, and sitemap coverage.
+- [x] Guest groups and tags: label guests, filter the list, and target announcements.
+- [ ] Seating chart planner.
+- [ ] Live photo wall.
+- [ ] Vendor marketplace screens.

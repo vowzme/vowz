@@ -18,7 +18,16 @@ type Invite = {
   token: string;
   rsvp_id: string | null;
   created_at: string;
+  guest_group: string | null;
+  tags: string[] | null;
 };
+
+export const GROUP_SUGGESTIONS = ["Bride's side", "Groom's side", "Family", "Friends", "Colleagues"];
+export const TAG_SUGGESTIONS = ["Sangeet only", "Out-of-town", "Kids", "VIP", "Reception only"];
+
+const parseTags = (raw: string) =>
+  Array.from(new Set(raw.split(",").map((t) => t.trim()).filter(Boolean).map((t) => t.slice(0, 40)))).slice(0, 12);
+
 
 type SendStat = {
   email_sent: number;
@@ -33,17 +42,22 @@ interface Props {
   siteId: string;
   siteSlug: string | null;
   coupleNames: string;
+  /** Lets the parent page reuse groups/tags for list filters and broadcasts. */
+  onInvitesChange?: (items: Array<{ guest_name: string; guest_email: string | null; guest_group: string | null; tags: string[] }>) => void;
 }
 
-export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Props) {
+export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvitesChange }: Props) {
   const [items, setItems] = useState<Invite[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ guest_name: "", guest_email: "", guest_phone: "", plus_ones_allowed: 0 });
+  const [form, setForm] = useState({ guest_name: "", guest_email: "", guest_phone: "", plus_ones_allowed: 0, guest_group: "", tags: "" });
   const [copied, setCopied] = useState<string | null>(null);
   const [stats, setStats] = useState<Record<string, SendStat>>({});
   const [bulkEmailBusy, setBulkEmailBusy] = useState(false);
   const [waStep, setWaStep] = useState<{ open: boolean; queue: Invite[]; index: number }>({ open: false, queue: [], index: 0 });
+  const [groupFilter, setGroupFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("all");
+  const [editing, setEditing] = useState<{ id: string; guest_group: string; tags: string } | null>(null);
 
   const base = useMemo(() => (siteSlug ? `${window.location.origin}/site/${siteSlug}` : ""), [siteSlug]);
   const linkFor = (token: string) => (base ? `${base}?g=${encodeURIComponent(token)}` : "");
@@ -52,11 +66,18 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
     setLoading(true);
     const { data, error } = await supabase
       .from("guest_invites" as any)
-      .select("id, guest_name, guest_email, guest_phone, plus_ones_allowed, token, rsvp_id, created_at")
+      .select("id, guest_name, guest_email, guest_phone, plus_ones_allowed, token, rsvp_id, created_at, guest_group, tags")
       .eq("wedding_site_id", siteId)
       .order("created_at", { ascending: false });
     if (error) toast({ title: "Couldn't load invites", description: error.message, variant: "destructive" });
-    else setItems((data as any) || []);
+    else {
+      const list = ((data as any) || []) as Invite[];
+      setItems(list);
+      onInvitesChange?.(
+        list.map((i) => ({ guest_name: i.guest_name, guest_email: i.guest_email, guest_group: i.guest_group ?? null, tags: i.tags ?? [] })),
+      );
+    }
+
     setLoading(false);
     void loadStats();
   };
@@ -116,13 +137,28 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
       guest_email: form.guest_email.trim().slice(0, 254) || null,
       guest_phone: form.guest_phone.trim().slice(0, 40) || null,
       plus_ones_allowed: Math.max(0, Math.min(20, Number(form.plus_ones_allowed) || 0)),
+      guest_group: form.guest_group.trim().slice(0, 60) || null,
+      tags: parseTags(form.tags),
     } as any);
     setSaving(false);
     if (error) { toast({ title: "Couldn't add invite", description: error.message, variant: "destructive" }); return; }
-    setForm({ guest_name: "", guest_email: "", guest_phone: "", plus_ones_allowed: 0 });
+    setForm({ guest_name: "", guest_email: "", guest_phone: "", plus_ones_allowed: 0, guest_group: form.guest_group, tags: "" });
     toast({ title: "Invite added" });
     void load();
   };
+
+  const saveGrouping = async () => {
+    if (!editing) return;
+    const patch = {
+      guest_group: editing.guest_group.trim().slice(0, 60) || null,
+      tags: parseTags(editing.tags),
+    };
+    const { error } = await supabase.from("guest_invites" as any).update(patch as any).eq("id", editing.id);
+    if (error) { toast({ title: "Couldn't save", description: error.message, variant: "destructive" }); return; }
+    setEditing(null);
+    void load();
+  };
+
 
   const remove = async (id: string) => {
     if (!confirm("Delete this invite? The personal link will stop working.")) return;
@@ -132,7 +168,7 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
   };
 
   const bulkSendEmails = async () => {
-    const targets = items.filter((i) => !!i.guest_email && !i.rsvp_id);
+    const targets = visible.filter((i) => !!i.guest_email && !i.rsvp_id);
     if (targets.length === 0) {
       toast({ title: "No pending email invites", description: "All email guests have already responded, or none have an email on file." });
       return;
@@ -158,7 +194,7 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
   };
 
   const startWhatsAppWalker = () => {
-    const queue = items.filter((i) => !i.rsvp_id);
+    const queue = visible.filter((i) => !i.rsvp_id);
     if (queue.length === 0) {
       toast({ title: "Nobody left to invite", description: "All guests on this list have already responded." });
       return;
@@ -217,9 +253,28 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
     return `mailto:${encodeURIComponent(inv.guest_email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
-  const responded = items.filter((i) => i.rsvp_id).length;
-  const emailPending = items.filter((i) => i.guest_email && !i.rsvp_id).length;
-  const waPending = items.filter((i) => !i.rsvp_id).length;
+  const allGroups = useMemo(
+    () => Array.from(new Set(items.map((i) => i.guest_group).filter(Boolean) as string[])).sort(),
+    [items],
+  );
+  const allTags = useMemo(
+    () => Array.from(new Set(items.flatMap((i) => i.tags ?? []))).sort(),
+    [items],
+  );
+  const visible = useMemo(
+    () =>
+      items.filter((i) => {
+        if (groupFilter !== "all" && (i.guest_group || "") !== groupFilter) return false;
+        if (tagFilter !== "all" && !(i.tags ?? []).includes(tagFilter)) return false;
+        return true;
+      }),
+    [items, groupFilter, tagFilter],
+  );
+
+  const responded = visible.filter((i) => i.rsvp_id).length;
+  const emailPending = visible.filter((i) => i.guest_email && !i.rsvp_id).length;
+  const waPending = visible.filter((i) => !i.rsvp_id).length;
+
 
   return (
     <div className="bg-card border border-border/50 rounded-2xl p-5 mb-6">
@@ -251,7 +306,7 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
         </div>
       )}
 
-      <form onSubmit={create} className="grid grid-cols-1 sm:grid-cols-5 gap-2 mb-4">
+      <form onSubmit={create} className="grid grid-cols-1 sm:grid-cols-5 gap-2 mb-3">
         <Input placeholder="Guest name" value={form.guest_name} onChange={(e) => setForm({ ...form, guest_name: e.target.value })} required maxLength={120} className="sm:col-span-2" />
         <Input type="email" placeholder="Email (optional)" value={form.guest_email} onChange={(e) => setForm({ ...form, guest_email: e.target.value })} maxLength={254} />
         <Input placeholder="Phone (optional)" value={form.guest_phone} onChange={(e) => setForm({ ...form, guest_phone: e.target.value })} maxLength={40} />
@@ -269,17 +324,67 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-4 h-4 mr-1" /> Add</>}
           </Button>
         </div>
+        <Input
+          list="invite-group-suggestions"
+          placeholder="Group — e.g. Bride's side"
+          value={form.guest_group}
+          onChange={(e) => setForm({ ...form, guest_group: e.target.value })}
+          maxLength={60}
+          className="sm:col-span-2"
+        />
+        <Input
+          list="invite-tag-suggestions"
+          placeholder="Tags, comma separated — e.g. Sangeet only, Out-of-town"
+          value={form.tags}
+          onChange={(e) => setForm({ ...form, tags: e.target.value })}
+          maxLength={200}
+          className="sm:col-span-3"
+        />
+        <datalist id="invite-group-suggestions">
+          {Array.from(new Set([...allGroups, ...GROUP_SUGGESTIONS])).map((g) => <option key={g} value={g} />)}
+        </datalist>
+        <datalist id="invite-tag-suggestions">
+          {Array.from(new Set([...allTags, ...TAG_SUGGESTIONS])).map((t) => <option key={t} value={t} />)}
+        </datalist>
       </form>
+
+      {(allGroups.length > 0 || allTags.length > 0) && (
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <select
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+            aria-label="Filter by group"
+          >
+            <option value="all">All groups</option>
+            {allGroups.map((g) => <option key={g} value={g}>{g}</option>)}
+          </select>
+          <select
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+            aria-label="Filter by tag"
+          >
+            <option value="all">All tags</option>
+            {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <span className="text-xs text-muted-foreground font-body">{visible.length} shown</span>
+          {(groupFilter !== "all" || tagFilter !== "all") && (
+            <Button size="sm" variant="ghost" onClick={() => { setGroupFilter("all"); setTagFilter("all"); }}>Clear</Button>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
-      ) : items.length === 0 ? (
+      ) : visible.length === 0 ? (
         <p className="text-sm text-muted-foreground font-body text-center py-6">
-          No invites yet — add your first guest above.
+          {items.length === 0 ? "No invites yet — add your first guest above." : "No guests match these filters."}
         </p>
       ) : (
         <div className="divide-y divide-border/40">
-          {items.map((inv) => (
+          {visible.map((inv) => (
+
             <div key={inv.id} className="py-3 flex items-center justify-between gap-3 flex-wrap">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
@@ -327,8 +432,48 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames }: Prop
                     )}
                   </div>
                 )}
+                {editing?.id === inv.id ? (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Input
+                      list="invite-group-suggestions"
+                      value={editing.guest_group}
+                      onChange={(e) => setEditing({ ...editing, guest_group: e.target.value })}
+                      placeholder="Group"
+                      maxLength={60}
+                      className="h-9 w-40"
+                    />
+                    <Input
+                      list="invite-tag-suggestions"
+                      value={editing.tags}
+                      onChange={(e) => setEditing({ ...editing, tags: e.target.value })}
+                      placeholder="Tags, comma separated"
+                      maxLength={200}
+                      className="h-9 w-56"
+                    />
+                    <Button size="sm" variant="gold" onClick={saveGrouping}>Save</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setEditing({ id: inv.id, guest_group: inv.guest_group ?? "", tags: (inv.tags ?? []).join(", ") })}
+                    className="mt-1.5 flex flex-wrap items-center gap-1.5 text-left"
+                    title="Edit group and tags"
+                  >
+                    {inv.guest_group && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gold/15 border border-gold/30">{inv.guest_group}</span>
+                    )}
+                    {(inv.tags ?? []).map((t) => (
+                      <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full border border-border/60 text-muted-foreground">{t}</span>
+                    ))}
+                    {!inv.guest_group && (inv.tags ?? []).length === 0 && (
+                      <span className="text-[10px] text-muted-foreground underline underline-offset-2">Add group / tags</span>
+                    )}
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-1.5">
+
                 <Button size="sm" variant="outline" onClick={() => copyLink(inv.token)} title="Copy personal link">
                   {copied === inv.token ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 </Button>

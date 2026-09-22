@@ -31,7 +31,7 @@ type Rsvp = {
   plus_ones: Array<{ name: string; meal_preference: string | null; dietary_tags: string[] }> | null;
 };
 
-type InviteMeta = { guest_phone: string | null; plus_ones_allowed: number | null };
+type InviteMeta = { guest_phone: string | null; plus_ones_allowed: number | null; guest_group: string | null; tags: string[] };
 
 type Site = { id: string; partner1: string; partner2: string; slug: string | null };
 type WeddingEvent = { name: string; date?: string; time?: string; venue?: string };
@@ -67,7 +67,10 @@ export default function GuestList() {
 
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "yes" | "no">("all");
+  const [groupFilter, setGroupFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("all");
   const [events, setEvents] = useState<WeddingEvent[]>([]);
+
   const [broadcast, setBroadcast] = useState({
     eventIdx: -1,
     audience: "yes" as "all" | "yes" | "no" | "event",
@@ -104,10 +107,10 @@ export default function GuestList() {
       } else {
         setRows((r ?? []) as any);
       }
-      // Best-effort enrichment with per-guest phone + plus-ones-allowed from invites.
+      // Best-effort enrichment with per-guest phone, plus-ones, group and tags from invites.
       const { data: invites } = await supabase
         .from("guest_invites")
-        .select("guest_name, guest_email, guest_phone, plus_ones_allowed")
+        .select("guest_name, guest_email, guest_phone, plus_ones_allowed, guest_group, tags")
         .eq("wedding_site_id", siteId);
       if (invites && invites.length) {
         const map: Record<string, InviteMeta> = {};
@@ -117,11 +120,17 @@ export default function GuestList() {
             inv.guest_name ? `n:${String(inv.guest_name).trim().toLowerCase()}` : "",
           ].filter(Boolean);
           for (const k of keys) {
-            map[k] = { guest_phone: inv.guest_phone ?? null, plus_ones_allowed: inv.plus_ones_allowed ?? null };
+            map[k] = {
+              guest_phone: inv.guest_phone ?? null,
+              plus_ones_allowed: inv.plus_ones_allowed ?? null,
+              guest_group: inv.guest_group ?? null,
+              tags: (inv.tags ?? []) as string[],
+            };
           }
         }
         setInviteMeta(map);
       }
+
       setLoading(false);
     })();
   }, [siteId, user, navigate, perms.loading]);
@@ -159,11 +168,38 @@ export default function GuestList() {
   }, [siteId, realtimeHealth]);
 
 
+  // Group/tag info for an RSVP comes from the matching personal invite.
+  const metaFor = useMemo(() => {
+    return (r: Rsvp): InviteMeta => {
+      const byEmail = r.guest_email ? inviteMeta[`e:${r.guest_email.trim().toLowerCase()}`] : undefined;
+      const byName = !byEmail && r.guest_name ? inviteMeta[`n:${r.guest_name.trim().toLowerCase()}`] : undefined;
+      return byEmail || byName || { guest_phone: null, plus_ones_allowed: null, guest_group: null, tags: [] };
+    };
+  }, [inviteMeta]);
+
+  const groupOptions = useMemo(
+    () => Array.from(new Set(Object.values(inviteMeta).map((m) => m.guest_group).filter(Boolean) as string[])).sort(),
+    [inviteMeta],
+  );
+  const tagOptions = useMemo(
+    () => Array.from(new Set(Object.values(inviteMeta).flatMap((m) => m.tags ?? []))).sort(),
+    [inviteMeta],
+  );
+
+  const matchesGrouping = (r: Rsvp) => {
+    if (groupFilter === "all" && tagFilter === "all") return true;
+    const meta = metaFor(r);
+    if (groupFilter !== "all" && (meta.guest_group || "") !== groupFilter) return false;
+    if (tagFilter !== "all" && !(meta.tags ?? []).includes(tagFilter)) return false;
+    return true;
+  };
+
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return rows.filter((r) => {
       if (filter === "yes" && !r.attending) return false;
       if (filter === "no" && r.attending) return false;
+      if (!matchesGrouping(r)) return false;
       if (!needle) return true;
       return (
         r.guest_name.toLowerCase().includes(needle) ||
@@ -171,7 +207,9 @@ export default function GuestList() {
         (r.message ?? "").toLowerCase().includes(needle)
       );
     });
-  }, [rows, q, filter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, q, filter, groupFilter, tagFilter, inviteMeta]);
+
 
   const stats = useMemo(() => {
     const total = rows.length;
@@ -191,14 +229,10 @@ export default function GuestList() {
 
   // Canonical roster shape shared across CSV + Excel exports.
   const buildRoster = () => {
-    const lookupMeta = (r: Rsvp): InviteMeta => {
-      const byEmail = r.guest_email ? inviteMeta[`e:${r.guest_email.trim().toLowerCase()}`] : undefined;
-      const byName = !byEmail && r.guest_name ? inviteMeta[`n:${r.guest_name.trim().toLowerCase()}`] : undefined;
-      return byEmail || byName || { guest_phone: null, plus_ones_allowed: null };
-    };
     return filtered.map((r) => {
       const { tags, notes, rest } = parseDietary(r.message);
-      const meta = lookupMeta(r);
+      const meta = metaFor(r);
+
       const companions = (r.plus_ones ?? []).map((p) => ({
         name: p.name,
         meal: p.meal_preference || "",
@@ -208,7 +242,10 @@ export default function GuestList() {
         "Guest name": r.guest_name,
         Email: r.guest_email,
         Phone: meta.guest_phone ?? "",
+        Group: meta.guest_group ?? "",
+        Tags: (meta.tags ?? []).join(", "),
         Status: r.attending ? "Attending" : "Regrets",
+
         "Total heads": r.guest_count,
         "Plus-ones allowed": meta.plus_ones_allowed ?? "",
         Meal: r.meal_preference ?? "",
@@ -382,16 +419,20 @@ export default function GuestList() {
   };
 
   // ── Mass broadcast (announcements) ────────────────────────────────────
+  // Group and tag filters above also narrow who a broadcast goes to.
   const broadcastRecipients = useMemo(() => {
-    let list = rows;
-    if (broadcast.audience === "yes") list = rows.filter((r) => r.attending);
-    else if (broadcast.audience === "no") list = rows.filter((r) => !r.attending);
+    const base = rows.filter(matchesGrouping);
+    let list = base;
+    if (broadcast.audience === "yes") list = base.filter((r) => r.attending);
+    else if (broadcast.audience === "no") list = base.filter((r) => !r.attending);
     else if (broadcast.audience === "event") {
       const ev = events[broadcast.eventIdx];
-      if (ev) list = rows.filter((r) => r.attending && (r.selected_events ?? []).includes(ev.name));
+      if (ev) list = base.filter((r) => r.attending && (r.selected_events ?? []).includes(ev.name));
     }
     return list;
-  }, [rows, broadcast.audience, broadcast.eventIdx, events]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, broadcast.audience, broadcast.eventIdx, events, groupFilter, tagFilter, inviteMeta]);
+
 
   const composedMessage = useMemo(() => {
     const ev = broadcast.eventIdx >= 0 ? events[broadcast.eventIdx] : null;
@@ -489,6 +530,24 @@ export default function GuestList() {
               siteId={site.id}
               siteSlug={site.slug}
               coupleNames={`${site.partner1} & ${site.partner2}`}
+              onInvitesChange={(list) => {
+                const map: Record<string, InviteMeta> = {};
+                for (const inv of list) {
+                  const keys = [
+                    inv.guest_email ? `e:${inv.guest_email.trim().toLowerCase()}` : "",
+                    inv.guest_name ? `n:${inv.guest_name.trim().toLowerCase()}` : "",
+                  ].filter(Boolean);
+                  for (const k of keys) {
+                    map[k] = {
+                      guest_phone: inviteMeta[k]?.guest_phone ?? null,
+                      plus_ones_allowed: inviteMeta[k]?.plus_ones_allowed ?? null,
+                      guest_group: inv.guest_group,
+                      tags: inv.tags,
+                    };
+                  }
+                }
+                setInviteMeta(map);
+              }}
             />
           )}
 
@@ -515,7 +574,35 @@ export default function GuestList() {
                 </button>
               ))}
             </div>
+            {groupOptions.length > 0 && (
+              <select
+                value={groupFilter}
+                onChange={(e) => setGroupFilter(e.target.value)}
+                aria-label="Filter by group"
+                className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+              >
+                <option value="all">All groups</option>
+                {groupOptions.map((g) => <option key={g} value={g}>{g}</option>)}
+              </select>
+            )}
+            {tagOptions.length > 0 && (
+              <select
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+                aria-label="Filter by tag"
+                className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+              >
+                <option value="all">All tags</option>
+                {tagOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            )}
+            {(groupFilter !== "all" || tagFilter !== "all") && (
+              <Button variant="ghost" size="sm" onClick={() => { setGroupFilter("all"); setTagFilter("all"); }}>
+                Clear groups
+              </Button>
+            )}
           </div>
+
 
           {/* Announcements broadcast */}
           <div className="mb-6 rounded-xl border border-border/60 bg-card p-4 space-y-3">
@@ -579,7 +666,7 @@ export default function GuestList() {
               </Button>
             </div>
             <p className="text-[11px] font-body text-muted-foreground">
-              Announcements open your own WhatsApp / SMS / email app with the message and recipients prefilled — no bulk send from our servers, so guests always see it come from you.
+              Announcements open your own WhatsApp / SMS / email app with the message and recipients prefilled — no bulk send from our servers, so guests always see it come from you. Pick a group or tag above to message only bride's side, sangeet-only guests, and so on.
             </p>
           </div>
 
@@ -614,6 +701,24 @@ export default function GuestList() {
                         <td className="px-4 py-3">
                           <div className="font-medium text-foreground">{r.guest_name}</div>
                           <div className="text-xs text-muted-foreground">{r.guest_email}</div>
+                          {(() => {
+                            const meta = metaFor(r);
+                            const chips = [...(meta.guest_group ? [meta.guest_group] : []), ...(meta.tags ?? [])];
+                            if (chips.length === 0) return null;
+                            return (
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {chips.map((c, i) => (
+                                  <span
+                                    key={c + i}
+                                    className={`text-[10px] px-1.5 py-0.5 rounded-full ${i === 0 && meta.guest_group ? "bg-gold/15 border border-gold/30" : "border border-border/60 text-muted-foreground"}`}
+                                  >
+                                    {c}
+                                  </span>
+                                ))}
+                              </div>
+                            );
+                          })()}
+
                           {(r.plus_ones ?? []).length > 0 && (
                             <div className="mt-1.5 space-y-0.5">
                               {(r.plus_ones ?? []).map((p, i) => {
