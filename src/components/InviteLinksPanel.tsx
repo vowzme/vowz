@@ -137,13 +137,28 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvi
       guest_email: form.guest_email.trim().slice(0, 254) || null,
       guest_phone: form.guest_phone.trim().slice(0, 40) || null,
       plus_ones_allowed: Math.max(0, Math.min(20, Number(form.plus_ones_allowed) || 0)),
+      guest_group: form.guest_group.trim().slice(0, 60) || null,
+      tags: parseTags(form.tags),
     } as any);
     setSaving(false);
     if (error) { toast({ title: "Couldn't add invite", description: error.message, variant: "destructive" }); return; }
-    setForm({ guest_name: "", guest_email: "", guest_phone: "", plus_ones_allowed: 0 });
+    setForm({ guest_name: "", guest_email: "", guest_phone: "", plus_ones_allowed: 0, guest_group: form.guest_group, tags: "" });
     toast({ title: "Invite added" });
     void load();
   };
+
+  const saveGrouping = async () => {
+    if (!editing) return;
+    const patch = {
+      guest_group: editing.guest_group.trim().slice(0, 60) || null,
+      tags: parseTags(editing.tags),
+    };
+    const { error } = await supabase.from("guest_invites" as any).update(patch as any).eq("id", editing.id);
+    if (error) { toast({ title: "Couldn't save", description: error.message, variant: "destructive" }); return; }
+    setEditing(null);
+    void load();
+  };
+
 
   const remove = async (id: string) => {
     if (!confirm("Delete this invite? The personal link will stop working.")) return;
