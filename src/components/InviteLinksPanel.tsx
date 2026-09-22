@@ -306,7 +306,7 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvi
         </div>
       )}
 
-      <form onSubmit={create} className="grid grid-cols-1 sm:grid-cols-5 gap-2 mb-4">
+      <form onSubmit={create} className="grid grid-cols-1 sm:grid-cols-5 gap-2 mb-3">
         <Input placeholder="Guest name" value={form.guest_name} onChange={(e) => setForm({ ...form, guest_name: e.target.value })} required maxLength={120} className="sm:col-span-2" />
         <Input type="email" placeholder="Email (optional)" value={form.guest_email} onChange={(e) => setForm({ ...form, guest_email: e.target.value })} maxLength={254} />
         <Input placeholder="Phone (optional)" value={form.guest_phone} onChange={(e) => setForm({ ...form, guest_phone: e.target.value })} maxLength={40} />
@@ -324,17 +324,67 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvi
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-4 h-4 mr-1" /> Add</>}
           </Button>
         </div>
+        <Input
+          list="invite-group-suggestions"
+          placeholder="Group — e.g. Bride's side"
+          value={form.guest_group}
+          onChange={(e) => setForm({ ...form, guest_group: e.target.value })}
+          maxLength={60}
+          className="sm:col-span-2"
+        />
+        <Input
+          list="invite-tag-suggestions"
+          placeholder="Tags, comma separated — e.g. Sangeet only, Out-of-town"
+          value={form.tags}
+          onChange={(e) => setForm({ ...form, tags: e.target.value })}
+          maxLength={200}
+          className="sm:col-span-3"
+        />
+        <datalist id="invite-group-suggestions">
+          {Array.from(new Set([...allGroups, ...GROUP_SUGGESTIONS])).map((g) => <option key={g} value={g} />)}
+        </datalist>
+        <datalist id="invite-tag-suggestions">
+          {Array.from(new Set([...allTags, ...TAG_SUGGESTIONS])).map((t) => <option key={t} value={t} />)}
+        </datalist>
       </form>
+
+      {(allGroups.length > 0 || allTags.length > 0) && (
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <select
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+            aria-label="Filter by group"
+          >
+            <option value="all">All groups</option>
+            {allGroups.map((g) => <option key={g} value={g}>{g}</option>)}
+          </select>
+          <select
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+            aria-label="Filter by tag"
+          >
+            <option value="all">All tags</option>
+            {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <span className="text-xs text-muted-foreground font-body">{visible.length} shown</span>
+          {(groupFilter !== "all" || tagFilter !== "all") && (
+            <Button size="sm" variant="ghost" onClick={() => { setGroupFilter("all"); setTagFilter("all"); }}>Clear</Button>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
-      ) : items.length === 0 ? (
+      ) : visible.length === 0 ? (
         <p className="text-sm text-muted-foreground font-body text-center py-6">
-          No invites yet — add your first guest above.
+          {items.length === 0 ? "No invites yet — add your first guest above." : "No guests match these filters."}
         </p>
       ) : (
         <div className="divide-y divide-border/40">
-          {items.map((inv) => (
+          {visible.map((inv) => (
+
             <div key={inv.id} className="py-3 flex items-center justify-between gap-3 flex-wrap">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
