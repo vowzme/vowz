@@ -85,7 +85,7 @@ const Footer = () => {
               <ul className="space-y-2">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    {link.href.startsWith("/") ? (
+                    {link.href.startsWith("/") && !link.href.includes("#") ? (
                       <Link to={link.href} className="text-muted-foreground hover:text-foreground font-body text-sm transition-colors">
                         {link.label}
                       </Link>
