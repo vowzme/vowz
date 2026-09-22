@@ -66,6 +66,8 @@ const Footer = () => {
               { label: "Features", href: "/#features" },
               { label: "Pricing", href: "/#pricing" },
               { label: "Blog", href: "/blog" },
+              { label: "Wedding Vendors", href: "/vendors" },
+              { label: "List your business", href: "/vendors/signup" },
               { label: "Create Site", href: "/auth" },
             ]},
             { title: "Company", links: [
