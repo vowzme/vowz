@@ -193,9 +193,9 @@ function LuxeSurface({ edition, accent, bg, rounded }: { edition: number; accent
       />
       {/* fine paper grain */}
       <div
-        className="absolute inset-0 opacity-[0.10] mix-blend-overlay"
+        className="absolute inset-0 opacity-[0.06] mix-blend-overlay"
         style={{
-          backgroundImage: `repeating-linear-gradient(0deg, #ffffff 0px, #ffffff 1px, transparent 1px, transparent 3px), repeating-linear-gradient(90deg, #00000022 0px, #00000022 1px, transparent 1px, transparent 3px)`,
+          backgroundImage: `repeating-linear-gradient(0deg, #ffffff 0px, #ffffff 1px, transparent 1px, transparent 4px), repeating-linear-gradient(90deg, #00000022 0px, #00000022 1px, transparent 1px, transparent 4px)`,
         }}
       />
       {/* hairline gilt frame */}
@@ -248,7 +248,7 @@ function TemplateTileComposition({ t, layout }: { t: Art; layout: TemplateLayout
             <p className="font-display text-xl sm:text-2xl leading-tight font-bold" style={{ color: text }}>
               {t.partner1}
             </p>
-            <p className="font-display italic text-sm my-1" style={{ color: accent }}>and</p>
+            <p className="font-display italic text-sm my-1" style={{ color: readable(accent, bg) }}>and</p>
             <p className="font-display text-xl sm:text-2xl leading-tight font-bold" style={{ color: text }}>
               {t.partner2}
             </p>
@@ -445,7 +445,7 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
             <p className="font-body text-xs tracking-[0.35em] uppercase mb-4" style={{ color: `${text}99` }}>The Wedding of</p>
             <h2 className="font-display text-4xl sm:text-5xl font-bold leading-tight" style={{ color: text }}>
               {t.partner1}<br />
-              <span className="italic font-normal" style={{ color: accent }}>and</span><br />
+              <span className="italic font-normal" style={{ color: readable(accent, bg) }}>and</span><br />
               {t.partner2}
             </h2>
             <div className="h-px w-16 my-6" style={{ backgroundColor: accent }} />
