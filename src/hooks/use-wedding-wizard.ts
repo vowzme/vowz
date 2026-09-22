@@ -167,7 +167,10 @@ export { CULTURAL_PRESETS, THEME_OPTIONS, COLOR_PALETTES };
 export function useWeddingWizard() {
   const [step, setStep] = useState<WizardStep>(() => {
     const parsed = readDraft();
-    return (parsed?.step as WizardStep) || "names";
+    const saved = parsed?.step as WizardStep | undefined;
+    // A draft written by an older build can name a step this build no longer
+    // renders, which would blank the wizard — fall back to the first step.
+    return saved && WIZARD_STEPS.includes(saved) ? saved : "names";
   });
   const [wizardData, setWizardData] = useState<WeddingData>(() => {
     const safeDefaults: WeddingData = {
