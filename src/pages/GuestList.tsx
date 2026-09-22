@@ -168,11 +168,38 @@ export default function GuestList() {
   }, [siteId, realtimeHealth]);
 
 
+  // Group/tag info for an RSVP comes from the matching personal invite.
+  const metaFor = useMemo(() => {
+    return (r: Rsvp): InviteMeta => {
+      const byEmail = r.guest_email ? inviteMeta[`e:${r.guest_email.trim().toLowerCase()}`] : undefined;
+      const byName = !byEmail && r.guest_name ? inviteMeta[`n:${r.guest_name.trim().toLowerCase()}`] : undefined;
+      return byEmail || byName || { guest_phone: null, plus_ones_allowed: null, guest_group: null, tags: [] };
+    };
+  }, [inviteMeta]);
+
+  const groupOptions = useMemo(
+    () => Array.from(new Set(Object.values(inviteMeta).map((m) => m.guest_group).filter(Boolean) as string[])).sort(),
+    [inviteMeta],
+  );
+  const tagOptions = useMemo(
+    () => Array.from(new Set(Object.values(inviteMeta).flatMap((m) => m.tags ?? []))).sort(),
+    [inviteMeta],
+  );
+
+  const matchesGrouping = (r: Rsvp) => {
+    if (groupFilter === "all" && tagFilter === "all") return true;
+    const meta = metaFor(r);
+    if (groupFilter !== "all" && (meta.guest_group || "") !== groupFilter) return false;
+    if (tagFilter !== "all" && !(meta.tags ?? []).includes(tagFilter)) return false;
+    return true;
+  };
+
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return rows.filter((r) => {
       if (filter === "yes" && !r.attending) return false;
       if (filter === "no" && r.attending) return false;
+      if (!matchesGrouping(r)) return false;
       if (!needle) return true;
       return (
         r.guest_name.toLowerCase().includes(needle) ||
@@ -180,7 +207,9 @@ export default function GuestList() {
         (r.message ?? "").toLowerCase().includes(needle)
       );
     });
-  }, [rows, q, filter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, q, filter, groupFilter, tagFilter, inviteMeta]);
+
 
   const stats = useMemo(() => {
     const total = rows.length;
