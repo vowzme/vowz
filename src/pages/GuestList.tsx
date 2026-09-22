@@ -701,6 +701,24 @@ export default function GuestList() {
                         <td className="px-4 py-3">
                           <div className="font-medium text-foreground">{r.guest_name}</div>
                           <div className="text-xs text-muted-foreground">{r.guest_email}</div>
+                          {(() => {
+                            const meta = metaFor(r);
+                            const chips = [...(meta.guest_group ? [meta.guest_group] : []), ...(meta.tags ?? [])];
+                            if (chips.length === 0) return null;
+                            return (
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {chips.map((c, i) => (
+                                  <span
+                                    key={c + i}
+                                    className={`text-[10px] px-1.5 py-0.5 rounded-full ${i === 0 && meta.guest_group ? "bg-gold/15 border border-gold/30" : "border border-border/60 text-muted-foreground"}`}
+                                  >
+                                    {c}
+                                  </span>
+                                ))}
+                              </div>
+                            );
+                          })()}
+
                           {(r.plus_ones ?? []).length > 0 && (
                             <div className="mt-1.5 space-y-0.5">
                               {(r.plus_ones ?? []).map((p, i) => {
