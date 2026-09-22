@@ -67,7 +67,10 @@ export default function GuestList() {
 
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "yes" | "no">("all");
+  const [groupFilter, setGroupFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("all");
   const [events, setEvents] = useState<WeddingEvent[]>([]);
+
   const [broadcast, setBroadcast] = useState({
     eventIdx: -1,
     audience: "yes" as "all" | "yes" | "no" | "event",
