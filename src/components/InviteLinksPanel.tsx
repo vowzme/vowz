@@ -194,7 +194,7 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvi
   };
 
   const startWhatsAppWalker = () => {
-    const queue = items.filter((i) => !i.rsvp_id);
+    const queue = visible.filter((i) => !i.rsvp_id);
     if (queue.length === 0) {
       toast({ title: "Nobody left to invite", description: "All guests on this list have already responded." });
       return;
