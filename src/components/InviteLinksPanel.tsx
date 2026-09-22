@@ -432,8 +432,48 @@ export default function InviteLinksPanel({ siteId, siteSlug, coupleNames, onInvi
                     )}
                   </div>
                 )}
+                {editing?.id === inv.id ? (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Input
+                      list="invite-group-suggestions"
+                      value={editing.guest_group}
+                      onChange={(e) => setEditing({ ...editing, guest_group: e.target.value })}
+                      placeholder="Group"
+                      maxLength={60}
+                      className="h-9 w-40"
+                    />
+                    <Input
+                      list="invite-tag-suggestions"
+                      value={editing.tags}
+                      onChange={(e) => setEditing({ ...editing, tags: e.target.value })}
+                      placeholder="Tags, comma separated"
+                      maxLength={200}
+                      className="h-9 w-56"
+                    />
+                    <Button size="sm" variant="gold" onClick={saveGrouping}>Save</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setEditing({ id: inv.id, guest_group: inv.guest_group ?? "", tags: (inv.tags ?? []).join(", ") })}
+                    className="mt-1.5 flex flex-wrap items-center gap-1.5 text-left"
+                    title="Edit group and tags"
+                  >
+                    {inv.guest_group && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gold/15 border border-gold/30">{inv.guest_group}</span>
+                    )}
+                    {(inv.tags ?? []).map((t) => (
+                      <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full border border-border/60 text-muted-foreground">{t}</span>
+                    ))}
+                    {!inv.guest_group && (inv.tags ?? []).length === 0 && (
+                      <span className="text-[10px] text-muted-foreground underline underline-offset-2">Add group / tags</span>
+                    )}
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-1.5">
+
                 <Button size="sm" variant="outline" onClick={() => copyLink(inv.token)} title="Copy personal link">
                   {copied === inv.token ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 </Button>
