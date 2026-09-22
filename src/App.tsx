@@ -170,6 +170,7 @@ const AppRoutes = () => (
     <Route path="/admin/guest-moderation" element={<AdminLayout><AdminGuestModeration /></AdminLayout>} />
     <Route path="/admin/rsvps" element={<AdminLayout><AdminRsvps /></AdminLayout>} />
     <Route path="/admin/visitors" element={<AdminLayout><AdminVisitors /></AdminLayout>} />
+    <Route path="/admin/vendors" element={<AdminLayout><AdminVendors /></AdminLayout>} />
     <Route path="/blog" element={<PageShell><Blog /></PageShell>} />
     <Route path="/blog/:slug" element={<PageShell><BlogPost /></PageShell>} />
     <Route path="/delete-account" element={<PageShell><DeleteAccount /></PageShell>} />
