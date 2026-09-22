@@ -234,6 +234,15 @@ export default function CardGallery() {
     return sorted;
   }, [query, category, tier, sort, favorites, popularity]);
 
+  // Render in pages — the catalogue holds hundreds of designs and mounting
+  // every artwork at once freezes phones.
+  const PAGE_SIZE = 24;
+  const [shownCount, setShownCount] = useState(PAGE_SIZE);
+  useEffect(() => {
+    setShownCount(PAGE_SIZE);
+  }, [query, category, tier, sort]);
+  const paged = useMemo(() => visible.slice(0, shownCount), [visible, shownCount]);
+
   const detailTpl = detailSlug ? FALLBACK_TEMPLATES.find((t) => t.slug === detailSlug) : null;
 
   return (
