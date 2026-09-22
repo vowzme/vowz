@@ -13,18 +13,24 @@ const Footer = () => {
     { label: "WhatsApp", href: "https://wa.me/917994410111", icon: MessageCircle },
   ];
 
+  const scrollToHash = (hash: string, attempt = 0) => {
+    const el = document.querySelector(hash);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    // Home page sections load lazily — retry briefly until the section mounts.
+    if (attempt < 20) setTimeout(() => scrollToHash(hash, attempt + 1), 150);
+  };
+
   const handleAnchorClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
-    const hash = href.replace("/", "");
+    const hash = href.slice(href.indexOf("#"));
     if (location.pathname === "/") {
-      const el = document.querySelector(hash);
-      el?.scrollIntoView({ behavior: "smooth" });
+      scrollToHash(hash);
     } else {
       navigate("/");
-      setTimeout(() => {
-        const el = document.querySelector(hash);
-        el?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      setTimeout(() => scrollToHash(hash), 150);
     }
   };
 
