@@ -242,7 +242,10 @@ export default function GuestList() {
         "Guest name": r.guest_name,
         Email: r.guest_email,
         Phone: meta.guest_phone ?? "",
+        Group: meta.guest_group ?? "",
+        Tags: (meta.tags ?? []).join(", "),
         Status: r.attending ? "Attending" : "Regrets",
+
         "Total heads": r.guest_count,
         "Plus-ones allowed": meta.plus_ones_allowed ?? "",
         Meal: r.meal_preference ?? "",
