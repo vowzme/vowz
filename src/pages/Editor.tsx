@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { AnimatePresence as LightboxAnimatePresence } from "framer-motion";
 import Lightbox from "@/components/Lightbox";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion, AnimatePresence, Reorder, useDragControls } from "framer-motion";
 import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
@@ -1177,6 +1177,114 @@ function FeaturesPanel({
 }
 
 // ─── Sections Panel (with drag-and-drop reorder) ──────────────────────
+const DELETABLE_SECTION_TYPES = new Set([
+  "custom", "polls", "ecotips", "rituals", "video", "livestream",
+  "blessings", "guest_album", "registry", "couple_profiles", "music",
+]);
+
+const ADDABLE_SECTIONS: { id: string; label: string; desc: string }[] = [
+  { id: "custom", label: "📝 Custom Section", desc: "Any text content you like" },
+  { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting for guests" },
+  { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability notes" },
+  { id: "rituals", label: "🪔 Rituals & Traditions", desc: "Explain each ceremony" },
+  { id: "video", label: "🎬 Video Embed", desc: "YouTube or Vimeo link" },
+  { id: "livestream", label: "📡 Live Stream", desc: "Virtual attendance" },
+  { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
+  { id: "guest_album", label: "📸 Guest Album", desc: "Crowdsourced photos" },
+  { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
+  { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & groom bios" },
+  { id: "music", label: "🎵 Background Music", desc: "Wedding soundtrack" },
+];
+
+function SectionRow({
+  section,
+  index,
+  total,
+  selected,
+  onSelect,
+  onToggleVisibility,
+  onDelete,
+  onMove,
+}: {
+  section: WeddingSection;
+  index: number;
+  total: number;
+  selected: boolean;
+  onSelect: (id: string) => void;
+  onToggleVisibility: (id: string) => void;
+  onDelete: (id: string) => void;
+  onMove: (id: string, dir: -1 | 1) => void;
+}) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item value={section} dragListener={false} dragControls={controls}>
+      <div
+        className={`flex items-center gap-1.5 p-2 rounded-lg transition-colors ${
+          selected ? "bg-gold/10 border border-gold/30" : "bg-background/50 border border-border/30 hover:border-border"
+        }`}
+      >
+        {/* Drag handle: pointer drag on desktop, long-press drag on touch */}
+        <button
+          type="button"
+          aria-label={`Reorder ${section.title}`}
+          onPointerDown={(e) => { e.preventDefault(); controls.start(e); }}
+          className="h-10 w-8 flex items-center justify-center text-muted-foreground/60 cursor-grab active:cursor-grabbing touch-none shrink-0"
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onSelect(section.id)}
+          className="font-body text-sm flex-1 text-left text-foreground truncate min-h-10"
+        >
+          {section.title}
+        </button>
+
+        {/* Tap-friendly reordering for phones */}
+        <div className="flex sm:hidden flex-col shrink-0">
+          <button
+            type="button"
+            aria-label={`Move ${section.title} up`}
+            disabled={index === 0}
+            onClick={() => onMove(section.id, -1)}
+            className="h-6 w-8 flex items-center justify-center text-muted-foreground disabled:opacity-25"
+          >
+            <ChevronUp className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            aria-label={`Move ${section.title} down`}
+            disabled={index === total - 1}
+            onClick={() => onMove(section.id, 1)}
+            className="h-6 w-8 flex items-center justify-center text-muted-foreground disabled:opacity-25"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </div>
+
+        <Switch
+          checked={section.visible}
+          onCheckedChange={() => onToggleVisibility(section.id)}
+          aria-label={`Show ${section.title}`}
+          className="scale-90 sm:scale-75 shrink-0"
+        />
+
+        {DELETABLE_SECTION_TYPES.has(section.type) && (
+          <button
+            type="button"
+            aria-label={`Delete ${section.title}`}
+            onClick={() => onDelete(section.id)}
+            className="h-10 w-8 flex items-center justify-center text-muted-foreground hover:text-destructive shrink-0"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    </Reorder.Item>
+  );
+}
+
 function SectionsPanel({
   sections,
   selectedSectionId,
@@ -1195,71 +1303,79 @@ function SectionsPanel({
   onAdd: (type?: string) => void;
 }) {
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [addSearch, setAddSearch] = useState("");
+
+  const move = (id: string, dir: -1 | 1) => {
+    const from = sections.findIndex((s) => s.id === id);
+    const to = from + dir;
+    if (from < 0 || to < 0 || to >= sections.length) return;
+    const next = [...sections];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    onReorder(next);
+  };
+
+  const addOptions = ADDABLE_SECTIONS.filter((o) =>
+    `${o.label} ${o.desc}`.toLowerCase().includes(addSearch.toLowerCase()),
+  );
+
   return (
     <div>
       <h3 className="font-display text-lg font-semibold text-foreground mb-1">Sections</h3>
-      <p className="text-xs text-muted-foreground font-body mb-4">Drag to reorder, click to edit</p>
+      <p className="text-xs text-muted-foreground font-body mb-4">
+        Drag the handle to reorder (use the arrows on a phone), tap a name to edit.
+      </p>
 
       <Reorder.Group axis="y" values={sections} onReorder={onReorder} className="space-y-2">
-        {sections.map((section) => (
-          <Reorder.Item key={section.id} value={section}>
-            <div
-              className={`flex items-center gap-2 p-2.5 rounded-lg cursor-pointer transition-colors ${
-                selectedSectionId === section.id
-                  ? "bg-gold/10 border border-gold/30"
-                  : "bg-background/50 border border-border/30 hover:border-border"
-              }`}
-              onClick={() => onSelect(section.id)}
-            >
-              <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab shrink-0" />
-              <span className="font-body text-sm flex-1 text-foreground truncate">{section.title}</span>
-              <Switch
-                checked={section.visible}
-                onCheckedChange={() => onToggleVisibility(section.id)}
-                onClick={(e) => e.stopPropagation()}
-                className="scale-75"
-              />
-              {(section.type === "custom" || section.type === "polls" || section.type === "ecotips" || section.type === "rituals" || section.type === "video" || section.type === "livestream" || section.type === "blessings" || section.type === "guest_album" || section.type === "registry" || section.type === "couple_profiles" || section.type === "music") && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
-                  className="text-muted-foreground hover:text-destructive p-1"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </Reorder.Item>
+        {sections.map((section, i) => (
+          <SectionRow
+            key={section.id}
+            section={section}
+            index={i}
+            total={sections.length}
+            selected={selectedSectionId === section.id}
+            onSelect={onSelect}
+            onToggleVisibility={onToggleVisibility}
+            onDelete={onDelete}
+            onMove={move}
+          />
         ))}
       </Reorder.Group>
 
-      <div className="relative mt-4">
-        <Button variant="outline" size="sm" className="w-full font-body" onClick={() => setShowAddMenu(!showAddMenu)}>
-          <Plus className="w-4 h-4 mr-1" /> Add Section
+      <div className="mt-4">
+        <Button
+          variant="outline"
+          className="w-full font-body h-11"
+          onClick={() => { setShowAddMenu(!showAddMenu); setAddSearch(""); }}
+        >
+          <Plus className="w-4 h-4 mr-1" /> Add section
         </Button>
         {showAddMenu && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border/50 rounded-lg shadow-lg z-10 overflow-hidden">
-            {[
-              { id: "custom", label: "📝 Custom Section", desc: "Text content" },
-              { id: "polls", label: "🗳️ Guest Polls", desc: "Fun voting" },
-              { id: "ecotips", label: "🌿 Eco Tips", desc: "Sustainability" },
-              { id: "rituals", label: "🪔 Rituals & Traditions", desc: "Explain each ceremony to guests" },
-              { id: "video", label: "🎬 Video Embed", desc: "YouTube/Vimeo" },
-              { id: "livestream", label: "📡 Live Stream", desc: "Virtual attendance" },
-              { id: "blessings", label: "💕 Blessings Wall", desc: "Guest messages" },
-              { id: "guest_album", label: "📸 Guest Album", desc: "Crowdsourced photos & reactions" },
-              { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
-              { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & Groom" },
-              { id: "music", label: "🎵 Background Music", desc: "Wedding soundtrack" },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => onAdd(item.id)}
-                className="w-full text-left px-3 py-2 hover:bg-muted transition-colors flex items-center justify-between"
-              >
-                <span className="font-body text-sm text-foreground">{item.label}</span>
-                <span className="font-body text-xs text-muted-foreground">{item.desc}</span>
-              </button>
-            ))}
+          <div className="mt-2 bg-card border border-border/50 rounded-lg overflow-hidden">
+            <div className="p-2 border-b border-border/40">
+              <Input
+                value={addSearch}
+                onChange={(e) => setAddSearch(e.target.value)}
+                placeholder="Search sections"
+                className="h-10"
+                autoFocus
+              />
+            </div>
+            <div className="max-h-72 overflow-y-auto">
+              {addOptions.length === 0 && (
+                <p className="px-3 py-4 font-body text-sm text-muted-foreground">Nothing matches that.</p>
+              )}
+              {addOptions.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => { onAdd(item.id); setShowAddMenu(false); }}
+                  className="w-full text-left px-3 py-3 min-h-12 hover:bg-muted transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5"
+                >
+                  <span className="font-body text-sm text-foreground">{item.label}</span>
+                  <span className="font-body text-xs text-muted-foreground">{item.desc}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

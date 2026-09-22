@@ -76,6 +76,13 @@ const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const ReminderSettings = lazy(() => import("./pages/ReminderSettings"));
 const Payments = lazy(() => import("./pages/Payments"));
 const OnlineWeddingCardMaker = lazy(() => import("./pages/OnlineWeddingCardMaker"));
+const SeatingChart = lazy(() => import("./pages/SeatingChart"));
+const PhotoWall = lazy(() => import("./pages/PhotoWall"));
+const Vendors = lazy(() => import("./pages/Vendors"));
+const VendorProfile = lazy(() => import("./pages/VendorProfile"));
+const VendorSignup = lazy(() => import("./pages/VendorSignup"));
+const VendorDashboard = lazy(() => import("./pages/VendorDashboard"));
+const AdminVendors = lazy(() => import("./pages/admin/AdminVendors"));
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
@@ -110,6 +117,13 @@ const AppRoutes = () => (
     <Route path="/dashboard/album/:siteId" element={<ProtectedRoute><AlbumModeration /></ProtectedRoute>} />
     <Route path="/dashboard/reminders" element={<ProtectedRoute><ReminderSettings /></ProtectedRoute>} />
     <Route path="/dashboard/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+    <Route path="/dashboard/seating/:siteId" element={<ProtectedRoute><SeatingChart /></ProtectedRoute>} />
+    <Route path="/photo-wall/:slug" element={<PhotoWall />} />
+    <Route path="/vendors" element={<PageShell><Vendors /></PageShell>} />
+    <Route path="/vendors/signup" element={<PageShell><VendorSignup /></PageShell>} />
+    <Route path="/vendors/:category" element={<PageShell><Vendors /></PageShell>} />
+    <Route path="/vendor/dashboard" element={<ProtectedRoute><PageShell><VendorDashboard /></PageShell></ProtectedRoute>} />
+    <Route path="/vendor/:slug" element={<PageShell><VendorProfile /></PageShell>} />
     <Route path="/wizard" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
     <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     <Route path="/editor/:siteId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
@@ -156,6 +170,7 @@ const AppRoutes = () => (
     <Route path="/admin/guest-moderation" element={<AdminLayout><AdminGuestModeration /></AdminLayout>} />
     <Route path="/admin/rsvps" element={<AdminLayout><AdminRsvps /></AdminLayout>} />
     <Route path="/admin/visitors" element={<AdminLayout><AdminVisitors /></AdminLayout>} />
+    <Route path="/admin/vendors" element={<AdminLayout><AdminVendors /></AdminLayout>} />
     <Route path="/blog" element={<PageShell><Blog /></PageShell>} />
     <Route path="/blog/:slug" element={<PageShell><BlogPost /></PageShell>} />
     <Route path="/delete-account" element={<PageShell><DeleteAccount /></PageShell>} />

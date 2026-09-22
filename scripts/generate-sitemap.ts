@@ -33,6 +33,12 @@ const staticEntries: Entry[] = [
   { path: "/contact", changefreq: "monthly", priority: "0.6" },
   { path: "/affiliate", changefreq: "monthly", priority: "0.6" },
   { path: "/franchise", changefreq: "monthly", priority: "0.6" },
+  { path: "/vendors", changefreq: "weekly", priority: "0.8" },
+  { path: "/vendors/signup", changefreq: "monthly", priority: "0.6" },
+  ...[
+    "photography", "printing", "dress-rental", "decor", "catering",
+    "event-management", "makeup", "mehendi", "music", "venues",
+  ].map((c) => ({ path: `/vendors/${c}`, changefreq: "weekly", priority: "0.7" }) as Entry),
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
   { path: "/refund-policy", changefreq: "yearly", priority: "0.3" },
