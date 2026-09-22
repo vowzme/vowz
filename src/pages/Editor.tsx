@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { AnimatePresence as LightboxAnimatePresence } from "framer-motion";
 import Lightbox from "@/components/Lightbox";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion, AnimatePresence, Reorder, useDragControls } from "framer-motion";
 import {
   Heart, Eye, EyeOff, GripVertical, Plus, Trash2, ArrowLeft,
   Type, Palette, Settings, Sparkles, Save, ExternalLink, X,
