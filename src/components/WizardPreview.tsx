@@ -112,13 +112,16 @@ const WizardPreview = ({ data }: { data: WeddingData }) => {
       bodyFont: data.bodyFont,
     }).then((site) => {
       if (site) setSiteId(site.id);
+      else savedRef.current = false; // allow a retry if the save failed
     });
 
     // Carry the card design chosen in the wizard through to the card studio.
     if (data.cardTemplate) {
       try { sessionStorage.setItem("pendingCardTemplate", data.cardTemplate); } catch { /* ignore */ }
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const [bg, accent, light] = data.suggestedColors.length >= 3
     ? data.suggestedColors
     : ["#6B1D2A", "#D4A853", "#FFF5E6"];
