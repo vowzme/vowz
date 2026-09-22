@@ -666,7 +666,7 @@ export default function GuestList() {
               </Button>
             </div>
             <p className="text-[11px] font-body text-muted-foreground">
-              Announcements open your own WhatsApp / SMS / email app with the message and recipients prefilled — no bulk send from our servers, so guests always see it come from you.
+              Announcements open your own WhatsApp / SMS / email app with the message and recipients prefilled — no bulk send from our servers, so guests always see it come from you. Pick a group or tag above to message only bride's side, sangeet-only guests, and so on.
             </p>
           </div>
 
