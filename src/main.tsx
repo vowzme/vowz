@@ -8,18 +8,8 @@ import "@fontsource/playfair-display/latin-400-italic.css";
 import "@fontsource/playfair-display/latin-700.css";
 import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-600.css";
-import { registerPwa } from "./pwa/register";
 
 createRoot(document.getElementById("root")!).render(<App />);
-
-// Fade out the boot splash once the app has painted.
-const dismissBootSplash = () => {
-  const splash = document.getElementById("boot-splash");
-  if (!splash) return;
-  splash.classList.add("is-hidden");
-  window.setTimeout(() => splash.remove(), 600);
-};
-requestAnimationFrame(() => window.setTimeout(dismissBootSplash, 450));
 
 /**
  * Decorative/template fonts (used by wedding site themes and invitation
@@ -47,5 +37,20 @@ if (typeof window !== "undefined") {
   }
 }
 
-// Register service worker (production, non-preview only — see src/pwa/register.ts)
-registerPwa();
+/**
+ * The installable-app layer was removed in favour of a real native app.
+ * Visitors who previously installed the web app still carry an old service
+ * worker and its caches, which would keep serving stale builds forever, so
+ * tear both down once on load.
+ */
+if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+  void navigator.serviceWorker
+    .getRegistrations()
+    .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+    .then(async () => {
+      if (typeof caches === "undefined") return;
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    })
+    .catch(() => {});
+}
