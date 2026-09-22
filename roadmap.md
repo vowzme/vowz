@@ -8,6 +8,9 @@
 - [x] Polish the invitation-card studio for phone and tablet editing.
 - [x] Strengthen wedding-planning and invitation-card search titles, descriptions, and sitemap coverage.
 - [x] Guest groups and tags: label guests, filter the list, and target announcements.
-- [ ] Seating chart planner.
-- [ ] Live photo wall.
-- [ ] Vendor marketplace screens.
+- [x] Mobile-friendly section editor: drag handle, tap arrows on phones, searchable add-section list.
+- [x] Seating chart planner (drag or tap to seat, CSV export, optional guest seat lookup).
+- [x] Live photo wall at /photo-wall/:slug with QR upload code and live updates.
+- [x] Vendor marketplace: signup, brand-page editor, directory, profile page, admin approval.
+- [ ] Walk the wizard end to end in a signed-in browser session (needs approval to mint a test session).
+- [ ] Native mobile app groundwork (PWA/installer/splash already removed).
