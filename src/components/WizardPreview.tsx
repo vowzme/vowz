@@ -4,17 +4,23 @@ import { Link } from "react-router-dom";
 import { Heart, Calendar, MapPin, Sparkles, ArrowRight, Check, Clock, Plane, Hotel, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWeddingSite } from "@/hooks/use-wedding-site";
+import { useAuth } from "@/hooks/use-auth";
 import type { WeddingData } from "@/hooks/use-wedding-wizard";
 
 const WizardPreview = ({ data }: { data: WeddingData }) => {
   const { createSite } = useWeddingSite();
+  const { user } = useAuth();
   const savedRef = useRef(false);
   const [siteId, setSiteId] = useState<string | null>(null);
 
-  // Auto-save the site to the database on first render
+  // Auto-save the site to the database once the session is available. The auth
+  // session hydrates asynchronously, so saving on first render alone would drop
+  // the site silently when the user object hasn't landed yet.
   useEffect(() => {
     if (savedRef.current) return;
+    if (!user) return;
     savedRef.current = true;
+
 
     const sections = [
       {
