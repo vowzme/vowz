@@ -177,7 +177,8 @@ export function useWeddingWizard() {
       displayFont: "Cormorant Garamond", bodyFont: "Inter", tagline: "",
     };
     const ensure = (d: Partial<WeddingData> | undefined | null): WeddingData => {
-      const merged = { ...safeDefaults, ...(d || {}) } as WeddingData;
+      const raw = d && typeof d === "object" && !Array.isArray(d) ? d : {};
+      const merged = { ...safeDefaults, ...raw } as WeddingData;
       // Validate theme/palette fields with the shared schema so a malformed
       // draft (e.g. non-array colors, non-string fonts) can't crash the wizard.
       const style = parseThemeStyle(merged);
@@ -185,6 +186,47 @@ export function useWeddingWizard() {
       merged.suggestedColors = style.suggestedColors;
       merged.displayFont = style.displayFont;
       merged.bodyFont = style.bodyFont;
+      // Every remaining field is rendered directly (mapped, keyed, trimmed),
+      // so a draft saved by an older build — or hand-edited storage — must be
+      // coerced back to its expected shape instead of crashing the wizard.
+      const str = (v: unknown, fallback = "") => (typeof v === "string" ? v : fallback);
+      merged.partner1 = str(merged.partner1);
+      merged.partner2 = str(merged.partner2);
+      merged.tagline = str(merged.tagline);
+      merged.howWeMet = str(merged.howWeMet);
+      merged.culturalBackground = str(merged.culturalBackground, "Hindu");
+      merged.functions = Array.isArray(merged.functions)
+        ? merged.functions.filter((f): f is string => typeof f === "string")
+        : [];
+      merged.eventDates =
+        merged.eventDates && typeof merged.eventDates === "object" && !Array.isArray(merged.eventDates)
+          ? Object.fromEntries(
+              Object.entries(merged.eventDates).map(([k, v]) => [
+                k,
+                v && typeof v === "object" && !Array.isArray(v) ? v : {},
+              ]),
+            )
+          : {};
+      if (merged.travelInfo) {
+        const t = merged.travelInfo as Partial<WeddingData["travelInfo"]> & Record<string, unknown>;
+        merged.travelInfo =
+          t && typeof t === "object" && !Array.isArray(t)
+            ? {
+                heading: str(t.heading, "Travel & Stay"),
+                description: str(t.description),
+                hotels: Array.isArray(t.hotels)
+                  ? (t.hotels as unknown[]).filter(
+                      (h): h is { name: string; description: string; distance: string } =>
+                        !!h && typeof h === "object" && !Array.isArray(h),
+                    )
+                  : [],
+                directions: str(t.directions),
+              }
+            : undefined;
+      }
+      if (merged.cardTemplate !== undefined && typeof merged.cardTemplate !== "string") {
+        merged.cardTemplate = undefined;
+      }
       return merged;
     };
     const parsed = readDraft();
