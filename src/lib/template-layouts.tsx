@@ -145,10 +145,44 @@ function luxeTexture(edition: number, accent: string, bg: string): string {
   }
 }
 
+/**
+ * Edition-specific hairline frame. Pure CSS borders so it stays crisp on any
+ * density and adds no network cost.
+ */
+function frameStyle(edition: number, accent: string): React.CSSProperties {
+  const e = edition % 10;
+  if (e === 2 || e === 6 || e === 9) {
+    // Pearl frame / heritage seal / fine art mat — double mat border
+    return {
+      inset: "6%",
+      border: `1px solid ${accent}66`,
+      boxShadow: `0 0 0 3px ${accent}14, inset 0 0 0 3px ${accent}14`,
+      borderRadius: e === 6 ? "999px" : "2px",
+    };
+  }
+  if (e === 3 || e === 7) {
+    // Temple lines / moonlit border — arched top frame
+    return {
+      inset: "7% 9%",
+      border: `1px solid ${accent}55`,
+      borderRadius: "48% 48% 4px 4px / 24% 24% 4px 4px",
+    };
+  }
+  if (e === 0 || e === 5) {
+    // Gilded edge / silk ribbon — corner-only gilt rules
+    return {
+      inset: "5%",
+      borderTop: `1px solid ${accent}77`,
+      borderBottom: `1px solid ${accent}77`,
+    };
+  }
+  return { inset: "5.5%", border: `1px solid ${accent}3d`, borderRadius: "3px" };
+}
+
 function LuxeSurface({ edition, accent, bg, rounded }: { edition: number; accent: string; bg: string; rounded?: boolean }) {
   const dotted = edition % 10 === 4;
   return (
-    <div className={`pointer-events-none absolute inset-0 z-10 ${rounded ? "rounded-xl" : ""}`} aria-hidden="true">
+    <div className={`pointer-events-none absolute inset-0 z-10 overflow-hidden ${rounded ? "rounded-xl" : ""}`} aria-hidden="true">
       <div
         className="absolute inset-0"
         style={{
@@ -157,15 +191,27 @@ function LuxeSurface({ edition, accent, bg, rounded }: { edition: number; accent
           backgroundPosition: dotted ? "0 0, 11px 17px" : undefined,
         }}
       />
+      {/* fine paper grain */}
+      <div
+        className="absolute inset-0 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage: `repeating-linear-gradient(0deg, #ffffff 0px, #ffffff 1px, transparent 1px, transparent 4px), repeating-linear-gradient(90deg, #00000022 0px, #00000022 1px, transparent 1px, transparent 4px)`,
+        }}
+      />
+      {/* hairline gilt frame */}
+      <div className="absolute" style={{ position: "absolute", ...frameStyle(edition, accent) }} />
       {/* foil sheen */}
       <div
         className="absolute inset-0 mix-blend-soft-light"
-        style={{ background: `linear-gradient(115deg, #ffffff00 20%, #ffffff55 42%, #ffffff00 60%)` }}
+        style={{ background: `linear-gradient(115deg, #ffffff00 18%, #ffffff66 40%, #ffffff00 58%)` }}
       />
-      {/* vignette for depth */}
+      {/* warm top light + vignette for depth */}
       <div
         className="absolute inset-0"
-        style={{ boxShadow: `inset 0 0 60px ${bg}80, inset 0 -40px 60px -40px #00000055` }}
+        style={{
+          background: `radial-gradient(120% 70% at 50% -10%, #ffffff26 0%, transparent 60%)`,
+          boxShadow: `inset 0 0 70px ${bg}88, inset 0 -46px 70px -40px #00000066`,
+        }}
       />
     </div>
   );
@@ -202,7 +248,7 @@ function TemplateTileComposition({ t, layout }: { t: Art; layout: TemplateLayout
             <p className="font-display text-xl sm:text-2xl leading-tight font-bold" style={{ color: text }}>
               {t.partner1}
             </p>
-            <p className="font-display italic text-sm my-1" style={{ color: accent }}>and</p>
+            <p className="font-display italic text-sm my-1" style={{ color: readable(accent, bg) }}>and</p>
             <p className="font-display text-xl sm:text-2xl leading-tight font-bold" style={{ color: text }}>
               {t.partner2}
             </p>
@@ -399,7 +445,7 @@ function TemplateHeroComposition({ t, layout, parallaxY = 0 }: { t: Art; layout:
             <p className="font-body text-xs tracking-[0.35em] uppercase mb-4" style={{ color: `${text}99` }}>The Wedding of</p>
             <h2 className="font-display text-4xl sm:text-5xl font-bold leading-tight" style={{ color: text }}>
               {t.partner1}<br />
-              <span className="italic font-normal" style={{ color: accent }}>and</span><br />
+              <span className="italic font-normal" style={{ color: readable(accent, bg) }}>and</span><br />
               {t.partner2}
             </h2>
             <div className="h-px w-16 my-6" style={{ backgroundColor: accent }} />
