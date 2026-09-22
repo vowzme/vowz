@@ -530,6 +530,24 @@ export default function GuestList() {
               siteId={site.id}
               siteSlug={site.slug}
               coupleNames={`${site.partner1} & ${site.partner2}`}
+              onInvitesChange={(list) => {
+                const map: Record<string, InviteMeta> = {};
+                for (const inv of list) {
+                  const keys = [
+                    inv.guest_email ? `e:${inv.guest_email.trim().toLowerCase()}` : "",
+                    inv.guest_name ? `n:${inv.guest_name.trim().toLowerCase()}` : "",
+                  ].filter(Boolean);
+                  for (const k of keys) {
+                    map[k] = {
+                      guest_phone: inviteMeta[k]?.guest_phone ?? null,
+                      plus_ones_allowed: inviteMeta[k]?.plus_ones_allowed ?? null,
+                      guest_group: inv.guest_group,
+                      tags: inv.tags,
+                    };
+                  }
+                }
+                setInviteMeta(map);
+              }}
             />
           )}
 
@@ -556,7 +574,35 @@ export default function GuestList() {
                 </button>
               ))}
             </div>
+            {groupOptions.length > 0 && (
+              <select
+                value={groupFilter}
+                onChange={(e) => setGroupFilter(e.target.value)}
+                aria-label="Filter by group"
+                className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+              >
+                <option value="all">All groups</option>
+                {groupOptions.map((g) => <option key={g} value={g}>{g}</option>)}
+              </select>
+            )}
+            {tagOptions.length > 0 && (
+              <select
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+                aria-label="Filter by tag"
+                className="h-9 rounded-md border border-border bg-background px-2 text-sm font-body"
+              >
+                <option value="all">All tags</option>
+                {tagOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            )}
+            {(groupFilter !== "all" || tagFilter !== "all") && (
+              <Button variant="ghost" size="sm" onClick={() => { setGroupFilter("all"); setTagFilter("all"); }}>
+                Clear groups
+              </Button>
+            )}
           </div>
+
 
           {/* Announcements broadcast */}
           <div className="mb-6 rounded-xl border border-border/60 bg-card p-4 space-y-3">
