@@ -71,6 +71,20 @@
       "when": 1790081981284,
       "tag": "0009_fix_wedding_sites_policy_recursion",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790082102515,
+      "tag": "0010_auto_tag_invites_on_rsvp",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790082123911,
+      "tag": "0011_auto_tag_invites_on_link",
+      "breakpoints": true
     }
   ]
 }
