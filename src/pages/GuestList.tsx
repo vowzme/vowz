@@ -31,7 +31,7 @@ type Rsvp = {
   plus_ones: Array<{ name: string; meal_preference: string | null; dietary_tags: string[] }> | null;
 };
 
-type InviteMeta = { guest_phone: string | null; plus_ones_allowed: number | null };
+type InviteMeta = { guest_phone: string | null; plus_ones_allowed: number | null; guest_group: string | null; tags: string[] };
 
 type Site = { id: string; partner1: string; partner2: string; slug: string | null };
 type WeddingEvent = { name: string; date?: string; time?: string; venue?: string };
