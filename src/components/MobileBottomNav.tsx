@@ -64,7 +64,6 @@ const MobileBottomNav = () => {
       ? [
           { label: "My dashboard", to: "/dashboard", icon: LayoutDashboard },
           { label: "Reminders", to: "/dashboard/reminders", icon: Bell },
-          { label: "Widgets", to: "/dashboard/widgets", icon: Sparkles },
           { label: "Payments", to: "/dashboard/payments", icon: Receipt },
         ]
       : [{ label: "Get started", to: "/auth", icon: LogIn }]),
