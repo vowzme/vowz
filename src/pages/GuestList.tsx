@@ -419,16 +419,20 @@ export default function GuestList() {
   };
 
   // ── Mass broadcast (announcements) ────────────────────────────────────
+  // Group and tag filters above also narrow who a broadcast goes to.
   const broadcastRecipients = useMemo(() => {
-    let list = rows;
-    if (broadcast.audience === "yes") list = rows.filter((r) => r.attending);
-    else if (broadcast.audience === "no") list = rows.filter((r) => !r.attending);
+    const base = rows.filter(matchesGrouping);
+    let list = base;
+    if (broadcast.audience === "yes") list = base.filter((r) => r.attending);
+    else if (broadcast.audience === "no") list = base.filter((r) => !r.attending);
     else if (broadcast.audience === "event") {
       const ev = events[broadcast.eventIdx];
-      if (ev) list = rows.filter((r) => r.attending && (r.selected_events ?? []).includes(ev.name));
+      if (ev) list = base.filter((r) => r.attending && (r.selected_events ?? []).includes(ev.name));
     }
     return list;
-  }, [rows, broadcast.audience, broadcast.eventIdx, events]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, broadcast.audience, broadcast.eventIdx, events, groupFilter, tagFilter, inviteMeta]);
+
 
   const composedMessage = useMemo(() => {
     const ev = broadcast.eventIdx >= 0 ? events[broadcast.eventIdx] : null;
