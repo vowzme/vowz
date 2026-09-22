@@ -1210,6 +1210,18 @@ const Dashboard = () => {
                           <Users className="w-4 h-4 mr-1" /> Moderate Album
                         </Link>
                       </Button>
+                      <Button variant="outline" size="sm" asChild className="ml-2 mt-2">
+                        <Link to={`/dashboard/seating/${site.id}`}>
+                          <Users className="w-4 h-4 mr-1" /> Seating Plan
+                        </Link>
+                      </Button>
+                      {site.slug && (
+                        <Button variant="outline" size="sm" asChild className="ml-2 mt-2">
+                          <Link to={`/photo-wall/${site.slug}`} target="_blank">
+                            <Users className="w-4 h-4 mr-1" /> Live Photo Wall
+                          </Link>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
