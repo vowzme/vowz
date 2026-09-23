@@ -4488,6 +4488,45 @@ function SectionRenderer({
     );
   }
 
+  if (type === "party") {
+    const members = ((data.members || []) as any[]).filter((m: any) => (m?.name || "").trim());
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <InlineEditable
+          tag="h2"
+          value={data.heading || "Our Wedding Party"}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        {members.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center" style={{ fontFamily: bFont }}>
+            Add bridesmaids, groomsmen and family in the panel to see them here.
+          </p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-5">
+            {members.map((p: any, i: number) => (
+              <div key={i} className="text-center">
+                <div className="w-16 h-16 rounded-full mx-auto mb-2 overflow-hidden border-2" style={{ borderColor: accent }}>
+                  {p.photo ? (
+                    <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
+                      <Heart className="w-6 h-6" style={{ color: `${accent}40` }} />
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs font-semibold text-foreground" style={{ fontFamily: dFont }}>{p.name}</p>
+                {p.role && <p className="text-[10px] mt-0.5" style={{ color: accent, fontFamily: bFont }}>{p.role}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (type === "gallery") {
     return <GalleryRendererComponent data={data} accent={accent} />;
   }
