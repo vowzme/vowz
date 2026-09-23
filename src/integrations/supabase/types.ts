@@ -111,11 +111,14 @@ export type Database = {
           is_active: boolean
           is_franchise: boolean
           paid_earnings: number
+          partner_type: string
           payout_paypal: string | null
           payout_upi: string | null
           pending_earnings: number
           phone: string | null
           referral_code: string
+          shop_logo_url: string | null
+          shop_name: string | null
           successful_referrals: number
           total_earnings: number
           total_referrals: number
@@ -133,11 +136,14 @@ export type Database = {
           is_active?: boolean
           is_franchise?: boolean
           paid_earnings?: number
+          partner_type?: string
           payout_paypal?: string | null
           payout_upi?: string | null
           pending_earnings?: number
           phone?: string | null
           referral_code: string
+          shop_logo_url?: string | null
+          shop_name?: string | null
           successful_referrals?: number
           total_earnings?: number
           total_referrals?: number
@@ -155,11 +161,14 @@ export type Database = {
           is_active?: boolean
           is_franchise?: boolean
           paid_earnings?: number
+          partner_type?: string
           payout_paypal?: string | null
           payout_upi?: string | null
           pending_earnings?: number
           phone?: string | null
           referral_code?: string
+          shop_logo_url?: string | null
+          shop_name?: string | null
           successful_referrals?: number
           total_earnings?: number
           total_referrals?: number
