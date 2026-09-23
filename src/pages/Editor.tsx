@@ -2653,6 +2653,84 @@ function SectionEditor({
         </>
       )}
 
+      {type === "party" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Intro (optional)</label>
+            <Textarea rows={2} value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} className="font-body text-sm" />
+          </div>
+          <div className="space-y-3 mt-2">
+            {((data.members || []) as any[]).map((m: any, i: number) => {
+              const setMember = (patch: any) => {
+                const members = [...(data.members || [])];
+                members[i] = { ...members[i], ...patch };
+                onUpdateData({ members });
+              };
+              const move = (dir: number) => {
+                const members = [...(data.members || [])];
+                const j = i + dir;
+                if (j < 0 || j >= members.length) return;
+                [members[i], members[j]] = [members[j], members[i]];
+                onUpdateData({ members });
+              };
+              return (
+                <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <p className="font-body text-sm font-medium text-foreground flex-1">Member {i + 1}</p>
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0" onClick={() => move(-1)} aria-label="Move up">↑</Button>
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0" onClick={() => move(1)} aria-label="Move down">↓</Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 w-9 p-0 text-destructive"
+                      aria-label="Remove member"
+                      onClick={() => onUpdateData({ members: (data.members || []).filter((_: any, j: number) => j !== i) })}
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                  <Input placeholder="Name" value={m.name || ""} onChange={(e) => setMember({ name: e.target.value })} className="font-body text-sm h-11" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input placeholder="Role (Maid of Honour)" value={m.role || ""} onChange={(e) => setMember({ role: e.target.value })} className="font-body text-sm h-11" />
+                    <select
+                      value={m.side || "Bride's side"}
+                      onChange={(e) => setMember({ side: e.target.value })}
+                      className="w-full h-11 rounded-md border border-border bg-background px-2 font-body text-sm"
+                    >
+                      {["Bride's side", "Groom's side", "Family", "Friends"].map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <Textarea placeholder="One-line note (how you know them)" rows={2} value={m.note || ""} onChange={(e) => setMember({ note: e.target.value })} className="font-body text-sm" />
+                  <Input placeholder="Instagram or social link (optional)" value={m.social || ""} onChange={(e) => setMember({ social: e.target.value })} className="font-body text-sm h-11" />
+                  <CouplePhotoUploader
+                    label="Photo"
+                    currentUrl={m.photo || ""}
+                    onPhotoChange={(url) => setMember({ photo: url })}
+                  />
+                </div>
+              );
+            })}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body h-11"
+              onClick={() => onUpdateData({ members: [...(data.members || []), { name: "", role: "", side: "Bride's side", note: "", photo: "", social: "" }] })}
+            >
+              + Add party member
+            </Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground font-body mt-1">
+            💡 Grouped automatically by side on your live site. Members without a name are hidden.
+          </p>
+        </>
+      )}
+
       {type === "events" && (
         <>
           <div>
