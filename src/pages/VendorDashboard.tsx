@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { VENDOR_CATEGORIES, type VendorRow, type VendorService } from "@/lib/vendor-categories";
-import { Loader2, Plus, Trash2, ExternalLink, ImagePlus, Save } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { Loader2, Plus, Trash2, ExternalLink, ImagePlus, Save, Copy, Download, Share2 } from "lucide-react";
 
 const STATUS_COPY: Record<string, { label: string; tone: string; note: string }> = {
   pending: { label: "Awaiting review", tone: "bg-amber-500/15 text-amber-600 border-amber-500/30", note: "Your page is hidden until our team approves it. Usually within a day." },
@@ -32,6 +33,7 @@ export default function VendorDashboard() {
   const coverRef = useRef<HTMLInputElement>(null);
   const logoRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+  const qrWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -118,6 +120,29 @@ export default function VendorDashboard() {
   }
 
   const status = STATUS_COPY[vendor.status] || STATUS_COPY.pending;
+  const pageUrl = `${window.location.origin}/vendor/${vendor.slug}`;
+
+  const downloadQr = () => {
+    const svg = qrWrapRef.current?.querySelector("svg");
+    if (!svg) return;
+    const data = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const img = new Image();
+    img.onload = () => {
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, 1024, 1024);
+      ctx.drawImage(img, 0, 0, 1024, 1024);
+      const a = document.createElement("a");
+      a.download = `${vendor.slug}-qr.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data)));
+  };
   const services = (vendor.services || []) as VendorService[];
 
   return (
@@ -180,6 +205,37 @@ export default function VendorDashboard() {
                 onChange={(e) => patch({ service_areas: e.target.value.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 20) })}
                 placeholder="Service areas, comma separated"
               />
+            </CardContent></Card>
+
+            <Card className="mt-4"><CardContent className="p-5">
+              <h3 className="font-display text-base font-semibold mb-1">Share your page</h3>
+              <p className="font-body text-sm text-muted-foreground mb-4">
+                Print this QR for your counter, or send the link on WhatsApp and Instagram.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-5 sm:items-center">
+                <div className="bg-white p-3 rounded-xl border border-border/50 self-start" ref={qrWrapRef}>
+                  <QRCodeSVG value={pageUrl} size={148} level="H" bgColor="#FFFFFF" fgColor="#001F3F" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <Input readOnly value={pageUrl} className="h-11 font-body text-sm" onFocus={(e) => e.currentTarget.select()} />
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" className="h-11" onClick={() => { void navigator.clipboard.writeText(pageUrl); toast({ title: "Link copied" }); }}>
+                      <Copy className="w-4 h-4 mr-1" /> Copy link
+                    </Button>
+                    <Button variant="outline" className="h-11" onClick={downloadQr}>
+                      <Download className="w-4 h-4 mr-1" /> Download QR
+                    </Button>
+                    <Button variant="outline" className="h-11" asChild>
+                      <a href={`https://wa.me/?text=${encodeURIComponent(`${vendor.business_name} — see our work and packages: ${pageUrl}`)}`} target="_blank" rel="noreferrer">
+                        <Share2 className="w-4 h-4 mr-1" /> Share on WhatsApp
+                      </a>
+                    </Button>
+                  </div>
+                  {vendor.status !== "approved" && (
+                    <p className="font-body text-xs text-muted-foreground">Your page goes live once it's approved.</p>
+                  )}
+                </div>
+              </div>
             </CardContent></Card>
           </TabsContent>
 
