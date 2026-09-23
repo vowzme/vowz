@@ -33,6 +33,7 @@ export default function VendorDashboard() {
   const coverRef = useRef<HTMLInputElement>(null);
   const logoRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+  const qrWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (authLoading) return;
