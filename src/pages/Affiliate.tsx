@@ -5,8 +5,10 @@ import {
   Users, IndianRupee, TrendingUp, Copy, Check, Gift,
   Link as LinkIcon, Tag, ArrowRight, Shield, Clock, Zap,
   LogOut, Eye, EyeOff, Star, Sparkles, BadgePercent, ChevronRight,
-  QrCode, Download, DollarSign, Wallet, Globe
+  QrCode, Download, DollarSign, Wallet, Globe, Store, Upload, Loader2
 } from "lucide-react";
+import { useMediaUpload } from "@/hooks/use-media-upload";
+import AffiliatePoster from "@/components/affiliate/AffiliatePoster";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,6 +65,14 @@ const Affiliate = () => {
   const [payoutPaypal, setPayoutPaypal] = useState("");
   const [savingPayout, setSavingPayout] = useState(false);
 
+  // Shop owner branding
+  const [partnerType, setPartnerType] = useState<"individual" | "shop">("individual");
+  const [shopName, setShopName] = useState("");
+  const [shopLogoUrl, setShopLogoUrl] = useState<string | null>(null);
+  const [savingShop, setSavingShop] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const { upload } = useMediaUpload();
+
   const qrRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -102,6 +112,9 @@ const Affiliate = () => {
       setCustomCoupon(aff.custom_coupon || "");
       setPayoutUpi((aff as any).payout_upi || "");
       setPayoutPaypal((aff as any).payout_paypal || "");
+      setPartnerType(((aff as any).partner_type as "individual" | "shop") || "individual");
+      setShopName((aff as any).shop_name || "");
+      setShopLogoUrl((aff as any).shop_logo_url || null);
       const { data: refs } = await supabase
         .from("affiliate_referrals_for_affiliate")
         .select("*")
@@ -192,6 +205,8 @@ const Affiliate = () => {
       email: user.email || email,
       phone: phone || null,
       referral_code: code,
+      partner_type: partnerType,
+      shop_name: partnerType === "shop" ? shopName.trim() || null : null,
     };
     if (franchiseId) {
       insertData.franchise_id = franchiseId;
@@ -576,6 +591,39 @@ const Affiliate = () => {
                   <label className="font-body text-sm font-medium text-foreground mb-1.5 block">Phone <span className="text-muted-foreground font-normal">(optional)</span></label>
                   <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="h-11" />
                 </div>
+                <div>
+                  <label className="font-body text-sm font-medium text-foreground mb-1.5 block">I am joining as</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      { v: "individual", label: "Individual", icon: Users, desc: "Share your link" },
+                      { v: "shop", label: "Shop / Studio", icon: Store, desc: "Display in store" },
+                    ] as const).map((opt) => (
+                      <button
+                        key={opt.v}
+                        type="button"
+                        onClick={() => setPartnerType(opt.v)}
+                        className={`rounded-xl border p-3 text-left transition-colors min-h-[68px] ${
+                          partnerType === opt.v ? "border-accent bg-accent/10" : "border-border/50 hover:border-accent/40"
+                        }`}
+                      >
+                        <opt.icon className="w-4 h-4 text-accent mb-1" />
+                        <p className="font-body text-sm font-semibold text-foreground">{opt.label}</p>
+                        <p className="font-body text-[11px] text-muted-foreground">{opt.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {partnerType === "shop" && (
+                  <div>
+                    <label className="font-body text-sm font-medium text-foreground mb-1.5 block">
+                      Shop name <span className="text-muted-foreground font-normal">(optional)</span>
+                    </label>
+                    <Input value={shopName} onChange={(e) => setShopName(e.target.value)} placeholder="e.g. Royal Wedding Cards, Kochi" className="h-11" />
+                    <p className="text-[11px] text-muted-foreground font-body mt-1">
+                      Shown on the posters you print for your shop. You can add your shop logo later from the dashboard.
+                    </p>
+                  </div>
+                )}
               </div>
               <Button variant="gold" size="lg" className="w-full font-body" onClick={handleRegisterAsAffiliate} disabled={authLoading}>
                 {authLoading ? "Setting up..." : "Register as Affiliate Partner"}
