@@ -441,6 +441,20 @@ export default function CardGallery() {
             })}
           </div>
 
+          {paged.length < visible.length && (
+            <div className="text-center mt-8">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setShownCount((c) => c + PAGE_SIZE)}
+              >
+                Load {Math.min(PAGE_SIZE, visible.length - paged.length)} more designs
+              </Button>
+            </div>
+          )}
+
+
+
           {visible.length === 0 && (
             <div className="text-center py-16">
               <p className="text-muted-foreground font-body">
