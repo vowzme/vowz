@@ -2048,9 +2048,11 @@ function SettingsPanel({
   onHeroLayoutChange?: (layout: ThemeArchetype) => void;
 }) {
   const [themeQuery, setThemeQuery] = useState("");
-  const visibleThemes = useMemo(() => {
+  const THEME_PAGE = 60;
+  const [themeLimit, setThemeLimit] = useState(THEME_PAGE);
+  const matchedThemes = useMemo(() => {
     const q = themeQuery.trim().toLowerCase();
-    const list = q
+    return q
       ? WEDDING_THEMES.filter((t) =>
           [t.name, t.tradition, t.tagline, ARCHETYPE_LABELS[t.archetype ?? "classic"]]
             .join(" ")
@@ -2058,8 +2060,14 @@ function SettingsPanel({
             .includes(q),
         )
       : WEDDING_THEMES;
-    return list.slice(0, 60);
   }, [themeQuery]);
+  useEffect(() => {
+    setThemeLimit(THEME_PAGE);
+  }, [themeQuery]);
+  const visibleThemes = useMemo(
+    () => matchedThemes.slice(0, themeLimit),
+    [matchedThemes, themeLimit],
+  );
   // Apply a theme/style change with a toast-level Undo. Snapshots only the
   // style fields — content (names, story, events, gallery) is never touched.
   const applyThemeWithUndo = (
