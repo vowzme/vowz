@@ -280,6 +280,38 @@ const Affiliate = () => {
     setSavingPayout(false);
   };
 
+  const handleSaveShop = async (patch?: Record<string, any>) => {
+    if (!affiliate) return;
+    setSavingShop(true);
+    const payload = patch ?? {
+      partner_type: partnerType,
+      shop_name: partnerType === "shop" ? shopName.trim() || null : null,
+    };
+    const { error } = await supabase.from("affiliates").update(payload as any).eq("id", affiliate.id);
+    if (error) {
+      toast({ title: "Could not save shop details", description: error.message, variant: "destructive" });
+    } else {
+      setAffiliate({ ...affiliate, ...payload });
+      toast({ title: "Shop details saved ✅" });
+    }
+    setSavingShop(false);
+  };
+
+  const handleLogoUpload = async (file: File) => {
+    setUploadingLogo(true);
+    try {
+      const url = await upload(file, "affiliate-logos");
+      if (url) {
+        setShopLogoUrl(url);
+        await handleSaveShop({ shop_logo_url: url });
+      }
+    } catch {
+      /* upload hook already reports the error */
+    }
+    setUploadingLogo(false);
+  };
+
+
   const downloadQR = () => {
     const canvas = qrRef.current?.querySelector("canvas");
     if (!canvas) return;
