@@ -181,6 +181,37 @@ export default function VendorDashboard() {
                 placeholder="Service areas, comma separated"
               />
             </CardContent></Card>
+
+            <Card className="mt-4"><CardContent className="p-5">
+              <h3 className="font-display text-base font-semibold mb-1">Share your page</h3>
+              <p className="font-body text-sm text-muted-foreground mb-4">
+                Print this QR for your counter, or send the link on WhatsApp and Instagram.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-5 sm:items-center">
+                <div className="bg-white p-3 rounded-xl border border-border/50 self-start" ref={qrWrapRef}>
+                  <QRCodeSVG value={pageUrl} size={148} level="H" bgColor="#FFFFFF" fgColor="#001F3F" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <Input readOnly value={pageUrl} className="h-11 font-body text-sm" onFocus={(e) => e.currentTarget.select()} />
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" className="h-11" onClick={() => { void navigator.clipboard.writeText(pageUrl); toast({ title: "Link copied" }); }}>
+                      <Copy className="w-4 h-4 mr-1" /> Copy link
+                    </Button>
+                    <Button variant="outline" className="h-11" onClick={downloadQr}>
+                      <Download className="w-4 h-4 mr-1" /> Download QR
+                    </Button>
+                    <Button variant="outline" className="h-11" asChild>
+                      <a href={`https://wa.me/?text=${encodeURIComponent(`${vendor.business_name} — see our work and packages: ${pageUrl}`)}`} target="_blank" rel="noreferrer">
+                        <Share2 className="w-4 h-4 mr-1" /> Share on WhatsApp
+                      </a>
+                    </Button>
+                  </div>
+                  {vendor.status !== "approved" && (
+                    <p className="font-body text-xs text-muted-foreground">Your page goes live once it's approved.</p>
+                  )}
+                </div>
+              </div>
+            </CardContent></Card>
           </TabsContent>
 
           <TabsContent value="services" className="mt-4">
