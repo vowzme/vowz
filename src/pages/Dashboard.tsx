@@ -649,19 +649,6 @@ const Dashboard = () => {
 
         <div className="mb-6">
           <Link
-            to="/dashboard/widgets"
-            className="flex items-center justify-between gap-4 p-4 rounded-xl border border-border/50 bg-card hover:bg-accent/40 transition-colors"
-          >
-            <div>
-              <div className="font-display font-semibold text-foreground">App Widgets & Capabilities</div>
-              <div className="text-sm text-muted-foreground">Toggle push, background sync, offline, countdown widget and more.</div>
-            </div>
-            <span className="text-sm text-primary font-medium">Configure →</span>
-          </Link>
-        </div>
-
-        <div className="mb-6">
-          <Link
             to="/dashboard/reminders"
             className="flex items-center justify-between gap-4 p-4 rounded-xl border border-border/50 bg-card hover:bg-accent/40 transition-colors"
           >
