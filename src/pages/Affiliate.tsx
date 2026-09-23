@@ -809,6 +809,100 @@ const Affiliate = () => {
               </div>
             </div>
 
+            {/* Shop branding & promo poster */}
+            <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
+              <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-1">
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <Store className="w-4 h-4 text-accent" />
+                </div>
+                Shop Branding & Promo Poster
+              </h3>
+              <p className="text-sm text-muted-foreground font-body mb-5">
+                Card shops, studios and stores: print a Vowz poster with your own QR code and display it at your counter.
+              </p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="font-body text-xs font-medium text-muted-foreground mb-1.5 block">Partner type</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { v: "individual" as const, label: "Individual", icon: Users },
+                        { v: "shop" as const, label: "Shop / Studio", icon: Store },
+                      ]).map((opt) => (
+                        <button
+                          key={opt.v}
+                          type="button"
+                          onClick={() => setPartnerType(opt.v)}
+                          className={`rounded-xl border p-3 flex items-center gap-2 min-h-[48px] transition-colors ${
+                            partnerType === opt.v ? "border-accent bg-accent/10" : "border-border/50 hover:border-accent/40"
+                          }`}
+                        >
+                          <opt.icon className="w-4 h-4 text-accent" />
+                          <span className="font-body text-sm text-foreground">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {partnerType === "shop" && (
+                    <>
+                      <div>
+                        <label className="font-body text-xs font-medium text-muted-foreground mb-1.5 block">
+                          Shop name (optional)
+                        </label>
+                        <Input
+                          value={shopName}
+                          onChange={(e) => setShopName(e.target.value)}
+                          placeholder="e.g. Royal Wedding Cards, Kochi"
+                          className="h-11"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-body text-xs font-medium text-muted-foreground mb-1.5 block">
+                          Shop logo (optional)
+                        </label>
+                        <div className="flex items-center gap-3">
+                          {shopLogoUrl && (
+                            <img src={shopLogoUrl} alt="Shop logo" className="w-14 h-14 object-contain rounded-xl border border-border/40 bg-white p-1" />
+                          )}
+                          <label className="inline-flex">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) void handleLogoUpload(f);
+                                e.target.value = "";
+                              }}
+                            />
+                            <span className="inline-flex items-center gap-2 h-11 px-4 rounded-xl border border-border/60 font-body text-sm text-foreground cursor-pointer hover:border-accent/50">
+                              {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                              {shopLogoUrl ? "Replace logo" : "Upload logo"}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  <Button variant="gold" className="h-11 font-body" onClick={() => handleSaveShop()} disabled={savingShop}>
+                    {savingShop ? "Saving..." : "Save shop details"}
+                  </Button>
+                </div>
+
+                <AffiliatePoster
+                  referralLink={referralLink}
+                  referralCode={affiliate.referral_code}
+                  couponCode={affiliate.custom_coupon}
+                  shopName={partnerType === "shop" ? shopName : null}
+                  shopLogoUrl={partnerType === "shop" ? shopLogoUrl : null}
+                  discountLine={`Your guests get ${CUSTOMER_DISCOUNT[dashRegion].symbol}${CUSTOMER_DISCOUNT[dashRegion].amount} off when they upgrade`}
+                />
+              </div>
+            </div>
+
             {/* Custom Coupon */}
             <div className="bg-card border border-border/50 rounded-2xl p-5 sm:p-6">
               <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
