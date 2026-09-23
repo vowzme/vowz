@@ -37,7 +37,7 @@ import { RITUALS, FAITH_LABELS, DEFAULT_RITUAL_SETS, ritualsByFaith, type Ritual
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "music" | "guest_album" | "rituals";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "party" | "music" | "guest_album" | "rituals";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -962,6 +962,7 @@ const OPTIONAL_FEATURES: { type: WeddingSection["type"]; label: string; desc: st
   { type: "ecotips", label: "Eco tips", desc: "Sustainability messaging", icon: "🌿" },
   { type: "rituals", label: "Rituals & traditions", desc: "Explain each ceremony to your guests", icon: "🪔" },
   { type: "couple_profiles", label: "Couple profiles", desc: "Bios for bride & groom", icon: "💑" },
+  { type: "party", label: "Wedding party", desc: "Bridesmaids, groomsmen & family", icon: "👰" },
   { type: "travel", label: "Travel & hotels", desc: "Directions and stay info", icon: "🧳" },
   { type: "gallery", label: "Photo gallery", desc: "Curated couple photos", icon: "🖼️" },
   { type: "countdown", label: "Countdown timer", desc: "Days until the wedding", icon: "⏳" },
@@ -1180,7 +1181,7 @@ function FeaturesPanel({
 // ─── Sections Panel (with drag-and-drop reorder) ──────────────────────
 const DELETABLE_SECTION_TYPES = new Set([
   "custom", "polls", "ecotips", "rituals", "video", "livestream",
-  "blessings", "guest_album", "registry", "couple_profiles", "music",
+  "blessings", "guest_album", "registry", "couple_profiles", "party", "music",
 ]);
 
 const ADDABLE_SECTIONS: { id: string; label: string; desc: string }[] = [
@@ -1194,6 +1195,7 @@ const ADDABLE_SECTIONS: { id: string; label: string; desc: string }[] = [
   { id: "guest_album", label: "📸 Guest Album", desc: "Crowdsourced photos" },
   { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
   { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & groom bios" },
+  { id: "party", label: "👰 Wedding Party", desc: "Bridesmaids, groomsmen & family" },
   { id: "music", label: "🎵 Background Music", desc: "Wedding soundtrack" },
 ];
 
