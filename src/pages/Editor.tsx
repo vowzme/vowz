@@ -37,7 +37,7 @@ import { RITUALS, FAITH_LABELS, DEFAULT_RITUAL_SETS, ritualsByFaith, type Ritual
 // ─── Types ───────────────────────────────────────────────────────────
 export interface WeddingSection {
   id: string;
-  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "music" | "guest_album" | "rituals";
+  type: "hero" | "story" | "events" | "gallery" | "rsvp" | "countdown" | "guestbook" | "travel" | "custom" | "polls" | "ecotips" | "video" | "livestream" | "blessings" | "registry" | "couple_profiles" | "party" | "music" | "guest_album" | "rituals";
   title: string;
   visible: boolean;
   data: Record<string, any>;
@@ -501,6 +501,7 @@ const Editor = () => {
       guest_album: { type: "guest_album", title: "Guest Album", data: { heading: "Guest Album 📸", description: "Share your favourite photos from the celebration. Every guest can post and react." } },
       registry: { type: "registry", title: "Gift Registry", data: { heading: "Gift Registry 🎁", description: "Your presence is our greatest gift, but if you wish to bless us further:", links: [{ name: "", url: "", valueUSD: 0 }] } },
       couple_profiles: { type: "couple_profiles", title: "Couple Profiles", data: { heading: "Meet the Couple 💑", partner1Name: "", partner1Bio: "", partner1Photo: "", partner2Name: "", partner2Bio: "", partner2Photo: "" } },
+      party: { type: "party", title: "Wedding Party", data: { heading: "Our Wedding Party 👰🤵", description: "The people standing beside us on our big day.", members: [{ name: "", role: "Maid of Honour", side: "Bride's side", note: "", photo: "", social: "" }] } },
       music: { type: "music", title: "Background Music", data: { enabled: true, category: "romantic", trackUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", trackName: "First Dance", autoplay: true, loop: true, volume: 0.4 } },
     };
     const config = typeMap[sectionType || "custom"] || typeMap.custom;
@@ -961,6 +962,7 @@ const OPTIONAL_FEATURES: { type: WeddingSection["type"]; label: string; desc: st
   { type: "ecotips", label: "Eco tips", desc: "Sustainability messaging", icon: "🌿" },
   { type: "rituals", label: "Rituals & traditions", desc: "Explain each ceremony to your guests", icon: "🪔" },
   { type: "couple_profiles", label: "Couple profiles", desc: "Bios for bride & groom", icon: "💑" },
+  { type: "party", label: "Wedding party", desc: "Bridesmaids, groomsmen & family", icon: "👰" },
   { type: "travel", label: "Travel & hotels", desc: "Directions and stay info", icon: "🧳" },
   { type: "gallery", label: "Photo gallery", desc: "Curated couple photos", icon: "🖼️" },
   { type: "countdown", label: "Countdown timer", desc: "Days until the wedding", icon: "⏳" },
@@ -1179,7 +1181,7 @@ function FeaturesPanel({
 // ─── Sections Panel (with drag-and-drop reorder) ──────────────────────
 const DELETABLE_SECTION_TYPES = new Set([
   "custom", "polls", "ecotips", "rituals", "video", "livestream",
-  "blessings", "guest_album", "registry", "couple_profiles", "music",
+  "blessings", "guest_album", "registry", "couple_profiles", "party", "music",
 ]);
 
 const ADDABLE_SECTIONS: { id: string; label: string; desc: string }[] = [
@@ -1193,6 +1195,7 @@ const ADDABLE_SECTIONS: { id: string; label: string; desc: string }[] = [
   { id: "guest_album", label: "📸 Guest Album", desc: "Crowdsourced photos" },
   { id: "registry", label: "🎁 Gift Registry", desc: "Registry links" },
   { id: "couple_profiles", label: "💑 Couple Profiles", desc: "Bride & groom bios" },
+  { id: "party", label: "👰 Wedding Party", desc: "Bridesmaids, groomsmen & family" },
   { id: "music", label: "🎵 Background Music", desc: "Wedding soundtrack" },
 ];
 
@@ -2646,6 +2649,84 @@ function SectionEditor({
           </div>
           <p className="text-[10px] text-muted-foreground font-body mt-1">
             💡 Add personal profiles for your guests to learn more about you both — optional and easy to skip.
+          </p>
+        </>
+      )}
+
+      {type === "party" && (
+        <>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Section Heading</label>
+            <Input value={data.heading || ""} onChange={(e) => onUpdateData({ heading: e.target.value })} className="font-body" />
+          </div>
+          <div>
+            <label className="font-body text-sm font-medium text-foreground mb-1 block">Intro (optional)</label>
+            <Textarea rows={2} value={data.description || ""} onChange={(e) => onUpdateData({ description: e.target.value })} className="font-body text-sm" />
+          </div>
+          <div className="space-y-3 mt-2">
+            {((data.members || []) as any[]).map((m: any, i: number) => {
+              const setMember = (patch: any) => {
+                const members = [...(data.members || [])];
+                members[i] = { ...members[i], ...patch };
+                onUpdateData({ members });
+              };
+              const move = (dir: number) => {
+                const members = [...(data.members || [])];
+                const j = i + dir;
+                if (j < 0 || j >= members.length) return;
+                [members[i], members[j]] = [members[j], members[i]];
+                onUpdateData({ members });
+              };
+              return (
+                <div key={i} className="border border-border/50 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <p className="font-body text-sm font-medium text-foreground flex-1">Member {i + 1}</p>
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0" onClick={() => move(-1)} aria-label="Move up">↑</Button>
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0" onClick={() => move(1)} aria-label="Move down">↓</Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 w-9 p-0 text-destructive"
+                      aria-label="Remove member"
+                      onClick={() => onUpdateData({ members: (data.members || []).filter((_: any, j: number) => j !== i) })}
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                  <Input placeholder="Name" value={m.name || ""} onChange={(e) => setMember({ name: e.target.value })} className="font-body text-sm h-11" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input placeholder="Role (Maid of Honour)" value={m.role || ""} onChange={(e) => setMember({ role: e.target.value })} className="font-body text-sm h-11" />
+                    <select
+                      value={m.side || "Bride's side"}
+                      onChange={(e) => setMember({ side: e.target.value })}
+                      className="w-full h-11 rounded-md border border-border bg-background px-2 font-body text-sm"
+                    >
+                      {["Bride's side", "Groom's side", "Family", "Friends"].map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <Textarea placeholder="One-line note (how you know them)" rows={2} value={m.note || ""} onChange={(e) => setMember({ note: e.target.value })} className="font-body text-sm" />
+                  <Input placeholder="Instagram or social link (optional)" value={m.social || ""} onChange={(e) => setMember({ social: e.target.value })} className="font-body text-sm h-11" />
+                  <CouplePhotoUploader
+                    label="Photo"
+                    currentUrl={m.photo || ""}
+                    onPhotoChange={(url) => setMember({ photo: url })}
+                  />
+                </div>
+              );
+            })}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full font-body h-11"
+              onClick={() => onUpdateData({ members: [...(data.members || []), { name: "", role: "", side: "Bride's side", note: "", photo: "", social: "" }] })}
+            >
+              + Add party member
+            </Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground font-body mt-1">
+            💡 Grouped automatically by side on your live site. Members without a name are hidden.
           </p>
         </>
       )}
@@ -4403,6 +4484,45 @@ function SectionRenderer({
             </div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (type === "party") {
+    const members = ((data.members || []) as any[]).filter((m: any) => (m?.name || "").trim());
+    return (
+      <div className="bg-card rounded-xl px-8 py-10">
+        <InlineEditable
+          tag="h2"
+          value={data.heading || "Our Wedding Party"}
+          onChange={(v) => update({ heading: v })}
+          className="text-2xl font-bold text-foreground text-center mb-2"
+          style={{ fontFamily: dFont }}
+        />
+        <div className="w-10 h-0.5 mx-auto mb-6" style={{ backgroundColor: accent }} />
+        {members.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center" style={{ fontFamily: bFont }}>
+            Add bridesmaids, groomsmen and family in the panel to see them here.
+          </p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-5">
+            {members.map((p: any, i: number) => (
+              <div key={i} className="text-center">
+                <div className="w-16 h-16 rounded-full mx-auto mb-2 overflow-hidden border-2" style={{ borderColor: accent }}>
+                  {p.photo ? (
+                    <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
+                      <Heart className="w-6 h-6" style={{ color: `${accent}40` }} />
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs font-semibold text-foreground" style={{ fontFamily: dFont }}>{p.name}</p>
+                {p.role && <p className="text-[10px] mt-0.5" style={{ color: accent, fontFamily: bFont }}>{p.role}</p>}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }

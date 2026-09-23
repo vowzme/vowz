@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { CoupleProfilesPublic } from "@/components/CoupleProfilesSection";
+import { WeddingPartyPublic } from "@/components/WeddingPartySection";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Calendar, MapPin, Mail, User, Users, Utensils, MessageSquare, Check, ChevronDown, Loader2, Clock, Plane, Hotel, Send, CalendarPlus, BarChart3, Leaf, Navigation, Gift, ExternalLink, Download, Copy, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -739,6 +740,7 @@ function PublicSection({
   if (type === "guest_album") return <GuestAlbum siteId={site.id} accent={accent} heading={td.heading} description={td.description} trackEvent={trackEvent} />;
   if (type === "registry") return <RegistrySection data={td} accent={accent} />;
   if (type === "couple_profiles") return <CoupleProfilesPublic data={td} accent={accent} bg={bg} light={light} />;
+  if (type === "party") return <WeddingPartyPublic data={td} accent={accent} bg={bg} light={light} />;
 
   return null;
 }
