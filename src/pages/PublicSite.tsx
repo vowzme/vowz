@@ -810,6 +810,32 @@ function HeroSection({ data, bg, accent, light, coupleNames, layout = "classic" 
           </svg>
         </div>
       )}
+      {/* Luxe finish: warm top light, paper grain, vignette and a gilt hairline frame */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+        style={{
+          background: `radial-gradient(120% 70% at 50% -10%, ${accent}22 0%, transparent 60%), radial-gradient(100% 90% at 50% 120%, rgba(0,0,0,0.35) 0%, transparent 65%)`,
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-overlay"
+        aria-hidden="true"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='0.55'/></svg>\")",
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-3 md:inset-5 rounded-sm"
+        aria-hidden="true"
+        style={{ border: `1px solid ${accent}55` }}
+      />
+      <div
+        className="pointer-events-none absolute inset-4 md:inset-[26px] rounded-sm"
+        aria-hidden="true"
+        style={{ border: `1px solid ${accent}22` }}
+      />
       <div
         className={`relative z-10 max-w-3xl ${centered ? "mx-auto" : "mr-auto"} ${frameClass}`}
         style={frameClass ? { borderColor: `${accent}99` } : undefined}

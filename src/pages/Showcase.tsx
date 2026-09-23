@@ -563,10 +563,10 @@ function DemoSite({ demo }: { demo: Demo }) {
         </form>
       </Section>
 
-      {/* Footer */}
-      <footer className="py-10 text-center text-xs opacity-70 border-t" style={{ borderColor: palette.soft }}>
+      {/* Demo site caption (not a page footer — the site footer is rendered by the page shell) */}
+      <div className="py-10 text-center text-xs opacity-70 border-t" style={{ borderColor: palette.soft }}>
         Made with love on Vowz · This is a sample wedding website for demonstration only.
-      </footer>
+      </div>
     </div>
   );
 }
