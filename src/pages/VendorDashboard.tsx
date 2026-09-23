@@ -120,6 +120,29 @@ export default function VendorDashboard() {
   }
 
   const status = STATUS_COPY[vendor.status] || STATUS_COPY.pending;
+  const pageUrl = `${window.location.origin}/vendor/${vendor.slug}`;
+
+  const downloadQr = () => {
+    const svg = qrWrapRef.current?.querySelector("svg");
+    if (!svg) return;
+    const data = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const img = new Image();
+    img.onload = () => {
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, 1024, 1024);
+      ctx.drawImage(img, 0, 0, 1024, 1024);
+      const a = document.createElement("a");
+      a.download = `${vendor.slug}-qr.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(data)));
+  };
   const services = (vendor.services || []) as VendorService[];
 
   return (
