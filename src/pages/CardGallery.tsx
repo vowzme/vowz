@@ -379,11 +379,11 @@ export default function CardGallery() {
           </div>
 
           <p className="text-center text-xs sm:text-sm text-muted-foreground font-body mb-6">
-            Showing {visible.length} of {FALLBACK_TEMPLATES.length} designs
+            Showing {paged.length} of {visible.length} matching designs ({FALLBACK_TEMPLATES.length} total)
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {visible.map((t) => {
+            {paged.map((t) => {
               const theme = CARD_THEMES[t.slug];
               if (!theme) return null;
               const isFav = favorites.includes(t.slug);
