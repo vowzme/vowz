@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { VENDOR_CATEGORIES, type VendorRow, type VendorService } from "@/lib/vendor-categories";
-import { Loader2, Plus, Trash2, ExternalLink, ImagePlus, Save } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { Loader2, Plus, Trash2, ExternalLink, ImagePlus, Save, Copy, Download, Share2 } from "lucide-react";
 
 const STATUS_COPY: Record<string, { label: string; tone: string; note: string }> = {
   pending: { label: "Awaiting review", tone: "bg-amber-500/15 text-amber-600 border-amber-500/30", note: "Your page is hidden until our team approves it. Usually within a day." },
