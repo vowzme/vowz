@@ -2230,6 +2230,15 @@ function SettingsPanel({
               );
             })}
           </div>
+          {visibleThemes.length < matchedThemes.length && (
+            <button
+              type="button"
+              onClick={() => setThemeLimit((n) => n + THEME_PAGE)}
+              className="mt-3 w-full rounded-lg border-2 border-border hover:border-gold/40 px-3 py-2 font-body text-xs font-semibold text-foreground min-h-11"
+            >
+              Show more designs ({matchedThemes.length - visibleThemes.length} left)
+            </button>
+          )}
         </div>
 
         {/* Featured Image for Social Sharing */}
