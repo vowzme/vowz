@@ -68,7 +68,7 @@ export default function LuxeHomeSection() {
                     <EyeIcon className="mr-1.5 h-4 w-4" /> Preview
                   </Button>
                   <Button size="sm" className="h-11 flex-1 font-body sm:h-9"
-                    onClick={(e) => { e.stopPropagation(); preview(t.id); }}>
+                    onClick={(e) => { e.stopPropagation(); navigate(`/themes?use=${t.id}#luxe`); }}>
                     Use Template
                   </Button>
                 </div>
