@@ -19,6 +19,15 @@ export const THEME_ARCHETYPES = [
   "panel",
   "scroll",
   "grid",
+  "gatefold",
+  "polaroid",
+  "letterpress",
+  "cinema",
+  "mosaic",
+  "ribbon",
+  "lantern",
+  "diagonal",
+  "vellum",
 ] as const;
 
 export type ThemeArchetype = (typeof THEME_ARCHETYPES)[number];
@@ -40,6 +49,15 @@ export const ARCHETYPE_LABELS: Record<ThemeArchetype, string> = {
   panel: "Side panel",
   scroll: "Script scroll",
   grid: "Modular grid",
+  gatefold: "Gatefold doors",
+  polaroid: "Instant snapshots",
+  letterpress: "Letterpress card",
+  cinema: "Cinematic widescreen",
+  mosaic: "Mosaic tiles",
+  ribbon: "Silk ribbon",
+  lantern: "Lantern glow",
+  diagonal: "Diagonal split",
+  vellum: "Vellum overlay",
 };
 
 
@@ -66,9 +84,12 @@ export type WeddingTheme = {
   tier?: "standard";
   /** Curated theme id this design inherits starter copy + demo photos from. */
   family?: string;
+  /** Part of the 25-design LUXE signature collection (visual only, same plans). */
+  luxe?: boolean;
 };
 
 import { GENERATED_STANDARD_THEMES, GENERATED_LUXE_THEMES } from "@/lib/theme-library";
+import { LUXE_THEMES } from "@/lib/theme-luxe";
 
 export const WEDDING_THEMES: WeddingTheme[] = [
   {
@@ -270,6 +291,8 @@ export const WEDDING_THEMES: WeddingTheme[] = [
 ];
 
 // Expand the curated families into the full catalogue (200 designs).
+// LUXE signature designs lead the catalogue.
+WEDDING_THEMES.unshift(...LUXE_THEMES);
 WEDDING_THEMES.push(...GENERATED_STANDARD_THEMES, ...GENERATED_LUXE_THEMES);
 
 const CURATED_ARCHETYPES: Record<string, ThemeArchetype> = {

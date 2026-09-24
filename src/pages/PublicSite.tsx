@@ -773,6 +773,15 @@ const HERO_LAYOUTS: Record<string, {
   panel: { align: "left", frame: "panel", size: "md", pad: "py-24 md:py-32" },
   scroll: { align: "center", frame: "rule", size: "lg", pad: "py-28 md:py-40" },
   grid: { align: "center", frame: "border", uppercase: true, size: "sm", pad: "py-20 md:py-28" },
+  gatefold: { align: "center", frame: "border", monogram: true, size: "lg", pad: "py-28 md:py-40" },
+  polaroid: { align: "center", frame: "border", size: "sm", pad: "py-20 md:py-28" },
+  letterpress: { align: "center", frame: "rule", uppercase: true, size: "md", pad: "py-24 md:py-36" },
+  cinema: { align: "left", uppercase: true, size: "lg", pad: "py-32 md:py-44" },
+  mosaic: { align: "center", frame: "dashed", uppercase: true, size: "md", pad: "py-20 md:py-28" },
+  ribbon: { align: "center", frame: "rule", heart: true, size: "lg", pad: "py-24 md:py-32" },
+  lantern: { align: "center", heart: true, monogram: true, size: "md", pad: "py-28 md:py-40" },
+  diagonal: { align: "left", frame: "panel", uppercase: true, size: "lg", pad: "py-24 md:py-36" },
+  vellum: { align: "center", frame: "border", size: "md", pad: "py-24 md:py-32" },
 };
 
 function HeroSection({ data, bg, accent, light, coupleNames, layout = "classic" }: { data: any; bg: string; accent: string; light: string; coupleNames: string; layout?: ThemeArchetype }) {

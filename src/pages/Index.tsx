@@ -7,6 +7,7 @@ import { useCaptureAffiliate } from "@/hooks/use-affiliate";
 import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 
 // Below-the-fold sections load after the hero so first paint stays fast.
+const LuxeHomeSection = lazy(() => import("@/components/LuxeHomeSection"));
 const TemplatesSection = lazy(() => import("@/components/TemplatesSection"));
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const PricingSection = lazy(() => import("@/components/PricingSection"));
@@ -94,6 +95,7 @@ const Index = () => {
         <HeroSection />
         <FeaturesSection />
         <Suspense fallback={<SectionFallback />}>
+          <LuxeHomeSection />
           <TemplatesSection />
           <TestimonialsSection />
           <PricingSection />
