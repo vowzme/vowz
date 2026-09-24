@@ -39,11 +39,11 @@ export function LuxeBand({
         {LUXE_THEMES.map((t) => {
           const photo = FAMILY_PHOTO[t.family ?? ""] ?? garden;
           return (
-            <div key={t.id} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gold/30 bg-card shadow-card transition-shadow hover:shadow-elegant">
+            <div key={t.id} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gold/20 bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-gold/60 hover:shadow-elegant">
               <button
                 type="button"
                 onClick={() => onOpen(t)}
-                className="relative block h-[320px] w-full overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                className="relative block h-64 sm:h-60 w-full overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 aria-label={`Preview and customize ${t.name}`}
               >
                 <img src={photo} alt="" loading="lazy" className="absolute inset-0 h-full w-full scale-110 object-cover blur-[2px] transition-transform duration-700 group-hover:scale-125" />
@@ -51,7 +51,7 @@ export function LuxeBand({
                 <span className="absolute left-3 top-3 z-20 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-primary shadow">
                   <Crown className="h-2.5 w-2.5" /> LUXE
                 </span>
-                <div data-testid="theme-demo-card" data-theme-id={t.id} className="absolute inset-x-5 top-10 bottom-5 flex items-center overflow-hidden rounded-xl shadow-2xl ring-1 ring-gold/50 transition-transform duration-500 group-hover:-translate-y-1" style={{ background: t.heroGradient }}>
+                <div data-testid="theme-demo-card" data-theme-id={t.id} className="absolute inset-x-4 top-9 bottom-4 flex items-center overflow-hidden rounded-xl shadow-2xl ring-1 ring-gold/50 transition-transform duration-500 group-hover:-translate-y-1" style={{ background: t.heroGradient }}>
                   <LazyOnVisible minHeight={260} fallback={<div aria-hidden className="h-full w-full animate-pulse" style={{ background: t.colors.surface }} />}>
                     <div className="pointer-events-none w-full">
                       <ThemeDemo theme={t} compact />
