@@ -345,7 +345,138 @@ export function ThemeDemo({
       );
       break;
 
+    case "gatefold":
+      hero = (
+        <div className={`${heroBase} py-10`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10 grid grid-cols-[1fr_auto_1fr] items-stretch">
+            <div className="rounded-l-md border-y border-l" style={{ borderColor: `${colors.accent}88`, background: `${colors.accent}14` }} />
+            <div className="px-4 py-5 text-center">
+              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full border text-[11px]" style={{ borderColor: colors.accent, color: colors.accent, fontFamily: display }}>{initials}</div>
+              <h1 className="text-2xl sm:text-3xl leading-tight" style={{ fontFamily: display }}>{p1}<br /><span style={{ color: colors.accent }}>&amp;</span> {p2}</h1>
+              <p className="mt-2 text-[9px] uppercase tracking-[0.3em] opacity-75">{sampleTagline}</p>
+            </div>
+            <div className="rounded-r-md border-y border-r" style={{ borderColor: `${colors.accent}88`, background: `${colors.accent}14` }} />
+          </div>
+        </div>
+      );
+      break;
+
+    case "polaroid":
+      hero = (
+        <div className={`${heroBase} py-8`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10 flex items-end justify-center gap-2">
+            {[-6, 3, -2].map((r, i) => (
+              <div key={i} className="bg-background/95 p-1.5 pb-4 shadow-lg" style={{ transform: `rotate(${r}deg)`, background: colors.surface }}>
+                <div className="h-14 w-14 sm:h-16 sm:w-16" style={{ background: `${colors.accent}55` }} />
+              </div>
+            ))}
+          </div>
+          <h1 className="relative z-10 mt-4 text-center text-2xl italic" style={{ fontFamily: display }}>{p1} &amp; {p2}</h1>
+          <p className="relative z-10 text-center text-[10px] opacity-80">{sampleTagline}</p>
+        </div>
+      );
+      break;
+
+    case "letterpress":
+      hero = (
+        <div className={`${heroBase} py-8`} style={{ background: heroGradient, color: colors.light }}>
+          <div className="relative z-10 mx-auto max-w-[16rem] px-5 py-6 text-center shadow-inner" style={{ background: colors.surface, color: colors.ink, boxShadow: `inset 0 0 0 1px ${colors.accent}55, 0 10px 24px -12px rgba(0,0,0,.4)` }}>
+            <p className="text-[8px] uppercase tracking-[0.4em]" style={{ color: colors.accent }}>Together with their families</p>
+            <h1 className="mt-3 text-2xl uppercase tracking-[0.12em]" style={{ fontFamily: display, textShadow: "0 1px 0 rgba(255,255,255,.6)" }}>{p1}</h1>
+            <p className="my-1 text-xs" style={{ color: colors.accent }}>and</p>
+            <h1 className="text-2xl uppercase tracking-[0.12em]" style={{ fontFamily: display }}>{p2}</h1>
+            <div className="mx-auto mt-3 h-px w-16" style={{ background: colors.accent }} />
+          </div>
+        </div>
+      );
+      break;
+
+    case "cinema":
+      hero = (
+        <div className="relative overflow-hidden" style={{ background: "#000", color: colors.light }}>
+          <div className="h-4" />
+          <div className="relative px-5 py-8" style={{ background: heroGradient }}>
+            {Motif}
+            <p className="relative z-10 text-[8px] uppercase tracking-[0.5em] opacity-70">A love story starring</p>
+            <h1 className="relative z-10 mt-2 text-3xl uppercase leading-none tracking-wide" style={{ fontFamily: display }}>{p1}<span style={{ color: colors.accent }}> × </span>{p2}</h1>
+            <p className="relative z-10 mt-3 text-[10px] opacity-80">{sampleTagline}</p>
+          </div>
+          <div className="h-4" />
+        </div>
+      );
+      break;
+
+    case "mosaic":
+      hero = (
+        <div className={`${heroBase} py-6`} style={{ background: heroGradient, color: colors.light }}>
+          <div className="relative z-10 grid grid-cols-4 gap-1">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="aspect-square rounded-sm" style={{ background: i % 3 === 0 ? colors.accent : i % 3 === 1 ? `${colors.light}22` : `${colors.accent}55` }} />
+            ))}
+          </div>
+          <div className="relative z-10 -mt-12 mx-auto w-fit rounded-md px-4 py-2 text-center" style={{ background: colors.bg }}>
+            <h1 className="text-xl uppercase tracking-wider" style={{ fontFamily: display }}>{p1} &amp; {p2}</h1>
+            <p className="text-[9px] opacity-80">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "ribbon":
+      hero = (
+        <div className={`${heroBase} py-9 text-center`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10">
+            <div className="mx-[-1rem] py-3" style={{ background: colors.accent, color: colors.bg, clipPath: "polygon(0 0,100% 0,96% 50%,100% 100%,0 100%,4% 50%)" }}>
+              <h1 className="text-2xl sm:text-3xl" style={{ fontFamily: display }}>{p1} &amp; {p2}</h1>
+            </div>
+            <p className="mt-3 text-[10px] uppercase tracking-[0.3em] opacity-85">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "lantern":
+      hero = (
+        <div className={`${heroBase} py-10 text-center`} style={{ background: `radial-gradient(circle at 50% 35%, ${colors.accent}66 0%, transparent 45%), ${heroGradient}`, color: colors.light }}>
+          <div className="relative z-10">
+            <div className="mx-auto mb-3 h-10 w-7 rounded-b-full rounded-t-md" style={{ background: colors.accent, boxShadow: `0 0 30px 10px ${colors.accent}88` }} />
+            <h1 className="text-2xl sm:text-3xl" style={{ fontFamily: display }}>{p1} <span style={{ color: colors.accent }}>&amp;</span> {p2}</h1>
+            <p className="mt-2 text-[11px] italic opacity-85" style={{ fontFamily: display }}>{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "diagonal":
+      hero = (
+        <div className="relative overflow-hidden px-5 py-10" style={{ background: `linear-gradient(115deg, ${colors.bg} 0 58%, ${colors.accent} 58% 60%, ${colors.surface} 60% 100%)`, color: colors.light }}>
+          <div className="relative z-10 max-w-[60%]">
+            <p className="text-[8px] uppercase tracking-[0.4em] opacity-70">Save our date</p>
+            <h1 className="mt-2 text-2xl uppercase leading-[1.05]" style={{ fontFamily: display }}>{p1}<br /><span style={{ color: colors.accent }}>&amp;</span> {p2}</h1>
+            <p className="mt-2 text-[10px] opacity-80">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
+    case "vellum":
+      hero = (
+        <div className={`${heroBase} py-10`} style={{ background: heroGradient, color: colors.light }}>
+          {Motif}
+          <div className="relative z-10 mx-auto max-w-[15rem] rounded-sm border px-4 py-6 text-center backdrop-blur-sm" style={{ borderColor: `${colors.accent}77`, background: `${colors.light}1F` }}>
+            <p className="text-[8px] uppercase tracking-[0.4em]" style={{ color: colors.accent }}>Nikah · Walima · Forever</p>
+            <h1 className="mt-2 text-2xl" style={{ fontFamily: display }}>{p1} &amp; {p2}</h1>
+            <p className="mt-2 text-[10px] opacity-85">{sampleTagline}</p>
+          </div>
+        </div>
+      );
+      break;
+
     default:
+
 
       hero = (
         <div className={`${heroBase} text-center`} style={{ background: heroGradient, color: colors.light }}>
