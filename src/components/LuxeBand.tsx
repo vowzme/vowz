@@ -51,9 +51,9 @@ export function LuxeBand({
                 <span className="absolute left-3 top-3 z-20 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-primary shadow">
                   <Crown className="h-2.5 w-2.5" /> LUXE
                 </span>
-                <div data-testid="theme-demo-card" data-theme-id={t.id} className="absolute inset-x-5 top-10 bottom-5 overflow-hidden rounded-xl shadow-2xl ring-1 ring-gold/50 transition-transform duration-500 group-hover:-translate-y-1">
+                <div data-testid="theme-demo-card" data-theme-id={t.id} className="absolute inset-x-5 top-10 bottom-5 flex items-center overflow-hidden rounded-xl shadow-2xl ring-1 ring-gold/50 transition-transform duration-500 group-hover:-translate-y-1" style={{ background: t.heroGradient }}>
                   <LazyOnVisible minHeight={260} fallback={<div aria-hidden className="h-full w-full animate-pulse" style={{ background: t.colors.surface }} />}>
-                    <div className="pointer-events-none h-full">
+                    <div className="pointer-events-none w-full">
                       <ThemeDemo theme={t} compact />
                     </div>
                   </LazyOnVisible>
