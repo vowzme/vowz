@@ -368,7 +368,7 @@ export function ThemeDemo({
           {Motif}
           <div className="relative z-10 flex items-end justify-center gap-2">
             {[-6, 3, -2].map((r, i) => (
-              <div key={i} className="bg-background/95 p-1.5 pb-4 shadow-lg" style={{ transform: `rotate(${r}deg)`, background: colors.surface }}>
+              <div key={i} className="p-1.5 pb-4 shadow-lg" style={{ transform: `rotate(${r}deg)`, background: colors.surface }}>
                 <div className="h-14 w-14 sm:h-16 sm:w-16" style={{ background: `${colors.accent}55` }} />
               </div>
             ))}
@@ -467,7 +467,7 @@ export function ThemeDemo({
         <div className={`${heroBase} py-10`} style={{ background: heroGradient, color: colors.light }}>
           {Motif}
           <div className="relative z-10 mx-auto max-w-[15rem] rounded-sm border px-4 py-6 text-center backdrop-blur-sm" style={{ borderColor: `${colors.accent}77`, background: `${colors.light}1F` }}>
-            <p className="text-[8px] uppercase tracking-[0.4em]" style={{ color: colors.accent }}>Nikah · Walima · Forever</p>
+            <p className="text-[8px] uppercase tracking-[0.4em]" style={{ color: colors.accent }}>With love &amp; blessings</p>
             <h1 className="mt-2 text-2xl" style={{ fontFamily: display }}>{p1} &amp; {p2}</h1>
             <p className="mt-2 text-[10px] opacity-85">{sampleTagline}</p>
           </div>

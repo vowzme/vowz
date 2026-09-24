@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { LuxeBand } from "@/components/LuxeBand";
 import { WEDDING_THEMES, ARCHETYPE_LABELS, THEME_ARCHETYPES, type ThemeArchetype, type WeddingTheme } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
 import { LazyOnVisible } from "@/components/LazyOnVisible";
@@ -819,7 +820,9 @@ export default function Themes() {
               </section>
             )
           ) : (
-          THEME_CATEGORIES.map((cat) => {
+          <>
+          <LuxeBand onOpen={openTheme} onPreview={(t) => { persistPreviewedTheme(t); setPreviewTpl(t); }} onStart={startFromTemplate} starting={starting} />
+          {THEME_CATEGORIES.map((cat) => {
             const all = cat.themeIds
               .map((id) => WEDDING_THEMES.find((t) => t.id === id))
               .filter((theme): theme is WeddingTheme => Boolean(theme));
@@ -927,7 +930,8 @@ export default function Themes() {
               </section>
 
             );
-          }))}
+          })}
+          </>)}
 
           <div className="text-center mt-16">
             <p className="text-sm text-muted-foreground font-body mb-4">Not sure which one? Start with our onboarding wizard.</p>
