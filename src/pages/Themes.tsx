@@ -509,6 +509,19 @@ export default function Themes() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useParam]);
 
+  // ?preview=<id> (from the home page LUXE band) opens the full demo preview.
+  const previewParam = searchParams.get("preview");
+  useEffect(() => {
+    if (!previewParam) return;
+    const theme = WEDDING_THEMES.find((t) => t.id === previewParam);
+    const next = new URLSearchParams(searchParams);
+    next.delete("preview");
+    setSearchParams(next, { replace: true });
+    if (theme) { persistPreviewedTheme(theme); setPreviewTpl(theme); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewParam]);
+
+
 
 
   // Apply a template to an existing site — either fully replacing sections or
