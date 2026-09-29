@@ -997,10 +997,13 @@ export default function Themes() {
 
       {/* Customize + preview modal */}
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="w-[calc(100vw-1rem)] sm:w-auto max-w-5xl p-0 overflow-hidden bg-background border-border">
+        <DialogContent
+          className="max-w-none w-screen p-0 overflow-hidden bg-background border-0 rounded-none"
+          style={{ width: "100vw", height: "100dvh", maxWidth: "100vw" }}
+        >
           {active && custom && previewTheme && (
             <div
-              className="max-h-[92vh] overflow-y-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+              className="h-full overflow-y-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
               tabIndex={0}
               role="region"
               aria-label={`${active.name} theme customizer`}
