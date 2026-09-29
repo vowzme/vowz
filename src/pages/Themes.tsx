@@ -651,6 +651,11 @@ export default function Themes() {
             <p className="font-body text-muted-foreground max-w-2xl mx-auto">
               Pick a style, then customize colors, typography, and motif intensity with a live preview before publishing.
             </p>
+            <p className="mt-6">
+              <Button size="lg" onClick={startCustomDesign} className="w-full sm:w-auto">
+                <Wand2 className="w-4 h-4 mr-2" /> Create your own design with your photos
+              </Button>
+            </p>
           </div>
         </div>
 
@@ -1172,6 +1177,16 @@ export default function Themes() {
       </Dialog>
 
       {/* Replace vs. Merge chooser when a site already exists */}
+      <PersonalizeSiteDialog
+        key={personalize ? `${personalize.theme.id}-${personalize.custom}` : "none"}
+        open={!!personalize}
+        onOpenChange={(o) => !o && setPersonalize(null)}
+        theme={personalize?.theme ?? null}
+        custom={personalize?.custom}
+        busy={starting}
+        onSubmit={(v) => personalize && createPersonalizedSite(personalize.theme, v, personalize.custom)}
+      />
+
       <Dialog open={!!applyChoice} onOpenChange={(o) => !o && setApplyChoice(null)}>
         <DialogContent className="max-w-md p-6 bg-background border-border">
           {applyChoice && (
