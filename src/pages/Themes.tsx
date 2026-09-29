@@ -17,6 +17,7 @@ import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
 import { supabase } from "@/integrations/supabase/client";
 import { mergeSections } from "@/lib/theme-merge";
+import { PersonalizeSiteDialog, type PersonalizeValues } from "@/components/PersonalizeSiteDialog";
 
 /** How many designs each category shows before "Load more". */
 const CATEGORY_PAGE_SIZE = 9;
@@ -467,30 +468,64 @@ export default function Themes() {
       setApplyChoice({ theme: t, existingId: (existing as any).id });
       return;
     }
+    // Ask for the couple's real details first, then build the site.
+    setPersonalize({ theme: t, custom: false });
+  };
+
+  const [personalize, setPersonalize] = useState<{ theme: WeddingTheme; custom: boolean } | null>(null);
+
+  const createPersonalizedSite = async (t: WeddingTheme, v: PersonalizeValues, isCustom: boolean) => {
     setStarting(true);
     try {
-      const c = custom && active?.id === t.id ? custom : customFrom(t);
+      const base = custom && active?.id === t.id ? custom : customFrom(t);
+      const c = isCustom && v.colors
+        ? { ...base, bg: v.colors.bg, accent: v.colors.accent, surface: v.colors.surface, displayFont: v.displayFont || base.displayFont }
+        : base;
       const tpl = buildThemeTemplate(t);
-      const sections = withHeroLayout(buildThemeSections(t), c.archetype);
+      const tagline = v.tagline.trim() || tpl.tagline;
+      const story = v.story.trim() || tpl.howWeMet;
+      const sections = withHeroLayout(buildThemeSections(t), c.archetype).map((s: any) => {
+        if (s.type === "hero") {
+          const img = v.heroUrl || s.data.heroImage;
+          return { ...s, data: { ...s.data, heading: `${v.partner1} & ${v.partner2}`, tagline, heroImage: img, coverImage: img, backgroundImage: img, heroImageUrl: v.heroUrl || s.data.heroImageUrl, date: v.date } };
+        }
+        if (s.type === "countdown") return { ...s, data: { ...s.data, date: v.date } };
+        if (s.type === "story") return { ...s, data: { ...s.data, body: story } };
+        if (s.type === "gallery" && v.galleryUrls.length) return { ...s, data: { ...s.data, description: "", images: v.galleryUrls } };
+        return s;
+      });
       const site = await createSite({
-        partner1: tpl.partner1,
-        partner2: tpl.partner2,
+        partner1: v.partner1.trim(),
+        partner2: v.partner2.trim(),
         culturalBackground: tpl.culturalBackground,
-        howWeMet: tpl.howWeMet,
+        howWeMet: story,
         theme: t.id,
-        tagline: tpl.tagline,
+        tagline,
         suggestedColors: [c.bg, c.accent, c.surface],
         sections,
         displayFont: c.displayFont,
         bodyFont: c.bodyFont,
       });
       if (site) {
-        toast({ title: "Your site is ready", description: `Started from the ${t.name} template — customize freely.` });
+        setPersonalize(null);
+        toast({ title: "Your site is ready", description: "Tap any section in the editor to change text, photos and colors." });
         navigate(`/editor/${(site as any).id}`);
       }
     } finally {
       setStarting(false);
     }
+  };
+
+  const startCustomDesign = async () => {
+    if (!user) { navigate("/auth", { state: { returnTo: "/themes" } }); return; }
+    const existing = await loadUserSite();
+    if (existing) {
+      toast({ title: "You already have a site", description: "Opening your editor — you can change photos, text and colors there." });
+      navigate(`/editor/${(existing as any).id}`);
+      return;
+    }
+    const base = WEDDING_THEMES.find((t) => t.id === "modern-minimal") || WEDDING_THEMES[0];
+    setPersonalize({ theme: base, custom: true });
   };
 
   // Deep link: /themes?use=<theme-id> starts building that exact design as
