@@ -998,7 +998,7 @@ export default function Themes() {
       {/* Customize + preview modal */}
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
         <DialogContent
-          className="max-w-none w-screen p-0 overflow-hidden bg-background border-0 rounded-none"
+          className="max-w-none w-screen p-0 overflow-hidden bg-background border-0 rounded-none [&>button:last-child]:hidden"
           style={{ width: "100vw", height: "100dvh", maxWidth: "100vw" }}
         >
           {active && custom && previewTheme && (
@@ -1163,7 +1163,7 @@ export default function Themes() {
       {/* Full-screen landing page preview modal */}
       <Dialog open={!!previewTpl} onOpenChange={(o) => !o && setPreviewTpl(null)}>
         <DialogContent
-          className="max-w-none w-screen h-screen sm:h-screen p-0 rounded-none border-0 bg-background sm:rounded-none"
+          className="max-w-none w-screen h-screen sm:h-screen p-0 rounded-none border-0 bg-background sm:rounded-none [&>button:last-child]:hidden"
           style={{ width: "100vw", height: "100dvh", maxWidth: "100vw" }}
           aria-labelledby="theme-preview-title"
           aria-describedby="theme-preview-desc"
