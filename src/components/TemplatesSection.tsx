@@ -1803,7 +1803,7 @@ const TemplatesSection = () => {
                 onClick={() => navigate("/card-gallery")}
                 className="font-body"
               >
-                Browse 30+ Invitation Card Designs →
+                Browse {FALLBACK_TEMPLATES.length}+ Invitation Card Designs →
               </Button>
             </div>
           </motion.div>
