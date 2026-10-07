@@ -34,7 +34,7 @@ export default function UpgradeTemplateDialog({
 
         <ul className="space-y-2 text-sm font-body py-2">
           {[
-            "30+ premium, fully editable designs",
+            "900+ premium, fully editable designs",
             "One-click PDF export with crop marks",
             "Mobile, print and digital share modes",
             "Unlimited template switches",
