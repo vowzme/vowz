@@ -47,47 +47,51 @@
     
   <!-- Per-route canonical is emitted by SEOHead (react-helmet-async) so each page self-references. -->
   <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Vowz",
-      "alternateName": "Vowz — Where Vows Come Alive",
-      "url": "https://vowz.me",
-      "applicationCategory": "LifestyleApplication",
-      "operatingSystem": "Web",
-      "description": "Create stunning, personalized wedding websites in minutes. RSVP management, photo gallery, event schedules — celebrate every moment with elegance.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "INR",
-        "description": "Free forever plan with premium upgrades available"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "ratingCount": "120",
-        "bestRating": "5"
-      },
-      "featureList": [
-        "Easy step-by-step wedding website builder",
-        "RSVP management",
-        "Photo gallery with lightbox",
-        "Event schedule for Mehendi, Sangeet, Reception",
-        "Guestbook",
-        "Budget tracker",
-        "Wedding checklist"
-      ],
-      "creator": {
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
         "@type": "Organization",
+        "@id": "https://vowz.me/#org",
         "name": "Vowz",
-        "url": "https://vowz.me"
+        "legalName": "AXPIR Tech India LLP",
+        "url": "https://vowz.me",
+        "logo": "https://vowz.me/icons/icon-512.png",
+        "founder": { "@type": "Person", "name": "Anooj Xavier" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://vowz.me/#website",
+        "name": "Vowz",
+        "url": "https://vowz.me",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://vowz.me/#org" }
+      },
+      {
+        "@type": "WebApplication",
+        "name": "Vowz",
+        "url": "https://vowz.me",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Web, Android, iOS",
+        "description": "Wedding website builder and online invitation card maker with WhatsApp RSVP, guest list, seating, photo wall, budget and checklist tools.",
+        "publisher": { "@id": "https://vowz.me/#org" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR", "description": "7-day free trial with full access; paid plans after." },
+        "featureList": [
+          "Wedding website builder with 250+ themes",
+          "900+ online invitation card designs",
+          "WhatsApp-first RSVP with meal and dietary choices",
+          "Guest list with groups, tags and broadcasts",
+          "Seating chart planner",
+          "Live photo wall and shared guest albums",
+          "Event schedule for Mehendi, Sangeet, Wedding and Reception",
+          "Budget tracker and wedding checklist",
+          "Wedding vendor marketplace",
+          "Custom domains and multi-language sites"
+        ]
       }
-    }
+    ]
+  }
   </script>
-  <meta property="og:title" content="Vowz — Beautiful Wedding Websites & Invitations" />
-  <meta name="twitter:title" content="Vowz — Beautiful Wedding Websites & Invitations" />
-  <meta property="og:description" content="Create beautiful wedding websites & digital invitations in minutes. RSVP, gallery, events — free to start." />
-  <meta name="twitter:description" content="Create beautiful wedding websites & digital invitations in minutes. RSVP, gallery, events — free to start." />
   <meta name="google-site-verification" content="B_ajuX0WX1r5PntcP-8WWbGYqkZ0xlihI6VGPCM34Ws" />
 </head>
 

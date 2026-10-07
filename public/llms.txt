@@ -1,22 +1,39 @@
 # Vowz
 
-> Beautiful wedding websites and digital invitations — RSVP management, photo galleries, and event schedules for couples in India and abroad.
+> Vowz (vowz.me) is a wedding platform for couples in India and abroad: a wedding website builder, online invitation card maker, WhatsApp-first RSVP, guest management and planning tools in one place.
 
-Vowz (by AXPIR Tech India LLP) lets couples create fully-branded wedding sites in minutes. Templates cover traditional Indian, regional, fusion, modern glam, destination, and minimal styles. Free forever plan with optional premium upgrades.
+Vowz is built by AXPIR Tech India LLP, founded by Anooj Xavier. New accounts get a 7-day free trial with full access, then paid plans with regional INR/USD pricing.
+
+## Key facts
+
+- 250+ wedding website themes covering Hindu, South Indian, Bengali, Sikh, Marwari, Muslim (Nikah/Walima), Christian, Kerala, beach, boho, floral, rustic, classic, modern and regency styles.
+- 900+ online wedding invitation card designs, shareable on WhatsApp.
+- WhatsApp-first RSVP with meal and dietary selection, plus-ones and guest polls.
+- Guest list with groups and tags, broadcasts, seating chart planner.
+- Live venue photo wall and crowdsourced guest photo albums with moderation.
+- Event schedule (Mehendi, Haldi, Sangeet, Wedding, Reception), countdown, travel and hotel info, wedding party profiles.
+- Budget tracker, checklist, custom domains, multi-language sites.
+- Wedding vendor marketplace (photography, decor, catering, makeup, mehendi, venues and more).
 
 ## Pages
 
-- [Home](/): Product overview, hero, features, testimonials.
-- [Features](/features): Full list of features — RSVP, gallery, budget, checklist, guestbook, multi-language.
-- [Templates](/templates): 25+ wedding invitation templates browsable by style, region, and vibe.
-- [Pricing](/pricing): Free plan, premium plans (monthly / 6-month / yearly), storage add-ons, regional INR/USD pricing.
-- [Blog](/blog): Wedding-planning guides, invitation etiquette, product updates.
-- [About](/about): The team behind Vowz — AXPIR Tech India LLP, founded by Anooj Xavier.
-- [Contact](/contact): Support and business enquiries.
-- [Affiliate program](/affiliate): 25% commission for wedding planners and creators.
+- [Home](https://vowz.me/): Product overview and features.
+- [Wedding website themes](https://vowz.me/themes): Browse and preview all website designs.
+- [Templates](https://vowz.me/templates): Featured wedding website templates.
+- [Online wedding card maker](https://vowz.me/online-wedding-card-maker): Create digital invitation cards.
+- [Invitation card gallery](https://vowz.me/card-gallery): All card designs.
+- [Free wedding tools](https://vowz.me/tools): Free planning calculators and tools.
+- [Wedding vendors](https://vowz.me/vendors): Vendor directory by category.
+- [Pricing](https://vowz.me/pricing): Plans and regional pricing.
+- [Blog](https://vowz.me/blog): Wedding planning guides and invitation etiquette.
+- [Showcase](https://vowz.me/showcase): Example wedding sites.
+- [About](https://vowz.me/about): Company and founder.
+- [Contact](https://vowz.me/contact): Support and business enquiries.
+- [Affiliate program](https://vowz.me/affiliate): 25% commission for planners, creators and shop owners.
+- [Franchise](https://vowz.me/franchise): Franchise partner program.
 
 ## Optional
 
-- [Terms](/terms): Terms of service.
-- [Privacy](/privacy): Privacy policy.
-- [Refunds](/refunds): Refund policy.
+- [Terms](https://vowz.me/terms)
+- [Privacy](https://vowz.me/privacy)
+- [Refund policy](https://vowz.me/refund-policy)
