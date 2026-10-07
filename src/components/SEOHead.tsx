@@ -45,7 +45,10 @@ export const SEOHead = ({
 }: SEOHeadProps) => {
   const resolvedOgTitle = ogTitle || title;
   const resolvedOgDescription = ogDescription || description;
-  const resolvedCanonical = canonical || (typeof window !== "undefined" ? window.location.href : "");
+  // Canonical always points at the clean public URL (https://vowz.me + path, no ?query/#hash,
+  // no trailing slash) so preview/ref/www variants don't become "duplicate without canonical".
+  const cleanPath = typeof window !== "undefined" ? (window.location.pathname.replace(/\/+$/, "") || "/") : "/";
+  const resolvedCanonical = canonical || `https://vowz.me${cleanPath}`;
   const resolvedOgUrl = ogUrl || resolvedCanonical;
   const resolvedTwitterTitle = twitterTitle || resolvedOgTitle;
   const resolvedTwitterDescription = twitterDescription || resolvedOgDescription;
