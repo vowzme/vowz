@@ -63,8 +63,12 @@ const Footer = () => {
           {[
             { title: "Product", links: [
               { label: "Templates", href: "/templates" },
+              { label: "Wedding Website Themes", href: "/themes" },
+              { label: "Online Wedding Card Maker", href: "/online-wedding-card-maker" },
+              { label: "Invitation Card Designs", href: "/card-gallery" },
+              { label: "Free Wedding Tools", href: "/tools" },
               { label: "Features", href: "/#features" },
-              { label: "Pricing", href: "/#pricing" },
+              { label: "Pricing", href: "/pricing" },
               { label: "Blog", href: "/blog" },
               { label: "Wedding Vendors", href: "/vendors" },
               { label: "List your business", href: "/vendors/signup" },
