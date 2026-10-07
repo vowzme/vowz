@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { LuxeBand } from "@/components/LuxeBand";
+import { StyleCollectionBand } from "@/components/StyleCollectionBand";
 import { WEDDING_THEMES, ARCHETYPE_LABELS, THEME_ARCHETYPES, type ThemeArchetype, type WeddingTheme } from "@/lib/wedding-themes";
 import { ThemeDemo } from "@/components/ThemeDemo";
 import { LazyOnVisible } from "@/components/LazyOnVisible";
@@ -875,6 +876,7 @@ export default function Themes() {
           ) : (
           <>
           <LuxeBand onOpen={openTheme} onPreview={(t) => { persistPreviewedTheme(t); setPreviewTpl(t); }} onStart={startFromTemplate} starting={starting} />
+          <StyleCollectionBand onOpen={openTheme} onPreview={(t) => { persistPreviewedTheme(t); setPreviewTpl(t); }} onStart={startFromTemplate} starting={starting} />
           {THEME_CATEGORIES.map((cat) => {
             const all = cat.themeIds
               .map((id) => WEDDING_THEMES.find((t) => t.id === id))

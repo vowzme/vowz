@@ -90,6 +90,7 @@ export type WeddingTheme = {
 
 import { GENERATED_STANDARD_THEMES, GENERATED_LUXE_THEMES } from "@/lib/theme-library";
 import { LUXE_THEMES } from "@/lib/theme-luxe";
+import { STYLE_THEMES } from "@/lib/theme-styles";
 
 export const WEDDING_THEMES: WeddingTheme[] = [
   {
@@ -292,7 +293,7 @@ export const WEDDING_THEMES: WeddingTheme[] = [
 
 // Expand the curated families into the full catalogue (200 designs).
 // LUXE signature designs lead the catalogue.
-WEDDING_THEMES.unshift(...LUXE_THEMES);
+WEDDING_THEMES.unshift(...LUXE_THEMES, ...STYLE_THEMES);
 WEDDING_THEMES.push(...GENERATED_STANDARD_THEMES, ...GENERATED_LUXE_THEMES);
 
 const CURATED_ARCHETYPES: Record<string, ThemeArchetype> = {

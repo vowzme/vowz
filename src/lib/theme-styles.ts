@@ -1,0 +1,78 @@
+// Style collections — 30 original designs grouped the way couples browse:
+// Floral, Botanical, Rustic, Classic, Modern and Regency. Each uses its own
+// palette, type pairing and layout. Available on the current plans.
+
+import type { ThemeArchetype, WeddingTheme } from "@/lib/wedding-themes";
+
+export const STYLE_COLLECTIONS = ["Floral", "Botanical", "Rustic", "Classic", "Modern", "Regency"] as const;
+export type StyleCollection = (typeof STYLE_COLLECTIONS)[number];
+
+type S = {
+  slug: string; name: string; style: StyleCollection; family: string;
+  motif: WeddingTheme["motif"]; archetype: ThemeArchetype;
+  couple: [string, string]; tagline: string; sampleTagline: string; description: string;
+  c: [bg: string, accent: string, light: string, surface: string, ink: string];
+  g: [string, string, string]; f: [display: string, body: string];
+};
+
+const DEFS: S[] = [
+  // Floral
+  { slug: "peony-blush", name: "Peony Blush", style: "Floral", family: "christian-chapel", motif: "boho", archetype: "framed", couple: ["Ethan", "Meera"], tagline: "Soft peony pink inside a fine gold frame", sampleTagline: "In full bloom, together", description: "Blush petals and a fine gold frame, with an easy scrolling schedule and RSVP.", c: ["#F8E8EA", "#B76E79", "#3A1F24", "#FFFFFF", "#3A1F24"], g: ["#F8E8EA", "#F1D5DA", "#F8E8EA"], f: ["Cormorant Garamond", "Lora"] },
+  { slug: "crimson-rose", name: "Crimson Rose", style: "Floral", family: "walima-rose", motif: "boho", archetype: "halo", couple: ["Rohan", "Sara"], tagline: "Deep red roses with a warm gold glow", sampleTagline: "A love that blooms in every season", description: "Rich crimson with a soft gold halo around your names — bold and romantic.", c: ["#5A0F1C", "#E7B96A", "#FFF1EC", "#FFF8F5", "#24060B"], g: ["#5A0F1C", "#82192C", "#33070F"], f: ["Playfair Display", "Lora"] },
+  { slug: "wisteria-glow", name: "Wisteria Glow", style: "Floral", family: "boho-destination", motif: "boho", archetype: "vellum", couple: ["Kabir", "Isha"], tagline: "Lavender wisteria under a sheer overlay", sampleTagline: "Under the wisteria, we said yes", description: "Lilac and gold beneath a sheer paper layer — dreamy and light.", c: ["#4B3A6B", "#E2C27A", "#F4EFFA", "#FCFAFF", "#211833"], g: ["#4B3A6B", "#6A5590", "#2C2042"], f: ["Cormorant Garamond", "Inter"] },
+  { slug: "hoop-wildflower", name: "Wildflower Hoop", style: "Floral", family: "boho-destination", motif: "boho", archetype: "monogram", couple: ["Arjun", "Leah"], tagline: "A hoop of wildflowers around your initials", sampleTagline: "Picked from the same meadow", description: "Your initials inside a wildflower hoop on warm cream paper.", c: ["#FBF6EE", "#C2704E", "#2F2219", "#FFFFFF", "#2F2219"], g: ["#FBF6EE", "#F3E9DA", "#FBF6EE"], f: ["Fraunces", "Lora"] },
+  { slug: "magnolia-noir", name: "Magnolia Noir", style: "Floral", family: "modern-minimal", motif: "boho", archetype: "poster", couple: ["Nikhil", "Ava"], tagline: "Painted magnolias on an ink-black ground", sampleTagline: "Elegant, after dark", description: "White magnolias on deep black with ivory type — dramatic evening style.", c: ["#121212", "#E9DCC6", "#F7F3EC", "#FFFDF9", "#060606"], g: ["#121212", "#262626", "#060606"], f: ["Playfair Display", "Inter"] },
+  // Botanical
+  { slug: "lush-greenery", name: "Lush Greenery", style: "Botanical", family: "kerala-backwaters", motif: "palm", archetype: "column", couple: ["Anand", "Nora"], tagline: "Layered leaves in forest and moss", sampleTagline: "Rooted in love", description: "Layers of deep green with a calm single-column story — perfect for garden venues.", c: ["#1F3A2B", "#D9C27E", "#EEF4EE", "#FAFCF9", "#0E1D15"], g: ["#1F3A2B", "#2E5640", "#12241A"], f: ["Cormorant Garamond", "Lora"] },
+  { slug: "sage-lavender", name: "Sage & Lavender", style: "Botanical", family: "christian-chapel", motif: "palm", archetype: "panel", couple: ["Daniel", "Priya"], tagline: "Muted sage panels with lavender sprigs", sampleTagline: "A gentle kind of forever", description: "Soft sage and lavender in neat panels — quiet, fresh and easy to read.", c: ["#E7EDE3", "#8C78A8", "#25301F", "#FFFFFF", "#25301F"], g: ["#E7EDE3", "#DCE5D4", "#E7EDE3"], f: ["Playfair Display", "Inter"] },
+  { slug: "tropical-leaf", name: "Tropical Leaf", style: "Botanical", family: "goa-beach", motif: "palm", archetype: "collage", couple: ["Rahul", "Mia"], tagline: "Bold monstera leaves and sunny gold", sampleTagline: "Island hearts, one horizon", description: "Big tropical leaves and a photo collage — made for beach and resort weddings.", c: ["#0F3B33", "#F2C14E", "#EAF6F2", "#F8FDFB", "#06201B"], g: ["#0F3B33", "#17594C", "#08241F"], f: ["Yeseva One", "Poppins"] },
+  { slug: "gilded-fern", name: "Gilded Fern", style: "Botanical", family: "kerala-backwaters", motif: "palm", archetype: "arcade", couple: ["Varun", "Elena"], tagline: "Navy arches with gold fern fronds", sampleTagline: "Grown together, gilded forever", description: "Gold ferns under graceful arches on midnight navy.", c: ["#14233F", "#D8B66A", "#EEF2F8", "#FBFCFE", "#0A1222"], g: ["#14233F", "#22385F", "#0A1222"], f: ["Cinzel", "Lora"] },
+  { slug: "olive-grove", name: "Olive Grove", style: "Botanical", family: "boho-destination", motif: "palm", archetype: "marquee", couple: ["Dev", "Clara"], tagline: "Olive branches on warm linen", sampleTagline: "A long table and a lifetime", description: "Olive branches and long-table warmth, with your names lit up like a marquee.", c: ["#EFE9DC", "#6E7B45", "#2B2A1D", "#FFFDF7", "#2B2A1D"], g: ["#EFE9DC", "#E4DCC8", "#EFE9DC"], f: ["Fraunces", "Inter"] },
+  // Rustic
+  { slug: "rustic-vines", name: "Rustic Vines", style: "Rustic", family: "boho-destination", motif: "boho", archetype: "scroll", couple: ["Kunal", "Grace"], tagline: "Climbing vines on weathered timber", sampleTagline: "Simple, warm and ours", description: "Vines and warm timber tones with a flowing scroll layout.", c: ["#4A3524", "#D7B07A", "#F8F0E5", "#FFFAF3", "#22170E"], g: ["#4A3524", "#6A4C33", "#2A1D12"], f: ["Playfair Display", "Lora"] },
+  { slug: "barn-landscape", name: "Barn at Dusk", style: "Rustic", family: "kerala-backwaters", motif: "palm", archetype: "cinema", couple: ["Yash", "Hannah"], tagline: "Wide countryside view at golden hour", sampleTagline: "Fields, fairy lights and forever", description: "A wide golden-hour opening, like a countryside film.", c: ["#3B2A1E", "#E9B866", "#FBF1E2", "#FFF9F0", "#1C130C"], g: ["#3B2A1E", "#5C4130", "#1C130C"], f: ["Fraunces", "Inter"] },
+  { slug: "woodgrain-lace", name: "Woodgrain & Lace", style: "Rustic", family: "christian-chapel", motif: "cross", archetype: "letterpress", couple: ["Joel", "Anya"], tagline: "Pressed lace on oak-toned paper", sampleTagline: "Handmade with love", description: "Lace details and pressed-paper type on soft oak tones.", c: ["#EADCC8", "#7A4E2D", "#2A1C10", "#FFFAF2", "#2A1C10"], g: ["#EADCC8", "#DFCDB3", "#EADCC8"], f: ["Cormorant Garamond", "Merriweather"] },
+  { slug: "birch-grove", name: "Birch Grove", style: "Rustic", family: "kerala-backwaters", motif: "palm", archetype: "polaroid", couple: ["Jithin", "Sophie"], tagline: "Birch bark white with snapshot memories", sampleTagline: "Our story, one snapshot at a time", description: "Birch-white and moss with scattered instant photos of your story.", c: ["#F2F0EA", "#5E6B4B", "#22251C", "#FFFFFF", "#22251C"], g: ["#F2F0EA", "#E6E3D9", "#F2F0EA"], f: ["Fraunces", "Lora"] },
+  { slug: "harvest-amber", name: "Harvest Amber", style: "Rustic", family: "marwari-haveli", motif: "haveli", archetype: "stamp", couple: ["Siddharth", "Ruby"], tagline: "Amber and burgundy with postage stamps", sampleTagline: "Autumn leaves, warm hearts", description: "Warm amber and burgundy with postage-stamp frames for each event.", c: ["#5C2018", "#E8B84A", "#FBEFE2", "#FFF8F0", "#2A0D08"], g: ["#5C2018", "#7E2F22", "#33100B"], f: ["Yeseva One", "Lora"] },
+  // Classic
+  { slug: "black-tie-initial", name: "Black Tie Initial", style: "Classic", family: "modern-minimal", motif: "arch", archetype: "monogram", couple: ["Arjun", "Olivia"], tagline: "One crisp initial in black and ivory", sampleTagline: "Black tie, timeless vows", description: "A single initial crest in black and ivory — formal and timeless.", c: ["#FAF8F3", "#111111", "#111111", "#FFFFFF", "#111111"], g: ["#FAF8F3", "#EFEBE2", "#FAF8F3"], f: ["Cinzel", "Inter"] },
+  { slug: "elegant-glow", name: "Elegant Glow", style: "Classic", family: "christian-chapel", motif: "cross", archetype: "lantern", couple: ["Daniel", "Chloe"], tagline: "Candle glow on dusky blue", sampleTagline: "By candlelight, forever", description: "A soft candle glow on dusky blue, warm and graceful.", c: ["#1B2A44", "#F0CE8A", "#EEF2F9", "#FBFCFF", "#0C1424"], g: ["#1B2A44", "#2B4068", "#0C1424"], f: ["Cormorant Garamond", "Lora"] },
+  { slug: "marble-gold", name: "Marble & Gold", style: "Classic", family: "modern-minimal", motif: "arch", archetype: "classic", couple: ["Rohan", "Zara"], tagline: "White marble veins with gold lettering", sampleTagline: "Carved in gold, written in love", description: "Marble white with gold lettering in a centred, traditional layout.", c: ["#F4F2EE", "#B8924C", "#1E1A14", "#FFFFFF", "#1E1A14"], g: ["#F4F2EE", "#E7E3DB", "#F4F2EE"], f: ["Playfair Display", "Merriweather"] },
+  { slug: "calligraphy-dust", name: "Dusted Calligraphy", style: "Classic", family: "walima-rose", motif: "arch", archetype: "ribbon", couple: ["Rehan", "Amelia"], tagline: "Dusty pink script tied with ribbon", sampleTagline: "Written in the stars", description: "Flowing script in dusty pink with satin ribbon dividers.", c: ["#F3E2E0", "#9C5B63", "#2E1A1C", "#FFFFFF", "#2E1A1C"], g: ["#F3E2E0", "#EBD2CF", "#F3E2E0"], f: ["Cormorant Garamond", "Lora"] },
+  { slug: "we-do-gray", name: "We Do", style: "Classic", family: "christian-chapel", motif: "cross", archetype: "timeline", couple: ["Joel", "Emma"], tagline: "Soft dove gray with a clear day-of timeline", sampleTagline: "Two words. One promise.", description: "Dove gray and white with a clear, step-by-step day timeline.", c: ["#E9EAEC", "#4B5563", "#1F2329", "#FFFFFF", "#1F2329"], g: ["#E9EAEC", "#DDDFE3", "#E9EAEC"], f: ["Playfair Display", "Inter"] },
+  // Modern
+  { slug: "simply-us", name: "Simply Us", style: "Modern", family: "modern-minimal", motif: "arch", archetype: "editorial", couple: ["Nikhil", "Tara"], tagline: "Big type, white space, nothing extra", sampleTagline: "Just us. And everyone we love.", description: "Large names and lots of white space, like a fashion magazine.", c: ["#FFFFFF", "#111111", "#111111", "#F6F6F6", "#111111"], g: ["#FFFFFF", "#F4F4F4", "#FFFFFF"], f: ["Playfair Display", "Inter"] },
+  { slug: "minimal-chic", name: "Minimal Chic", style: "Modern", family: "modern-minimal", motif: "arch", archetype: "grid", couple: ["Siddharth", "Noor"], tagline: "Neat grid in greige and charcoal", sampleTagline: "Clean lines, warm hearts", description: "A tidy grid of cards in greige and charcoal — calm and modern.", c: ["#ECE8E2", "#3A3A3A", "#1A1A1A", "#FFFFFF", "#1A1A1A"], g: ["#ECE8E2", "#E1DCD3", "#ECE8E2"], f: ["Fraunces", "Inter"] },
+  { slug: "geometric-marble", name: "Geometric Marble", style: "Modern", family: "modern-minimal", motif: "arch", archetype: "diagonal", couple: ["Arjun", "Lina"], tagline: "Sharp diagonals in marble and brass", sampleTagline: "Every angle, together", description: "Bold diagonal shapes in marble and brass for city venues.", c: ["#2A2D33", "#C9A25E", "#F1F2F4", "#FFFFFF", "#121417"], g: ["#2A2D33", "#3D4149", "#121417"], f: ["Cinzel", "Inter"] },
+  { slug: "blue-brush", name: "Blue Brushstroke", style: "Modern", family: "goa-beach", motif: "waves", archetype: "ticket", couple: ["Rahul", "Kiara"], tagline: "One painted blue stroke and clean type", sampleTagline: "Your boarding pass to our big day", description: "A painted blue stroke with ticket-style event cards.", c: ["#F5F8FC", "#2F5D9E", "#14223A", "#FFFFFF", "#14223A"], g: ["#F5F8FC", "#E6EDF7", "#F5F8FC"], f: ["Fraunces", "Poppins"] },
+  { slug: "industrial-loft", name: "Industrial Loft", style: "Modern", family: "modern-minimal", motif: "arch", archetype: "mosaic", couple: ["Kabir", "Maya"], tagline: "Concrete, copper and Edison bulbs", sampleTagline: "Raw, real and forever", description: "Concrete grey and copper tiles — great for loft and rooftop weddings.", c: ["#33302D", "#C7834F", "#F2EEEA", "#FFFFFF", "#171513"], g: ["#33302D", "#4A4541", "#171513"], f: ["Yeseva One", "Inter"] },
+  // Regency
+  { slug: "regency-ballroom", name: "Regency Ballroom", style: "Regency", family: "christian-chapel", motif: "cross", archetype: "gatefold", couple: ["Edward", "Ananya"], tagline: "Powder blue doors opening to a ballroom", sampleTagline: "You are cordially invited to the ball", description: "Powder-blue doors part to reveal your names — a period ballroom feel.", c: ["#CFDDEB", "#B08D57", "#1D2A3A", "#F8FBFE", "#1D2A3A"], g: ["#CFDDEB", "#BCCDE0", "#CFDDEB"], f: ["Cinzel", "Cormorant Garamond"] },
+  { slug: "society-papers", name: "Society Papers", style: "Regency", family: "modern-minimal", motif: "arch", archetype: "letterpress", couple: ["Henry", "Diya"], tagline: "Gossip-sheet print in cream and plum", sampleTagline: "Dearest reader, a match is made", description: "A printed society-paper look in cream and plum ink.", c: ["#F4EDE0", "#5B2A4B", "#24121D", "#FFFCF6", "#24121D"], g: ["#F4EDE0", "#EADFCC", "#F4EDE0"], f: ["Playfair Display", "Merriweather"] },
+  { slug: "garden-promenade", name: "Garden Promenade", style: "Regency", family: "boho-destination", motif: "boho", archetype: "framed", couple: ["William", "Aanya"], tagline: "Wisteria walkway with gilded frames", sampleTagline: "A stroll, a glance, a lifetime", description: "Lilac garden walks inside gilded frames — romantic and refined.", c: ["#EDE6F2", "#A8864A", "#2A1F33", "#FFFFFF", "#2A1F33"], g: ["#EDE6F2", "#E1D6EA", "#EDE6F2"], f: ["Cormorant Garamond", "Lora"] },
+  { slug: "duchess-emerald", name: "Duchess Emerald", style: "Regency", family: "nikah-emerald", motif: "arch", archetype: "halo", couple: ["Charles", "Mehreen"], tagline: "Emerald silk with a pearl crest", sampleTagline: "A season to remember", description: "Deep emerald and pearl with a soft glowing crest.", c: ["#0F3D30", "#E6D3A3", "#EEF6F2", "#FAFDFB", "#06201A"], g: ["#0F3D30", "#17604A", "#06201A"], f: ["Cinzel", "Lora"] },
+  { slug: "candlelit-quartet", name: "Candlelit Quartet", style: "Regency", family: "walima-rose", motif: "arch", archetype: "cinema", couple: ["George", "Sana"], tagline: "Strings, candles and rose-gold titles", sampleTagline: "Played softly, loved loudly", description: "A candlelit widescreen opening with rose-gold titles.", c: ["#3A1E2A", "#E8B9A0", "#FBEFEF", "#FFF8F8", "#1C0D14"], g: ["#3A1E2A", "#58303F", "#1C0D14"], f: ["Playfair Display", "Lora"] },
+];
+
+export const STYLE_OF: Record<string, StyleCollection> = {};
+
+export const STYLE_THEMES: WeddingTheme[] = DEFS.map((x) => {
+  const id = `style-${x.slug}`;
+  STYLE_OF[id] = x.style;
+  return {
+    id,
+    name: x.name,
+    tradition: `${x.style} · All traditions`,
+    tagline: x.tagline,
+    description: x.description,
+    colors: { bg: x.c[0], accent: x.c[1], light: x.c[2], surface: x.c[3], ink: x.c[4] },
+    fonts: { display: x.f[0], body: x.f[1] },
+    motif: x.motif,
+    archetype: x.archetype,
+    heroGradient: `linear-gradient(135deg,${x.g[0]} 0%,${x.g[1]} 55%,${x.g[2]} 100%)`,
+    sampleCouple: x.couple,
+    sampleTagline: x.sampleTagline,
+    tier: "standard",
+    family: x.family,
+  } as WeddingTheme;
+});
