@@ -10,6 +10,8 @@ import { usePricingRegion, formatPrice } from "@/hooks/use-pricing-region";
 const LuxeHomeSection = lazy(() => import("@/components/LuxeHomeSection"));
 const TemplatesSection = lazy(() => import("@/components/TemplatesSection"));
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
+const PaperVsDigitalSection = lazy(() => import("@/components/PaperVsDigitalSection"));
+const WordingLibrarySection = lazy(() => import("@/components/WordingLibrarySection"));
 const PricingSection = lazy(() => import("@/components/PricingSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
 const CTASection = lazy(() => import("@/components/CTASection"));
@@ -98,6 +100,8 @@ const Index = () => {
           <LuxeHomeSection />
           <TemplatesSection />
           <TestimonialsSection />
+          <PaperVsDigitalSection />
+          <WordingLibrarySection />
           <PricingSection />
           <FAQSection />
           <CTASection />
