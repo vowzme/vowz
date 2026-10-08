@@ -139,6 +139,10 @@ export function PersonalizeSiteDialog({ open, onOpenChange, theme, custom, busy,
             </div>
           </div>
 
+          {uploadError && (
+            <p className="text-sm font-body text-red-600 dark:text-red-400" role="alert">{uploadError}</p>
+          )}
+
           {custom && v.colors && (
             <div className="space-y-3">
               <Label>Your colors</Label>
