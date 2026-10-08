@@ -13,7 +13,7 @@ const rows: [string, string, string][] = [
 const PaperVsDigitalSection = () => (
   <section className="py-16 sm:py-24 px-4 bg-muted/30" id="paper-vs-digital">
     <div className="max-w-4xl mx-auto">
-      <h2 className="font-serif text-3xl sm:text-4xl text-center text-foreground mb-3">
+      <h2 className="font-display font-bold text-3xl sm:text-4xl text-center text-foreground mb-3">
         Paper invitations vs a Vowz wedding website
       </h2>
       <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">

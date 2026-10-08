@@ -45,7 +45,7 @@ const WordingLibrarySection = () => {
   return (
     <section className="py-16 sm:py-24 px-4" id="wording">
       <div className="max-w-4xl mx-auto">
-        <h2 className="font-serif text-3xl sm:text-4xl text-center text-foreground mb-3">
+        <h2 className="font-display font-bold text-3xl sm:text-4xl text-center text-foreground mb-3">
           Wedding invitation wording ideas
         </h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
