@@ -495,7 +495,7 @@ function DemoSite({ demo }: { demo: Demo }) {
             <div key={i} className="aspect-square overflow-hidden rounded-md">
               <img
                 src={src}
-                alt={`Memory ${i + 1}`}
+                alt={`${demo.bride} and ${demo.groom} — ${demo.category} wedding photo ${i + 1}`}
                 width={600}
                 height={600}
                 loading="lazy"

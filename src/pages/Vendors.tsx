@@ -101,9 +101,27 @@ export default function Vendors() {
         {loading ? (
           <div className="py-20 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-gold" /></div>
         ) : shown.length === 0 ? (
-          <Card><CardContent className="p-10 text-center font-body text-muted-foreground">
-            No vendors listed here yet. If this is your trade, <Link to="/vendors/signup" className="text-gold underline">add your business</Link>.
-          </CardContent></Card>
+          <div className="space-y-8">
+            <Card><CardContent className="p-10 text-center font-body text-muted-foreground">
+              {category ? `No ${vendorCategoryLabel(category).toLowerCase()} listed here yet.` : "No vendors listed here yet."}{" "}
+              If this is your trade, <Link to="/vendors/signup" className="text-gold underline">add your business</Link> — it's free to list.
+            </CardContent></Card>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {VENDOR_CATEGORIES.map((c) => (
+                <Link key={c.id} to={`/vendors/${c.id}`} className="group">
+                  <Card className="h-full border-border/60 hover:border-gold/60 transition-colors">
+                    <CardContent className="p-5">
+                      <div className="text-3xl mb-2">{c.emoji}</div>
+                      <h2 className="font-display text-lg font-semibold group-hover:text-primary transition-colors">{c.label}</h2>
+                      <p className="font-body text-sm text-muted-foreground mt-1">
+                        Browse {c.label.toLowerCase()} for your wedding — compare packages, see photos and enquire directly.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {shown.map((v) => (
