@@ -43,23 +43,44 @@ export function PersonalizeSiteDialog({ open, onOpenChange, theme, custom, busy,
   const galRef = useRef<HTMLInputElement>(null);
   const set = <K extends keyof PersonalizeValues>(k: K, val: PersonalizeValues[K]) => setV((p) => ({ ...p, [k]: val }));
 
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   const onHero = async (f?: File) => {
     if (!f) return;
+    setUploadError(null);
     setUploading("hero");
-    const url = await upload(f, "themes");
-    setUploading(null);
-    if (url) set("heroUrl", url);
+    try {
+      const url = await upload(f, "themes");
+      if (url) set("heroUrl", url);
+      else setUploadError("The photo couldn't upload. Please try again.");
+    } catch {
+      // The upload hook already shows a toast explaining known failures
+      // (video, too large, storage limit); still reset the spinner below.
+      setUploadError("The photo couldn't upload. Please try again.");
+    } finally {
+      setUploading(null);
+      if (heroRef.current) heroRef.current.value = "";
+    }
   };
   const onGallery = async (files: FileList | null) => {
     if (!files?.length) return;
+    setUploadError(null);
     setUploading("gallery");
     const urls: string[] = [];
-    for (const f of Array.from(files).slice(0, 6)) {
-      const u = await upload(f, "themes");
-      if (u) urls.push(u);
+    try {
+      for (const f of Array.from(files).slice(0, 6)) {
+        const u = await upload(f, "themes");
+        if (u) urls.push(u);
+      }
+      if (urls.length === 0) setUploadError("The photos couldn't upload. Please try again.");
+    } catch {
+      // Keep any photos that did succeed; the hook toasts known failures.
+      setUploadError("Some photos couldn't upload. Please try again.");
+    } finally {
+      setUploading(null);
+      if (galRef.current) galRef.current.value = "";
     }
-    setUploading(null);
-    set("galleryUrls", [...v.galleryUrls, ...urls].slice(0, 12));
+    if (urls.length > 0) set("galleryUrls", [...v.galleryUrls, ...urls].slice(0, 12));
   };
 
   const valid = v.partner1.trim() && v.partner2.trim();
