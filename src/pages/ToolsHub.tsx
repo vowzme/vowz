@@ -41,7 +41,7 @@ const ToolsHub = () => {
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <p className="text-accent font-semibold font-body tracking-wider uppercase text-sm mb-3">Free Tools · No sign-up</p>
               <h1 className="font-display text-3xl sm:text-5xl font-bold text-foreground mb-4">
-                Small tools that make the <span className="text-gradient-gold italic">big day easier</span>
+                Free Wedding <span className="text-gradient-gold italic">Planning Tools</span>
               </h1>
               <p className="text-muted-foreground font-body max-w-2xl mx-auto mb-6">
                 Answer a few questions, leave with something you can actually print, WhatsApp to your family, or hand to a vendor.

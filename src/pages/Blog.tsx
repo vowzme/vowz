@@ -63,8 +63,60 @@ export default function Blog() {
             ))}
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
-            <p className="text-lg">No blog posts yet. Check back soon!</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                title: "How to collect RSVPs on WhatsApp without chasing guests",
+                excerpt: "Send one link, let guests reply in seconds, and watch attending counts, plus-ones and meal choices update themselves.",
+                to: "/themes",
+                tag: "RSVP",
+              },
+              {
+                title: "Choosing a wedding website design that matches your ceremony",
+                excerpt: "From Hindu traditional to beach destination — how to pick colours, fonts and layouts that feel like your wedding.",
+                to: "/themes",
+                tag: "Design",
+              },
+              {
+                title: "Digital invitations vs paper cards: what couples actually spend",
+                excerpt: "A honest cost comparison of printing and posting cards versus sending a wedding website and e-invites.",
+                to: "/pricing",
+                tag: "Planning",
+              },
+              {
+                title: "Wedding invitation wording ideas for every family",
+                excerpt: "Ready-to-copy invitation, family welcome and thank-you messages — just replace the names in brackets.",
+                to: "/#wording",
+                tag: "Wording",
+              },
+              {
+                title: "Free tools to plan your wedding in under 3 minutes",
+                excerpt: "Checklists, budget planners and printable outputs — no account, no email, nothing saved.",
+                to: "/tools",
+                tag: "Free tools",
+              },
+              {
+                title: "Turn your guests into your photographers",
+                excerpt: "Crowdsourced photo albums and a live photo wall let every guest upload their favourite moments.",
+                to: "/showcase",
+                tag: "Photos",
+              },
+            ].map((a) => (
+              <Link key={a.title} to={a.to} className="group">
+                <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow border-border/50">
+                  <CardContent className="p-5 space-y-3">
+                    <Badge variant="secondary" className="text-xs">{a.tag}</Badge>
+                    <h2 className="font-display font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
+                      {a.title}
+                    </h2>
+                    <p className="text-sm text-muted-foreground font-body">{a.excerpt}</p>
+                    <span className="inline-flex items-center text-sm font-medium text-primary gap-1 group-hover:gap-2 transition-all">
+                      Read more <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -48,9 +48,9 @@ const HeroSection = () => {
           transition={{ duration: 0.8 }}
         >
 
-          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-4 sm:mb-6 leading-tight tracking-tight">
-            Where Vows{" "}
-            <span className="text-gradient-gold italic">Come Alive</span>
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-4 sm:mb-6 leading-tight tracking-tight">
+            Wedding Website &amp;{" "}
+            <span className="text-gradient-gold italic">Invitation Card Maker</span>
           </h1>
 
           <p className="font-body text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2 font-light">
