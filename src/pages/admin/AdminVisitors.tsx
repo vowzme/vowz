@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import ThemesFunnelCard from "@/components/admin/ThemesFunnelCard";
 import {
   Users,
   Eye,
@@ -209,6 +210,8 @@ export default function AdminVisitors() {
               </Card>
             ))}
           </div>
+
+          <ThemesFunnelCard days={days} />
 
           <Card>
             <CardHeader>

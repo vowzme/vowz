@@ -253,7 +253,7 @@ export default function AdminQrCodes() {
                   {filteredAffs.map((a) => <SelectItem key={a.id} value={a.id}>{affLabel(a)} · {a.referral_code}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">Merchant not listed? They need to sign up as an affiliate first on the Affiliate page.</p>
+              <p className="text-xs text-muted-foreground">Merchant not listed? Ask them to sign up at vowz.me/affiliate/signup first, then refresh this page.</p>
               <Button className="w-full" disabled={!assignTo} onClick={assign}>Assign {assignOpen.length} QR</Button>
             </div>
           )}
