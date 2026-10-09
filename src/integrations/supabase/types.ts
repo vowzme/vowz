@@ -3189,6 +3189,14 @@ export type Database = {
           uses: number
         }[]
       }
+      get_themes_funnel: {
+        Args: { _days: number }
+        Returns: {
+          creators: number
+          pickers: number
+          themes_visitors: number
+        }[]
+      }
       get_user_storage_quota: {
         Args: { _user_id: string }
         Returns: {
