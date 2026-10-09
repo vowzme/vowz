@@ -224,13 +224,21 @@ Deno.serve(async (req) => {
           caption: post.caption || '',
           action,
         }
-        const substitute = (s: string) =>
-          s.replace(/\{\{\s*(guest_name|couple|caption|action)\s*\}\}/g, (_, k) => escape(vars[k] || ''))
+        // Couples write plain text only: all markup is escaped, links are not rendered,
+        // and the message is wrapped in our standard layout naming the couple as sender.
+        const fill = (s: string) =>
+          s.replace(/\{\{\s*(guest_name|couple|caption|action)\s*\}\}/g, (_, k) => vars[k] || '')
 
-        if (custom.subject) subject = substitute(custom.subject)
+        if (custom.subject) {
+          subject = fill(String(custom.subject)).replace(/[\r\n]+/g, ' ').slice(0, 150)
+        }
         if (custom.body_html) {
-          html = substitute(custom.body_html)
-          text = html.replace(/<[^>]+>/g, '').trim()
+          const plain = fill(String(custom.body_html).replace(/<[^>]+>/g, ' ')).slice(0, 3000).trim()
+          text = `${plain}\n\n— Message from ${couple}, sent via vowz.me`
+          html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#222;max-width:560px">
+<p style="color:#666;font-size:13px">A message from ${escape(couple)}:</p>
+<div>${escape(plain).replace(/\n/g, '<br>')}</div>
+<p style="color:#999;font-size:12px;margin-top:24px">Sent on behalf of ${escape(couple)} via vowz.me. Vowz did not write this message.</p></div>`
         }
       }
       const label = `guest_moderation_${action}`
