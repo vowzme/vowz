@@ -54,10 +54,18 @@ Deno.serve(async (req) => {
     const wTs = req.headers.get("webhook-timestamp") || "";
     const wSig = req.headers.get("webhook-signature") || "";
 
-    if (secret) {
-      const ok = await verifySignature(secret, wId, wTs, wSig, rawBody);
-      if (!ok) return new Response("Signature verification failed", { status: 401 });
+    // Never process payment notices that can't be verified.
+    if (!secret) {
+      console.error("DODO_WEBHOOK_SECRET is not set; rejecting webhook");
+      return new Response("Webhook not configured", { status: 503 });
     }
+    if (!wId || !wTs || !wSig) return new Response("Missing signature", { status: 401 });
+    const tsNum = Number(wTs);
+    if (!Number.isFinite(tsNum) || Math.abs(Date.now() / 1000 - tsNum) > 600) {
+      return new Response("Stale webhook", { status: 401 });
+    }
+    const ok = await verifySignature(secret, wId, wTs, wSig, rawBody);
+    if (!ok) return new Response("Signature verification failed", { status: 401 });
 
     const event = JSON.parse(rawBody);
     const eventType = event?.type as string;

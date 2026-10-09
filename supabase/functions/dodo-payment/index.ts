@@ -71,9 +71,16 @@ Deno.serve(async (req) => {
     const productType: "premium" | "storage_addon" =
       body.product_type === "storage_addon" ? "storage_addon" : "premium";
     const currency = (body.currency || "USD").toUpperCase();
-    const returnUrl = body.return_url || `${new URL(req.url).origin}/dashboard/payments`;
+    // Only allow returning to our own sites after checkout.
+    const ALLOWED_RETURN_HOSTS = ["vowz.me", "www.vowz.me", "vowz.lovable.app"];
+    let returnUrl = "https://vowz.me/dashboard/payments";
+    try {
+      const u = new URL(String(body.return_url || ""));
+      const okHost = ALLOWED_RETURN_HOSTS.includes(u.hostname) || u.hostname.endsWith(".lovable.app") || u.hostname === "localhost";
+      if (okHost && (u.protocol === "https:" || u.hostname === "localhost")) returnUrl = u.toString();
+    } catch { /* fall back to default */ }
     const couponCode = (body.coupon_code || "").toString().trim().toUpperCase();
-    const affiliateRef = (body.affiliate_ref || "").toString().trim();
+    let affiliateRef = (body.affiliate_ref || "").toString().trim().slice(0, 64);
 
     const pricingTable = productType === "premium" ? PREMIUM_PRICING : STORAGE_PRICING;
     const tier = pricingTable[currency] || pricingTable.USD;
@@ -107,6 +114,16 @@ Deno.serve(async (req) => {
     let appliedCouponId: string | null = null;
     let appliedDiscountMajor = 0;
     let affiliateDiscountMajor = 0;
+
+    // Only a real, active affiliate code (not your own) earns the referral discount.
+    if (affiliateRef) {
+      const { data: aff } = await adminClient
+        .from("affiliates")
+        .select("id, user_id, is_active")
+        .ilike("referral_code", affiliateRef)
+        .maybeSingle();
+      if (!aff || !aff.is_active || aff.user_id === user.id) affiliateRef = "";
+    }
 
     if (affiliateRef) {
       const affMajor = AFFILIATE_DISCOUNT_MAJOR[currency] || AFFILIATE_DISCOUNT_MAJOR.USD;
