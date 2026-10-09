@@ -8,7 +8,7 @@ if (typeof window !== "undefined") {
   window.addEventListener("appinstalled", () => { deferred = null; localStorage.setItem("vowz_app_installed", "1"); emit(); });
 }
 
-export const subscribeInstall = (fn: () => void) => { listeners.add(fn); return () => listeners.delete(fn); };
+export const subscribeInstall = (fn: () => void) => { listeners.add(fn); return () => { listeners.delete(fn); }; };
 export const canPromptInstall = () => !!deferred;
 export const isStandalone = () =>
   typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone === true);
