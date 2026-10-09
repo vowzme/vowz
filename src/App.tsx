@@ -20,6 +20,7 @@ import WhatsAppSupport from "@/components/WhatsAppSupport";
 import { useAdmin } from "@/hooks/use-admin";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import RealtimeRecovery from "@/components/RealtimeRecovery";
+import InstallPrompt from "@/components/InstallPrompt";
 
 const Auth = lazy(() => import("./pages/Auth"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -51,6 +52,8 @@ const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
 const AdminFeatureRequests = lazy(() => import("./pages/admin/AdminFeatureRequests"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminQrCodes = lazy(() => import("./pages/admin/AdminQrCodes"));
+const SeoLanding = lazy(() => import("./pages/SeoLanding"));
+const InstallApp = lazy(() => import("./pages/InstallApp"));
 const QrRedirect = lazy(() => import("./pages/QrRedirect"));
 const AdminPartners = lazy(() => import("./pages/admin/AdminPartners"));
 const AdminCardTemplates = lazy(() => import("./pages/admin/AdminCardTemplates"));
@@ -146,6 +149,10 @@ const AppRoutes = () => (
     <Route path="/card-gallery" element={<CardGallery />} />
     <Route path="/card-templates-preview" element={<PageShell><CardTemplatesPreview /></PageShell>} />
     <Route path="/affiliate" element={<PageShell><Affiliate /></PageShell>} />
+    <Route path="/affiliate/signup" element={<PageShell><Affiliate /></PageShell>} />
+    <Route path="/whatsapp-wedding-invitation" element={<PageShell><SeoLanding page="whatsapp" /></PageShell>} />
+    <Route path="/indian-wedding-website" element={<PageShell><SeoLanding page="indian" /></PageShell>} />
+    <Route path="/install" element={<PageShell><InstallApp /></PageShell>} />
     <Route path="/franchise" element={<PageShell><FranchiseLanding /></PageShell>} />
     <Route path="/franchise/dashboard" element={<PageShell><FranchiseDashboard /></PageShell>} />
     <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
@@ -203,6 +210,7 @@ const App = () => (
               </ErrorBoundary>
               <WhatsAppSupport />
               <MobileBottomNav />
+              <InstallPrompt />
             </BrowserRouter>
           </AuthProvider>
         </PricingRegionProvider>
