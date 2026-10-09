@@ -111,10 +111,6 @@ serve(async (req) => {
           displayFont: clean(ctx.displayFont, 60) || "Cormorant Garamond", bodyFont: clean(ctx.bodyFont, 60) || "DM Sans",
         })
       : "";
-    const _unused = siteContext
-      ? `\n\nCURRENT SITE DATA:\n- Partners: ${siteContext.partner1} & ${siteContext.partner2}\n- Culture: ${siteContext.culturalBackground}\n- Theme: ${siteContext.theme}\n- Colors: ${(siteContext.suggestedColors || []).join(", ")}\n- Tagline: ${siteContext.tagline}\n- Story: ${siteContext.howWeMet}\n- Display Font: ${siteContext.displayFont || "Cormorant Garamond"}\n- Body Font: ${siteContext.bodyFont || "DM Sans"}`
-      : "";
-
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
