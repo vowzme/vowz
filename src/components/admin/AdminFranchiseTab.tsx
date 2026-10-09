@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { csvCell, toCsv } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -103,7 +104,7 @@ export default function AdminFranchiseTab() {
         earned, pending, f.payout_upi || "", f.payout_paypal || "", new Date(f.created_at).toLocaleDateString()
       ]);
     });
-    const csv = rows.map(r => r.join(",")).join("\n");
+    const csv = toCsv(rows);
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

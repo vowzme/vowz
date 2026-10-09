@@ -2,6 +2,7 @@
 // Reads from public.rsvps (RLS restricts to site owner). No new tables.
 // WhatsApp support is manual via wa.me deep links — no WhatsApp Business API.
 
+import { csvCell, toCsv } from "@/lib/csv";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -272,8 +273,8 @@ export default function GuestList() {
     const roster = buildRoster();
     if (roster.length === 0) return;
     const headers = Object.keys(roster[0]);
-    const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const lines = [headers.join(",")];
+    const esc = (v: any) => csvCell(v);
+    const lines = [headers.map(csvCell).join(",")];
     for (const row of roster) lines.push(headers.map((h) => esc((row as any)[h])).join(","));
     // Prepend UTF-8 BOM so Excel opens accented names + emoji correctly.
     const blob = new Blob(["\ufeff" + lines.join("\n")], { type: "text/csv;charset=utf-8" });

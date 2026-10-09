@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { csvCell, toCsv } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -148,7 +149,7 @@ export default function AdminVisitors() {
     const lines = [
       "step,count,share_of_visitors",
       ...steps.map(
-        (s) => `"${s.label}",${s.value},${top ? ((s.value / top) * 100).toFixed(1) + "%" : "-"}`,
+        (s) => `${csvCell(s.label)},${s.value},${top ? ((s.value / top) * 100).toFixed(1) + "%" : "-"}`,
       ),
       "",
       "date,visitors,page_views",

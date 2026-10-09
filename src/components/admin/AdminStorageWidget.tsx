@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { csvCell, toCsv } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HardDrive, Users, IndianRupee, TrendingUp } from "lucide-react";
@@ -115,7 +116,7 @@ export function AdminStorageWidget() {
         String(u.file_count),
       ]),
     ];
-    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const csv = toCsv(rows);
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { csvCell, toCsv } from "@/lib/csv";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -1304,7 +1305,7 @@ function GuestListPanel({ rsvps, rsvpLoading, onDelete, site, copyLink }: {
       String(r.guest_count), r.meal_preference || "", r.message || "",
       new Date(r.created_at).toLocaleDateString(),
     ]);
-    const csv = [headers, ...rows].map((row) => row.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = toCsv([headers, ...rows]);
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

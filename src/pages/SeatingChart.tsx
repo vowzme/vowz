@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { csvCell, toCsv } from "@/lib/csv";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -133,7 +134,7 @@ export default function SeatingChart() {
     const rows = [["Table", "Shape", "Seat", "Guest"]];
     tables.forEach((t) => t.guests.forEach((g, i) => rows.push([t.name, t.shape, String(i + 1), g])));
     unseated.forEach((g) => rows.push(["Unseated", "", "", g]));
-    const csv = rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = toCsv(rows);
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     const a = document.createElement("a");
     a.href = url;
