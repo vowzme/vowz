@@ -27,7 +27,7 @@
 - [Custom URL Slugs](mem://features/custom-url-slugs) — Unique slugs, auto-suggestions, slug_redirects
 - [Watermarking Branding](mem://features/watermarking-branding) — Powered by vowz.me footer badge with dynamic color
 - [Site Lifecycle Management](mem://features/site-lifecycle-management) — Pause, Reactivate, Delete states and behaviors
-- [Image Processing](mem://technical/image-processing) — Canvas API compression (max 2048px, 0.82 quality, WebP/JPEG)
+- [Image Processing](mem://technical/image-processing) — Canvas compression 2048px, WebP 0.86; guests upload to R2 too
 - [Pricing Structure](mem://business/pricing-structure) — 7-day trial, regional pricing (INR/USD)
 - [Affiliate System](mem://business/affiliate-system) — 25% commission, 15% discount, UPI/GPay/PayPal
 - [Onboarding Wizard](mem://features/onboarding-wizard) — 5-step manual flow (no Storage step), sessionStorage draft persistence
