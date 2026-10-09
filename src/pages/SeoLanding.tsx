@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import SEOHead from "@/components/SEOHead";
+import { FALLBACK_TEMPLATES, type CardCategory } from "@/lib/card-templates";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, MessageCircle, Globe, Users, CalendarHeart, MapPin, Camera, Languages, Palette, Send, type LucideIcon } from "lucide-react";
@@ -169,6 +170,24 @@ const PAGES: Record<string, Page> = {
   },
 };
 
+const CATEGORY_LABEL: Record<CardCategory, string> = {
+  hindu_sikh: "Hindu & Sikh",
+  christian_muslim: "Christian & Muslim",
+  modern_minimal: "Modern & minimal",
+  royal_traditional: "Royal & traditional",
+};
+
+/** A few real designs from each style group, taken from the live card library. */
+function featuredDesigns(perGroup = 3) {
+  const groups = Object.keys(CATEGORY_LABEL) as CardCategory[];
+  return groups.map((g) => ({
+    group: g,
+    label: CATEGORY_LABEL[g],
+    total: FALLBACK_TEMPLATES.filter((t) => t.category === g && (t.occasion ?? "wedding") === "wedding").length,
+    items: FALLBACK_TEMPLATES.filter((t) => t.category === g && (t.occasion ?? "wedding") === "wedding" && t.description).slice(0, perGroup),
+  }));
+}
+
 export type SeoPageKey = keyof typeof PAGES;
 
 export default function SeoLanding({ page }: { page: SeoPageKey }) {
@@ -215,6 +234,25 @@ export default function SeoLanding({ page }: { page: SeoPageKey }) {
             {s.paras.map((t, i) => <p key={i} className="text-muted-foreground mb-3 leading-relaxed">{t}</p>)}
           </div>
         ))}
+        {page !== "indian" && (
+          <div>
+            <h2 className="text-2xl font-display font-bold mb-1">Popular wedding card designs</h2>
+            <p className="text-sm text-muted-foreground mb-4">A few of the {FALLBACK_TEMPLATES.length}+ designs couples use on Vowz, grouped by style.</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {featuredDesigns().map((g) => (
+                <div key={g.group} className="rounded-xl border bg-card p-4">
+                  <h3 className="font-semibold">{g.label} <span className="text-xs font-normal text-muted-foreground">· {g.total} designs</span></h3>
+                  <ul className="mt-2 space-y-1.5">
+                    {g.items.map((t) => (
+                      <li key={t.slug} className="text-sm"><span className="font-medium text-foreground">{t.name}</span> <span className="text-muted-foreground">— {t.description}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <Link to="/card-gallery" className="inline-block mt-3 text-sm font-medium text-accent underline-offset-4 hover:underline">Browse all {FALLBACK_TEMPLATES.length}+ card designs →</Link>
+          </div>
+        )}
         {p.sample && (
           <div className="rounded-xl border bg-card p-5">
             <h2 className="text-lg font-semibold mb-2">{p.sample.label}</h2>
