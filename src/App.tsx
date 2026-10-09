@@ -50,6 +50,8 @@ const AdminBlog = lazy(() => import("./pages/admin/AdminBlog"));
 const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
 const AdminFeatureRequests = lazy(() => import("./pages/admin/AdminFeatureRequests"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminQrCodes = lazy(() => import("./pages/admin/AdminQrCodes"));
+const QrRedirect = lazy(() => import("./pages/QrRedirect"));
 const AdminPartners = lazy(() => import("./pages/admin/AdminPartners"));
 const AdminCardTemplates = lazy(() => import("./pages/admin/AdminCardTemplates"));
 const AdminCardAnalytics = lazy(() => import("./pages/admin/AdminCardAnalytics"));
@@ -160,6 +162,8 @@ const AppRoutes = () => (
       <Route path="/admin/coupons" element={<AdminLayout><AdminCoupons /></AdminLayout>} />
       <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>} />
       <Route path="/admin/feature-requests" element={<AdminLayout><AdminFeatureRequests /></AdminLayout>} />
+      <Route path="/admin/qr-codes" element={<AdminLayout><AdminQrCodes /></AdminLayout>} />
+      <Route path="/q/:code" element={<QrRedirect />} />
       <Route path="/admin/partners" element={<AdminLayout><AdminPartners /></AdminLayout>} />
       <Route path="/admin/card-templates" element={<AdminLayout><AdminCardTemplates /></AdminLayout>} />
     <Route path="/admin/card-analytics" element={<AdminLayout><AdminCardAnalytics /></AdminLayout>} />

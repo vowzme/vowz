@@ -106,6 +106,13 @@
       "when": 1790126294485,
       "tag": "0014_affiliate_shop_owner_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1791506423809,
+      "tag": "0015_affiliate_qr_codes",
+      "breakpoints": true
     }
   ]
 }
