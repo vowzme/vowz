@@ -152,6 +152,9 @@ const AppRoutes = () => (
     <Route path="/affiliate/signup" element={<PageShell><Affiliate /></PageShell>} />
     <Route path="/whatsapp-wedding-invitation" element={<PageShell><SeoLanding page="whatsapp" /></PageShell>} />
     <Route path="/indian-wedding-website" element={<PageShell><SeoLanding page="indian" /></PageShell>} />
+    <Route path="/digital-wedding-invitation" element={<PageShell><SeoLanding page="digital" /></PageShell>} />
+    <Route path="/wedding-invitation-video-maker" element={<PageShell><SeoLanding page="video" /></PageShell>} />
+    <Route path="/wedding-card-design" element={<PageShell><SeoLanding page="card" /></PageShell>} />
     <Route path="/install" element={<PageShell><InstallApp /></PageShell>} />
     <Route path="/franchise" element={<PageShell><FranchiseLanding /></PageShell>} />
     <Route path="/franchise/dashboard" element={<PageShell><FranchiseDashboard /></PageShell>} />

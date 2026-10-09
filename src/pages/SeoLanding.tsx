@@ -82,9 +82,96 @@ const PAGES: Record<string, Page> = {
     ],
     related: [{ to: "/themes", label: "Browse wedding website themes" }, { to: "/whatsapp-wedding-invitation", label: "WhatsApp wedding invitation" }, { to: "/showcase", label: "See real examples" }, { to: "/tools", label: "Free planning tools" }],
   },
+  digital: {
+    path: "/digital-wedding-invitation",
+    title: "Digital Wedding Invitation & E-Invite Maker Online | Vowz",
+    description: "Create a digital wedding invitation online in minutes. Share your e-invite by WhatsApp, SMS or email with venue map, schedule and RSVP. 900+ designs, free 7-day trial.",
+    h1: "Digital Wedding Invitation Maker",
+    keywords: "digital wedding invitation, e invite for wedding, online wedding invitation, wedding e invitation, e wedding card, online wedding invitation maker, wedding invitation online free",
+    intro: "A digital wedding invitation reaches every guest instantly, costs a fraction of printed cards and never goes out of date. With Vowz you design an e-invite, add your functions and share one link that opens your card, wedding website and RSVP form.",
+    steps: [
+      { icon: Palette, title: "Pick an e-invite design", body: "Choose from 900+ invitation cards — traditional, floral, royal, minimal and modern — and change colours, fonts and photos." },
+      { icon: CalendarHeart, title: "Add details", body: "Names, date, every ceremony with time and venue, dress code and a short personal note." },
+      { icon: Send, title: "Share anywhere", body: "Send the link on WhatsApp, Instagram, SMS or email, or download the card as an image or PDF." },
+      { icon: Users, title: "Collect RSVPs", body: "Guests reply in one tap; you see who is coming, how many and their meal choice." },
+    ],
+    sections: [
+      { h2: "Why couples are choosing online wedding invitations", paras: [
+        "Printing and posting cards for hundreds of guests is costly and slow. An online wedding invitation is ready in minutes, reaches relatives abroad instantly, and you can update a venue or timing without reprinting.",
+        "Unlike a plain image, a Vowz e-invite includes Google Maps directions, a countdown, your photos and a reply button — so you know exactly how many guests to plan for.",
+      ]},
+      { h2: "A respectful e-invite for every family", paras: [
+        "Create a personal link for each family with their name and number of guests. Keep a printed card for elders if you like, and use the digital invitation for everyone else.",
+      ]},
+    ],
+    checklist: ["900+ e-invite designs", "Download as image or PDF", "Personal links with guest names", "One-tap RSVP and meal choice", "Venue map and event schedule", "Update details any time"],
+    faqs: [
+      { q: "What is a digital wedding invitation?", a: "It is a wedding invitation sent online — usually as a link or image on WhatsApp, email or social media — instead of a printed card. Vowz invitations also open a wedding website with RSVP." },
+      { q: "Can I make a wedding e-invite for free?", a: "Yes, you can design and preview your e-invite free during the 7-day trial." },
+      { q: "Can I download my digital invitation?", a: "Yes. Download the card as an image or PDF to share or print." },
+      { q: "Is an online wedding invitation acceptable?", a: "Yes — most couples now send digital invitations, often with a personal call to close relatives." },
+    ],
+    related: [{ to: "/whatsapp-wedding-invitation", label: "WhatsApp wedding invitation" }, { to: "/wedding-card-design", label: "Wedding card designs" }, { to: "/wedding-invitation-video-maker", label: "Wedding invitation video" }, { to: "/card-gallery", label: "Browse all cards" }],
+  },
+  video: {
+    path: "/wedding-invitation-video-maker",
+    title: "Wedding Invitation Video Maker Online — Animated E-Invites | Vowz",
+    description: "Make a wedding invitation video with music, photos and animated reveals. Share on WhatsApp and Instagram with RSVP. Hindu, Muslim, Christian and modern styles.",
+    h1: "Wedding Invitation Video Maker",
+    keywords: "wedding invitation video maker, wedding invitation video, video wedding invitation, animated wedding invitation, save the date video, wedding invite video whatsapp",
+    intro: "A wedding invitation video brings your invite to life with music, photos and motion. Vowz lets you add a video, background music and an opening reveal to your invitation, then share it with one link that also collects RSVPs.",
+    steps: [
+      { icon: Palette, title: "Choose a style", body: "Royal, floral, temple, Kerala, Nikah, church or modern minimal." },
+      { icon: Camera, title: "Add photos and video", body: "Upload your pre-wedding photos or a video clip, or paste a YouTube link." },
+      { icon: Languages, title: "Add music and wording", body: "Pick background music and invitation wording in English or your language." },
+      { icon: Send, title: "Share and track", body: "Send on WhatsApp or Instagram and see RSVPs as they arrive." },
+    ],
+    sections: [
+      { h2: "Animated invitations guests actually watch", paras: [
+        "Opening reveals — envelopes, curtains, doors and petals — play when guests open your invitation, followed by your names, date and music. It feels special without the cost of a video editor.",
+        "Everything stays in one link: the video, every function with maps, your story and the RSVP form.",
+      ]},
+    ],
+    checklist: ["Opening reveal animations", "Background music library", "Upload video or YouTube link", "Works on every phone", "RSVP built in", "Save-the-date version"],
+    faqs: [
+      { q: "How do I make a wedding invitation video?", a: "Pick a design on Vowz, add your photos or a video clip, choose music and an opening reveal, then share the link." },
+      { q: "Can I send a video invitation on WhatsApp?", a: "Yes. The link opens your animated invitation on any phone, with an RSVP button." },
+      { q: "Do I need video-editing skills?", a: "No. Choose a style and fill in your details — the animation is done for you." },
+    ],
+    related: [{ to: "/digital-wedding-invitation", label: "Digital wedding invitation" }, { to: "/whatsapp-wedding-invitation", label: "WhatsApp invitation" }, { to: "/themes", label: "Wedding website themes" }],
+  },
+  card: {
+    path: "/wedding-card-design",
+    title: "Wedding Card Design Online — 900+ Invitation Card Templates | Vowz",
+    description: "Browse 900+ wedding card designs: Hindu, Muslim, Christian, Sikh, Kerala, Bengali, royal, floral and modern. Customise online, download or share on WhatsApp.",
+    h1: "Wedding Card Designs",
+    keywords: "wedding card design, wedding invitation card design, indian wedding card design, hindu wedding card, muslim wedding card, christian wedding card, kerala wedding card, wedding card template",
+    intro: "Find the perfect wedding card design for your tradition and style. Vowz has 900+ invitation card templates you can personalise online with your names, photos, colours and wording — then download or share instantly.",
+    steps: [
+      { icon: Palette, title: "Browse designs", body: "Filter by tradition — Hindu, Muslim, Christian, Sikh, Kerala, Bengali — or by style: royal, floral, minimal, modern." },
+      { icon: CalendarHeart, title: "Personalise", body: "Edit names, dates, venues, wording, colours, fonts and add your photo." },
+      { icon: Globe, title: "Download or share", body: "Save as an image or PDF for printing, or share a link on WhatsApp." },
+      { icon: MapPin, title: "Add a website", body: "Link your card to a wedding website with maps, schedule and RSVP." },
+    ],
+    sections: [
+      { h2: "Wedding card designs for every tradition", paras: [
+        "Hindu cards with Ganesha motifs and marigold borders, Muslim Nikah cards with arches and emerald tones, Christian cards in ivory and gold, Kerala kasavu designs, Bengali alpona patterns and Punjabi Anand Karaj themes — plus floral, watercolour and minimalist modern styles.",
+        "Every design works on phones and prints cleanly, so you can use the same card for WhatsApp and for a few printed copies for elders.",
+      ]},
+    ],
+    checklist: ["900+ card templates", "Tradition-specific designs", "Edit text, colours and fonts", "Add your photo", "Download image or PDF", "Share on WhatsApp with RSVP"],
+    faqs: [
+      { q: "How do I design my wedding card online?", a: "Choose a template on Vowz, edit the text, colours and photo, then download it or share the link." },
+      { q: "Can I print my Vowz wedding card?", a: "Yes. Download it as a high-quality PDF or image and print it anywhere." },
+      { q: "Are there designs for my religion or region?", a: "Yes — Hindu, Muslim, Christian, Sikh, Jain, Kerala, Tamil, Telugu, Bengali, Marwari and more." },
+    ],
+    related: [{ to: "/card-gallery", label: "See all 900+ cards" }, { to: "/digital-wedding-invitation", label: "Digital wedding invitation" }, { to: "/indian-wedding-website", label: "Indian wedding website" }],
+  },
 };
 
-export default function SeoLanding({ page }: { page: "whatsapp" | "indian" }) {
+export type SeoPageKey = keyof typeof PAGES;
+
+export default function SeoLanding({ page }: { page: SeoPageKey }) {
   const p = PAGES[page];
   const url = `https://vowz.me${p.path}`;
   const faqLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: p.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
