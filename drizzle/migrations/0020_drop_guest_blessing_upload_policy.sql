@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Guests can upload blessing photos to live sites" ON storage.objects;

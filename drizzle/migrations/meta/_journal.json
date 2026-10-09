@@ -141,6 +141,13 @@
       "when": 1791515531704,
       "tag": "0019_wedding_media_owner_only",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1791515840181,
+      "tag": "0020_drop_guest_blessing_upload_policy",
+      "breakpoints": true
     }
   ]
 }
