@@ -105,6 +105,7 @@ const PAGES: Record<string, Page> = {
         "Create a personal link for each family with their name and number of guests. Keep a printed card for elders if you like, and use the digital invitation for everyone else.",
       ]},
     ],
+    sample: { label: "Sample e-invite wording", text: "Together with our families,\nAnanya & Rohan\nrequest the pleasure of your company at our wedding\nSunday, 14 February 2027 · 7:00 PM\nThe Leela Palace, Bengaluru\nView the schedule, venue map and RSVP: vowz.me/site/ananya-rohan" },
     checklist: ["900+ e-invite designs", "Download as image or PDF", "Personal links with guest names", "One-tap RSVP and meal choice", "Venue map and event schedule", "Update details any time"],
     faqs: [
       { q: "What is a digital wedding invitation?", a: "It is a wedding invitation sent online — usually as a link or image on WhatsApp, email or social media — instead of a printed card. Vowz invitations also open a wedding website with RSVP." },
@@ -133,6 +134,7 @@ const PAGES: Record<string, Page> = {
         "Everything stays in one link: the video, every function with maps, your story and the RSVP form.",
       ]},
     ],
+    sample: { label: "Sample video invitation script", text: "Scene 1 — Envelope opens to soft shehnai music\nScene 2 — \"With the blessings of Lord Ganesha\"\nScene 3 — Couple photo: Meera weds Karthik\nScene 4 — Haldi · Mehendi · Wedding · Reception, with dates\nScene 5 — \"Your presence is our blessing\" + RSVP button" },
     checklist: ["Opening reveal animations", "Background music library", "Upload video or YouTube link", "Works on every phone", "RSVP built in", "Save-the-date version"],
     faqs: [
       { q: "How do I make a wedding invitation video?", a: "Pick a design on Vowz, add your photos or a video clip, choose music and an opening reveal, then share the link." },
@@ -160,6 +162,7 @@ const PAGES: Record<string, Page> = {
         "Every design works on phones and prints cleanly, so you can use the same card for WhatsApp and for a few printed copies for elders.",
       ]},
     ],
+    sample: { label: "Traditional wedding card wording", text: "|| Shri Ganeshaya Namah ||\nMr. & Mrs. Ramesh Iyer\nrequest the honour of your presence at the marriage of their daughter\nDivya\nwith\nArjun\n(son of Mr. & Mrs. Suresh Nair)\nMuhurtham: 10:30 AM, 6 December 2026\nGuruvayur Temple, Kerala" },
     checklist: ["900+ card templates", "Tradition-specific designs", "Edit text, colours and fonts", "Add your photo", "Download image or PDF", "Share on WhatsApp with RSVP"],
     faqs: [
       { q: "How do I design my wedding card online?", a: "Choose a template on Vowz, edit the text, colours and photo, then download it or share the link." },
