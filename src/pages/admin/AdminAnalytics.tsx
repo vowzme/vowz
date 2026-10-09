@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { csvCell, toCsv } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -104,7 +105,7 @@ export default function AdminAnalytics() {
       ["Total Blessings", stats.totalBlessings],
       ["Page Views", stats.totalPageViews],
     ];
-    const csv = rows.map((r) => r.join(",")).join("\n");
+    const csv = toCsv(rows);
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

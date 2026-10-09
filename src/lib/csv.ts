@@ -7,9 +7,9 @@
 export function csvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
   let text = String(value);
-  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
-  if (/[",\n\r]/.test(text)) text = `"${text.replace(/"/g, '""')}"`;
-  return text;
+  // Neutralize formula triggers, including ones hidden behind leading spaces.
+  if (/^[\s]*[=+\-@\t\r|]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text)) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 export function toCsv(rows: unknown[][]): string {
