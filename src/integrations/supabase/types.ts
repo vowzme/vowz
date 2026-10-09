@@ -46,6 +46,8 @@ export type Database = {
           last_scanned_at: string | null
           notes: string | null
           scan_count: number
+          signup_count: number
+          site_count: number
         }
         Insert: {
           affiliate_id?: string | null
@@ -60,6 +62,8 @@ export type Database = {
           last_scanned_at?: string | null
           notes?: string | null
           scan_count?: number
+          signup_count?: number
+          site_count?: number
         }
         Update: {
           affiliate_id?: string | null
@@ -74,6 +78,8 @@ export type Database = {
           last_scanned_at?: string | null
           notes?: string | null
           scan_count?: number
+          signup_count?: number
+          site_count?: number
         }
         Relationships: [
           {
@@ -1510,6 +1516,27 @@ export type Database = {
           updated_at?: string
           wedding_date?: string | null
           wedding_location?: string | null
+        }
+        Relationships: []
+      }
+      qr_attributions: {
+        Row: {
+          created_at: string
+          qr_code: string
+          site_created: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          qr_code: string
+          site_created?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          qr_code?: string
+          site_created?: boolean
+          user_id?: string
         }
         Relationships: []
       }
@@ -3239,6 +3266,7 @@ export type Database = {
           requires_password: boolean
         }[]
       }
+      record_qr_signup: { Args: { _code: string }; Returns: boolean }
       resolve_affiliate_qr: { Args: { _code: string }; Returns: string }
       site_accepts_rsvp: { Args: { _site_id: string }; Returns: boolean }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }

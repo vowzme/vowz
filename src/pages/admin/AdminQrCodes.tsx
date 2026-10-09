@@ -16,7 +16,7 @@ import { QR_DESIGNS, getDesign, newQrCode, parseScanned, printQrCodes, qrUrl } f
 
 type Qr = {
   id: string; code: string; design: string; batch_label: string | null; affiliate_id: string | null;
-  assigned_at: string | null; scan_count: number; last_scanned_at: string | null; created_at: string;
+  assigned_at: string | null; scan_count: number; signup_count: number; site_count: number; last_scanned_at: string | null; created_at: string;
 };
 type Aff = {
   id: string; full_name: string; email: string; phone: string | null; referral_code: string;
@@ -110,8 +110,8 @@ export default function AdminQrCodes() {
         <p className="text-sm text-muted-foreground">Pre-print QR codes or posters, then assign them to shops and individuals when you onboard them.</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[["Total", qrs.length], ["In stock", stock.length], ["Assigned", qrs.length - stock.length], ["Total scans", qrs.reduce((s, q) => s + q.scan_count, 0)]].map(([l, v]) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {[["Total", qrs.length], ["In stock", stock.length], ["Assigned", qrs.length - stock.length], ["Total scans", qrs.reduce((s, q) => s + q.scan_count, 0)], ["Sign-ups", qrs.reduce((s, q) => s + (q.signup_count ?? 0), 0)], ["Sites created", qrs.reduce((s, q) => s + (q.site_count ?? 0), 0)]].map(([l, v]) => (
           <Card key={l as string}><CardContent className="p-4"><div className="text-xs text-muted-foreground">{l}</div><div className="text-2xl font-bold">{v}</div></CardContent></Card>
         ))}
       </div>
@@ -194,7 +194,7 @@ export default function AdminQrCodes() {
                   <div className="flex flex-wrap gap-2">
                     {list.map((q) => (
                       <div key={q.id} className="flex items-center gap-2 rounded-md border px-2 py-1 text-xs">
-                        <span className="font-mono">{q.code}</span><span className="text-muted-foreground">{q.scan_count} scans</span>
+                        <span className="font-mono">{q.code}</span><span className="text-muted-foreground">{q.scan_count} scans · {q.signup_count ?? 0} sign-ups · {q.site_count ?? 0} sites</span>
                         <button aria-label={`Unassign ${q.code}`} onClick={() => unassign(q.id)} className="text-muted-foreground hover:text-destructive"><Unlink className="h-3.5 w-3.5" /></button>
                       </div>
                     ))}
@@ -214,7 +214,7 @@ export default function AdminQrCodes() {
               {scanned === "unknown" && <p className="text-sm text-destructive">This isn't a Vowz affiliate QR code.</p>}
               {scanned && scanned !== "unknown" && (
                 <div className="rounded-lg border p-4 space-y-3">
-                  <div className="flex items-center gap-2"><span className="font-mono font-semibold">{scanned.code}</span><Badge variant={scanned.affiliate_id ? "default" : "secondary"}>{scanned.affiliate_id ? "Assigned" : "Not assigned"}</Badge><span className="text-xs text-muted-foreground">{scanned.scan_count} scans</span></div>
+                  <div className="flex items-center gap-2"><span className="font-mono font-semibold">{scanned.code}</span><Badge variant={scanned.affiliate_id ? "default" : "secondary"}>{scanned.affiliate_id ? "Assigned" : "Not assigned"}</Badge><span className="text-xs text-muted-foreground">{scanned.scan_count} scans · {scanned.signup_count ?? 0} sign-ups · {scanned.site_count ?? 0} sites</span></div>
                   {scanned.affiliate_id ? (
                     <>
                       <MerchantInfo a={affById.get(scanned.affiliate_id)} full />

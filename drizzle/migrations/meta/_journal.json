@@ -148,6 +148,13 @@
       "when": 1791515840181,
       "tag": "0020_drop_guest_blessing_upload_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791516995829,
+      "tag": "0021_qr_signup_tracking",
+      "breakpoints": true
     }
   ]
 }
