@@ -12,6 +12,7 @@ const TemplatesSection = lazy(() => import("@/components/TemplatesSection"));
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const PaperVsDigitalSection = lazy(() => import("@/components/PaperVsDigitalSection"));
 const WordingLibrarySection = lazy(() => import("@/components/WordingLibrarySection"));
+const WhatsAppInviteBanner = lazy(() => import("@/components/WhatsAppInviteBanner"));
 const PricingSection = lazy(() => import("@/components/PricingSection"));
 const FAQSection = lazy(() => import("@/components/FAQSection"));
 const CTASection = lazy(() => import("@/components/CTASection"));
@@ -102,6 +103,7 @@ const Index = () => {
           <TestimonialsSection />
           <PaperVsDigitalSection />
           <WordingLibrarySection />
+          <WhatsAppInviteBanner />
           <PricingSection />
           <FAQSection />
           <CTASection />
