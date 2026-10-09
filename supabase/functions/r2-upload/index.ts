@@ -331,6 +331,30 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── guest_upload: wedding guests (not signed in) add photos to a live site's
+    // album or blessing wall. Images only, 10 MB cap, site must be published.
+    if (action === "guest_upload") {
+      const formData = await req.formData();
+      const file = formData.get("file") as File | null;
+      const siteId = String(formData.get("siteId") || "");
+      if (!file || !/^[0-9a-f-]{36}$/i.test(siteId)) return json({ error: "Missing file or site" }, 400);
+      if (file.size > 10 * 1024 * 1024) return json({ error: "Photo must be under 10 MB", code: "TOO_LARGE" }, 413);
+      const { data: site } = await admin.from("wedding_sites").select("id").eq("id", siteId)
+        .eq("is_published", true).eq("status", "active").maybeSingle();
+      if (!site) return json({ error: "This wedding site isn't accepting photos" }, 403);
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const sniffed = sniffMime(bytes);
+      if (!sniffed || !sniffed.startsWith("image/")) return json({ error: "Only photos can be uploaded", code: "INVALID_MIME" }, 415);
+      const ext = sniffed.split("/")[1].replace("jpeg", "jpg");
+      const key = `guests/${siteId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+      const putRes = await r2.fetch(`${ENDPOINT}/${key}`, {
+        method: "PUT", body: bytes,
+        headers: { "Content-Type": sniffed, "Content-Length": String(bytes.byteLength) },
+      });
+      if (!putRes.ok) return json({ error: `Upload failed: ${putRes.status}` }, 500);
+      return json({ success: true, url: `${R2_PUBLIC_URL}/${key}`, key, size: bytes.byteLength });
+    }
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: authHeader } },
     });

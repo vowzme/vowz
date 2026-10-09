@@ -4,52 +4,65 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
 
 const MAX_DIMENSION = 2048;
-const QUALITY = 0.82;
+const QUALITY = 0.86;
 const MAX_IMAGE_BYTES = 25 * 1024 * 1024; // 25 MB pre-compression sanity cap
 
-async function compressImage(file: File): Promise<File> {
-  if (!file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") {
-    return file;
-  }
-  if (file.size < 200 * 1024) return file;
+function toBlob(canvas: HTMLCanvasElement, type: string, q: number) {
+  return new Promise<Blob | null>((r) => canvas.toBlob(r, type, q));
+}
 
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      let { width, height } = img;
-      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0, width, height);
-      const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
-      canvas.toBlob(
-        (blob) => {
-          if (!blob || blob.size >= file.size) {
-            resolve(file);
-            return;
-          }
-          const ext = outputType === "image/jpeg" ? ".jpg" : ".png";
-          const name = file.name.replace(/\.[^.]+$/, ext);
-          resolve(new File([blob], name, { type: outputType, lastModified: Date.now() }));
-        },
-        outputType,
-        QUALITY
-      );
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve(file);
-    };
-    img.src = url;
+/**
+ * Shrinks photos without visible quality loss: caps the long edge at 2048px
+ * (sharp on any phone or laptop screen), then saves as WebP (or JPEG where WebP
+ * isn't supported) at high quality. Keeps the original if it's already smaller.
+ */
+export async function compressImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") return file;
+  if (file.size < 200 * 1024) return file;
+  let bitmap: HTMLImageElement;
+  try {
+    bitmap = await new Promise<HTMLImageElement>((res, rej) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => { URL.revokeObjectURL(url); res(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("decode")); };
+      img.src = url;
+    });
+  } catch { return file; }
+  let { width, height } = bitmap;
+  if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+    const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+    width = Math.round(width * ratio); height = Math.round(height * ratio);
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  let blob = await toBlob(canvas, "image/webp", QUALITY);
+  let ext = ".webp";
+  if (!blob || blob.type !== "image/webp") { blob = await toBlob(canvas, "image/jpeg", QUALITY); ext = ".jpg"; }
+  if (!blob || blob.size >= file.size) return file;
+  return new File([blob], file.name.replace(/\.[^.]+$/, "") + ext, { type: blob.type, lastModified: Date.now() });
+}
+
+/** Uploads a wedding guest's photo (no sign-in needed) to R2 for a live site. */
+export async function uploadGuestPhoto(file: File, siteId: string): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("Please choose a photo.");
+  if (file.size > MAX_IMAGE_BYTES) throw new Error("Photo must be under 25 MB.");
+  const small = await compressImage(file);
+  if (small.size > 10 * 1024 * 1024) throw new Error("Photo is too large even after shrinking. Please pick a smaller one.");
+  const fd = new FormData();
+  fd.append("file", small);
+  fd.append("siteId", siteId);
+  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/r2-upload?action=guest_upload`, {
+    method: "POST", headers: { Authorization: `Bearer ${key}`, apikey: key }, body: fd,
   });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.success) throw new Error(data.error || "Upload failed");
+  return data.url as string;
 }
 
 /**

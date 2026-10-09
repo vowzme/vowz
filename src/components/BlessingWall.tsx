@@ -1,3 +1,4 @@
+import { uploadGuestPhoto } from "@/hooks/use-media-upload";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Heart, Send, Check, Loader2, Image as ImageIcon, Crown } from "lucide-react";
@@ -61,15 +62,7 @@ export default function BlessingWall({ siteId, accent, heading, description, isP
     // Upload photo if premium and file selected
     if (isPremium && photoFile) {
       try {
-        const ext = photoFile.name.split(".").pop() || "jpg";
-        const path = `${siteId}/${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from("blessing-photos")
-          .upload(path, photoFile, { upsert: true });
-        if (!upErr) {
-          const { data: urlData } = supabase.storage.from("blessing-photos").getPublicUrl(path);
-          photoUrl = urlData.publicUrl;
-        }
+        photoUrl = await uploadGuestPhoto(photoFile, siteId);
       } catch {}
     }
 
