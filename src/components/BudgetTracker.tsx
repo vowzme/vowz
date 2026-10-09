@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { csvCell } from "@/lib/csv";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IndianRupee, Plus, Trash2, Check, X, Edit3,
@@ -58,10 +59,7 @@ const BudgetTracker = ({ siteId }: BudgetTrackerProps) => {
   };
 
   const exportCsv = () => {
-    const esc = (v: unknown) => {
-      const s = v == null ? "" : String(v);
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
+    const esc = (v: unknown) => csvCell(v);
     const header = ["Title", "Category", "Amount", "Paid", "Due date", "Vendor", "Notes"];
     const rows = expenses.map((e) => [
       e.title,

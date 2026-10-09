@@ -21,14 +21,19 @@ function qrSvg(code: string, fg: string, size: number) {
   return renderToStaticMarkup(createElement(QRCodeSVG, { value: qrUrl(code), size, level: "H", fgColor: fg, bgColor: "#ffffff", marginSize: 2 }));
 }
 
-function tile(code: string, d: QrDesign, shop?: string) {
+const escapeHtml = (v: string) =>
+  String(v).replace(/[&<>"'`]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;", "`": "&#96;" })[c] as string);
+
+function tile(rawCode: string, d: QrDesign, rawShop?: string) {
+  const code = escapeHtml(rawCode);
+  const shop = rawShop ? escapeHtml(rawShop) : "";
   if (d.id === "qr-only") {
-    return `<div class="tile plain">${qrSvg(code, d.fg, 200)}<div class="code">${code}</div></div>`;
+    return `<div class="tile plain">${qrSvg(rawCode, d.fg, 200)}<div class="code">${code}</div></div>`;
   }
   return `<div class="tile poster" style="background:${d.bg};font-family:${d.font};border-color:${d.accent}">
     <div class="brand" style="color:${d.accent}">VOWZ.ME</div>
     <h2 style="color:${d.id === "floral-blush" || d.id === "modern-mono" ? d.fg : "#fff"}">${d.headline}</h2>
-    <div class="qrbox" style="border-color:${d.accent}">${qrSvg(code, d.fg, 260)}</div>
+    <div class="qrbox" style="border-color:${d.accent}">${qrSvg(rawCode, d.fg, 260)}</div>
     <p style="color:${d.id === "floral-blush" || d.id === "modern-mono" ? d.fg : "#f5f5dc"}">${d.sub}</p>
     ${shop ? `<div class="shop" style="color:${d.accent}">${shop}</div>` : ""}
     <div class="code" style="color:${d.accent}">${code}</div>
