@@ -11,6 +11,12 @@ export default function WhatsAppInviteBanner() {
         <div className="flex-1">
           <h2 className="text-xl md:text-2xl font-display font-bold">Send your wedding invitation on WhatsApp</h2>
           <p className="text-sm text-muted-foreground mt-1">Get a ready-to-send message with your invitation link, venue map and one-tap RSVP.</p>
+          <nav aria-label="Invitation guides" className="mt-2 flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-1 text-sm">
+            <Link to="/wedding-card-design" className="text-accent hover:underline">Wedding card designs</Link>
+            <Link to="/digital-wedding-invitation" className="text-accent hover:underline">Digital e-invites</Link>
+            <Link to="/wedding-invitation-video-maker" className="text-accent hover:underline">Video invitations</Link>
+            <Link to="/indian-wedding-website" className="text-accent hover:underline">Indian wedding website</Link>
+          </nav>
         </div>
         <Button asChild size="lg"><Link to="/whatsapp-wedding-invitation">See the WhatsApp invitation</Link></Button>
       </div>
