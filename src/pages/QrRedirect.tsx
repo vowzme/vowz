@@ -14,6 +14,7 @@ export default function QrRedirect() {
       const { data } = await supabase.rpc("resolve_affiliate_qr", { _code: code });
       if (done) return;
       if (data) {
+        localStorage.setItem("vowz_qr_code", code.toUpperCase());
         localStorage.setItem("shaadi_affiliate_ref", String(data).trim().toLowerCase());
         navigate(`/?ref=${encodeURIComponent(String(data))}`, { replace: true });
       } else {

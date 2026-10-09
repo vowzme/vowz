@@ -17,6 +17,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/** If this visitor arrived from a printed affiliate QR, credit that QR once they have an account. */
+function recordQrSignup() {
+  let code: string | null = null;
+  try { code = localStorage.getItem("vowz_qr_code"); } catch { return; }
+  if (!code) return;
+  setTimeout(() => {
+    supabase.rpc("record_qr_signup", { _code: code! }).then(({ error }) => {
+      if (!error) { try { localStorage.removeItem("vowz_qr_code"); } catch { /* ignore */ } }
+    });
+  }, 0);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setLoading(false);
+      if (session) recordQrSignup();
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
