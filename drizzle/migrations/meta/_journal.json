@@ -134,6 +134,13 @@
       "when": 1791510713992,
       "tag": "0018_guest_photos_allow_r2",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791515531704,
+      "tag": "0019_wedding_media_owner_only",
+      "breakpoints": true
     }
   ]
 }
