@@ -1,3 +1,4 @@
+import { QrCode } from "lucide-react";
 import {
   LayoutDashboard,
   Users,
@@ -42,6 +43,7 @@ const items = [
   { title: "Coupons", url: "/admin/coupons", icon: Ticket },
   { title: "Feature Requests", url: "/admin/feature-requests", icon: Lightbulb },
   { title: "Partners", url: "/admin/partners", icon: Network },
+  { title: "Affiliate QR Codes", url: "/admin/qr-codes", icon: QrCode },
   { title: "Vendors", url: "/admin/vendors", icon: Network },
   { title: "Card Templates", url: "/admin/card-templates", icon: Mail },
   { title: "Card Analytics", url: "/admin/card-analytics", icon: BarChart3 },
