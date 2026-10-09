@@ -1,11 +1,12 @@
 type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
 let deferred: BIPEvent | null = null;
+let installedAt = 0;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
 if (typeof window !== "undefined") {
   window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e as BIPEvent; emit(); });
-  window.addEventListener("appinstalled", () => { deferred = null; localStorage.setItem("vowz_app_installed", "1"); emit(); });
+  window.addEventListener("appinstalled", () => { deferred = null; installedAt = Date.now(); localStorage.setItem("vowz_app_installed", "1"); emit(); });
 }
 
 export const subscribeInstall = (fn: () => void) => { listeners.add(fn); return () => { listeners.delete(fn); }; };
@@ -26,6 +27,7 @@ export async function promptInstall(): Promise<boolean> {
 
 export const waitForInstalled = (ms = 15000) =>
   new Promise<boolean>((res) => {
+    if (installedAt && Date.now() - installedAt < 60000) return res(true);
     const t = setTimeout(() => res(false), ms);
     window.addEventListener("appinstalled", () => { clearTimeout(t); res(true); }, { once: true });
   });

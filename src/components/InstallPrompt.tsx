@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 import InstallAppPanel from "@/components/InstallAppPanel";
-import { canPromptInstall, isInIframe, isStandalone, subscribeInstall } from "@/lib/pwa-install";
+import { canPromptInstall, isInIframe, isIOS, isStandalone, subscribeInstall } from "@/lib/pwa-install";
 
 const KEY = "vowz_install_dismissed_at";
 
@@ -14,9 +14,12 @@ export default function InstallPrompt() {
     const t = Number(localStorage.getItem(KEY) || 0);
     return Date.now() - t < 14 * 86400000;
   });
+  const [shown, setShown] = useState(false);
   useEffect(() => subscribeInstall(() => force((n) => n + 1)), []);
+  const available = canPromptInstall() || isIOS();
+  useEffect(() => { if (available) setShown(true); }, [available]);
   const blocked = pathname.startsWith("/site/") || pathname.startsWith("/admin") || pathname.startsWith("/card/") || pathname === "/install";
-  if (hidden || blocked || isStandalone() || isInIframe() || !canPromptInstall()) return null;
+  if (hidden || blocked || isStandalone() || isInIframe() || !(available || shown)) return null;
   return (
     <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:w-96 z-50 rounded-xl border bg-card shadow-lg p-4">
       <button aria-label="Close" className="absolute top-2 right-2 text-muted-foreground" onClick={() => { localStorage.setItem(KEY, String(Date.now())); setHidden(true); }}>
