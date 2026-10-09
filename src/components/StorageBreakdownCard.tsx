@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { csvCell } from "@/lib/csv";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBytes, useStorageQuota } from "@/hooks/use-storage-quota";
@@ -169,7 +170,7 @@ const StorageBreakdownCard = () => {
   };
 
   const handleExportCSV = () => {
-    const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+    const esc = (v: string | number) => csvCell(v);
     const header = ["Category", "File Count", "Total Bytes", "Total MB", "% of Storage"];
     const body = rows
       .slice()
