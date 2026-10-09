@@ -1,3 +1,4 @@
+import { uploadGuestPhoto } from "@/hooks/use-media-upload";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Camera, Loader2, Send, Image as ImageIcon } from "lucide-react";
@@ -95,18 +96,13 @@ export default function GuestAlbum({ siteId, accent, heading, description, track
       toast({ title: "Add your name and a photo", variant: "destructive" });
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast({ title: "Photo too large", description: "Max 10 MB per photo.", variant: "destructive" });
+    if (file.size > 25 * 1024 * 1024) {
+      toast({ title: "Photo too large", description: "Max 25 MB per photo.", variant: "destructive" });
       return;
     }
     setSubmitting(true);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${siteId}/album/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("blessing-photos").upload(path, file, { upsert: false });
-      if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("blessing-photos").getPublicUrl(path);
-      const photoUrl = urlData.publicUrl;
+      const photoUrl = await uploadGuestPhoto(file, siteId);
       const { error } = await supabase
         .from("guest_album_posts" as any)
         .insert({
