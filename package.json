@@ -123,5 +123,11 @@
     "vite": "^5.4.19",
     "vitest": "^3.2.4",
     "workbox-window": "^7.4.1"
+  },
+  "overrides": {
+    "lodash": "^4.17.23",
+    "ws": "^8.21.0",
+    "fflate": "^0.8.3",
+    "dompurify": "^3.4.12"
   }
 }
