@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toCsv } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,10 +51,6 @@ function emailBadge(status: string | null | undefined) {
   return <Badge className={cls}>{s}</Badge>;
 }
 
-function csvCell(v: unknown) {
-  const s = v === null || v === undefined ? "" : String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
 
 export default function AdminRsvps() {
   const [range, setRange] = useState<RangeKey>("30d");
@@ -181,7 +178,7 @@ export default function AdminRsvps() {
         r.message || "",
       ];
     });
-    const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+    const csv = toCsv([header, ...rows]);
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
