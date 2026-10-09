@@ -32,6 +32,73 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_qr_codes: {
+        Row: {
+          affiliate_id: string | null
+          assigned_at: string | null
+          assigned_by: string | null
+          batch_label: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          design: string
+          id: string
+          last_scanned_at: string | null
+          notes: string | null
+          scan_count: number
+        }
+        Insert: {
+          affiliate_id?: string | null
+          assigned_at?: string | null
+          assigned_by?: string | null
+          batch_label?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          design?: string
+          id?: string
+          last_scanned_at?: string | null
+          notes?: string | null
+          scan_count?: number
+        }
+        Update: {
+          affiliate_id?: string | null
+          assigned_at?: string | null
+          assigned_by?: string | null
+          batch_label?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          design?: string
+          id?: string
+          last_scanned_at?: string | null
+          notes?: string | null
+          scan_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_qr_codes_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_public_lookup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_qr_codes_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_qr_codes_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_sub_affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliate_referrals: {
         Row: {
           affiliate_id: string
@@ -3164,6 +3231,7 @@ export type Database = {
           requires_password: boolean
         }[]
       }
+      resolve_affiliate_qr: { Args: { _code: string }; Returns: string }
       site_accepts_rsvp: { Args: { _site_id: string }; Returns: boolean }
       site_has_password: { Args: { _site_id: string }; Returns: boolean }
       submit_rsvp_by_invite: {
