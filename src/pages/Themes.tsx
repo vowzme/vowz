@@ -18,6 +18,7 @@ import { buildThemeSections, buildThemeTemplate } from "@/lib/theme-templates";
 import { THEME_CATEGORIES } from "@/lib/theme-demo-sites";
 import { supabase } from "@/integrations/supabase/client";
 import { mergeSections } from "@/lib/theme-merge";
+import { trackPlatformEvent } from "@/lib/platform-analytics";
 import { PersonalizeSiteDialog, type PersonalizeValues } from "@/components/PersonalizeSiteDialog";
 
 /** How many designs each category shows before "Load more". */
@@ -458,7 +459,9 @@ export default function Themes() {
 
   // One-click: seed a whole new site from the theme's tradition-specific template.
   // If the user already has a site, ask whether to replace or merge template content.
+  useEffect(() => { trackPlatformEvent("themes_view", { dedupeKey: "themes_view" }); }, []);
   const startFromTemplate = async (t: WeddingTheme) => {
+    trackPlatformEvent("theme_pick", { meta: { theme: t.id }, dedupeKey: `pick:${t.id}` });
     if (!user) {
       navigate("/auth", { state: { returnTo: "/themes" } });
       return;
@@ -508,6 +511,7 @@ export default function Themes() {
         bodyFont: c.bodyFont,
       });
       if (site) {
+        trackPlatformEvent("theme_site_created", { meta: { theme: t.id, custom: isCustom } });
         setPersonalize(null);
         toast({ title: "Your site is ready", description: "Tap any section in the editor to change text, photos and colors." });
         navigate(`/editor/${(site as any).id}`);
@@ -518,6 +522,7 @@ export default function Themes() {
   };
 
   const startCustomDesign = async () => {
+    trackPlatformEvent("theme_pick", { meta: { theme: "custom" }, dedupeKey: "pick:custom" });
     if (!user) { navigate("/auth", { state: { returnTo: "/themes" } }); return; }
     const existing = await loadUserSite();
     if (existing) {

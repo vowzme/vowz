@@ -51,7 +51,10 @@ export type PlatformEventType =
   | "page_view"
   | "signup_started"
   | "signup_completed"
-  | "cta_click";
+  | "cta_click"
+  | "themes_view"
+  | "theme_pick"
+  | "theme_site_created";
 
 export async function trackPlatformEvent(
   eventType: PlatformEventType,
